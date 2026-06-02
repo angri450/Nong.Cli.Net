@@ -1,0 +1,159 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>ThirdParty</RootNamespace>
+    <AssemblyName>Angri450.Nong.ThirdParty</AssemblyName>
+    <PackageId>Angri450.Nong.ThirdParty</PackageId>
+    <Version>3.0.2</Version>
+    <Authors>angri450</Authors>
+    <Description>Merged source of ClosedXML, DocumentFormat.OpenXml, ScottPlot, MSAGL, SkiaSharp, HarfBuzzSharp, SixLabors.Fonts and all sub-dependencies — compiled into a single assembly. Zero-external-dependency foundation for the Angri450.Nong document generation toolkit.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/angri450/Nong.NET</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>closedxml openxml scottplot msagl skiasharp harfbuzz excel chart diagram document-generation</PackageTags>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <LangVersion>12</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsTrimmable>true</IsTrimmable>
+    <NoWarn>$(NoWarn);CS1591;CS1570;CS1572;CS1573;CS1574;CS1587;CS1712;CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625;CS8765;CS8767;CS8769;CS0618;CS0612;CS0168;CS0219;CS0414;CS0162;CS1998;CS1584;NU1605;IL2050</NoWarn>
+    <DefineConstants>$(DefineConstants);USE_LIBRARY_IMPORT</DefineConstants>
+    <!-- OpenXml source generator flags -->
+    <DocumentFormat_OpenXml_Generator_NamespaceLookup>true</DocumentFormat_OpenXml_Generator_NamespaceLookup>
+    <DocumentFormat_OpenXml_Generator_Parts>true</DocumentFormat_OpenXml_Generator_Parts>
+    <DocumentFormat_OpenXml_Generator_Schemas>true</DocumentFormat_OpenXml_Generator_Schemas>
+    <DocumentFormat_OpenXml_Generator_Factories>true</DocumentFormat_OpenXml_Generator_Factories>
+  </PropertyGroup>
+
+  <!-- ===== Source files from all third-party libraries ===== -->
+
+  <!-- Specific common/ shim files needed by OpenXml (not polyfills) -->
+  <ItemGroup>
+    <Compile Include="..\common\System\EnumExtensions.cs" Link="Shims\EnumExtensions.cs" />
+    <Compile Include="..\common\System\IO\StreamReadExtensions.cs" Link="Shims\StreamReadExtensions.cs" />
+  </ItemGroup>
+
+  <!-- SkiaSharp / HarfBuzzSharp shared bindings — exclude original with conditional namespace and polyfills -->
+  <ItemGroup>
+    <Compile Include="..\Binding.Shared\**\*.cs" Exclude="..\Binding.Shared\DelegateProxies.shared.cs;..\Binding.Shared\HashCode.cs" Link="Binding.Shared\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!-- UnicodeTrieGenerator (used by SixLabors.Fonts — only 3 specific files) -->
+  <ItemGroup>
+    <Compile Include="..\UnicodeTrieGenerator\StateAutomation\StateMachine.cs" Link="Unicode\StateAutomation\StateMachine.cs" />
+    <Compile Include="..\UnicodeTrieGenerator\StateAutomation\INode.cs" Link="Unicode\StateAutomation\INode.cs" />
+    <Compile Include="..\UnicodeTrieGenerator\StateAutomation\SymbolTable.cs" Link="Unicode\StateAutomation\SymbolTable.cs" />
+  </ItemGroup>
+
+  <!-- SixLabors.Fonts shared infrastructure -->
+  <ItemGroup>
+    <Compile Include="..\SixLabors.Fonts\shared-infrastructure\src\SharedInfrastructure\*.cs" Link="SharedInfrastructure\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!-- Main third-party libraries (exclude bin/obj/common polyfills) -->
+  <ItemGroup>
+    <Compile Include="..\ClosedXML\**\*.cs" Exclude="..\ClosedXML\bin\**\*;..\ClosedXML\obj\**\*" />
+    <Compile Include="..\ClosedXML.IO\**\*.cs" Exclude="..\ClosedXML.IO\bin\**\*;..\ClosedXML.IO\obj\**\*" />
+    <Compile Include="..\ClosedXML.Parser\**\*.cs" Exclude="..\ClosedXML.Parser\bin\**\*;..\ClosedXML.Parser\obj\**\*" />
+    <Compile Include="..\DocumentFormat.OpenXml\**\*.cs" Exclude="..\DocumentFormat.OpenXml\bin\**\*;..\DocumentFormat.OpenXml\obj\**\*;..\DocumentFormat.OpenXml\common\**\*" />
+    <Compile Include="..\DocumentFormat.OpenXml.Framework\**\*.cs" Exclude="..\DocumentFormat.OpenXml.Framework\bin\**\*;..\DocumentFormat.OpenXml.Framework\obj\**\*" />
+    <Compile Include="..\ExcelNumberFormat\**\*.cs" Exclude="..\ExcelNumberFormat\bin\**\*;..\ExcelNumberFormat\obj\**\*" />
+    <Compile Include="..\HarfBuzzSharp\**\*.cs" Exclude="..\HarfBuzzSharp\bin\**\*;..\HarfBuzzSharp\obj\**\*" />
+    <Compile Include="..\MSAGL\**\*.cs" Exclude="..\MSAGL\bin\**\*;..\MSAGL\obj\**\*" />
+    <Compile Include="..\MSAGL.Drawing\**\*.cs" Exclude="..\MSAGL.Drawing\bin\**\*;..\MSAGL.Drawing\obj\**\*" />
+    <Compile Include="..\RBush\**\*.cs" Exclude="..\RBush\bin\**\*;..\RBush\obj\**\*" />
+    <Compile Include="..\ScottPlot\**\*.cs" Exclude="..\ScottPlot\bin\**\*;..\ScottPlot\obj\**\*;..\ScottPlot\Testing\**\*;..\ScottPlot\Statistics\Tests\**\*" />
+    <Compile Include="..\SixLabors.Fonts\**\*.cs" Exclude="..\SixLabors.Fonts\bin\**\*;..\SixLabors.Fonts\obj\**\*;..\SixLabors.Fonts\shared-infrastructure\**\*" />
+    <Compile Include="..\SkiaSharp\**\*.cs" Exclude="..\SkiaSharp\bin\**\*;..\SkiaSharp\obj\**\*" />
+    <Compile Include="..\SkiaSharp.HarfBuzz\**\*.cs" Exclude="..\SkiaSharp.HarfBuzz\bin\**\*;..\SkiaSharp.HarfBuzz\obj\**\*" />
+  </ItemGroup>
+
+  <!-- Remove conflicting files (assembly attributes, type forwards, polyfills) -->
+  <ItemGroup>
+    <Compile Remove="..\**\AssemblyInfo.cs" />
+    <Compile Remove="..\**\*AssemblyInfo.cs" />
+    <Compile Remove="..\DocumentFormat.OpenXml\TypeForwards.cs" />
+    <Compile Remove="..\DocumentFormat.OpenXml.Framework\Properties\Properties.cs" />
+    <Compile Remove="..\ScottPlot\Usings.cs" />
+    <Compile Remove="..\ScottPlot\**\CompilerServices.cs" />
+    <Compile Remove="..\ClosedXML\Properties\**\*" />
+    <Compile Remove="..\MSAGL.Drawing\AssemblyInfo.cs" />
+    <Compile Remove="..\MSAGL\AssemblyInfo.cs" />
+    <Compile Remove="..\HarfBuzzSharp\DelegateProxies.cs" />
+  </ItemGroup>
+
+  <!-- OpenXml Source Generator infrastructure (borrowed from OpenXmlSourceGenerator.targets) -->
+  <Import Project="..\data\OpenXmlData.targets" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\DocumentFormat.OpenXml.Generator\DocumentFormat.OpenXml.Generator.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false"
+                      SkipGetTargetFrameworkProperties="true" GlobalPropertiesToRemove="TargetFramework" />
+    <ProjectReference Include="..\DocumentFormat.OpenXml.Generator.Models\DocumentFormat.OpenXml.Generator.Models.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false"
+                      SkipGetTargetFrameworkProperties="true" GlobalPropertiesToRemove="TargetFramework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="@(OpenXmlDataNamespace)" OpenXml="Namespace" LinkBase="data" />
+    <AdditionalFiles Include="@(OpenXmlDataSchematron)" OpenXml="Schematron" LinkBase="data" />
+    <AdditionalFiles Include="@(OpenXmlDataPart)" OpenXml="Part" LinkBase="data/parts" />
+    <AdditionalFiles Include="@(OpenXmlDataSchema)" OpenXml="Schema" LinkBase="data/schema" />
+    <AdditionalFiles Include="@(OpenXmlDataTypedNamespace)" OpenXml="TypedNamespace" LinkBase="data/typed" />
+    <AdditionalFiles Include="@(OpenXmlDataTypedSchema)" OpenXml="TypedSchema" LinkBase="data/typed" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="OpenXml" />
+    <CompilerVisibleProperty Include="DocumentFormat_OpenXml_Generator_NamespaceLookup" />
+    <CompilerVisibleProperty Include="DocumentFormat_OpenXml_Generator_Parts" />
+    <CompilerVisibleProperty Include="DocumentFormat_OpenXml_Generator_Schemas" />
+    <CompilerVisibleProperty Include="DocumentFormat_OpenXml_Generator_Factories" />
+    <CompilerVisibleProperty Include="DocumentFormat_OpenXml_Generator_Linq" />
+  </ItemGroup>
+
+  <!-- Embedded resources (LogicalName must match ClosedXML hardcoded paths) -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\ClosedXML\Graphics\Fonts\CarlitoBare-Bold.ttf">
+      <LogicalName>ClosedXML.Graphics.Fonts.CarlitoBare-Bold.ttf</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\ClosedXML\Graphics\Fonts\CarlitoBare-BoldItalic.ttf">
+      <LogicalName>ClosedXML.Graphics.Fonts.CarlitoBare-BoldItalic.ttf</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\ClosedXML\Graphics\Fonts\CarlitoBare-Italic.ttf">
+      <LogicalName>ClosedXML.Graphics.Fonts.CarlitoBare-Italic.ttf</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\ClosedXML\Graphics\Fonts\CarlitoBare-Regular.ttf">
+      <LogicalName>ClosedXML.Graphics.Fonts.CarlitoBare-Regular.ttf</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- OpenXml validation resources (.resx compiled to .resources by SDK) -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\DocumentFormat.OpenXml.Framework\Resources\ExceptionMessages.resx">
+      <CustomToolNamespace>DocumentFormat.OpenXml</CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\DocumentFormat.OpenXml.Framework\Validation\ValidationResources.resx">
+      <CustomToolNamespace>DocumentFormat.OpenXml.Validation</CustomToolNamespace>
+      <LogicalName>DocumentFormat.OpenXml.Validation.ValidationResources.resources</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- NuGet dependencies -->
+  <ItemGroup>
+    <PackageReference Include="System.IO.Packaging" Version="10.0.2" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.0" />
+    <PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="3.119.0" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.0" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" Version="8.3.1.1" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.macOS" Version="8.3.1.1" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="8.3.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>

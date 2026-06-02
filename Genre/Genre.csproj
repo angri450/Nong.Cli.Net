@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Nong.Genre</RootNamespace>
+    <AssemblyName>Angri450.Nong.Genre</AssemblyName>
+    <PackageId>Angri450.Nong.Genre</PackageId>
+    <Version>3.0.0</Version>
+    <Authors>angri450</Authors>
+    <Description>Document format template library. Pure JSON templates for journal papers, degree theses, contest papers, defense PPTs, official documents, and business letters. No code — just format definitions.</Description>
+    <DebugType>embedded</DebugType>
+    <DeterministicSourcePaths>true</DeterministicSourcePaths>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/angri450/Nong.NET</RepositoryUrl>
+    <PackageTags>nong agriculture genre template format json paper thesis official-document letter ppt</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="templates\**\*.json" LogicalName="Nong.Genre.templates.%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

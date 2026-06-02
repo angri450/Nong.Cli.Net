@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>MultiModalCore</RootNamespace>
+    <AssemblyName>Angri450.Nong.MultiModal</AssemblyName>
+    <PackageId>Angri450.Nong.MultiModal</PackageId>
+    <Version>3.0.6</Version>
+    <Authors>angri450</Authors>
+    <Description>多模态文档处理库 — OCR、语音转文字、文字转语音。首个能力：PaddleOCR-VL-1.6 云端 API + 本地 PaddleOCR CPU 混合识别。</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/angri450/Nong.NET</RepositoryUrl>
+    <PackageTags>ocr multimodal paddleocr document-parsing speech recognition</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Docx\DocxCore.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+    <None Include="scripts\ocr_local.py" Pack="true" PackagePath="scripts/" />
+  </ItemGroup>
+</Project>

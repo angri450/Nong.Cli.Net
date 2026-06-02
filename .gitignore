@@ -1,0 +1,8 @@
+bin/
+obj/
+*.nupkg
+*.user
+.vs/
+tests-output/*/bin/
+tests-output/*/obj/
+tests-output/09-skillmanager/

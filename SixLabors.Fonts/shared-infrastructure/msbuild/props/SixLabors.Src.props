@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+  <!-- Compilation and build location settings. -->
+  <PropertyGroup>
+    <SixLaborsProjectCategory>src</SixLaborsProjectCategory>
+    <CodeAnalysisRuleSet Condition="'$(CodeAnalysisRuleSet)' == ''">$(MSBuildThisFileDirectory)..\..\sixlabors.ruleset</CodeAnalysisRuleSet>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- Common NuGet package settings. -->
+  <PropertyGroup>
+    <Copyright>Copyright © Six Labors</Copyright>
+    <Authors>Six Labors and contributors</Authors>
+    <Company>Six Labors</Company>
+    <VersionPrefix>0.0.1</VersionPrefix>
+    <VersionPrefix Condition="'$(packageversion)' != ''">$(PackageVersion)</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
+    <RepositoryType>git</RepositoryType>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
+  <!-- 
+    Define Environmental conditionals. Determined by environmental settings set in build-and-test.yml 
+    -->
+  <PropertyGroup>
+    <IsContinuousIntegration Condition="'$(CI)' == 'true'">true</IsContinuousIntegration>
+    <IsCodeCoverage Condition="'$(codecov)' == 'true'">true</IsCodeCoverage>
+  </PropertyGroup>
+
+  <!-- Deterministic settings. CI only .-->
+  <PropertyGroup Condition="'$(IsContinuousIntegration)'=='true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <!--MinVer Properties for versioning. CI only-->
+  <PropertyGroup Condition="'$(IsContinuousIntegration)'=='true'">
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+    <MinVerVerbosity>normal</MinVerVerbosity>
+  </PropertyGroup>
+
+  <!-- 
+      Package reference to the license project which is consumed by src projects
+      This is a dev only reference. See the SixLabors.Src.targets file for usage.
+   -->
+  <ItemGroup>
+    <PackageReference
+        Include="SixLabors.Licensing"
+        Version="1.0.1"
+        PrivateAssets="all"
+        GeneratePathProperty="true"
+        Condition="'$(PackageId)' != 'SixLabors.Licensing' and '$(MSBuildProjectName)' != 'SixLabors.Licensing'" />
+  </ItemGroup>
+
+  <!-- Package references and additional files which are consumed by src projects. CI Only -->
+  <ItemGroup Condition="'$(IsContinuousIntegration)'=='true'">
+    <PackageReference Include="Microsoft.SourceLink.GitHub"
+                      Version="8.0.0"
+                      PrivateAssets="All"
+                      IsImplicitlyDefined="true" />
+
+    <PackageReference Include="MinVer"
+                      PrivateAssets="All"
+                      Version="4.3.0"
+                      IsImplicitlyDefined="true"/>
+  </ItemGroup>
+
+</Project>

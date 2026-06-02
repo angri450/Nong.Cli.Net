@@ -1,0 +1,30 @@
+{
+  "source": "答辩 PPT 通用规范",
+  "category": "defense-ppt",
+  "formatName": "Defense PPT (Bachelor/Master/Doctor)",
+  "slideSize": { "width": "33.867cm", "height": "19.05cm" },
+  "theme": {
+    "primaryColor": "003366",
+    "accentColor": "0066CC",
+    "backgroundColor": "FFFFFF",
+    "textColor": "333333"
+  },
+  "fonts": {
+    "titleFont": "黑体",
+    "titleSize": "36pt",
+    "bodyFont": "宋体",
+    "bodySize": "24pt",
+    "latinFont": "Times New Roman"
+  },
+  "layout": {
+    "titleSlide": { "titleY": "5cm", "subtitleY": "9cm", "hasLogo": true, "hasUniversity": true },
+    "contentSlide": { "titleY": "1.5cm", "bodyY": "4cm", "hasPageNumber": true },
+    "sectionSlide": { "titleY": "7cm", "style": "centered" }
+  },
+  "patterns": {
+    "maxSlides": 40,
+    "recommendedSections": ["研究背景", "研究目的与意义", "材料与方法", "结果与分析", "讨论", "结论", "致谢"],
+    "chartStyle": "academic",
+    "tableStyle": "threeLine"
+  }
+}

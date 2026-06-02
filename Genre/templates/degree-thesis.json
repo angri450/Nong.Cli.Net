@@ -1,0 +1,31 @@
+{
+  "source": "GB/T 7714-2015 + 学位论文规范",
+  "category": "degree-thesis",
+  "formatName": "Degree Thesis (Bachelor/Master/Doctor)",
+  "page": {
+    "size": "A4",
+    "marginTop": "2.5cm",
+    "marginBottom": "2.5cm",
+    "marginLeft": "3cm",
+    "marginRight": "2.5cm"
+  },
+  "styles": {
+    "Title": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "36", "bold": true, "alignment": "center", "lineSpacing": "400" },
+    "SubTitle": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "32", "bold": false, "alignment": "center", "lineSpacing": "360" },
+    "Heading1": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "32", "bold": true, "alignment": "left", "lineSpacing": "340" },
+    "Heading2": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "28", "bold": true, "alignment": "left", "lineSpacing": "320" },
+    "Heading3": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "24", "bold": true, "alignment": "left", "lineSpacing": "300" },
+    "Normal": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "24", "firstLineIndent": "480", "lineSpacing": "360", "alignment": "both" },
+    "AbstractTitle": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "24", "bold": true, "alignment": "center", "lineSpacing": "300" },
+    "Abstract": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "24", "alignment": "both", "lineSpacing": "300" },
+    "BibHeading": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "24", "bold": true, "alignment": "left", "lineSpacing": "300" },
+    "EnglishTitle": { "fontCJK": "Times New Roman", "fontLatin": "Times New Roman", "fontSize": "32", "bold": true, "alignment": "center", "lineSpacing": "380" }
+  },
+  "patterns": {
+    "referenceFormat": "[1] [2] [3]",
+    "headingNumbering": "第一章  1.1  1.1.1",
+    "firstLineIndent": "480",
+    "citationStyle": "superscript",
+    "coverPage": true
+  }
+}

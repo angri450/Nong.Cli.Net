@@ -1,0 +1,31 @@
+{
+  "source": "竞赛论文规范",
+  "category": "contest-paper",
+  "formatName": "Contest Paper (Life Sciences / Other)",
+  "page": {
+    "size": "A4",
+    "marginTop": "2cm",
+    "marginBottom": "2cm",
+    "marginLeft": "2cm",
+    "marginRight": "2cm"
+  },
+  "styles": {
+    "Title": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "28", "bold": false, "alignment": "center", "lineSpacing": "360" },
+    "Heading1": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "28", "bold": true, "alignment": "left", "lineSpacing": "320" },
+    "Heading2": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "24", "bold": true, "alignment": "left", "lineSpacing": "300" },
+    "Heading3": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "21", "bold": true, "alignment": "left", "lineSpacing": "280" },
+    "Normal": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "21", "firstLineIndent": "420", "lineSpacing": "240", "alignment": "both" },
+    "AbstractTitle": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "18", "bold": true, "alignment": "center", "lineSpacing": "240" },
+    "Abstract": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "18", "firstLineIndent": "420", "lineSpacing": "240", "alignment": "both" },
+    "BibHeading": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "18", "bold": true, "alignment": "left", "lineSpacing": "240" },
+    "EnglishTitle": { "fontCJK": "Times New Roman", "fontLatin": "Times New Roman", "fontSize": "28", "bold": true, "alignment": "center", "lineSpacing": "360" }
+  },
+  "patterns": {
+    "referenceFormat": "[1] [2] [3]",
+    "headingNumbering": "1  1.1  1.1.1",
+    "firstLineIndent": "420",
+    "citationStyle": "superscript",
+    "maxPages": 4,
+    "noPersonalInfo": true
+  }
+}

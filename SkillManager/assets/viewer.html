@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eval Manager</title>
+<style>
+:root {
+  --font-heading: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-body: Georgia, 'Times New Roman', serif;
+  --bg: #faf9f5;
+  --surface: #ffffff;
+  --border: #e8e6dc;
+  --text: #141413;
+  --text-muted: #b0aea5;
+  --accent: #d97757;
+  --accent-hover: #c4613f;
+  --green: #788c5d;
+  --green-bg: #eef2e8;
+  --red: #c44;
+  --red-bg: #fceaea;
+  --header-bg: #141413;
+  --header-text: #faf9f5;
+  --radius: 6px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Lora', Georgia, serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  background: var(--header-bg);
+  color: var(--header-text);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 1rem;
+}
+.header h1 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.lang-btn {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--header-text);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.lang-btn:hover { background: rgba(255,255,255,0.15); }
+.lang-btn.active { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.6); }
+
+.tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 1.5rem;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.tab-btn {
+  font-family: 'Poppins', sans-serif;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+.panel { display: none; flex: 1; flex-direction: column; gap: 1rem; }
+.panel.active { display: flex; }
+
+/* Eval Library */
+.eval-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.eval-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.eval-card:hover { border-color: var(--accent); }
+.eval-card .info h3 { font-size: 0.9rem; margin-bottom: 0.15rem; }
+.eval-card .info .meta { font-size: 0.75rem; color: var(--text-muted); }
+.eval-card .actions { display: flex; gap: 0.4rem; }
+.btn-sm {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  cursor: pointer;
+  color: var(--text);
+}
+.btn-sm.danger { color: var(--red); border-color: var(--red); }
+.btn-sm:hover { background: var(--bg); }
+.btn-primary {
+  font-family: 'Poppins', sans-serif;
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+.empty { color: var(--text-muted); font-style: italic; padding: 2rem; text-align: center; }
+
+/* Form */
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.section-header {
+  font-family: 'Poppins', sans-serif;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.section-body { padding: 0.9rem; }
+.form-row { margin-bottom: 0.75rem; }
+.form-row label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--text-muted);
+}
+.form-row input, .form-row textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+.form-row textarea { min-height: 80px; resize: vertical; }
+.form-row input:focus, .form-row textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Review panel (inherits styles from existing viewer) */
+.prompt-text { white-space: pre-wrap; font-size: 0.9375rem; line-height: 1.6; }
+.output-file { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.output-file + .output-file { margin-top: 0.75rem; }
+.output-file-header {
+  padding: 0.4rem 0.6rem; font-size: 0.75rem; font-weight: 600;
+  color: var(--text-muted); background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  font-family: monospace;
+}
+.output-file-content { padding: 0.6rem; }
+.output-file-content pre {
+  font-size: 0.8rem; line-height: 1.5; white-space: pre-wrap;
+  word-break: break-word; font-family: monospace;
+}
+.feedback-textarea {
+  width: 100%; min-height: 80px; padding: 0.6rem;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  font-family: inherit; font-size: 0.9rem; line-height: 1.5;
+  resize: vertical; color: var(--text);
+}
+.feedback-textarea:focus { outline: none; border-color: var(--accent); }
+.feedback-status { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.4rem; }
+.nav {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.75rem 1.5rem; border-top: 1px solid var(--border);
+  background: var(--surface); flex-shrink: 0;
+}
+.nav-btn {
+  font-family: 'Poppins', sans-serif; padding: 0.4rem 1rem;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); cursor: pointer; font-size: 0.8rem;
+  color: var(--text);
+}
+.nav-btn:hover:not(:disabled) { background: var(--bg); }
+.nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.toast {
+  position: fixed; bottom: 4rem; left: 50%; transform: translateX(-50%);
+  background: var(--header-bg); color: var(--header-text);
+  padding: 0.5rem 1rem; border-radius: var(--radius); font-size: 0.8rem;
+  opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 200;
+}
+.toast.visible { opacity: 1; }
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  z-index: 100; justify-content: center; align-items: center;
+}
+.modal-overlay.visible { display: flex; }
+.modal-card {
+  background: var(--surface); border-radius: 12px; padding: 1.5rem 2rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 500px; width: 90%;
+}
+.modal-card h2 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+.modal-card .btn-row { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Eval Manager</h1>
+  <div class="header-right">
+    <button class="lang-btn active" onclick="switchLang('en')">EN</button>
+    <button class="lang-btn" onclick="switchLang('zh')">中文</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="library" onclick="switchTab('library')" id="tab-library">Library</button>
+  <button class="tab-btn" data-tab="editor" onclick="switchTab('editor')" id="tab-editor" style="display:none;">Editor</button>
+  <button class="tab-btn" data-tab="review" onclick="switchTab('review')" id="tab-review">Review</button>
+  <button class="tab-btn" data-tab="records" onclick="switchTab('records')" id="tab-records">Records</button>
+</div>
+
+<!-- Library panel -->
+<div class="panel active" id="panel-library"></div>
+
+<!-- Editor panel -->
+<div class="panel" id="panel-editor"></div>
+
+<!-- Review panel -->
+<div class="panel" id="panel-review"></div>
+
+<!-- Session Records panel -->
+<div class="panel" id="panel-records"></div>
+
+<div class="toast" id="toast"></div>
+<div class="modal-overlay" id="modal">
+  <div class="modal-card" id="modal-content"></div>
+</div>
+
+<script>
+// ============ I18N ============
+const T = {
+  en: {
+    library: "Library", editor: "Editor", review: "Review", records: "Records",
+    myEvals: "My Evals", newEval: "New Eval Set", noEvals: "No eval sets yet. Click 'New Eval Set' to create one.",
+    skillName: "Skill Name", evals: "evals", delete: "Delete", edit: "Edit", run: "Run",
+    cancel: "Cancel", save: "Save", create: "Create",
+    prompt: "Prompt", expectedOutput: "Expected Output", expectations: "Expectations (one per line)",
+    addEval: "Add Test Case", removeEval: "Remove",
+    evalSetName: "Eval set name (e.g. skill-manager)", newEvalPrompt: "New test case",
+    noRuns: "No review runs yet. Run an eval set to see results here.",
+    feedback: "Your Feedback", saved: "Saved",
+    prevBtn: "Previous", nextBtn: "Next",
+    confirmDeleteTitle: "Confirm Delete", confirmDeleteBody: "Delete this eval set? This cannot be undone.",
+    ok: "OK",
+    output: "Output", outputs: "Outputs", noOutput: "No output files found",
+    howToRun: "How to run", howToRunBody: "Tell the AI agent to run this eval set:",
+    // Records tab
+    sessionRecords: "Session Records", noRecords: "No session records yet. Errors that AI encounters and fixes during skill usage will appear here automatically.",
+    downloadAll: "Download All (.zip)", sendToMaintainer: "Send to maintainer",
+    date: "Date", skillsInvolved: "Skills", issues: "issues", resolved: "resolved", unresolved: "unresolved",
+    howItWorks: "How it works",
+    howItWorksBody: "When AI encounters and fixes errors while using skills, it automatically appends a JSON line to ~/Documents/skill-manager/session-records/YYYY-MM-DD.jsonl. No action needed from you. Come back anytime to review and send."
+  },
+  zh: {
+    library: "评测库", editor: "编辑器", review: "查看结果", records: "会话记录",
+    myEvals: "我的评测集", newEval: "新建评测集", noEvals: "还没有评测集。点击「新建评测集」创建一个。",
+    skillName: "技能名称", evals: "条测试", delete: "删除", edit: "编辑", run: "运行",
+    cancel: "取消", save: "保存", create: "创建",
+    prompt: "测试提示词", expectedOutput: "期望输出", expectations: "期望检查项（每行一个）",
+    addEval: "添加测试用例", removeEval: "删除此条",
+    evalSetName: "评测集名称（例如：skill-manager）", newEvalPrompt: "新建测试用例",
+    noRuns: "还没有评测运行结果。让 AI 运行一个评测集后，结果会显示在这里。",
+    feedback: "反馈意见", saved: "已保存",
+    prevBtn: "上一条", nextBtn: "下一条",
+    confirmDeleteTitle: "确认删除", confirmDeleteBody: "确定要删除这个评测集吗？此操作无法撤销。",
+    ok: "好的",
+    output: "输出", outputs: "输出文件", noOutput: "没有输出文件",
+    howToRun: "如何运行", howToRunBody: "告诉 AI 助手运行这个评测集：",
+    sessionRecords: "会话记录", noRecords: "还没有会话记录。AI 在使用 skill 时自动修复的错误会显示在这里。",
+    downloadAll: "打包下载 (.zip)", sendToMaintainer: "发给维护者",
+    date: "日期", skillsInvolved: "涉及技能", issues: "条记录", resolved: "已解决", unresolved: "未解决",
+    howItWorks: "工作原理",
+    howItWorksBody: "AI 遇到并修复错误时，自动追加一行到 ~/Documents/skill-manager/session-records/当天日期.jsonl。全自动，无需操作。随时回来看。"
+  }
+};
+let lang = 'en';
+function t(key) { return (T[lang] && T[lang][key]) || key; }
+function switchLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.trim() === (l==='en'?'EN':'中文')));
+  refreshUI();
+}
+
+// ============ State ============
+let evals = [];
+let runs = [];
+let currentEvalIndex = 0;
+let editingEval = null; // null = new, object = editing existing
+let reviewIndex = 0;
+let feedbackStore = {};
+
+// ============ Init ============
+function init() {
+  evals = EMBEDDED_DATA.evals || [];
+  runs = EMBEDDED_DATA.runs || [];
+  loadFeedback();
+  switchTab('library');
+}
+
+async function loadFeedback() {
+  try {
+    const r = await fetch('/api/feedback');
+    const d = await r.json();
+    if (d.reviews) d.reviews.forEach(rv => { if (rv.feedback) feedbackStore[rv.run_id] = rv.feedback; });
+  } catch {}
+}
+
+function refreshUI() {
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if (b.dataset.tab) b.textContent = t(b.dataset.tab);
+  });
+  renderLibrary();
+}
+
+// ============ Tabs ============
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  if (tab === 'library') renderLibrary();
+  else if (tab === 'editor') renderEditor();
+  else if (tab === 'review') renderReview();
+  else if (tab === 'records') renderRecords();
+}
+
+// ============ Library ============
+function renderLibrary() {
+  const p = document.getElementById('panel-library');
+  let h = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">';
+  h += '<h2 style="font-size:1rem;">' + t('myEvals') + ' (' + evals.length + ')</h2>';
+  h += '<button class="btn-primary" onclick="newEvalSet()">+ ' + t('newEval') + '</button></div>';
+
+  if (evals.length === 0) {
+    h += '<div class="empty">' + t('noEvals') + '</div>';
+  } else {
+    h += '<div class="eval-list">';
+    evals.forEach((e, i) => {
+      h += '<div class="eval-card">';
+      h += '<div class="info"><h3>' + esc(e.skill_name || e.file) + '</h3>';
+      h += '<div class="meta">' + (e.eval_count || 0) + ' ' + t('evals') + ' &middot; ' + formatSize(e.size) + '</div></div>';
+      h += '<div class="actions">';
+      h += '<button class="btn-sm" onclick="editEvalSet(' + i + ')">' + t('edit') + '</button>';
+      h += '<button class="btn-sm" onclick="showRunDialog(' + i + ')">' + t('run') + '</button>';
+      h += '<button class="btn-sm danger" onclick="confirmDelete(' + i + ')">' + t('delete') + '</button>';
+      h += '</div></div>';
+    });
+    h += '</div>';
+  }
+  p.innerHTML = h;
+}
+
+// ============ Editor ============
+function newEvalSet() {
+  editingEval = { skill_name: '', evals: [{ prompt: '', expected_output: '', expectations: [] }] };
+  switchTab('editor');
+}
+
+function editEvalSet(idx) {
+  const f = evals[idx].file;
+  fetch('/api/evals/' + f.replace('.json', '')).then(r => r.json()).then(d => {
+    editingEval = d;
+    switchTab('editor');
+  }).catch(() => toast('Failed to load eval set'));
+}
+
+function renderEditor() {
+  if (!editingEval) { switchTab('library'); return; }
+  const e = editingEval;
+  const p = document.getElementById('panel-editor');
+  let h = '<div class="section"><div class="section-body">';
+  h += '<div class="form-row"><label>' + t('skillName') + '</label>';
+  h += '<input id="edit-name" value="' + escAttr(e.skill_name || '') + '" placeholder="' + t('evalSetName') + '"></div>';
+
+  h += '<h3 style="font-size:0.85rem;margin:0.75rem 0 0.5rem;">' + t('evals') + ' (' + (e.evals ? e.evals.length : 0) + ')</h3>';
+
+  if (e.evals) e.evals.forEach((ev, i) => {
+    h += '<div class="section" style="margin-bottom:0.5rem;"><div class="section-body">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">';
+    h += '<strong style="font-size:0.8rem;">#' + (i+1) + '</strong>';
+    if (e.evals.length > 1) h += '<button class="btn-sm danger" onclick="removeEval(' + i + ')">' + t('removeEval') + '</button>';
+    h += '</div>';
+    h += '<div class="form-row"><label>' + t('prompt') + '</label>';
+    h += '<textarea id="eval-prompt-' + i + '" rows="2">' + esc(ev.prompt || '') + '</textarea></div>';
+    h += '<div class="form-row"><label>' + t('expectedOutput') + '</label>';
+    h += '<textarea id="eval-output-' + i + '" rows="2">' + esc(ev.expected_output || '') + '</textarea></div>';
+    h += '<div class="form-row"><label>' + t('expectations') + '</label>';
+    h += '<textarea id="eval-expect-' + i + '" rows="2">' + esc((ev.expectations || []).join('\n')) + '</textarea></div>';
+    h += '</div></div>';
+  });
+
+  h += '<button class="btn-sm" style="margin-top:0.5rem;" onclick="addEval()">+ ' + t('addEval') + '</button>';
+
+  h += '<div style="margin-top:1rem;display:flex;gap:0.5rem;">';
+  h += '<button class="btn-primary" onclick="saveEvalSet()">' + t('save') + '</button>';
+  h += '<button class="nav-btn" onclick="switchTab(\'library\')">' + t('cancel') + '</button>';
+  h += '</div>';
+
+  h += '</div></div>';
+  p.innerHTML = h;
+}
+
+function addEval() {
+  editingEval.evals = editingEval.evals || [];
+  editingEval.evals.push({ prompt: '', expected_output: '', expectations: [] });
+  renderEditor();
+}
+
+function removeEval(i) {
+  editingEval.evals.splice(i, 1);
+  renderEditor();
+}
+
+async function saveEvalSet() {
+  const name = document.getElementById('edit-name').value.trim();
+  if (!name) { toast('Skill name required'); return; }
+  const evals = [];
+  for (let i = 0; ; i++) {
+    const promptEl = document.getElementById('eval-prompt-' + i);
+    if (!promptEl) break;
+    const outEl = document.getElementById('eval-output-' + i);
+    const expEl = document.getElementById('eval-expect-' + i);
+    evals.push({
+      prompt: promptEl.value.trim(),
+      expected_output: (outEl ? outEl.value.trim() : ''),
+      expectations: (expEl ? expEl.value.trim().split('\n').filter(x => x.trim()) : [])
+    });
+  }
+  const data = { skill_name: name, evals };
+
+  try {
+    const r = await fetch('/api/evals', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    if (r.ok) {
+      const d = await r.json();
+      toast('Saved: ' + d.file);
+      editingEval = null;
+      await refreshEvals();
+      switchTab('library');
+    } else {
+      const e = await r.json();
+      toast('Error: ' + (e.error || 'unknown'));
+    }
+  } catch (ex) { toast('Save failed: ' + ex.message); }
+}
+
+// ============ Review ============
+function renderReview() {
+  const p = document.getElementById('panel-review');
+  if (runs.length === 0) {
+    p.innerHTML = '<div class="empty" style="padding:3rem;">' + t('noRuns') + '</div>';
+    return;
+  }
+  reviewIndex = Math.min(reviewIndex, runs.length - 1);
+  showRun(reviewIndex);
+}
+
+function showRun(idx) {
+  reviewIndex = idx;
+  const run = runs[idx];
+  const p = document.getElementById('panel-review');
+  let h = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">';
+  h += '<span style="font-size:0.8rem;color:var(--text-muted);">' + (idx+1) + ' / ' + runs.length + '</span></div>';
+
+  // Prompt
+  h += '<div class="section"><div class="section-header">' + t('prompt') + '</div>';
+  h += '<div class="section-body"><div class="prompt-text">' + esc(run.prompt || '') + '</div></div></div>';
+
+  // Outputs
+  h += '<div class="section"><div class="section-header">' + t('outputs') + '</div><div class="section-body">';
+  if (!run.outputs || run.outputs.length === 0) {
+    h += '<div class="empty">' + t('noOutput') + '</div>';
+  } else {
+    run.outputs.forEach(o => {
+      h += '<div class="output-file"><div class="output-file-header">' + esc(o.name) + '</div>';
+      h += '<div class="output-file-content">';
+      if (o.type === 'text') h += '<pre>' + esc(o.content || '') + '</pre>';
+      else h += '<span style="color:var(--text-muted);">[' + (o.type || 'binary') + ']</span>';
+      h += '</div></div>';
+    });
+  }
+  h += '</div></div>';
+
+  // Feedback
+  h += '<div class="section"><div class="section-header">' + t('feedback') + '</div><div class="section-body">';
+  h += '<textarea class="feedback-textarea" id="review-feedback" oninput="autoSaveFeedback()">' + esc(feedbackStore[run.id] || '') + '</textarea>';
+  h += '<div class="feedback-status" id="feedback-status"></div></div></div>';
+
+  // Nav
+  h += '<div class="nav">';
+  h += '<button class="nav-btn" onclick="navigateReview(-1)" ' + (idx===0?'disabled':'') + '>' + t('prevBtn') + '</button>';
+  h += '<button class="nav-btn" onclick="navigateReview(1)" ' + (idx>=runs.length-1?'disabled':'') + '>' + t('nextBtn') + '</button>';
+  h += '</div>';
+
+  p.innerHTML = h;
+}
+
+function navigateReview(delta) {
+  saveFeedbackSync();
+  showRun(reviewIndex + delta);
+}
+
+function autoSaveFeedback() {
+  clearTimeout(window._fbTimeout);
+  window._fbTimeout = setTimeout(saveFeedbackSync, 600);
+}
+
+async function saveFeedbackSync() {
+  const run = runs[reviewIndex];
+  if (!run) return;
+  const text = document.getElementById('review-feedback')?.value || '';
+  feedbackStore[run.id] = text;
+  const reviews = Object.entries(feedbackStore).map(([id, fb]) => ({ run_id: id, feedback: fb, timestamp: new Date().toISOString() }));
+  try {
+    await fetch('/api/feedback', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ reviews }) });
+    const el = document.getElementById('feedback-status');
+    if (el) el.textContent = t('saved');
+  } catch {}
+}
+
+// ============ Actions ============
+function confirmDelete(idx) {
+  const e = evals[idx];
+  const m = document.getElementById('modal');
+  const c = document.getElementById('modal-content');
+  c.innerHTML = '<h2>' + t('confirmDeleteTitle') + '</h2><p style="color:var(--text-muted);">' + t('confirmDeleteBody') + '</p><p style="margin-top:0.5rem;"><strong>' + esc(e.file) + '</strong></p>';
+  c.innerHTML += '<div class="btn-row"><button class="nav-btn" onclick="closeModal()">' + t('cancel') + '</button><button class="btn-primary" style="background:var(--red);" onclick="doDelete(' + idx + ')">' + t('delete') + '</button></div>';
+  m.classList.add('visible');
+}
+
+async function doDelete(idx) {
+  const e = evals[idx];
+  await fetch('/api/evals/' + e.file.replace('.json', ''), { method: 'DELETE' });
+  closeModal();
+  await refreshEvals();
+  toast('Deleted');
+}
+
+function showRunDialog(idx) {
+  const e = evals[idx];
+  const m = document.getElementById('modal');
+  const c = document.getElementById('modal-content');
+  c.innerHTML = '<h2>' + t('howToRun') + '</h2><p style="color:var(--text-muted);">' + t('howToRunBody') + '</p>';
+  c.innerHTML += '<pre style="background:var(--bg);padding:0.75rem;border-radius:var(--radius);font-size:0.75rem;margin-top:0.5rem;overflow-x:auto;">dotnet run --project tools/SkillCreator.Cli -- eval "' + e.file + '"</pre>';
+  c.innerHTML += '<div class="btn-row"><button class="btn-primary" onclick="closeModal()">' + t('ok') + '</button></div>';
+  m.classList.add('visible');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('visible'); }
+
+async function refreshEvals() {
+  try {
+    const r = await fetch('/api/evals');
+    evals = await r.json();
+    renderLibrary();
+  } catch {}
+}
+
+// ============ Helpers ============
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function formatSize(b) { return b < 1024 ? b+' B' : b < 1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB'; }
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('visible');
+  setTimeout(() => el.classList.remove('visible'), 2000);
+}
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  if (document.getElementById('panel-review').classList.contains('active')) {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); navigateReview(-1); }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); navigateReview(1); }
+  }
+});
+
+// ============ Session Records ============
+async function renderRecords() {
+  const p = document.getElementById('panel-records');
+  p.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);">Loading...</div>';
+
+  let data;
+  try {
+    const r = await fetch('/api/session-records');
+    data = await r.json();
+  } catch { p.innerHTML = '<div class="empty">Failed to load records</div>'; return; }
+
+  const dates = data.dates || [];
+  let h = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">';
+  h += '<h2 style="font-size:1rem;">' + t('sessionRecords') + ' (' + dates.length + ')</h2>';
+  if (dates.length > 0) h += '<a href="/api/session-records/zip" class="btn-primary" style="text-decoration:none;">' + t('downloadAll') + '</a>';
+  h += '</div>';
+
+  if (dates.length === 0) {
+    h += '<div class="empty">' + t('noRecords') + '</div>';
+    h += '<div class="section" style="margin-top:1rem;"><div class="section-header">' + t('howItWorks') + '</div>';
+    h += '<div class="section-body"><p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;">' + t('howItWorksBody') + '</p></div></div>';
+  } else {
+    h += '<div class="eval-list">';
+    dates.forEach(d => {
+      h += '<div class="eval-card">';
+      h += '<div class="info"><h3>' + esc(d.date) + '</h3>';
+      h += '<div class="meta">' + (d.skills||[]).map(esc).join(', ') + ' &middot; ' + d.lines + ' ' + t('issues');
+      h += ' &middot; <span style="color:var(--green);">' + d.resolved + ' ' + t('resolved') + '</span>';
+      if (d.unresolved > 0) h += ' &middot; <span style="color:var(--red);">' + d.unresolved + ' ' + t('unresolved') + '</span>';
+      h += '</div></div></div>';
+    });
+    h += '</div>';
+  }
+  p.innerHTML = h;
+}
+
+// Embedded data injected by .NET server
+/*__EMBEDDED_DATA__*/
+init();
+</script>
+</body>
+</html>
+
+

@@ -1,0 +1,36 @@
+<Project>
+  <!-- Source generator wiring for OpenXml Framework and Main projects -->
+
+  <!-- Load data file definitions -->
+  <Import Project="$(MSBuildThisFileDirectory)data\OpenXmlData.targets" />
+
+  <!-- Reference generator as analyzer -->
+  <ItemGroup>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)DocumentFormat.OpenXml.Generator\DocumentFormat.OpenXml.Generator.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false"
+                      SkipGetTargetFrameworkProperties="true" GlobalPropertiesToRemove="TargetFramework" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)DocumentFormat.OpenXml.Generator.Models\DocumentFormat.OpenXml.Generator.Models.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false"
+                      SkipGetTargetFrameworkProperties="true" GlobalPropertiesToRemove="TargetFramework" />
+  </ItemGroup>
+
+  <!-- Map data files to AdditionalFiles for the generator -->
+  <ItemGroup>
+    <AdditionalFiles Include="@(OpenXmlDataNamespace)" OpenXml="Namespace" LinkBase="data" />
+    <AdditionalFiles Include="@(OpenXmlDataSchematron)" OpenXml="Schematron" LinkBase="data" />
+    <AdditionalFiles Include="@(OpenXmlDataPart)" OpenXml="Part" LinkBase="data/parts" />
+    <AdditionalFiles Include="@(OpenXmlDataSchema)" OpenXml="Schema" LinkBase="data/schema" />
+    <AdditionalFiles Include="@(OpenXmlDataTypedNamespace)" OpenXml="TypedNamespace" LinkBase="data/typed" />
+    <AdditionalFiles Include="@(OpenXmlDataTypedSchema)" OpenXml="TypedSchema" LinkBase="data/typed" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="OpenXml" />
+    <CompilerVisibleProperty Include="DocumentFormat_OpenXml_Generator_NamespaceLookup" />
+    <CompilerVisibleProperty Include="DocumentFormat_OpenXml_Generator_Parts" />
+    <CompilerVisibleProperty Include="DocumentFormat_OpenXml_Generator_Schemas" />
+    <CompilerVisibleProperty Include="DocumentFormat_OpenXml_Generator_Factories" />
+    <CompilerVisibleProperty Include="DocumentFormat_OpenXml_Generator_Linq" />
+  </ItemGroup>
+
+</Project>

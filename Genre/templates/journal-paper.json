@@ -1,0 +1,30 @@
+{
+  "source": "GB/T 7714-2015",
+  "category": "journal-paper",
+  "formatName": "Journal Paper (GB/T 7714)",
+  "page": {
+    "size": "A4",
+    "marginTop": "2.54cm",
+    "marginBottom": "2.54cm",
+    "marginLeft": "3.17cm",
+    "marginRight": "3.17cm"
+  },
+  "styles": {
+    "Title": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "28", "bold": false, "alignment": "center", "lineSpacing": "360" },
+    "SubTitle": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "32", "bold": false, "alignment": "center", "lineSpacing": "340" },
+    "Heading1": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "32", "bold": true, "alignment": "left", "lineSpacing": "320" },
+    "Heading2": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "28", "bold": true, "alignment": "left", "lineSpacing": "300" },
+    "Heading3": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "24", "bold": true, "alignment": "left", "lineSpacing": "280" },
+    "Normal": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "21", "firstLineIndent": "420", "lineSpacing": "240", "alignment": "both" },
+    "AbstractTitle": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "18", "bold": true, "alignment": "center", "lineSpacing": "240" },
+    "Abstract": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "18", "alignment": "both", "lineSpacing": "240" },
+    "BibHeading": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "18", "bold": true, "alignment": "left", "lineSpacing": "240" },
+    "EnglishTitle": { "fontCJK": "Times New Roman", "fontLatin": "Times New Roman", "fontSize": "28", "bold": true, "alignment": "center", "lineSpacing": "360" }
+  },
+  "patterns": {
+    "referenceFormat": "[1] [2] [3]",
+    "headingNumbering": "1  1.1  1.1.1",
+    "firstLineIndent": "420",
+    "citationStyle": "superscript"
+  }
+}

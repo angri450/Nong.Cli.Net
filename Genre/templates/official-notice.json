@@ -1,0 +1,27 @@
+{
+  "source": "GB/T 9704-2012 党政机关公文格式",
+  "category": "official-document",
+  "formatName": "Official Document (通知/报告/请示/函)",
+  "page": {
+    "size": "A4",
+    "marginTop": "3.7cm",
+    "marginBottom": "3.5cm",
+    "marginLeft": "2.8cm",
+    "marginRight": "2.6cm"
+  },
+  "styles": {
+    "RedHeader": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "36", "bold": true, "color": "FF0000", "alignment": "center" },
+    "DocNumber": { "fontCJK": "仿宋", "fontLatin": "Times New Roman", "fontSize": "21", "alignment": "center" },
+    "Title": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "28", "bold": false, "alignment": "center", "lineSpacing": "560", "lineRule": "exact" },
+    "Recipient": { "fontCJK": "仿宋", "fontLatin": "Times New Roman", "fontSize": "21", "alignment": "left" },
+    "Body": { "fontCJK": "仿宋", "fontLatin": "Times New Roman", "fontSize": "21", "firstLineIndent": "420", "lineSpacing": "560", "lineRule": "exact", "alignment": "both" },
+    "Closing": { "fontCJK": "仿宋", "fontLatin": "Times New Roman", "fontSize": "21", "alignment": "left" },
+    "Signature": { "fontCJK": "仿宋", "fontLatin": "Times New Roman", "fontSize": "21", "alignment": "right" },
+    "Date": { "fontCJK": "仿宋", "fontLatin": "Times New Roman", "fontSize": "21", "alignment": "right" }
+  },
+  "patterns": {
+    "lineSpacing": "28pt",
+    "headerSeparator": "红色分隔线",
+    "documentTypes": ["通知", "报告", "请示", "批复", "函", "纪要"]
+  }
+}

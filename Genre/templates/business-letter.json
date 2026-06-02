@@ -1,0 +1,24 @@
+{
+  "source": "商务信函通用格式",
+  "category": "business-letter",
+  "formatName": "Business Letter",
+  "page": {
+    "size": "A4",
+    "marginTop": "2.54cm",
+    "marginBottom": "2.54cm",
+    "marginLeft": "3cm",
+    "marginRight": "3cm"
+  },
+  "styles": {
+    "Date": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "21", "alignment": "right" },
+    "Recipient": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "21", "bold": true, "alignment": "left" },
+    "Subject": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "24", "bold": true, "alignment": "center", "lineSpacing": "300" },
+    "Body": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "21", "firstLineIndent": "420", "lineSpacing": "300", "alignment": "both" },
+    "Closing": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "21", "alignment": "left" },
+    "Signature": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "21", "bold": true, "alignment": "right" }
+  },
+  "patterns": {
+    "closingPhrases": ["此致 敬礼", "顺颂 商祺", "此致", "敬礼"],
+    "letterTypes": ["邀请函", "感谢信", "推荐信", "咨询函", "回复函"]
+  }
+}

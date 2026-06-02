@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+  <!-- Compilation and build location settings. -->
+  <PropertyGroup>
+    <SixLaborsProjectCategory>tests</SixLaborsProjectCategory>
+    <IsTestProject Condition="'$(IsTestProject)' == ''">true</IsTestProject>
+    <IsPackable>false</IsPackable>
+    <CodeAnalysisRuleSet Condition="'$(CodeAnalysisRuleSet)' == ''">$(MSBuildThisFileDirectory)..\..\sixlabors.tests.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <!-- Package references and additional files which are consumed by test projects -->
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <PackageReference Include="xunit" Version="2.6.6" IsImplicitlyDefined="true" />
+
+    <PackageReference Include="coverlet.collector"
+                      Version="6.0.0"
+                      PrivateAssets="All"
+                      IsImplicitlyDefined="true"
+                      Condition="'$(IsCodeCoverage)'=='true'"/>
+
+    <PackageReference Include="Microsoft.NET.Test.Sdk"
+                      Version="17.8.0"
+                      IsImplicitlyDefined="true"/>
+
+    <PackageReference Include="xunit.runner.visualstudio"
+                      Version="2.5.6"
+                      IsImplicitlyDefined="true" />
+
+    <Using Include="Xunit" Condition="'$(ImplicitUsings)'=='enable' OR '$(ImplicitUsings)'=='true'"/>
+  </ItemGroup>
+
+</Project>

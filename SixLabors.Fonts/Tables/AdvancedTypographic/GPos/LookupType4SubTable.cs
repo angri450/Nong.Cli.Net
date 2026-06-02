@@ -1,0 +1,165 @@
+// Copyright (c) Six Labors.
+// Licensed under the Six Labors Split License.
+
+namespace SixLabors.Fonts.Tables.AdvancedTypographic.GPos;
+
+/// <summary>
+/// Mark-to-Base Attachment Positioning Subtable. The MarkToBase attachment (MarkBasePos) subtable is used to position combining mark glyphs with respect to base glyphs.
+/// For example, the Arabic, Hebrew, and Thai scripts combine vowels, diacritical marks, and tone marks with base glyphs.
+/// <see href="https://docs.microsoft.com/en-us/typography/opentype/spec/gpos#lookup-type-4-mark-to-base-attachment-positioning-subtable"/>
+/// </summary>
+internal static class LookupType4SubTable
+{
+    /// <summary>
+    /// Loads the mark-to-base attachment positioning subtable from the specified reader.
+    /// </summary>
+    /// <param name="reader">The big endian binary reader.</param>
+    /// <param name="offset">The offset to the beginning of the subtable.</param>
+    /// <param name="lookupFlags">The lookup qualifiers.</param>
+    /// <param name="markFilteringSet">The mark filtering set index.</param>
+    /// <returns>The loaded <see cref="LookupSubTable"/>.</returns>
+    public static LookupSubTable Load(BigEndianBinaryReader reader, long offset, LookupFlags lookupFlags, ushort markFilteringSet)
+    {
+        reader.Seek(offset, SeekOrigin.Begin);
+        ushort format = reader.ReadUInt16();
+
+        return format switch
+        {
+            1 => LookupType4Format1SubTable.Load(reader, offset, lookupFlags, markFilteringSet),
+            _ => new NotImplementedSubTable(),
+        };
+    }
+
+    /// <summary>
+    /// MarkToBase Attachment Positioning Format 1: positions combining mark glyphs relative to base glyphs.
+    /// <see href="https://learn.microsoft.com/en-us/typography/opentype/spec/gpos#mark-to-base-attachment-positioning-format-1-mark-to-base-attachment-point"/>
+    /// </summary>
+    internal sealed class LookupType4Format1SubTable : LookupSubTable
+    {
+        private readonly CoverageTable markCoverage;
+        private readonly CoverageTable baseCoverage;
+        private readonly MarkArrayTable markArrayTable;
+        private readonly BaseArrayTable baseArrayTable;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LookupType4Format1SubTable"/> class.
+        /// </summary>
+        /// <param name="markCoverage">The mark coverage table.</param>
+        /// <param name="baseCoverage">The base glyph coverage table.</param>
+        /// <param name="markArrayTable">The mark array table.</param>
+        /// <param name="baseArrayTable">The base array table.</param>
+        /// <param name="lookupFlags">The lookup qualifiers.</param>
+        /// <param name="markFilteringSet">The mark filtering set index.</param>
+        public LookupType4Format1SubTable(
+            CoverageTable markCoverage,
+            CoverageTable baseCoverage,
+            MarkArrayTable markArrayTable,
+            BaseArrayTable baseArrayTable,
+            LookupFlags lookupFlags,
+            ushort markFilteringSet)
+            : base(lookupFlags, markFilteringSet)
+        {
+            this.markCoverage = markCoverage;
+            this.baseCoverage = baseCoverage;
+            this.markArrayTable = markArrayTable;
+            this.baseArrayTable = baseArrayTable;
+        }
+
+        /// <summary>
+        /// Loads the Format 1 mark-to-base attachment positioning subtable.
+        /// </summary>
+        /// <param name="reader">The big endian binary reader.</param>
+        /// <param name="offset">The offset to the beginning of the subtable.</param>
+        /// <param name="lookupFlags">The lookup qualifiers.</param>
+        /// <param name="markFilteringSet">The mark filtering set index.</param>
+        /// <returns>The loaded <see cref="LookupType4Format1SubTable"/>.</returns>
+        public static LookupType4Format1SubTable Load(BigEndianBinaryReader reader, long offset, LookupFlags lookupFlags, ushort markFilteringSet)
+        {
+            // MarkBasePosFormat1 Subtable.
+            // +--------------------+---------------------------------+------------------------------------------------------+
+            // | Type               |  Name                           | Description                                          |
+            // +====================+=================================+======================================================+
+            // | uint16             | posFormat                       | Format identifier: format = 1                        |
+            // +--------------------+---------------------------------+------------------------------------------------------+
+            // | Offset16           | markCoverageOffset              | Offset to markCoverage table,                        |
+            // |                    |                                 | from beginning of MarkBasePos subtable.              |
+            // +--------------------+---------------------------------+------------------------------------------------------+
+            // | Offset16           | baseCoverageOffset              | Offset to baseCoverage table,                        |
+            // |                    |                                 | from beginning of MarkBasePos subtable.              |
+            // +--------------------+---------------------------------+------------------------------------------------------+
+            // | uint16             | markClassCount                  | Number of classes defined for marks.                 |
+            // +--------------------+---------------------------------+------------------------------------------------------+
+            // | Offset16           | markArrayOffset                 | Offset to MarkArray table,                           |
+            // |                    |                                 | from beginning of MarkBasePos subtable.              |
+            // +--------------------+---------------------------------+------------------------------------------------------+
+            // | Offset16           | baseArrayOffset                 | Offset to BaseArray table,                           |
+            // |                    |                                 | from beginning of MarkBasePos subtable.              |
+            // +--------------------+---------------------------------+------------------------------------------------------+
+            ushort markCoverageOffset = reader.ReadOffset16();
+            ushort baseCoverageOffset = reader.ReadOffset16();
+            ushort markClassCount = reader.ReadUInt16();
+            ushort markArrayOffset = reader.ReadOffset16();
+            ushort baseArrayOffset = reader.ReadOffset16();
+
+            CoverageTable markCoverage = CoverageTable.Load(reader, offset + markCoverageOffset);
+            CoverageTable baseCoverage = CoverageTable.Load(reader, offset + baseCoverageOffset);
+            MarkArrayTable markArrayTable = new(reader, offset + markArrayOffset);
+            BaseArrayTable baseArrayTable = new(reader, offset + baseArrayOffset, markClassCount);
+
+            return new LookupType4Format1SubTable(markCoverage, baseCoverage, markArrayTable, baseArrayTable, lookupFlags, markFilteringSet);
+        }
+
+        /// <inheritdoc/>
+        public override bool TryUpdatePosition(
+            FontMetrics fontMetrics,
+            GPosTable table,
+            GlyphPositioningCollection collection,
+            Tag feature,
+            int index,
+            int count)
+        {
+            // Mark-to-Base Attachment Positioning Subtable.
+            // Implements: https://docs.microsoft.com/en-us/typography/opentype/spec/gpos#lookup-type-4-mark-to-base-attachment-positioning-subtable
+            ushort glyphId = collection[index].GlyphId;
+            if (glyphId == 0)
+            {
+                return false;
+            }
+
+            int markIndex = this.markCoverage.CoverageIndexOf(glyphId);
+            if (markIndex < 0 || markIndex >= this.markArrayTable.MarkRecords.Length)
+            {
+                return false;
+            }
+
+            // Search backward for a base glyph.
+            int baseGlyphIndex = index;
+            while (--baseGlyphIndex >= 0)
+            {
+                GlyphShapingData data = collection[baseGlyphIndex];
+                if (!AdvancedTypographicUtils.IsMarkGlyph(fontMetrics, data.GlyphId, data) && data.LigatureComponent <= 0)
+                {
+                    break;
+                }
+            }
+
+            if (baseGlyphIndex < 0)
+            {
+                return false;
+            }
+
+            ushort baseGlyphId = collection[baseGlyphIndex].GlyphId;
+            int baseIndex = this.baseCoverage.CoverageIndexOf(baseGlyphId);
+            if (baseIndex < 0 || baseIndex >= this.baseArrayTable.BaseRecords.Length)
+            {
+                return false;
+            }
+
+            MarkRecord markRecord = this.markArrayTable.MarkRecords[markIndex];
+            AnchorTable baseAnchor = this.baseArrayTable.BaseRecords[baseIndex].BaseAnchorTables[markRecord.MarkClass];
+            AdvancedTypographicUtils.ApplyAnchor(fontMetrics, collection, index, baseAnchor, markRecord, baseGlyphIndex, feature);
+
+            return true;
+        }
+    }
+}

@@ -1,0 +1,269 @@
+﻿#nullable disable
+
+using System;
+
+namespace HarfBuzzSharp
+{
+	public unsafe class Face : NativeObject
+	{
+		private static readonly Lazy<Face> emptyFace = new Lazy<Face> (() => new StaticFace (HarfBuzzApi.hb_face_get_empty ()));
+
+		public static Face Empty => emptyFace.Value;
+
+		public Face (Blob blob, uint index)
+			: this (blob, (int)index)
+		{
+		}
+
+		public Face (Blob blob, int index)
+			: this (IntPtr.Zero)
+		{
+			if (blob == null) {
+				throw new ArgumentNullException (nameof (blob));
+			}
+
+			if (index < 0) {
+				throw new ArgumentOutOfRangeException (nameof (index), "Index must be non negative.");
+			}
+
+			Handle = HarfBuzzApi.hb_face_create (blob.Handle, (uint)index);
+		}
+
+		public Face (GetTableDelegate getTable)
+			: this (getTable, null)
+		{
+		}
+
+		public Face (GetTableDelegate getTable, ReleaseDelegate destroy)
+			: this (IntPtr.Zero)
+		{
+			if (getTable == null)
+				throw new ArgumentNullException (nameof (getTable));
+
+			Handle = HarfBuzzApi.hb_face_create_for_tables (
+				DelegateProxies.ReferenceTableProxy,
+				(void*)DelegateProxies.CreateMultiUserData (getTable, destroy, this),
+				DelegateProxies.DestroyProxyForMulti);
+		}
+
+		internal Face (IntPtr handle)
+			: base (handle)
+		{
+		}
+
+		public int Index {
+			get => (int)HarfBuzzApi.hb_face_get_index (Handle);
+			set => HarfBuzzApi.hb_face_set_index (Handle, (uint)value);
+		}
+
+		public int UnitsPerEm {
+			get => (int)HarfBuzzApi.hb_face_get_upem (Handle);
+			set => HarfBuzzApi.hb_face_set_upem (Handle, (uint)value);
+		}
+
+		public int GlyphCount {
+			get => (int)HarfBuzzApi.hb_face_get_glyph_count (Handle);
+			set => HarfBuzzApi.hb_face_set_glyph_count (Handle, (uint)value);
+		}
+
+		public unsafe Tag[] Tables {
+			get {
+				uint tableCount;
+				var count = HarfBuzzApi.hb_face_get_table_tags (Handle, 0, &tableCount, null);
+				var buffer = new Tag[count];
+				fixed (void* ptr = buffer) {
+					HarfBuzzApi.hb_face_get_table_tags (Handle, 0, &count, (uint*)ptr);
+				}
+				return buffer;
+			}
+		}
+
+		public Blob ReferenceTable (Tag table) =>
+			new Blob (HarfBuzzApi.hb_face_reference_table (Handle, table));
+
+		public bool IsImmutable => HarfBuzzApi.hb_face_is_immutable (Handle);
+
+		public void MakeImmutable () => HarfBuzzApi.hb_face_make_immutable (Handle);
+
+		// Variable font support
+
+		public bool HasVariationData => HarfBuzzApi.hb_ot_var_has_data (Handle);
+
+		public int VariationAxisCount =>
+			(int)HarfBuzzApi.hb_ot_var_get_axis_count (Handle);
+
+		public OpenTypeVarAxisInfo[] VariationAxisInfos
+		{
+			get {
+				var count = HarfBuzzApi.hb_ot_var_get_axis_count (Handle);
+				if (count == 0)
+					return Array.Empty<OpenTypeVarAxisInfo> ();
+
+				var axes = new OpenTypeVarAxisInfo[(int)count];
+				fixed (OpenTypeVarAxisInfo* ptr = axes) {
+					HarfBuzzApi.hb_ot_var_get_axis_infos (Handle, 0, &count, ptr);
+				}
+				return axes;
+			}
+		}
+
+		public int GetVariationAxisInfos (Span<OpenTypeVarAxisInfo> axes)
+		{
+			uint count = (uint)axes.Length;
+			fixed (OpenTypeVarAxisInfo* ptr = axes) {
+				HarfBuzzApi.hb_ot_var_get_axis_infos (Handle, 0, &count, ptr);
+			}
+			return (int)count;
+		}
+
+		public bool TryFindVariationAxis (Tag tag, out OpenTypeVarAxisInfo axisInfo)
+		{
+			axisInfo = default;
+			fixed (OpenTypeVarAxisInfo* ptr = &axisInfo) {
+				return HarfBuzzApi.hb_ot_var_find_axis_info (Handle, tag, ptr);
+			}
+		}
+
+		public int NamedInstanceCount =>
+			(int)HarfBuzzApi.hb_ot_var_get_named_instance_count (Handle);
+
+		public OpenTypeNameId GetNamedInstanceSubfamilyNameId (int instanceIndex)
+		{
+			if (instanceIndex < 0)
+				throw new ArgumentOutOfRangeException (nameof (instanceIndex));
+			return HarfBuzzApi.hb_ot_var_named_instance_get_subfamily_name_id (Handle, (uint)instanceIndex);
+		}
+
+		public OpenTypeNameId GetNamedInstancePostScriptNameId (int instanceIndex)
+		{
+			if (instanceIndex < 0)
+				throw new ArgumentOutOfRangeException (nameof (instanceIndex));
+			return HarfBuzzApi.hb_ot_var_named_instance_get_postscript_name_id (Handle, (uint)instanceIndex);
+		}
+
+		public int GetNamedInstanceDesignCoordsCount (int instanceIndex)
+		{
+			if (instanceIndex < 0)
+				throw new ArgumentOutOfRangeException (nameof (instanceIndex));
+
+			// Return value is the total number of design coordinates
+			return (int)HarfBuzzApi.hb_ot_var_named_instance_get_design_coords (Handle, (uint)instanceIndex, null, null);
+		}
+
+		public float[] GetNamedInstanceDesignCoords (int instanceIndex)
+		{
+			if (instanceIndex < 0)
+				throw new ArgumentOutOfRangeException (nameof (instanceIndex));
+
+			// Return value is the total number of design coordinates
+			var totalCoords = (int)HarfBuzzApi.hb_ot_var_named_instance_get_design_coords (Handle, (uint)instanceIndex, null, null);
+			if (totalCoords == 0)
+				return Array.Empty<float> ();
+
+			uint coordsLength = (uint)totalCoords;
+			var coords = new float[totalCoords];
+			fixed (float* ptr = coords) {
+				HarfBuzzApi.hb_ot_var_named_instance_get_design_coords (Handle, (uint)instanceIndex, &coordsLength, ptr);
+			}
+			return coords;
+		}
+
+		public int GetNamedInstanceDesignCoords (int instanceIndex, Span<float> coords)
+		{
+			if (instanceIndex < 0)
+				throw new ArgumentOutOfRangeException (nameof (instanceIndex));
+
+			uint coordsLength = (uint)coords.Length;
+			fixed (float* ptr = coords) {
+				HarfBuzzApi.hb_ot_var_named_instance_get_design_coords (Handle, (uint)instanceIndex, &coordsLength, ptr);
+			}
+			return (int)coordsLength;
+		}
+
+		// Color font / palette support
+
+		public bool HasPalettes => HarfBuzzApi.hb_ot_color_has_palettes (Handle);
+
+		public int PaletteCount => (int)HarfBuzzApi.hb_ot_color_palette_get_count (Handle);
+
+		public HBColor[] GetPaletteColors (int paletteIndex)
+		{
+			if (paletteIndex < 0)
+				throw new ArgumentOutOfRangeException (nameof (paletteIndex));
+
+			var totalColors = (int)HarfBuzzApi.hb_ot_color_palette_get_colors (Handle, (uint)paletteIndex, 0, null, null);
+			if (totalColors == 0)
+				return Array.Empty<HBColor> ();
+
+			uint count = (uint)totalColors;
+			var colors = new HBColor[totalColors];
+			fixed (HBColor* ptr = colors) {
+				HarfBuzzApi.hb_ot_color_palette_get_colors (Handle, (uint)paletteIndex, 0, &count, ptr);
+			}
+			return colors;
+		}
+
+		public int GetPaletteColors (int paletteIndex, Span<HBColor> colors)
+		{
+			if (paletteIndex < 0)
+				throw new ArgumentOutOfRangeException (nameof (paletteIndex));
+
+			uint count = (uint)colors.Length;
+			fixed (HBColor* ptr = colors) {
+				HarfBuzzApi.hb_ot_color_palette_get_colors (Handle, (uint)paletteIndex, 0, &count, ptr);
+			}
+			return (int)count;
+		}
+
+		public OpenTypeColorPaletteFlags GetPaletteFlags (int paletteIndex)
+		{
+			if (paletteIndex < 0)
+				throw new ArgumentOutOfRangeException (nameof (paletteIndex));
+			return HarfBuzzApi.hb_ot_color_palette_get_flags (Handle, (uint)paletteIndex);
+		}
+
+		public OpenTypeNameId GetPaletteNameId (int paletteIndex)
+		{
+			if (paletteIndex < 0)
+				throw new ArgumentOutOfRangeException (nameof (paletteIndex));
+			return HarfBuzzApi.hb_ot_color_palette_get_name_id (Handle, (uint)paletteIndex);
+		}
+
+		public OpenTypeNameId GetPaletteColorNameId (int colorIndex)
+		{
+			if (colorIndex < 0)
+				throw new ArgumentOutOfRangeException (nameof (colorIndex));
+			return HarfBuzzApi.hb_ot_color_palette_color_get_name_id (Handle, (uint)colorIndex);
+		}
+
+		public bool HasColorLayers => HarfBuzzApi.hb_ot_color_has_layers (Handle);
+
+		public bool HasColorPng => HarfBuzzApi.hb_ot_color_has_png (Handle);
+
+		public bool HasColorSvg => HarfBuzzApi.hb_ot_color_has_svg (Handle);
+
+
+		protected override void Dispose (bool disposing) =>
+			base.Dispose (disposing);
+
+		protected override void DisposeHandler ()
+		{
+			if (Handle != IntPtr.Zero) {
+				HarfBuzzApi.hb_face_destroy (Handle);
+			}
+		}
+
+		private class StaticFace : Face
+		{
+			public StaticFace (IntPtr handle)
+				: base (handle)
+			{
+			}
+
+			protected override void Dispose (bool disposing)
+			{
+				// do not dispose
+			}
+		}
+	}
+}
