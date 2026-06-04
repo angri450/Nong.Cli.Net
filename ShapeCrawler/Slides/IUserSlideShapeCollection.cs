@@ -1,0 +1,225 @@
+using System.Collections.Generic;
+using System.IO;
+using ShapeCrawler.Presentations;
+
+#pragma warning disable IDE0130
+namespace ShapeCrawler;
+
+/// <summary>
+///     Represents a shape collection.
+/// </summary>
+public interface IUserSlideShapeCollection : IShapeCollection
+{
+    /// <summary>
+    ///     Adds the specified shape.
+    /// </summary>
+    void Add(IShape addingShape);
+
+    /// <summary>
+    ///     Adds a new audio shape.
+    /// </summary>
+    void AddAudio(int x, int y, Stream audio);
+
+    /// <summary>
+    ///     Adds a new audio shape.
+    /// </summary>
+    /// <param name="x">X coordinate in pixels.</param>
+    /// <param name="y">Y coordinate in pixels.</param>
+    /// <param name="audio">Audio stream.</param>
+    /// <param name="type">Audio type.</param>
+    void AddAudio(int x, int y, Stream audio, AudioType type);
+
+    /// <summary>
+    ///     Adds a new video from stream.
+    /// </summary>
+    /// <param name="x">X coordinate in pixels.</param>
+    /// <param name="y">Y coordinate in pixels.</param>
+    /// <param name="stream">Video stream data.</param>
+    void AddVideo(int x, int y, Stream stream);
+
+    /// <summary>
+    ///     Adds a new shape.
+    /// </summary>
+    void AddShape(int x, int y, int width, int height);
+
+    /// <summary>
+    ///     Adds a new shape.
+    /// </summary>
+    void AddShape(int x, int y, int width, int height, Geometry geometry);
+
+    /// <summary>
+    ///     Adds a new shape.
+    /// </summary>
+    /// <param name="x">X coordinate in points.</param>
+    /// <param name="y">Y coordinate in points.</param>
+    /// <param name="width">Width in points.</param>
+    /// <param name="height">Height in points.</param>
+    /// <param name="geometry">Geometry form.</param>
+    /// <param name="text">Text content.</param>
+    void AddShape(int x, int y, int width, int height, Geometry geometry, string text);
+
+    /// <summary>
+    ///     Adds a new text box.
+    /// </summary>
+    void AddTextBox(int x, int y, int width, int height, string text);
+
+    /// <summary>
+    ///     Adds a line from XML.
+    /// </summary>
+    /// <param name="xml">Content of p:cxnSp Open XML element.</param>
+    void AddLine(string xml);
+
+    /// <summary>
+    ///     Adds a new line.
+    /// </summary>
+    void AddLine(int startPointX, int startPointY, int endPointX, int endPointY);
+
+    /// <summary>
+    ///     Adds a new table.
+    /// </summary>
+    void AddTable(int x, int y, int columnsCount, int rowsCount);
+
+    /// <summary>
+    ///     Adds a new table with a custom style.
+    /// </summary>
+    void AddTable(int x, int y, int columnsCount, int rowsCount, ITableStyle style);
+
+    /// <summary>
+    ///     Adds picture.
+    /// </summary>
+    void AddPicture(Stream imageStream);
+
+    /// <summary>
+    ///     Adds Pie Chart.
+    /// </summary>
+    void AddPieChart(double x, double y, double width, double height, Dictionary<string, double> categoryValues, string seriesName);
+
+    /// <summary>
+    ///     Adds Pie Chart with the specified name.
+    /// </summary>
+    void AddPieChart(double x, double y, double width, double height, Dictionary<string, double> categoryValues, string seriesName, string chartName);
+
+    /// <summary>
+    ///     Adds Bar Chart with specified parameters.
+    /// </summary>
+    void AddBarChart(int x, int y, int width, int height, Dictionary<string, double> categoryValues, string seriesName);
+
+    /// <summary>
+    ///     Adds Scatter Chart.
+    /// </summary>
+    /// <param name="x">X coordinate in points.</param>
+    /// <param name="y">Y coordinate in points.</param>
+    /// <param name="width">Width in point.</param>
+    /// <param name="height">Height in points.</param>
+    /// <param name="pointValues">Dictionary of x and y coordinate values for each point.</param>
+    /// <param name="seriesName">Name of the data series.</param>
+    void AddScatterChart(int x, int y, int width, int height, Dictionary<double, double> pointValues, string seriesName);
+
+    /// <summary>
+    ///     Adds Bubble Chart.
+    /// </summary>
+    /// <param name="x">X coordinate in points.</param>
+    /// <param name="y">Y coordinate in points.</param>
+    /// <param name="width">Width in point.</param>
+    /// <param name="height">Height in points.</param>
+    /// <param name="pointValues">List of X, Y and bubble size values for each point.</param>
+    /// <param name="seriesName">Name of the data series.</param>
+    void AddBubbleChart(
+        int x,
+        int y,
+        int width,
+        int height,
+        IReadOnlyList<(double X, double Y, double Size)> pointValues,
+        string seriesName);
+
+    /// <summary>
+    ///     Adds Bubble Chart with the specified name.
+    /// </summary>
+    /// <param name="x">X coordinate in points.</param>
+    /// <param name="y">Y coordinate in points.</param>
+    /// <param name="width">Width in point.</param>
+    /// <param name="height">Height in points.</param>
+    /// <param name="pointValues">List of X, Y and bubble size values for each point.</param>
+    /// <param name="seriesName">Name of the data series.</param>
+    /// <param name="chartName">Chart shape name.</param>
+    void AddBubbleChart(
+        int x,
+        int y,
+        int width,
+        int height,
+        IReadOnlyList<(double X, double Y, double Size)> pointValues,
+        string seriesName,
+        string chartName);
+
+    /// <summary>
+    ///     Adds a Clustered Bar Chart.
+    /// </summary>
+    void AddClusteredBarChart(
+        int x,
+        int y,
+        int width,
+        int height,
+        IList<string> categories,
+        IList<DraftChart.SeriesData> seriesData,
+        string chartName);
+
+    /// <summary>
+    ///     Adds a Clustered Bar Chart with multi-level categories.
+    /// </summary>
+    void AddClusteredBarChart(
+        int x,
+        int y,
+        int width,
+        int height,
+        IList<List<string>> categories,
+        IList<DraftChart.SeriesData> seriesData,
+        string chartName);
+
+    /// <summary>
+    ///     Adds a Stacked Column Chart.
+    /// </summary>
+    /// <param name="x">X coordinate in points.</param>
+    /// <param name="y">Y coordinate in points.</param>
+    /// <param name="width">Width in point.</param>
+    /// <param name="height">Height in points.</param>
+    /// <param name="categoryValues">Dictionary mapping categories to a list of values for each series.</param>
+    /// <param name="seriesNames">List of series names in the same order as the values in categoryValues.</param>
+    void AddStackedColumnChart(int x, int y, int width, int height, IDictionary<string, IList<double>> categoryValues, IList<string> seriesNames);
+
+    /// <summary>
+    ///     Adds shape with SmartArt graphic content.
+    /// </summary>
+    IShape AddSmartArt(int x, int y, int width, int height, SmartArtType smartArtType);
+
+    /// <summary>
+    ///     Groups the specified shapes.
+    /// </summary>
+    IShape Group(IShape[] groupingShapes);
+
+    /// <summary>
+    ///     Adds "Date and time" placeholder.
+    /// </summary>
+    /// <returns>Added "Date and time" placeholder.</returns>
+    /// <exception cref="SCException">
+    /// Thrown when the slide already contains "Date and time" placeholder.
+    /// </exception>
+    IShape AddDateAndTime();
+
+    /// <summary>
+    ///     Adds footer placeholder.
+    /// </summary>
+    /// <returns>Added footer placeholder.</returns>
+    /// <exception cref="SCException">
+    /// Thrown when the slide already contains footer placeholder.
+    /// </exception>
+    IShape AddFooter();
+
+    /// <summary>
+    ///     Adds slide number placeholder.
+    /// </summary>
+    /// <returns>Added slide number placeholder.</returns>
+    /// <exception cref="SCException">
+    /// Thrown when the slide already contains slide number placeholder.
+    /// </exception>
+    IShape AddSlideNumber();
+}

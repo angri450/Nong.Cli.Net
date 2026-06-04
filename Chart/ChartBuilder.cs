@@ -134,4 +134,7 @@ public static class ChartBuilder
         Directory.CreateDirectory(Path.GetDirectoryName(config.OutPath) ?? ".");
         plt.SavePng(config.OutPath, config.Width, config.Height);
     }
+
+    /// <summary>Get a CJK-capable font family name for chart rendering.</summary>
+    public static string GetCjkFontFamily() => FontHelper.GetCjkFamilyName();
 }

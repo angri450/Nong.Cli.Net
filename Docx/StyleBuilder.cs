@@ -112,4 +112,21 @@ public static class StyleBuilder
             sb.FromJson(page);
         return sb;
     }
+
+    /// <summary>
+    /// Build a complete set of default styles (Normal, Headings 1-3, BodyTextNoIndent,
+    /// FootnoteText, FootnoteReference). Used by MultiModal and other consumers that
+    /// need a self-contained style set without an external JSON file.
+    /// </summary>
+    public static void BuildAll(Styles styles)
+    {
+        S(styles, "Normal", "Normal", "宋体", "Times New Roman", "21", JustificationValues.Both, "420", "240");
+        S(styles, "Heading1", "heading 1", "黑体", "Times New Roman", "28", JustificationValues.Center, bold: true);
+        S(styles, "Heading2", "heading 2", "黑体", "Times New Roman", "24", JustificationValues.Left, bold: true);
+        S(styles, "Heading3", "heading 3", "黑体", "Times New Roman", "22", JustificationValues.Left, bold: true);
+        S(styles, "BodyTextNoIndent", "Body Text No Indent", "宋体", "Times New Roman", "21", JustificationValues.Both);
+        S(styles, "FootnoteText", "Footnote Text", "宋体", "Times New Roman", "18", JustificationValues.Both, line: "240");
+        S(styles, "FootnoteReference", "Footnote Reference", "宋体", "Times New Roman", "18", JustificationValues.Both, line: "240");
+        S(styles, "Title", "Title", "黑体", "Times New Roman", "32", JustificationValues.Center, bold: true);
+    }
 }

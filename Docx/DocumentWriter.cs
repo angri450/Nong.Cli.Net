@@ -34,6 +34,63 @@ public class DocumentWriter
         _doc = doc;
     }
 
+    // ===== 标题 / 段落 =====
+
+    /// <summary>文档主标题。居中、加粗、大号。</summary>
+    public DocumentWriter Title(string text)
+    {
+        var p = new Paragraph(new ParagraphProperties(
+            new ParagraphStyleId { Val = "Title" }));
+        p.Append(new Run(new RunProperties(
+            new RunFonts { Ascii = "Times New Roman", HighAnsi = "Times New Roman", EastAsia = "黑体" },
+            new FontSize { Val = "32" },
+            new Bold()),
+            new Text(text)));
+        _body.Append(p);
+        return this;
+    }
+
+    /// <summary>标题段落。level 1-3 对应 Heading1-Heading3。</summary>
+    public DocumentWriter Heading(string text, int level = 1)
+    {
+        var styleId = level switch
+        {
+            1 => "Heading1",
+            2 => "Heading2",
+            3 => "Heading3",
+            _ => "Heading1"
+        };
+        var fontSize = level switch
+        {
+            1 => "28",
+            2 => "24",
+            3 => "22",
+            _ => "28"
+        };
+        var p = new Paragraph(new ParagraphProperties(
+            new ParagraphStyleId { Val = styleId }));
+        p.Append(new Run(new RunProperties(
+            new RunFonts { Ascii = "Times New Roman", HighAnsi = "Times New Roman", EastAsia = "黑体" },
+            new FontSize { Val = fontSize },
+            new Bold()),
+            new Text(text)));
+        _body.Append(p);
+        return this;
+    }
+
+    /// <summary>正文段落。</summary>
+    public DocumentWriter Body(string text)
+    {
+        var p = new Paragraph(new ParagraphProperties(
+            new ParagraphStyleId { Val = "Normal" }));
+        p.Append(new Run(new RunProperties(
+            new RunFonts { Ascii = "Times New Roman", HighAnsi = "Times New Roman", EastAsia = "宋体" },
+            new FontSize { Val = "21" }),
+            new Text(text) { Space = SpaceProcessingModeValues.Preserve }));
+        _body.Append(p);
+        return this;
+    }
+
     // ===== 表格 =====
 
     /// <summary>三线表。</summary>

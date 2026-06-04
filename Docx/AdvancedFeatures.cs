@@ -137,23 +137,43 @@ public static class AdvancedFeatures
     public static void EmbedFont(WordprocessingDocument doc, string fontPath, string fontName)
     {
         var main = doc.MainDocumentPart!;
-        var fontPart = main.AddNewPart<FontPart>("application/x-font-ttf", $"rId{fontName.GetHashCode() & 0x7FFFFFFF}");
-        var fontBytes = File.ReadAllBytes(fontPath);
-        ObfuscateFont(fontBytes, fontPart.Uri.ToString());
-        using var ms = new MemoryStream(fontBytes);
-        fontPart.FeedData(ms);
 
-        // Update font table
         var fontTablePart = main.FontTablePart ?? main.AddNewPart<FontTablePart>();
         if (fontTablePart.Fonts == null)
             fontTablePart.Fonts = new Fonts();
-        fontTablePart.Fonts.Append(new Font { Name = fontName });
+
+        var fontKey = Guid.NewGuid();
+        var relationshipId = "rIdFont" + fontKey.ToString("N")[..12];
+        var fontPart = fontTablePart.AddFontPart(FontPartType.FontOdttf, relationshipId);
+
+        var fontBytes = File.ReadAllBytes(fontPath);
+        ObfuscateFont(fontBytes, fontKey);
+        using (var ms = new MemoryStream(fontBytes))
+        {
+            fontPart.FeedData(ms);
+        }
+
+        var font = fontTablePart.Fonts.Elements<Font>()
+            .FirstOrDefault(f => string.Equals(f.Name?.Value, fontName, StringComparison.OrdinalIgnoreCase));
+        if (font == null)
+        {
+            font = new Font { Name = fontName };
+            fontTablePart.Fonts.Append(font);
+        }
+
+        font.RemoveAllChildren<EmbedRegularFont>();
+        font.Append(new EmbedRegularFont
+        {
+            Id = relationshipId,
+            FontKey = fontKey.ToString("B").ToUpperInvariant(),
+        });
+        fontTablePart.Fonts.Save();
     }
 
-    static void ObfuscateFont(byte[] fontBytes, string guid)
+    static void ObfuscateFont(byte[] fontBytes, Guid fontKey)
     {
         if (fontBytes.Length < 32) return;
-        var key = System.Security.Cryptography.MD5.HashData(System.Text.Encoding.UTF8.GetBytes(guid));
+        var key = fontKey.ToByteArray();
         var reversed = key.Reverse().ToArray();
         for (int i = 0; i < 32; i++)
             fontBytes[i] ^= reversed[i % 16];

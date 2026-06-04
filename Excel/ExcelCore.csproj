@@ -10,7 +10,7 @@
     <Version>3.0.5</Version>
     <Authors>angri450</Authors>
     <Description>Excel generation library — chainable builder API over ClosedXML. ClosedXML, OpenXml SDK, RBush, SixLabors.Fonts and all dependencies merged into a single assembly via ThirdParty.</Description>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/angri450/Nong.NET</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>

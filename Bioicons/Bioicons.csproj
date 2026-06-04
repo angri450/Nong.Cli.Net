@@ -8,7 +8,7 @@
     <Version>3.0.2</Version>
     <Authors>angri450</Authors>
     <Description>40 SVG scientific icons for biology, chemistry, medical, and lab equipment diagrams.</Description>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/angri450/Nong.NET</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Nullable>enable</Nullable>

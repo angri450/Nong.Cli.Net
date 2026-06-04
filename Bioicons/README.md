@@ -1,6 +1,6 @@
 # Angri450.Nong.Bioicons
 
-40 scientific SVG icons embedded as assembly resources. Zero external dependencies — icons ship inside the DLL.
+40 个科学 SVG 图标，嵌入式程序集资源。angri450 精选并整理，Diagram 包直接调用装饰节点，也可独立使用。零外部依赖 —— 图标随 DLL 一起发布。
 
 [![NuGet](https://img.shields.io/nuget/v/Angri450.Nong.Bioicons)](https://www.nuget.org/packages/Angri450.Nong.Bioicons)
 [![.NET](https://img.shields.io/badge/.NET-8.0%2B-512BD4)](https://dotnet.microsoft.com)
@@ -20,22 +20,24 @@ dotnet add package Angri450.Nong.Bioicons
 ```csharp
 using Bioicons;
 
-// Browse categories
+// 浏览分类
 string[] categories = IconProvider.GetCategories();
 // → ["Arrows", "Biology", "Chemistry", "Experimental", "LabEquipment", "Medical"]
 
-// Browse icons in a category
+// 浏览分类中的图标
 string[] icons = IconProvider.GetIcons("Biology");
 // → ["antibody", "bacteria", "cell", "dna", "enzyme", ...]
 
-// Get SVG content
+// 获取 SVG 内容
 string svg = IconProvider.GetSvg("Biology", "cell");
 
-// Save to file
+// 保存为文件
 IconProvider.SaveSvg("Biology", "dna", "dna.svg");
 ```
 
 ## Icon Catalog
+
+angri450 整理的 40 个图标，按六个分类组织：
 
 | Category | Count | Icons |
 |----------|-------|-------|
@@ -46,27 +48,27 @@ IconProvider.SaveSvg("Biology", "dna", "dna.svg");
 | **Arrows** | 5 | arrowDown, arrowLeft, arrowRight, arrowUp, bidirectional |
 | **Experimental** | 5 | chromatography, electrophoresis, pcr, sequencing, western |
 
-## Integration with Diagram
+## 与 Diagram 集成
 
-Bioicons are used directly by `Angri450.Nong.Diagram` for decorating nodes in scientific diagrams. Install both packages to use icons as node markers in flowcharts and mechanism diagrams.
+Bioicons 被 `Angri450.Nong.Diagram` 直接用于科学图表节点装饰。同时安装两个包即可在流程图和机制图中使用图标作为节点标记。
 
 ## Dependencies
 
-None. Pure managed code. Icons are embedded SVG strings in the assembly.
+无。纯托管代码。图标以嵌入 SVG 字符串形式存在于程序集中。
 
 ## API Reference
 
 | Method | Description |
 |--------|-------------|
-| `IconProvider.GetCategories()` | List all icon categories |
-| `IconProvider.GetIcons(category)` | List icon names in a category |
-| `IconProvider.GetSvg(category, name)` | Get SVG markup as string |
-| `IconProvider.SaveSvg(category, name, path)` | Save SVG to file |
+| `IconProvider.GetCategories()` | 列出所有图标分类 |
+| `IconProvider.GetIcons(category)` | 列出某分类中的图标名称 |
+| `IconProvider.GetSvg(category, name)` | 获取 SVG 标记字符串 |
+| `IconProvider.SaveSvg(category, name, path)` | 保存 SVG 到文件 |
 
-## Source
+## Author
 
-https://github.com/angri450/Nong.NET — Issues and PRs welcome.
+Built by [angri450](https://github.com/angri450). Source: [Nong.NET](https://github.com/angri450/Nong.NET).
 
 ## License
 
-MIT
+Apache-2.0

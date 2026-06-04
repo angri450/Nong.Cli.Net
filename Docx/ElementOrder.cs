@@ -21,7 +21,7 @@ public static class ElementOrder
 
         // 7.1.2.1.2 — Paragraph Properties：26 个子元素
         ["pPr"] = new[] { "pStyle", "keepNext", "keepLines", "pageBreakBefore",
-            "widowControl", "numPr", "suppressLineNumbers", "pBdr", "shd",
+            "framePr", "widowControl", "numPr", "suppressLineNumbers", "pBdr", "shd",
             "tabs", "suppressAutoHyphens", "kinsoku", "wordWrap", "overflowPunct",
             "topLinePunct", "autoSpaceDE", "autoSpaceDN", "bidi", "adjustRightInd",
             "snapToGrid", "spacing", "ind", "contextualSpacing", "mirrorIndents",
@@ -31,7 +31,7 @@ public static class ElementOrder
         // 7.1.2.1.10 — Section Properties：21 个子元素
         ["sectPr"] = new[] { "headerReference", "footerReference", "footnotePr",
             "endnotePr", "type", "pgSz", "pgMar", "paperSrc", "pgBorders",
-            "lnNumType", "pgNumType", "col", "formProt", "vAlign", "noEndnote",
+            "lnNumType", "pgNumType", "cols", "formProt", "vAlign", "noEndnote",
             "titlePg", "textDirection", "bidi", "rtlGutter", "docGrid", "printerSettings", "sectPrChange" },
 
         // 7.1.2.1.12 — Table Cell Properties：14 个子元素
@@ -69,10 +69,18 @@ public static class ElementOrder
         ["numbering"] = new[] { "numPicBullet", "abstractNum", "num", "numIdMacAtCleanup" },
 
         // Table Row
-        ["tr"] = new[] { "trPr", "gridBefore", "gridAfter", "wBefore", "wAfter" },
+        ["tr"] = new[] { "tblPrEx", "trPr", "tc", "customXml", "sdt",
+            "proofErr", "permStart", "permEnd", "bookmarkStart", "bookmarkEnd",
+            "moveFromRangeStart", "moveFromRangeEnd", "moveToRangeStart",
+            "moveToRangeEnd", "commentRangeStart", "commentRangeEnd",
+            "customXmlInsRangeStart", "customXmlInsRangeEnd",
+            "customXmlDelRangeStart", "customXmlDelRangeEnd",
+            "customXmlMoveFromRangeStart", "customXmlMoveFromRangeEnd",
+            "customXmlMoveToRangeStart", "customXmlMoveToRangeEnd",
+            "ins", "del", "moveFrom", "moveTo" },
 
         // Style definition
-        ["style"] = new[] { "name", "aliases", "basedOn", "nextParagraphStyle",
+        ["style"] = new[] { "name", "aliases", "basedOn", "next",
             "link", "autoRedefine", "hidden", "uiPriority", "semiHidden",
             "unhideWhenUsed", "qFormat", "locked", "personal", "personalCompose",
             "personalReply", "rsid", "pPr", "rPr", "tblPr", "tblStylePr", "tcPr" },
@@ -192,5 +200,54 @@ public static class ElementOrder
             foreach (var child in el.ChildElements)
                 Walk(child);
         }
+    }
+
+    /// <summary>
+    /// Removes compatibility artifacts produced by legacy Word/WPS conversion
+    /// that are known to fail strict OpenXmlValidator checks but do not carry
+    /// visible document intent.
+    /// </summary>
+    public static int SanitizeCompatibilityArtifacts(OpenXmlElement root)
+    {
+        int fixed_ = 0;
+
+        foreach (var el in root.Descendants().ToList())
+        {
+            if (el.LocalName == "noWrap" && IsFalseOnOff(el))
+            {
+                el.Remove();
+                fixed_++;
+                continue;
+            }
+
+            if (el.LocalName == "tblStyle"
+                && el.Parent?.LocalName == "tblPr"
+                && HasAncestor(el.Parent, "style"))
+            {
+                el.Remove();
+                fixed_++;
+            }
+        }
+
+        return fixed_;
+    }
+
+    private static bool IsFalseOnOff(OpenXmlElement element)
+    {
+        var attr = element.GetAttribute("val", "http://schemas.openxmlformats.org/wordprocessingml/2006/main");
+        var value = attr.Value?.Trim();
+        return string.Equals(value, "0", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "false", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "off", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool HasAncestor(OpenXmlElement? element, string localName)
+    {
+        for (var current = element?.Parent; current != null; current = current.Parent)
+        {
+            if (current.LocalName == localName) return true;
+        }
+
+        return false;
     }
 }

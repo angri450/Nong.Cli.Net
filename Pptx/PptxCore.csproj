@@ -8,12 +8,12 @@
     <PackageId>Angri450.Nong.Pptx</PackageId>
     <Version>3.0.2</Version>
     <Authors>angri450</Authors>
-    <Description>ShapeCrawler wrapper for AI agents — fluent slide builder, 10 themes, layout system, CJK injection, borders, rotation. Build presentations with chainable API.</Description>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>ShapeCrawler wrapper for AI agents.</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/angri450/Nong.NET</RepositoryUrl>
-    <PackageTags>nong agriculture pptx powerpoint presentation slides theme</PackageTags>
-      <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <PackageTags>nong agriculture pptx powerpoint</PackageTags>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="LayoutSystem.cs" />
@@ -24,14 +24,13 @@
     <Compile Include="SlideHelper.cs" />
     <Compile Include="SlidePreview.cs" />
     <Compile Include="SlideValidator.cs" />
+    <Compile Include="PptxReader.cs" />
     <Compile Include="ThemePreset.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ShapeCrawler" Version="0.79.2" />
+    <ProjectReference Include="..\ThirdParty\ThirdParty.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 </Project>
-
-

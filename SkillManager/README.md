@@ -1,77 +1,27 @@
-# Angri450.Nong.Skill.Manager
+# Angri450.Nong.Skill.Manager (DEPRECATED)
 
-CLI tool for managing Claude Code skills. Validate, scan, package, evaluate, and scaffold skills.
-
-[![NuGet](https://img.shields.io/nuget/v/Angri450.Nong.Skill.Manager)](https://www.nuget.org/packages/Angri450.Nong.Skill.Manager)
-[![.NET](https://img.shields.io/badge/.NET-8.0%2B-512BD4)](https://dotnet.microsoft.com)
-
-## Supported Platforms
-
-.NET 8.0 and above (net8.0, net9.0, net10.0, net11.0). Windows, macOS, Linux.
-
-## Install
+此工具已废弃。angri450 已将 Skill 管理功能迁移到 `nong skill` CLI 命令中：
 
 ```bash
-dotnet tool install -g Angri450.Nong.Skill.Manager
+dotnet tool install --global Angri450.Nong.Cli
+nong skill validate <dir> --json
+nong skill scan <dir> --json
+nong skill inventory <dir> --json
+nong skill package <dir> --json
 ```
 
-## Commands
+## 仅供本地调试
+
+项目保留可编译状态以备内部兼容，但不再发布或推广：
 
 ```bash
-# Validate SKILL.md format and structure
-skill-manager validate ./my-skill/
-
-# Security scan — check for common vulnerabilities
-skill-manager scan ./my-skill/
-
-# Package skill as distributable .zip
-skill-manager package ./my-skill/
-
-# Blind evaluation — run eval suite
-skill-manager eval ./my-skill/
-
-# Scaffold a new skill from template
-skill-manager scaffold my-new-skill
-
-# List all files in a skill directory
-skill-manager inventory ./my-skill/
+dotnet build SkillManager/SkillManager.Cli.csproj -c Release
 ```
 
-## Quick Start
+## Author
 
-```bash
-# Create a new skill
-skill-manager scaffold hello-world
-cd hello-world
-
-# Edit SKILL.md, add your code
-
-# Validate
-skill-manager validate .
-
-# Package for distribution
-skill-manager package .
-```
-
-## Dependencies
-
-- `YamlDotNet` — YAML parsing for SKILL.md frontmatter
-
-## API Reference
-
-| Command | Description |
-|---------|-------------|
-| `validate <dir>` | Check SKILL.md structure, required fields, reference integrity |
-| `scan <dir>` | Security analysis: dependency checks, injection risks, permission audit |
-| `package <dir>` | Bundle skill into .zip with manifest |
-| `eval <dir>` | Run blind evaluation suite, output score report |
-| `scaffold <name>` | Generate new skill from template with proper structure |
-| `inventory <dir>` | List all files with sizes and types |
-
-## Source
-
-https://github.com/angri450/Nong.NET — Issues and PRs welcome.
+Built by [angri450](https://github.com/angri450). Source: [Nong.NET](https://github.com/angri450/Nong.NET).
 
 ## License
 
-MIT
+Apache-2.0

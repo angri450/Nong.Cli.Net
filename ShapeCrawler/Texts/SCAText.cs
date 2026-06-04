@@ -1,0 +1,52 @@
+using System.Linq;
+using DocumentFormat.OpenXml;
+
+namespace ShapeCrawler.Texts;
+
+using A = DocumentFormat.OpenXml.Drawing;
+
+// ReSharper disable once InconsistentNaming
+internal readonly ref struct SCAText(A.Text aText)
+{
+    internal string EastAsianName()
+    {
+        var openXmlPart = aText.Ancestors<OpenXmlPartRootElement>().First().OpenXmlPart!;
+        var aEastAsianFont = aText.Parent!.GetFirstChild<A.RunProperties>()?.GetFirstChild<A.EastAsianFont>();
+        if (aEastAsianFont != null)
+        {
+            if (aEastAsianFont.Typeface == "+mj-ea")
+            {
+                var themeFontScheme = new ThemeFontScheme(openXmlPart);
+                return themeFontScheme.MajorEastAsianFont();
+            }
+
+            return aEastAsianFont.Typeface!;
+        }
+
+        return new ThemeFontScheme(openXmlPart).MinorEastAsianFont();
+    }
+
+    internal void UpdateEastAsianName(string eastAsianFont)
+    {
+        var aRunProperties = aText.Parent!.GetFirstChild<A.RunProperties>();
+        var aEastAsianFont = aRunProperties?.GetFirstChild<A.EastAsianFont>();
+        if (aEastAsianFont != null)
+        {
+            aEastAsianFont.Typeface = eastAsianFont;
+            return;
+        }
+
+        // Bug fix: create EastAsianFont element if it doesn't exist,
+        // matching the behavior of UpdateLatinName
+        if (aRunProperties != null)
+        {
+            aEastAsianFont = new A.EastAsianFont { Typeface = eastAsianFont };
+            aRunProperties.Append(aEastAsianFont);
+            return;
+        }
+
+        // Fallback: create both RunProperties and EastAsianFont
+        var openXmlPart = aText.Ancestors<OpenXmlPartRootElement>().First().OpenXmlPart!;
+        new ThemeFontScheme(openXmlPart).UpdateMinorEastAsianFont(eastAsianFont);
+    }
+}

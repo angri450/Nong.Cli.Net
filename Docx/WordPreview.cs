@@ -103,7 +103,11 @@ public static class WordPreview
                 using var reader = new StreamReader(stream);
                 var styleText = reader.ReadToEnd();
 
-                var defined = Regex.Matches(styleText, "w:styleId=\"([^\"]+)\"").Select(m => m.Groups[1].Value).ToHashSet();
+                var defined = Regex.Matches(styleText, "w:styleId=\"([^\"]+)\"")
+                    .Select(m => m.Groups[1].Value)
+                    .Concat(Regex.Matches(styleText, "<w:name w:val=\"([^\"]+)\"")
+                        .Select(m => m.Groups[1].Value))
+                    .ToHashSet();
                 var used = Regex.Matches(docText, "w:pStyle w:val=\"([^\"]+)\"").Select(m => m.Groups[1].Value).ToHashSet();
                 referencedUndefined = used.Except(defined).ToList();
                 foreach (var u in referencedUndefined)

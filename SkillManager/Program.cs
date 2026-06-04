@@ -27,19 +27,19 @@ switch (command)
 
 void PrintUsage()
 {
-    Console.WriteLine("skill-manager — CLI for the skill lifecycle\n");
-    Console.WriteLine("Commands:");
+    Console.WriteLine("skill-manager — LEGACY/DEPRECATED. Use nong skill instead.\n");
+    Console.WriteLine("Commands (for local debugging only):");
     Console.WriteLine("  validate <path>       Validate SKILL.md structure and references");
     Console.WriteLine("  scan <path>           Security scan (always-on)");
-    Console.WriteLine("  scan --audit-allowlist Audit scan allowlist");
     Console.WriteLine("  package <path>        Validate + scan + create .zip");
-    Console.WriteLine("  eval <file>           Load and validate eval schema");
-    Console.WriteLine("  eval serve            Start interactive eval viewer (browser)");
-    Console.WriteLine("  scaffold <name>       Scaffold wrapper skill skeleton");
-    Console.WriteLine("    --tool <name>         Display name of upstream tool");
-    Console.WriteLine("    --target-dir <path>   Parent directory (default: .)");
-    Console.WriteLine("  inventory <path>      List all components");
-    Console.WriteLine("\nInstall: dotnet tool install --global Angri450.Nong.Skill.Manager");
+    Console.WriteLine("  inventory <path>      List all components\n");
+    Console.WriteLine("The public entry point is:");
+    Console.WriteLine("  dotnet tool install --global Angri450.Nong.Cli");
+    Console.WriteLine("  nong skill validate <dir> --json");
+    Console.WriteLine("  nong skill scan <dir> --json");
+    Console.WriteLine("  nong skill inventory <dir> --json");
+    Console.WriteLine("  nong skill package <dir> --json");
+    Console.WriteLine("\nThis tool is no longer published or promoted.");
 }
 
 // ---- validate ----
@@ -162,7 +162,7 @@ async Task RunPackage(string path)
         var outputPath = await packager.PackageAsync();
         Console.WriteLine($"[OK] Packaged to: {outputPath}");
         Console.WriteLine($"[OK] Size: {new FileInfo(outputPath).Length / (1024.0 * 1024.0):F2} MB");
-        await packager.VerifyArchiveAsync(outputPath);
+        await packager.VerifyArchiveAsync(outputPath, SkillRootKind.Skill);
         Console.WriteLine("[OK] Archive integrity verified");
         Console.WriteLine("\nPackage contents:");
         using var zip = System.IO.Compression.ZipFile.OpenRead(outputPath);

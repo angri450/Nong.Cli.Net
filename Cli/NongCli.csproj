@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Nong.Cli</RootNamespace>
+    <AssemblyName>nong</AssemblyName>
+    <PackageId>Angri450.Nong.Cli</PackageId>
+    <ToolCommandName>nong</ToolCommandName>
+    <PackAsTool>true</PackAsTool>
+    <Version>3.2.1</Version>
+    <Authors>angri450</Authors>
+    <Description>CLI toolkit for Nong.NET document generation and inspection. One binary for Word/Excel/PPT/Chart/Diagram/OCR operations.</Description>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/angri450/Nong.NET</RepositoryUrl>
+    <PackageTags>nong cli word excel ppt chart diagram ocr document-generation</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Docx\DocxCore.csproj" />
+    <ProjectReference Include="..\Inspect\Inspect.csproj" />
+    <ProjectReference Include="..\Chart\ChartCore.csproj" />
+    <ProjectReference Include="..\Diagram\DiagramCore.csproj" />
+    <ProjectReference Include="..\Genre\Genre.csproj" />
+    <ProjectReference Include="..\Bioicons\Bioicons.csproj" />
+    <ProjectReference Include="..\SkillManagerCore\SkillManagerCore.csproj" />
+    <ProjectReference Include="..\Pptx\PptxCore.csproj" />
+    <ProjectReference Include="..\MultiModal\MultiModalCore.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

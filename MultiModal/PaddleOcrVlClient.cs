@@ -22,9 +22,10 @@ public class PaddleOcrVlClient : IDisposable
     public PaddleOcrVlClient(string? token = null, string? baseUrl = null, HttpClient? http = null)
     {
         _token = token
+            ?? Environment.GetEnvironmentVariable("PADDLEOCR_ACCESS_TOKEN")
             ?? Environment.GetEnvironmentVariable("PADDLEOCR_TOKEN")
             ?? throw new ArgumentNullException(nameof(token),
-                "Token 未提供且环境变量 PADDLEOCR_TOKEN 未设置");
+                "Token 未提供且环境变量 PADDLEOCR_ACCESS_TOKEN / PADDLEOCR_TOKEN 均未设置");
         _baseUrl = baseUrl ?? DefaultBaseUrl;
         _http = http ?? new HttpClient();
         _downloadHttp = new HttpClient(); // 不加认证头，BOS/CDN 不需要

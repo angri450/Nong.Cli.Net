@@ -1,0 +1,122 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>ShapeCrawler</AssemblyName>
+    <RootNamespace>ShapeCrawler</RootNamespace>
+    <Authors>Adam Shakhabov</Authors>
+    <Company>ShapeCrawler</Company>
+    <Description>ShapeCrawler is a .NET library for manipulating PowerPoint presentations. It provides fluent APIs to process slides without having Microsoft Office installed.
+This library provides a simplified object model on top of the Open XML SDK for manipulating PowerPoint documents without any COM+ or COM interop layers.</Description>
+    <PackageTags>ShapeCrawler Presentation PPTX  PowerPoint Slides OpenXml OOXML</PackageTags>
+    <NeutralLanguage>en</NeutralLanguage>
+    <LangVersion>latest</LangVersion>
+    <Version>0.79.2</Version>
+    <PackageReleaseNotes>🐞Fixed TextBox.SetText throwing exception</PackageReleaseNotes>
+    <PackageProjectUrl>https://github.com/ShapeCrawler/ShapeCrawler</PackageProjectUrl>
+    <RepositoryType>Git</RepositoryType>
+    <RepositoryUrl>https://github.com/ShapeCrawler/ShapeCrawler</RepositoryUrl>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <Title>ShapeCrawler</Title>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>AnyCPU</Platforms>
+    <Nullable>enable</Nullable>
+    <IsTrimmable Condition="'$(TargetFramework)' == 'net10.0'">true</IsTrimmable> 
+    <Copyright>Copyright (c) 2019-2026 Adam Shakhabov</Copyright> 
+    <PackageIcon>package icon.jpg</PackageIcon> 
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <NoWarn>OOXML0001</NoWarn>
+  </PropertyGroup>
+
+   <ItemGroup>
+    <None Include="Assets/package icon.jpg" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>bin\Debug\ShapeCrawler.xml</DocumentationFile>
+    <TargetFramework>net10.0</TargetFramework>
+    <RunAnalyzers>false</RunAnalyzers>
+    <NoWarn>$(NoWarn);CS0219</NoWarn>
+  </PropertyGroup>  
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DocumentationFile>bin\Release\ShapeCrawler.xml</DocumentationFile>
+    <TargetFrameworks>net10.0;netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\video image.bmp" />
+    <EmbeddedResource Include="Assets\video image.bmp" />
+    <None Remove="Assets\audio image.png" />
+    <EmbeddedResource Include="Assets\audio image.png" />
+    <None Remove="Assets\new presentation.pptx" />
+    <EmbeddedResource Include="Assets\new presentation.pptx" />
+    <None Remove="Assets\new rectangle.xml" />
+    <EmbeddedResource Include="Assets\new rectangle.xml" />
+    <None Remove="Assets\new line.xml" />
+    <EmbeddedResource Include="Assets\new line.xml" />
+    <None Remove="Assets\smartart-basicblocklist-data.xml" />
+    <EmbeddedResource Include="Assets\smartart-basicblocklist-data.xml" />
+    <None Remove="Assets\smartart-basicblocklist-layout.xml" />
+    <EmbeddedResource Include="Assets\smartart-basicblocklist-layout.xml" />
+    <None Remove="Assets\smartart-basicblocklist-colors.xml" />
+    <EmbeddedResource Include="Assets\smartart-basicblocklist-colors.xml" />
+    <None Remove="Assets\smartart-basicblocklist-quickStyle.xml" />
+    <EmbeddedResource Include="Assets\smartart-basicblocklist-quickStyle.xml" />
+    <None Remove="Assets\smartart-basicblocklist-drawing.xml" />
+    <EmbeddedResource Include="Assets\smartart-basicblocklist-drawing.xml" />
+    <None Remove="Assets\date and time placeholder.xml" />
+    <EmbeddedResource Include="Assets\date and time placeholder.xml" />
+    <None Remove="Assets\footer placeholder.xml" />
+    <EmbeddedResource Include="Assets\footer placeholder.xml" />
+    <None Remove="Assets\slide number placeholder.xml" />
+    <EmbeddedResource Include="Assets\slide number placeholder.xml" />
+    <None Remove="Assets\video image.png" />
+    <EmbeddedResource Include="Assets\video image.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml" Version="3.5.1" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.13.1" />
+    <PackageReference Include="DocumentFormat.OpenXml.Linq" Version="3.5.1" />
+    <PackageReference Include="PolySharp" Version="1.15.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="SkiaSharp" Version="3.119.2" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.2" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Resources.Extensions" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

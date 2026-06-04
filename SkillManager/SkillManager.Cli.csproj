@@ -6,23 +6,20 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <PackAsTool>true</PackAsTool>
+    <IsPackable>false</IsPackable>
+    <PackAsTool>false</PackAsTool>
     <ToolCommandName>skill-manager</ToolCommandName>
     <PackageId>Angri450.Nong.Skill.Manager</PackageId>
     <Version>3.0.2</Version>
     <Authors>angri450</Authors>
-    <Description>Skill management CLI — validate, scan, package, eval, scaffold</Description>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>Skill management CLI — validate, scan, package, eval, scaffold (legacy, use nong skill instead)</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/angri450/Nong.NET</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="YamlDotNet" Version="*" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="assets\viewer.html" />
+    <ProjectReference Include="..\SkillManagerCore\SkillManagerCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>

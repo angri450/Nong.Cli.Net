@@ -108,10 +108,10 @@ public class OfficialDocWriter
     static Run Run(string t, string fs, bool bold = false, string? color = null)
     {
         var rpr = new RunProperties(
-            new RunFonts { Ascii = "仿宋", HighAnsi = "仿宋", EastAsia = "仿宋" },
-            new FontSize { Val = fs });
+            new RunFonts { Ascii = "仿宋", HighAnsi = "仿宋", EastAsia = "仿宋" });
         if (bold) rpr.Append(new Bold());
         if (color != null) rpr.Append(new Color { Val = color });
+        rpr.Append(new FontSize { Val = fs });
         return new Run(rpr, new Text(t));
     }
 }

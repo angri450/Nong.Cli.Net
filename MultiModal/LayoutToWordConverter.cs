@@ -23,7 +23,9 @@ public static class LayoutToWordConverter
         // 用 Docx 包的标准样式
         var stylePart = mainPart.AddNewPart<StyleDefinitionsPart>();
         stylePart.Styles = new Styles();
-        StyleBuilder.BuildAll(stylePart.Styles);
+        StyleBuilder.BuildFromJson(stylePart.Styles,
+            System.Text.Json.JsonDocument.Parse(
+                """{"styles":{"Normal":{"fontSize":"21","alignment":"both","firstLineIndent":"420","lineSpacing":"240"}}}""").RootElement);
 
         var writer = new DocumentWriter(body, doc);
 
@@ -75,14 +77,14 @@ public static class LayoutToWordConverter
         switch (block.BlockLabel)
         {
             case "doc_title":
-                writer.Title(block.BlockContent);
+                AppendStyledParagraph(body, block.BlockContent, bold: true, fontSize: "32", alignment: "center");
                 break;
             case "paragraph_title":
-                writer.Heading(block.BlockContent, 2);
+                AppendStyledParagraph(body, block.BlockContent, bold: true, fontSize: "28");
                 break;
             case "text":
                 if (!string.IsNullOrWhiteSpace(block.BlockContent))
-                    writer.Body(block.BlockContent);
+                    AppendStyledParagraph(body, block.BlockContent);
                 break;
             case "image":
                 WriteImageBlock(block, page, result, imgDir, mainPart, body);
@@ -95,9 +97,30 @@ public static class LayoutToWordConverter
                 break;
             default:
                 if (!string.IsNullOrWhiteSpace(block.BlockContent))
-                    writer.Body(block.BlockContent);
+                    AppendStyledParagraph(body, block.BlockContent);
                 break;
         }
+    }
+
+    static void AppendStyledParagraph(Body body, string text, bool bold = false,
+        string fontSize = "21", string? alignment = null)
+    {
+        var al = alignment switch
+        {
+            "center" => JustificationValues.Center,
+            "left" => JustificationValues.Left,
+            "right" => JustificationValues.Right,
+            _ => JustificationValues.Both
+        };
+        var para = new Paragraph(new ParagraphProperties(
+            new Justification { Val = al },
+            new SpacingBetweenLines { Before = "60", After = "60", Line = "240", LineRule = LineSpacingRuleValues.Auto }));
+        var rpr = new RunProperties(
+            new RunFonts { Ascii = "Times New Roman", HighAnsi = "Times New Roman", EastAsia = "宋体" },
+            new FontSize { Val = fontSize });
+        if (bold) rpr.Append(new Bold());
+        para.Append(new Run(rpr, new Text(text) { Space = SpaceProcessingModeValues.Preserve }));
+        body.Append(para);
     }
 
     static void WriteImageBlock(ParsingBlock block, OcrPage page, OcrResult result,

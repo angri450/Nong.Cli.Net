@@ -1,0 +1,35 @@
+﻿{
+  "schemaVersion": "nongmark/v1",
+  "source": "docx-basic.docx",
+  "sourceSha256": "60eb207c05511e650421494ebbb1df22334b41447ab0006ed48fbe59e808d7f8",
+  "createdAt": "2026-06-04T05:05:42.6204841Z",
+  "streams": {
+    "document": "document.json",
+    "content": "content.md",
+    "contentJsonl": "content.jsonl",
+    "structure": "structure.json",
+    "format": "format.json",
+    "assets": "assets/manifest.json"
+  },
+  "metrics": {
+    "blocks": 38,
+    "paragraphs": 22,
+    "headings": 10,
+    "tables": 2,
+    "images": 0,
+    "equations": 0,
+    "chemEquations": 0,
+    "chemStructures": 0,
+    "footnotes": 1,
+    "endnotes": 1,
+    "comments": 0,
+    "revisions": 0,
+    "hyperlinks": 1,
+    "bookmarks": 1,
+    "figures": 0,
+    "tocs": 0,
+    "fields": 0,
+    "rawRefs": 0
+  },
+  "warnings": []
+}

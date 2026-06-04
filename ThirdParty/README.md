@@ -1,6 +1,6 @@
 # Angri450.Nong.ThirdParty
 
-Foundation DLL for the Nong.NET toolkit. Merges source code from 15 open-source libraries into a single assembly. Zero external managed dependencies — one DLL, no NuGet graph.
+15 个开源库合一的 .NET 基础 DLL。angri450 手工合并、适配、裁剪，编译为单一程序集 —— 零外部托管依赖，一个 DLL 替代一整张 NuGet 依赖图。
 
 [![NuGet](https://img.shields.io/nuget/v/Angri450.Nong.ThirdParty)](https://www.nuget.org/packages/Angri450.Nong.ThirdParty)
 [![.NET](https://img.shields.io/badge/.NET-8.0%2B-512BD4)](https://dotnet.microsoft.com)
@@ -17,6 +17,8 @@ dotnet add package Angri450.Nong.ThirdParty
 
 ## Merged Libraries
 
+angri450 将以下 15 个开源库的源码合入单一项目，解决了版本冲突、类型重复和依赖膨胀问题：
+
 | Library | License | Purpose |
 |---------|---------|---------|
 | ClosedXML | MIT | Read/write Excel (.xlsx) |
@@ -32,7 +34,7 @@ dotnet add package Angri450.Nong.ThirdParty
 
 ## Usage
 
-All merged library APIs are directly accessible:
+所有合入库的 API 直接可用：
 
 ```csharp
 using ClosedXML.Excel;
@@ -41,25 +43,20 @@ using SkiaSharp;
 using Microsoft.Msagl.Drawing;
 ```
 
-Build your app against ThirdParty and you get all 15 libraries with a single package reference.
+引用 ThirdParty 一个包，即可获得全部 15 个库的能力。
 
 ## Runtime Dependencies
 
-Native platform binaries for SkiaSharp and HarfBuzzSharp (~65 MB) are auto-downloaded at runtime via NuGet. These are platform-specific native DLLs, not managed code:
+SkiaSharp 和 HarfBuzzSharp 的本地二进制文件（约 65 MB）由 NuGet 在运行时自动按平台下载。无需额外安装步骤。
 
-- `SkiaSharp.NativeAssets.Win32` / `macOS` / `Linux`
-- `HarfBuzzSharp.NativeAssets.Win32` / `macOS` / `Linux`
+## When to Use
 
-No additional install steps needed — NuGet handles platform-specific asset selection automatically.
+直接安装 `Angri450.Nong.ThirdParty` 以获得底层库的完全访问权。如果你已经引用了其他 Nong 包（Excel、Chart、Docx 等），它们会自动传递依赖 ThirdParty，无需重复安装。
 
-## When to Use This Package
+## Author
 
-Install `Angri450.Nong.ThirdParty` when you want direct access to the merged libraries. You do not need to install it separately if you already reference other Nong packages — they depend on it transitively.
-
-## Source
-
-https://github.com/angri450/Nong.NET — Issues and PRs welcome.
+Built by [angri450](https://github.com/angri450). Source: [Nong.NET](https://github.com/angri450/Nong.NET).
 
 ## License
 
-MIT (merged libraries retain their original licenses — see individual LICENSE files in source)
+MIT（合入的库保留原始许可证 —— 参见源码中各 LICENSE 文件）

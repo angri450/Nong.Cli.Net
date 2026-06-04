@@ -1,6 +1,6 @@
 # Angri450.Nong.Docx
 
-OpenXML Word generation library. Pure .NET, zero COM, single merged dependency. One-stop paper writing: create, fill, analyze, and diagnose.
+纯 .NET Word 文档引擎。angri450 从零构建 —— 链式写入、JSON 模板驱动样式、模板填充、图片嵌入、论文诊断、OCR 转 Word，一套包搞定。零 COM、零 ImageSharp、跨平台。
 
 [![NuGet](https://img.shields.io/nuget/v/Angri450.Nong.Docx)](https://www.nuget.org/packages/Angri450.Nong.Docx)
 [![.NET](https://img.shields.io/badge/.NET-8.0%2B-512BD4)](https://dotnet.microsoft.com)
@@ -28,12 +28,12 @@ var main = doc.AddMainDocumentPart();
 main.Document = new Document(new Body());
 var body = main.Document.Body!;
 
-// Styles from JSON template
+// JSON 模板定义样式
 var sp = main.AddNewPart<StyleDefinitionsPart>();
 sp.Styles = new Styles();
 StyleBuilder.BuildFromJson(sp.Styles, "formats/journal-paper.json");
 
-// Chainable content
+// 链式写入内容
 var w = new DocumentWriter(body);
 w.Title("Research on Photosynthesis")
  .Abstract("This study investigates...")
@@ -48,7 +48,7 @@ w.Title("Research on Photosynthesis")
  .BibHeading()
  .References("Smith J. Photosynthesis review[J]. Nature, 2025.");
 
-// Images
+// 图片嵌入
 ImageEmbedder.EmbedImages(body, main, new[] { "fig1.png", "fig2.png" });
 
 body.Append(StyleBuilder.LoadPageLayout("formats/journal-paper.json").Build());
@@ -57,39 +57,42 @@ main.Document.Save();
 
 ## Core Capabilities
 
-### DocumentWriter — Chainable Builder
+### DocumentWriter — 链式构建器
+
+angri450 设计的链式 API，覆盖论文写作全流程：
 
 | Method | Description |
 |--------|-------------|
-| `Title()` / `EnglishTitle()` | Chinese and English titles |
-| `Abstract()` / `Keywords()` | Abstract and keywords block |
-| `Heading(text, level)` | Section heading (1-4) |
-| `Body(text)` | Body paragraph |
-| `Footnote(text)` / `Endnote(text)` | Footnotes and endnotes |
-| `Table(caption, level, headers, rows)` | Data table with caption |
-| `TableStyle(style)` | 90+ built-in table styles |
-| `Figure(caption, level)` | Figure placeholder with caption |
-| `CrossReference(bookmark, text)` | Internal cross-reference |
-| `Hyperlink(url, text)` | External hyperlink |
-| `BibHeading()` / `References(text)` | Bibliography section |
-| `Bookmark(name)` | Named bookmark for cross-references |
+| `Title()` / `EnglishTitle()` | 中英文标题 |
+| `Abstract()` / `Keywords()` | 摘要和关键词块 |
+| `Heading(text, level)` | 章节标题（1-4 级） |
+| `Body(text)` | 正文段落 |
+| `Footnote(text)` / `Endnote(text)` | 脚注和尾注 |
+| `Table(caption, level, headers, rows)` | 数据表格（带标题） |
+| `TableStyle(style)` | 90+ 内置表格样式 |
+| `Figure(caption, level)` | 图位（带标题） |
+| `CrossReference(bookmark, text)` | 内部交叉引用 |
+| `Hyperlink(url, text)` | 外部超链接 |
+| `BibHeading()` / `References(text)` | 参考文献部分 |
+| `Bookmark(name)` | 命名书签供交叉引用 |
 
-### Format Templates — JSON-Driven Styling
+### 格式模板 — JSON 驱动样式
+
+angri450 设计：换一个 JSON 文件 = 换一套格式。竞赛论文 → 期刊 → 毕业论文，秒切换。
 
 ```csharp
-// Swap JSON = swap format. Contest → journal → thesis in seconds.
 StyleBuilder.BuildFromJson(sp.Styles, "formats/journal-paper.json");
 var sectPr = StyleBuilder.LoadPageLayout("formats/journal-paper.json").Build();
 ```
 
-| Template | Body Font | Heading Font | Use Case |
-|----------|-----------|-------------|----------|
-| `life-sciences-contest` | 宋体 10.5pt | 黑体 14pt | Contest (4 pages) |
-| `journal-paper` | 宋体 10.5pt | 黑体 18pt | Journal (GB/T 7714) |
-| `course-paper` | 宋体 10.5pt | 黑体 14pt | Course paper |
-| `degree-thesis` | 宋体 12pt | 黑体 16pt | Degree thesis |
+| Template | 正文字体 | 标题字体 | 用途 |
+|----------|---------|---------|------|
+| `life-sciences-contest` | 宋体 10.5pt | 黑体 14pt | 竞赛论文（4 页） |
+| `journal-paper` | 宋体 10.5pt | 黑体 18pt | 期刊论文（GB/T 7714） |
+| `course-paper` | 宋体 10.5pt | 黑体 14pt | 课程论文 |
+| `degree-thesis` | 宋体 12pt | 黑体 16pt | 学位论文 |
 
-### Template Engine — Fill Placeholders
+### 模板引擎 — 占位符填充
 
 ```csharp
 DocxTemplate.Fill("template.docx", "output.docx", new
@@ -98,17 +101,17 @@ DocxTemplate.Fill("template.docx", "output.docx", new
     Score = 95,
     Date = "2026-06-01"
 });
-// Supports: {{tag}} replacement, @if/@foreach blocks, table row data binding
+// 支持: {{tag}} 替换、@if/@foreach 块、表格行数据绑定
 ```
 
-### Image Embedding
+### 图片嵌入
 
 ```csharp
 ImageEmbedder.EmbedImages(body, mainPart, new[] { "fig1.png", "fig2.png" });
-// PNG/JPEG/GIF/BMP/TIFF — no external image library
+// PNG/JPEG/GIF/BMP/TIFF — 无需外部图片库
 ```
 
-### SectionBuilder — Page Layout
+### SectionBuilder — 页面布局
 
 ```csharp
 var sectPr = new SectionBuilder()
@@ -117,51 +120,53 @@ var sectPr = new SectionBuilder()
     .Build();
 ```
 
-### Paper Analysis (16 Types)
+### 论文分析（16 种类型 + A-E 评级）
+
+angri450 实现的论文诊断管线：
 
 ```csharp
-var type = PaperTypeClassifier.Classify(text);              // Research design type
-var structure = PaperStructureExtractor.BuildPaperStructure(text); // Section extraction
-var variables = VariablePlanGenerator.GenerateVariablePlan(text);  // Variable table
-var risks = ReferenceAnalyzer.CheckReferenceRisks(text);    // Reference quality
-var result = PaperDiagnostics.DiagnosePaperQuality(text, ...);     // A-E grade
-// Evidence chain (10 items) → data requirements (9 items) → gap → grade
+var type = PaperTypeClassifier.Classify(text);              // 研究设计类型
+var structure = PaperStructureExtractor.BuildPaperStructure(text); // 章节提取
+var variables = VariablePlanGenerator.GenerateVariablePlan(text);  // 变量表
+var risks = ReferenceAnalyzer.CheckReferenceRisks(text);    // 参考文献质量
+var result = PaperDiagnostics.DiagnosePaperQuality(text, ...);     // A-E 评级
+// 证据链（10 项）→ 数据需求（9 项）→ 缺口 → 等级
 ```
 
-### Advanced Features
+### 高级特性
 
-Comments, track changes, content controls, font embedding, document merge, document property management, read-only protection.
+批注、修订模式、内容控件、字体嵌入、文档合并、文档属性管理、只读保护。
 
-### WordPreview — Generate + Diagnose
+### WordPreview — 生成 + 诊断
 
 ```csharp
 var r = WordPreview.Preview("paper.docx");
-// Text preview + 7-step diagnostics + OOXML validation
+// 文本预览 + 7 步诊断 + OOXML 验证
 ```
 
 ## Dependencies
 
-- `Angri450.Nong.ThirdParty` — merged foundation (DocumentFormat.OpenXml + all transitive deps)
+- `Angri450.Nong.ThirdParty` — 合并基础库（DocumentFormat.OpenXml + 全部传递依赖）
 
-No `System.Drawing.Common`, no ImageSharp, no COM. Cross-platform.
+无 `System.Drawing.Common`、无 ImageSharp、无 COM。跨平台。
 
 ## API Reference
 
 | Class | Description |
 |-------|-------------|
-| `DocumentWriter` | Chainable content builder |
-| `StyleBuilder` | JSON-driven style and layout definition |
-| `DocxTemplate` | Template engine with placeholder/tag replacement |
-| `ImageEmbedder` | Image insertion with dimension auto-detection |
-| `SectionBuilder` | Page layout (A4, margins, columns) |
-| `PaperDiagnostics` | Quality diagnosis with A-E grading |
-| `WordPreview` | Content preview and validation |
-| `AdvancedFeatures` | Comments, track changes, content controls, protection |
+| `DocumentWriter` | 链式内容构建器 |
+| `StyleBuilder` | JSON 驱动样式和页面布局定义 |
+| `DocxTemplate` | 模板引擎（占位符/标签替换） |
+| `ImageEmbedder` | 图片插入（自动检测尺寸） |
+| `SectionBuilder` | 页面布局（A4、边距、分栏） |
+| `PaperDiagnostics` | 论文质量诊断（A-E 评级） |
+| `WordPreview` | 内容预览和验证 |
+| `AdvancedFeatures` | 批注、修订、内容控件、保护 |
 
-## Source
+## Author
 
-https://github.com/angri450/Nong.NET — Issues and PRs welcome.
+Built by [angri450](https://github.com/angri450). Source: [Nong.NET](https://github.com/angri450/Nong.NET).
 
 ## License
 
-MIT
+Apache-2.0

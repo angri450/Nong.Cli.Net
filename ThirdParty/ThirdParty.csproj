@@ -8,7 +8,7 @@
     <Version>3.0.2</Version>
     <Authors>angri450</Authors>
     <Description>Merged source of ClosedXML, DocumentFormat.OpenXml, ScottPlot, MSAGL, SkiaSharp, HarfBuzzSharp, SixLabors.Fonts and all sub-dependencies — compiled into a single assembly. Zero-external-dependency foundation for the Angri450.Nong document generation toolkit.</Description>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/angri450/Nong.NET</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>closedxml openxml scottplot msagl skiasharp harfbuzz excel chart diagram document-generation</PackageTags>
@@ -68,6 +68,8 @@
     <Compile Include="..\SixLabors.Fonts\**\*.cs" Exclude="..\SixLabors.Fonts\bin\**\*;..\SixLabors.Fonts\obj\**\*;..\SixLabors.Fonts\shared-infrastructure\**\*" />
     <Compile Include="..\SkiaSharp\**\*.cs" Exclude="..\SkiaSharp\bin\**\*;..\SkiaSharp\obj\**\*" />
     <Compile Include="..\SkiaSharp.HarfBuzz\**\*.cs" Exclude="..\SkiaSharp.HarfBuzz\bin\**\*;..\SkiaSharp.HarfBuzz\obj\**\*" />
+    <Compile Include="..\ClippitPowerTools\**\*.cs" Exclude="..\ClippitPowerTools\bin\**\*;..\ClippitPowerTools\obj\**\*;..\ClippitPowerTools\Excel\**\*;..\ClippitPowerTools\PowerPoint\**\*;..\ClippitPowerTools\Html\**\*;..\ClippitPowerTools\Internal\**\*;..\ClippitPowerTools\MetricsGetter.cs" />
+    <Compile Include="..\ShapeCrawler\**\*.cs" Exclude="..\ShapeCrawler\bin\**\*;..\ShapeCrawler\obj\**\*;..\ShapeCrawler\Slides\XmlPicture.cs" />
   </ItemGroup>
 
   <!-- Remove conflicting files (assembly attributes, type forwards, polyfills) -->
@@ -82,6 +84,8 @@
     <Compile Remove="..\MSAGL.Drawing\AssemblyInfo.cs" />
     <Compile Remove="..\MSAGL\AssemblyInfo.cs" />
     <Compile Remove="..\HarfBuzzSharp\DelegateProxies.cs" />
+    <Compile Remove="..\ClippitPowerTools\Properties\**\*" />
+    <Compile Remove="..\ShapeCrawler\Properties\**\*" />
   </ItemGroup>
 
   <!-- OpenXml Source Generator infrastructure (borrowed from OpenXmlSourceGenerator.targets) -->
@@ -150,6 +154,8 @@
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" Version="8.3.1.1" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.macOS" Version="8.3.1.1" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="8.3.1.1" />
+    <PackageReference Include="System.IO.Hashing" Version="9.0.0" />
+    <PackageReference Include="System.Resources.Extensions" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>

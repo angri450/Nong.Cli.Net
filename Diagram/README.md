@@ -1,6 +1,6 @@
 # Angri450.Nong.Diagram
 
-Scientific diagram generator. Flowcharts, network graphs, phylogenetic trees, and mechanism diagrams — all as publication-quality PNG or SVG.
+科学图表渲染引擎。angri450 基于 MSAGL + SkiaSharp 构建了四种渲染管线 —— 流程图、网络图、系统发育树、机制图，输出为可发表的 PNG 或 SVG。
 
 [![NuGet](https://img.shields.io/nuget/v/Angri450.Nong.Diagram)](https://www.nuget.org/packages/Angri450.Nong.Diagram)
 [![.NET](https://img.shields.io/badge/.NET-8.0%2B-512BD4)](https://dotnet.microsoft.com)
@@ -17,7 +17,7 @@ dotnet add package Angri450.Nong.Diagram
 
 ## Quick Start
 
-### Flowchart
+### 流程图
 
 ```csharp
 using DiagramCore;
@@ -34,14 +34,14 @@ graph.AddEdge("C", "D");
 DiagramBuilder.Flowchart(graph, "flowchart.png", 800, 600);
 ```
 
-### Phylogenetic Tree
+### 系统发育树
 
 ```csharp
 var newick = "((Human:0.1,Chimp:0.12):0.05,(Gorilla:0.15,Orangutan:0.2):0.1);";
 DiagramBuilder.PhylogeneticTree(newick, "tree.png", radial: false, 800, 600);
 ```
 
-### Network Graph
+### 网络图
 
 ```csharp
 var net = new Graph();
@@ -56,13 +56,15 @@ DiagramBuilder.NetworkGraph(net, "network.png", 800, 600);
 
 ## Diagram Types
 
+angri450 实现的五种图表类型：
+
 | Type | Method | Use Case |
 |------|--------|----------|
-| Flowchart | `Flowchart()` | Process diagrams, pipelines |
-| Network | `NetworkGraph()` | System architecture, topology |
-| Phylogenetic Tree | `PhylogeneticTree()` | Newick format trees (rectangular/radial) |
-| Mechanism | `MechanismDiagram()` | Scientific mechanism illustrations |
-| Sankey | `SankeyDiagram()` | Flow and transfer diagrams |
+| Flowchart | `Flowchart()` | 流程图、管线图 |
+| Network | `NetworkGraph()` | 系统架构、拓扑图 |
+| Phylogenetic Tree | `PhylogeneticTree()` | Newick 格式系统发育树（矩形/辐射） |
+| Mechanism | `MechanismDiagram()` | 科学机制示意图 |
+| Sankey | `SankeyDiagram()` | 桑基图、流向图 |
 
 ## Node and Edge Customization
 
@@ -73,21 +75,21 @@ graph.AddEdge("A", "B", weight: 0.7, label: "0.7", style: EdgeStyle.Dashed);
 
 ## Dependencies
 
-- `Angri450.Nong.ThirdParty` — merged foundation (MSAGL + SkiaSharp + all transitive deps)
-- `Angri450.Nong.Bioicons` — 40 scientific SVG icons for node decoration
+- `Angri450.Nong.ThirdParty` — 合并基础库（MSAGL + SkiaSharp + 全部传递依赖）
+- `Angri450.Nong.Bioicons` — 40 个科学 SVG 图标用于节点装饰
 
 ## API Reference
 
 | Class | Description |
 |-------|-------------|
-| `DiagramBuilder` | Entry point for all diagram types, output to file or stream |
-| `Graph` / `Node` / `Edge` | Graph model classes |
-| `PhylogeneticTreeParser` | Newick format parser |
+| `DiagramBuilder` | 所有图表类型入口，输出到文件或流 |
+| `Graph` / `Node` / `Edge` | 图模型类 |
+| `PhylogeneticTreeParser` | Newick 格式解析器 |
 
-## Source
+## Author
 
-https://github.com/angri450/Nong.NET — Issues and PRs welcome.
+Built by [angri450](https://github.com/angri450). Source: [Nong.NET](https://github.com/angri450/Nong.NET).
 
 ## License
 
-MIT
+Apache-2.0
