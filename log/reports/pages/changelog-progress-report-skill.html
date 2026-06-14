@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>progress-report skill 创建 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>progress-report skill 创建</h1>
+<p class="subtitle">2026-06-09 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>progress-report skill 创建</h1>
+<br>
+<h2>时间</h2>
+<p>2026-06-09</p>
+<br>
+<h2>影响范围</h2>
+<p>新增项目 skill + .NET 工具，无现有代码变更。</p>
+<br>
+<h2>变更类型</h2>
+<p>新功能 — 项目开发进展报表。</p>
+<br>
+<h2>做了什么</h2>
+<br>
+<p>1. 创建项目级 skill <code>.claude/skills/progress-report/SKILL.md</code></p>
+<p>2. 创建 .NET CLI 工具 <code>tools/ProgressReport/</code>，读取 <code>log/</code> 下四个子目录的 markdown 文件，生成 HTML 报告</p>
+<p>3. 首次运行生成 90 页 HTML 报告到 <code>log/reports/</code></p>
+<br>
+<h2>文件清单</h2>
+<br>
+<p>新增：</p>
+<ul>
+<li><code>.claude/skills/progress-report/SKILL.md</code> — skill 内核</li>
+<li><code>tools/ProgressReport/ProgressReport.csproj</code> — .NET 项目</li>
+<li><code>tools/ProgressReport/Program.cs</code> — 报告生成器（单文件 C#）</li>
+</ul>
+<br>
+<p>生成（由工具自动产出）：</p>
+<ul>
+<li><code>log/reports/index.html</code> — 总览仪表盘（90 条记录，4 个板块卡片）</li>
+<li><code>log/reports/plans.html</code> — 施工方案汇总</li>
+<li><code>log/reports/changelog.html</code> — 变更记录汇总</li>
+<li><code>log/reports/debug.html</code> — 用户反馈汇总</li>
+<li><code>log/reports/guidance.html</code> — 开发指导汇总</li>
+<li><code>log/reports/style.css</code> — 共享样式</li>
+<li><code>log/reports/pages/*.html</code> — 90 个条目独立页面</li>
+</ul>
+<br>
+<h2>使用方法</h2>
+<br>
+<pre><code class="language-powershell">
+dotnet run --project tools/ProgressReport -- --project-root .
+# 然后用浏览器打开 log/reports/index.html
+</code></pre>
+<br>
+<h2>设计特点</h2>
+<br>
+<ul>
+<li>纯 .NET 8 CLI 工具，零外部 NuGet 依赖，零 JavaScript</li>
+<li>单文件 C#（约 450 行），内联 CSS 样式</li>
+<li>内存中 markdown 解析（支持标题、列表、代码块、表格、粗体、链接）</li>
+<li>文件名解析容错：自动尝试 date-prefix 和 exact-match 两种模式</li>
+<li>颜色编码：蓝=方案、绿=变更、红=反馈、紫=指导</li>
+<li>响应式布局，手机/桌面均可读</li>
+</ul>
+<br>
+<h2>技能须知</h2>
+<br>
+<ul>
+<li>用户在 Claude Code 中输入&quot;看进展&quot;、&quot;生成报告&quot;等即可触发</li>
+<li>Skill Agent 每次写 log 后应运行工具更新 HTML</li>
+<li>工具全量重新生成，确保与源文件一致</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

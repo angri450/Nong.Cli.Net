@@ -57,6 +57,26 @@ main.Document.Save();
 
 ## Core Capabilities
 
+## Word Core Contract
+
+Word work is split into three deterministic layers:
+
+| Layer | Main Command | Purpose |
+|-------|--------------|---------|
+| NongMark -> DOCX | `nong word create document.nongmark -o document.docx --json` | New long documents and paper-like deliverables |
+| DOCX -> NongPandoc package | `nong word dissect input.docx -o input.slice --json` | Reading, slicing, analysis, and formatting evidence |
+| DOCX Repair/Format | `nong word fix-order`, `nong word academic-format` | Existing document repair and academic formatting |
+
+Detailed tracking lives in:
+
+- `WORD_CORE_LAYERS.md`
+- `WORD_CAPABILITY_MATRIX.md`
+
+Important: `word validate` passing means schema validity only. Formatted deliverables still require evidence for fonts, line spacing, paragraph layout, table borders, and visible content from `format.json`, `content.jsonl`, `fonts`, `styles`, preview output, or direct OOXML checks. `preview/content.txt` is a lossy view; `content.nongmark` and the package evidence streams are the AI-facing contract.
+
+The slice `manifest.json` uses `schemaVersion: "nong-pandoc/package/v1"` so
+Word/PDF/PPT/Excel packages expose the same top-level stream contract.
+
 ### DocumentWriter — 链式构建器
 
 angri450 设计的链式 API，覆盖论文写作全流程：
@@ -92,7 +112,7 @@ var sectPr = StyleBuilder.LoadPageLayout("formats/journal-paper.json").Build();
 | `course-paper` | 宋体 10.5pt | 黑体 14pt | 课程论文 |
 | `degree-thesis` | 宋体 12pt | 黑体 16pt | 学位论文 |
 
-### 模板引擎 — 占位符填充
+### 模板引擎 — 占位符填充 / cellReplace 无占位符模填
 
 ```csharp
 DocxTemplate.Fill("template.docx", "output.docx", new
@@ -102,6 +122,47 @@ DocxTemplate.Fill("template.docx", "output.docx", new
     Date = "2026-06-01"
 });
 // 支持: {{tag}} 替换、@if/@foreach 块、表格行数据绑定
+```
+
+#### cellReplace — 模板无需事先插占位符 (v4.2.1)
+
+只需一份模板和一份 JSON 键值对。引擎遍历所有表格单元格，用单元格内文字匹配 JSON key，自动判断填法：
+
+- **标签-值表**（右格存在）→ 填右格。例如 `"项目名称"` 匹配到第一列标签格，内容填入第二列的值格
+- **单格描述表** → 填本格。例如 `"（描述项目定位"` 匹配到提示文字格，内容填入同一格
+- **无匹配的表** → 原封保留。例如承诺书中的署名行和日期行
+- **`\n`** → 自动转为 Word 换行符 `<w:br/>`
+- **固定行高** → 自动解放为自适应，长文本不会裁切
+
+```json
+{
+  "cellReplace": {
+    "项目名称": "基于xxx技术的xxx装置",
+    "项目主申报人": "张三",
+    "（描述项目定位": "本项目提供了一种...",
+    "姓 名": "张三",
+    "年 龄": "35"
+  }
+}
+```
+
+```bash
+nong word fill template.docx data.json -o out.docx --json
+```
+
+#### tableRows — 填入带表头的多行数据表 (v4.2.1)
+
+对于有固定表头行的表格（如专利列表），用 `tableRows` 追加数据行。引擎匹配 `InnerText` 定位表格，保留第一行（表头），用提供的数组替换剩余行。
+
+```json
+{
+  "tableRows": {
+    "专利号/登记号": [
+      ["发明专利", "一种xxx装置", "ZL 202410000000.0", "2024-06-01"],
+      ["实用新型专利", "一种xxx方法", "CN 202410000000.0", "2025-03-15"]
+    ]
+  }
+}
 ```
 
 ### 图片嵌入
@@ -165,7 +226,7 @@ var r = WordPreview.Preview("paper.docx");
 
 ## Author
 
-Built by [angri450](https://github.com/angri450). Source: [Nong.NET](https://github.com/angri450/Nong.NET).
+Built by [angri450](https://github.com/angri450). Source: [Nong.Cli.Net](https://github.com/angri450/Nong.Cli.Net).
 
 ## License
 

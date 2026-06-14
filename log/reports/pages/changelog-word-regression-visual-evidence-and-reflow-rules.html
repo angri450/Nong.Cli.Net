@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-08 Word regression visual evidence and reflow rules - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>2026-06-08 Word regression visual evidence and reflow rules</h1>
+<p class="subtitle">2026-06-08 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>2026-06-08 Word regression visual evidence and reflow rules</h1>
+<br>
+<h2>时间</h2>
+<br>
+<p>2026-06-08</p>
+<br>
+<h2>影响包</h2>
+<br>
+<ul>
+<li><code>Angri450.Nong.Docx</code></li>
+<li><code>Angri450.Nong.Pandoc</code></li>
+<li><code>Angri450.Nong.Cli.Tests</code></li>
+</ul>
+<br>
+<h2>变更类型</h2>
+<br>
+<ul>
+<li>Word 可视排版质量回归</li>
+<li><code>nong-pandoc/package/v1</code> slice 证据增强</li>
+<li>Word 能力矩阵同步</li>
+</ul>
+<br>
+<h2>详细说明</h2>
+<br>
+<ul>
+<li>同步 <code>Docx/WORD_CAPABILITY_MATRIX.md</code>，把化学式下标、文档网格冲突修复、重复表头、<code>format-audit</code> 证据和 <code>word table-reflow</code> 显式规则更新为真实状态。</li>
+<li>将三份沸石工作站真实文档纳入 <code>Cli.Tests/TestAssets/WordRegression/academic-format/</code>：</li>
+<li><code>zeolite-workstation-handwritten.docx</code></li>
+<li><code>zeolite-workstation-original.docx</code></li>
+<li><code>zeolite-workstation-beautified.docx</code></li>
+<li>更新 <code>Cli.Tests/TestAssets/WordRegression/MANIFEST.md</code>，记录 SHA256、分类、预期路由和必查证据。</li>
+<li><code>WordFormatAuditor</code> 增加从已打开 <code>WordprocessingDocument</code> 审计的重载，并补 <code>chemistry</code> 审计字段，用 run 级字符展开判断 <code>N2O</code>、<code>H2O2</code>、<code>O2-</code> 等公式数字是否真实 <code>w:vertAlign=subscript</code>。</li>
+<li><code>word dissect</code> 的 <code>format.json.visualEvidence</code> 接入 <code>format-audit</code> 证据，新增/填充：</li>
+<li><code>headings</code></li>
+<li><code>body</code></li>
+<li><code>fonts</code></li>
+<li><code>lineSpacing</code></li>
+<li><code>tables</code></li>
+<li><code>latinNames</code></li>
+<li><code>chemistry</code></li>
+<li><code>audit</code></li>
+<li>补真实文档回归测试链路：<code>academic-format -&gt; validate -&gt; format-audit -&gt; dissect</code>。</li>
+<li>真实文档额外检查三线表顶线/栏目线/底线线宽、无表格阴影、表格内无首行缩进、化学式数字下标、<code>settings.xml</code> 中 <code>m:mathPr</code> 周边顺序，以及 slice visual evidence。</li>
+<li>明确 <code>word table-reflow</code> 的长表、宽表、跨页/续表规则：长表按行拆并重复表头，宽表按列组拆并重复左侧关键列，续表前段底线 0.75 pt、续页/续表顶线 1.5 pt、最终底线 1.5 pt。</li>
+</ul>
+<br>
+<h2>样本 SHA256</h2>
+<br>
+<table>
+<tr><th>Asset</th><th>SHA256</th></tr>
+<tr><td><code>academic-format/zeolite-workstation-handwritten.docx</code></td><td><code>6B072D5876F1A7CC2EB340A6F492A1DD9144C3F5C063BB908ED6BEDFE71B9A81</code></td></tr>
+<tr><td><code>academic-format/zeolite-workstation-original.docx</code></td><td><code>13C3C924BAC235BECD8732D9277ED408B840F8C812375A9E9FB655DEBDE425C9</code></td></tr>
+<tr><td><code>academic-format/zeolite-workstation-beautified.docx</code></td><td><code>8A43052E8DD49F83AB9F0F6B9065705DCBD66D752444F34CA3BBED14736FEA8F</code></td></tr>
+</table>
+<br>
+<h2>验证</h2>
+<br>
+<ul>
+<li><code>dotnet build .\Cli\NongCli.csproj -c Release</code></li>
+<li>通过，0 warning，0 error。</li>
+<li><code>dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release --filter &quot;FullyQualifiedName~WordCommandTests.WordFormatAudit|FullyQualifiedName~WordCommandTests.WordAcademicFormat|FullyQualifiedName~WordCommandTests.WordTableReflow|FullyQualifiedName~WordCommandTests.WordDissect&quot;</code></li>
+<li>通过，17 passed。</li>
+<li><code>dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release --filter &quot;FullyQualifiedName~CliContractTests.Commands_Json|FullyQualifiedName~CliContractTests.WordRepairPlan|FullyQualifiedName~CliContractTests.SliceInspect_Strict|FullyQualifiedName~CliContractTests.SliceFormats_IncludeUnifiedVisualEvidence|FullyQualifiedName~CliContractTests.SliceBlocks|FullyQualifiedName~CliContractTests.SliceBlock|FullyQualifiedName~CliContractTests.SliceAssets&quot;</code></li>
+<li>通过，7 passed。</li>
+</ul>
+<br>
+<h2>剩余风险</h2>
+<br>
+<ul>
+<li><code>word table-reflow</code> 的跨页能力当前是显式 row-threshold 续表规则，不是自动分页/渲染引擎。后续若要按 Word 实际分页断点自动拆表，需要新增渲染或布局估算证据。</li>
+<li>真实 Word/WPS 肉眼验收仍建议保留，自动证据覆盖的是 OOXML 可验证的排版质量。</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

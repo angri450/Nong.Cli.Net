@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Text.Json;
 
 namespace SkillManager.Cli.Tools;
 
@@ -67,6 +68,11 @@ public class Packager
         ".DS_Store", "Thumbs.db", ".gitignore", ".security-scan-passed"
     };
 
+    private static readonly HashSet<string> PluginRootResourceDirs = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "references", "assets", "templates"
+    };
+
     public Packager(string rootDir, string? outputDir = null)
     {
         _rootDir = Path.GetFullPath(rootDir);
@@ -110,7 +116,7 @@ public class Packager
 
     private async Task<string> PackagePluginAsync(SkillRootInfo info)
     {
-        var name = Path.GetFileName(_rootDir);
+        var name = ResolvePluginPackageName() ?? Path.GetFileName(_rootDir);
         var outputPath = GetOutputPath(name);
 
         await Task.Run(() =>
@@ -134,6 +140,13 @@ public class Packager
                 AddFileToZip(zip, file, fname);
             }
 
+            foreach (var dirName in PluginRootResourceDirs)
+            {
+                var resourceDir = Path.Combine(_rootDir, dirName);
+                if (Directory.Exists(resourceDir))
+                    AddDirectoryToZip(zip, resourceDir, dirName + "/", outputPath);
+            }
+
             // Add each child skill directory
             foreach (var skillDir in info.SkillDirectories)
             {
@@ -143,6 +156,39 @@ public class Packager
         });
 
         return outputPath;
+    }
+
+    private string? ResolvePluginPackageName()
+    {
+        var manifestPath = File.Exists(Path.Combine(_rootDir, ".claude-plugin", "plugin.json"))
+            ? Path.Combine(_rootDir, ".claude-plugin", "plugin.json")
+            : Path.Combine(_rootDir, "plugin.json");
+
+        if (!File.Exists(manifestPath))
+            return null;
+
+        try
+        {
+            using var doc = JsonDocument.Parse(File.ReadAllText(manifestPath));
+            if (!doc.RootElement.TryGetProperty("name", out var nameElement))
+                return null;
+
+            var name = nameElement.GetString();
+            return string.IsNullOrWhiteSpace(name) ? null : SanitizePackageName(name);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static string SanitizePackageName(string name)
+    {
+        var invalid = Path.GetInvalidFileNameChars();
+        var chars = name.Trim()
+            .Select(c => invalid.Contains(c) ? '-' : c)
+            .ToArray();
+        return new string(chars);
     }
 
     private void AddDirectoryToZip(ZipArchive zip, string sourceDir, string entryPrefix, string? skipPath)

@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>阶段 1：CLI 架构搭建结果 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>阶段 1：CLI 架构搭建结果</h1>
+<p class="subtitle">2026-06-03 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>阶段 1：CLI 架构搭建结果</h1>
+<br>
+<p>日期：2026-06-03</p>
+<p>状态：完成</p>
+<br>
+<hr>
+<br>
+<h2>工程信息</h2>
+<br>
+<table>
+<tr><th>项</th><th>值</th></tr>
+<tr><td>位置</td><td><code>Cli/</code></td></tr>
+<tr><td>项目文件</td><td><code>NongCli.csproj</code></td></tr>
+<tr><td>程序集名</td><td><code>nong</code></td></tr>
+<tr><td>NuGet 包名</td><td><code>Angri450.Nong.Cli</code></td></tr>
+<tr><td>工具命令名</td><td><code>nong</code></td></tr>
+<tr><td>目标框架</td><td>net8.0</td></tr>
+<tr><td>依赖</td><td>Docx + Inspect（ThirdParty 传递引用）</td></tr>
+<tr><td>CLI 框架</td><td>System.CommandLine 2.0.0-beta4</td></tr>
+</table>
+<br>
+<hr>
+<br>
+<h2>文件清单</h2>
+<br>
+<pre><code>
+Cli/
+├── NongCli.csproj          # 项目文件
+├── Program.cs              # 入口 + 命令注册 + 工作流别名
+├── Common/
+│   ├── JsonOutput.cs       # JSON 输出模型
+│   ├── ErrorCodes.cs       # 错误码定义（E001-E008）
+│   └── Manifest.cs         # 命令清单（40 条）
+└── README.md               # 安装说明
+</code></pre>
+<br>
+<hr>
+<br>
+<h2>命令统计</h2>
+<br>
+<table>
+<tr><th>组</th><th>命令数</th><th>说明</th></tr>
+<tr><td>word</td><td>11</td><td>read/preview/extract/dissect/rebuild/fill/stats/fonts/styles/validate/merge</td></tr>
+<tr><td>inspect</td><td>12</td><td>classify/structure/diagnose/refs/varplan/evidence/data-req/gap/semantics + write paper/official/letter</td></tr>
+<tr><td>chart</td><td>6</td><td>bar/line/scatter/pie/anova/duncan</td></tr>
+<tr><td>diagram</td><td>3</td><td>flowchart/network/tree</td></tr>
+<tr><td>excel</td><td>3</td><td>read/sheets/create</td></tr>
+<tr><td>pptx</td><td>2</td><td>read/slides</td></tr>
+<tr><td>ocr</td><td>2</td><td>local/cloud</td></tr>
+<tr><td>icons</td><td>2</td><td>list/search</td></tr>
+<tr><td>genre</td><td>2</td><td>list/show</td></tr>
+<tr><td><strong>合计</strong></td><td><strong>43</strong></td><td></td></tr>
+</table>
+<br>
+<p>不含重复的 workflow aliases（paper/rets/official/stats 组）。</p>
+<br>
+<hr>
+<br>
+<h2>工作流别名</h2>
+<br>
+<table>
+<tr><th>命令</th><th>等价于</th><th>原因</th></tr>
+<tr><td><code>nong paper classify</code></td><td><code>nong inspect classify</code></td><td>用户视角，省 token</td></tr>
+<tr><td><code>nong paper diagnose</code></td><td><code>nong inspect diagnose</code></td><td></td></tr>
+<tr><td><code>nong paper write</code></td><td><code>nong inspect write paper</code></td><td></td></tr>
+<tr><td><code>nong refs check</code></td><td><code>nong inspect refs</code></td><td></td></tr>
+<tr><td><code>nong official write</code></td><td><code>nong inspect write official</code></td><td></td></tr>
+<tr><td><code>nong official format</code></td><td>独立命令（唯一功能）</td><td></td></tr>
+<tr><td><code>nong stats anova</code></td><td><code>nong chart anova</code></td><td></td></tr>
+<tr><td><code>nong stats duncan</code></td><td><code>nong chart duncan</code></td><td></td></tr>
+</table>
+<br>
+<hr>
+<br>
+<h2>JSON 输出 schema</h2>
+<br>
+<pre><code class="language-json">
+{
+  &quot;Status&quot;: &quot;ok&quot;,
+  &quot;Command&quot;: &quot;word read&quot;,
+  &quot;Summary&quot;: &quot;Extracted 142 paragraphs&quot;,
+  &quot;Data&quot;: { ... },
+  &quot;Issues&quot;: [],
+  &quot;Artifacts&quot;: { &quot;output&quot;: &quot;out.docx&quot; },
+  &quot;Metrics&quot;: { &quot;paragraphs&quot;: 142 },
+  &quot;Errors&quot;: [],
+  &quot;Meta&quot;: { &quot;DurationMs&quot;: 42, &quot;Version&quot;: &quot;3.1.0&quot; }
+}
+</code></pre>
+<br>
+<hr>
+<br>
+<h2>错误码</h2>
+<br>
+<table>
+<tr><th>代码</th><th>名称</th><th>含义</th></tr>
+<tr><td>E001</td><td>file_not_found</td><td>文件不存在</td></tr>
+<tr><td>E002</td><td>unsupported_format</td><td>文件格式不支持</td></tr>
+<tr><td>E003</td><td>missing_argument</td><td>参数缺失</td></tr>
+<tr><td>E004</td><td>internal_error</td><td>内部错误</td></tr>
+<tr><td>E005</td><td>dependency_missing</td><td>依赖缺失</td></tr>
+<tr><td>E006</td><td>validation_failed</td><td>验证失败</td></tr>
+<tr><td>E007</td><td>read_failed</td><td>读取失败</td></tr>
+<tr><td>E008</td><td>write_failed</td><td>写入失败</td></tr>
+</table>
+<br>
+<hr>
+<br>
+<h2>验证结果</h2>
+<br>
+<table>
+<tr><th>测试项</th><th>结果</th></tr>
+<tr><td><code>nong --version</code></td><td>3.1.0</td></tr>
+<tr><td><code>nong commands</code></td><td>40 条命令列表</td></tr>
+<tr><td><code>nong commands --json</code></td><td>结构化 JSON 输出</td></tr>
+<tr><td><code>nong word preview</code>（空实现）</td><td><code>[nong word preview] Not yet implemented.</code></td></tr>
+<tr><td>Release build</td><td>0 错误</td></tr>
+</table>
+<br>
+<hr>
+<br>
+<h2>下一步：阶段 2</h2>
+<br>
+<p>实现 <code>nong word read</code> + <code>nong word preview</code> 两个核心命令。</p>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

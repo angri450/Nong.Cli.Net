@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-08 NongPandoc contract alignment - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>2026-06-08 NongPandoc contract alignment</h1>
+<p class="subtitle">2026-06-08 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>2026-06-08 NongPandoc contract alignment</h1>
+<br>
+<h2>What changed</h2>
+<br>
+<ul>
+<li>Aligned Word and PDF slice stream names with <code>Angri450.Nong.Pandoc</code>.</li>
+<li>Added <code>PandocCore</code> project references to <code>DocxCore</code> and <code>PdfCore</code>.</li>
+<li>Replaced local hard-coded slice artifact defaults with <code>NongPandocArtifactNames</code>.</li>
+<li>Added root-level <code>diagnostics.json</code> for Word and PDF slices while keeping existing PDF diagnostic detail files.</li>
+<li>Added CLI test assertions for the new shared diagnostics stream.</li>
+<li>Updated Word/PDF docs to treat <code>preview/content.txt</code> as optional lossy preview rather than the primary content stream.</li>
+</ul>
+<br>
+<h2>Why</h2>
+<br>
+<p>All document packages should produce a predictable <code>a.slice/</code> package so AI tools can read Word, PDF, PPT, and Excel through the same artifact contract without repeated format conversions.</p>
+<br>
+<h2>Files touched</h2>
+<br>
+<ul>
+<li><code>Docx/DocxCore.csproj</code></li>
+<li><code>Docx/NongMarkModels.cs</code></li>
+<li><code>Docx/WordSlice.cs</code></li>
+<li><code>Docx/WORD_CORE_LAYERS.md</code></li>
+<li><code>Docx/packages.lock.json</code></li>
+<li><code>Pdf/PdfCore.csproj</code></li>
+<li><code>Pdf/PdfModels.cs</code></li>
+<li><code>Pdf/PdfSlice.cs</code></li>
+<li><code>Pdf/README.md</code></li>
+<li><code>Pdf/packages.lock.json</code></li>
+<li><code>Cli.Tests/WordCommandTests.cs</code></li>
+<li><code>Cli.Tests/PdfCommandTests.cs</code></li>
+<li><code>Cli.Tests/packages.lock.json</code></li>
+<li><code>Pandoc/PandocCore.csproj</code></li>
+<li><code>Pandoc/packages.lock.json</code></li>
+</ul>
+<br>
+<h2>Verification</h2>
+<br>
+<ul>
+<li>Passed: <code>dotnet build .\Docx\DocxCore.csproj -c Release</code></li>
+<li>Passed: <code>dotnet build .\Pdf\PdfCore.csproj -c Release</code></li>
+<li>Passed: <code>dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release --filter &quot;FullyQualifiedName~WordCommandTests.WordDissect|FullyQualifiedName~PdfCommandTests.PdfDissect&quot;</code></li>
+</ul>
+<br>
+<h2>Remaining risks</h2>
+<br>
+<ul>
+<li>This pass intentionally aligns the contract without migrating Word/PDF internals to a shared adapter implementation.</li>
+<li>PPT/Excel still need adapters in later stages.</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

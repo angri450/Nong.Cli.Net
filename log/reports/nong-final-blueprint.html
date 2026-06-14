@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nong 最终蓝图</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", sans-serif; line-height: 1.72; color: #172033; background: #f5f7fb; }
+.container { max-width: 1480px; margin: 0 auto; padding: 28px 18px 52px; }
+header { margin-bottom: 22px; }
+h1 { font-size: 32px; color: #0f172a; margin-bottom: 8px; }
+.subtitle { color: #64748b; font-size: 14px; margin-top: 4px; }
+h2 { font-size: 22px; margin: 36px 0 14px; padding-bottom: 8px; border-bottom: 2px solid #d9dee7; color: #111827; }
+h3 { font-size: 18px; margin: 24px 0 10px; color: #263248; }
+p { margin: 8px 0; }
+code { background: #edf0f5; border: 1px solid #dde3ee; padding: 1px 5px; border-radius: 4px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.88em; }
+.dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 18px 0 26px; }
+.card { background: #fff; border: 1px solid #e4e8f0; border-radius: 8px; padding: 18px; box-shadow: 0 1px 3px rgba(15,23,42,0.06); }
+.card-num { font-size: 30px; font-weight: 800; color: #0f172a; }
+.card-label { color: #64748b; font-size: 13px; margin-top: 4px; }
+.note { background: #fff; border: 1px solid #dbe3ef; border-left: 5px solid #2563eb; border-radius: 8px; padding: 15px 18px; margin: 14px 0 18px; }
+.good { border-left-color: #16a34a; background: #f4fbf6; }
+.warn { border-left-color: #d97706; background: #fffaf0; }
+.bad { border-left-color: #dc2626; background: #fff7f7; }
+.grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.box { background: #fff; border: 1px solid #e4e8f0; border-radius: 8px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(15,23,42,0.04); }
+.box strong { color: #0f172a; }
+table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e4e8f0; border-radius: 8px; overflow: hidden; margin: 12px 0 22px; font-size: 14px; box-shadow: 0 1px 3px rgba(15,23,42,0.05); }
+th { background: #eef2f7; color: #334155; font-size: 12px; text-transform: uppercase; letter-spacing: 0.02em; text-align: left; padding: 10px 12px; border-bottom: 1px solid #dce3ed; }
+td { padding: 10px 12px; border-bottom: 1px solid #edf0f5; vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+.tag { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.ok { background: #dcfce7; color: #166534; }
+.watch { background: #fef3c7; color: #92400e; }
+.gap { background: #fee2e2; color: #991b1b; }
+.info { background: #dbeafe; color: #1d4ed8; }
+ul { margin: 8px 0 8px 22px; }
+li { margin: 4px 0; }
+pre { background: #0f172a; color: #e5eefb; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0 18px; }
+footer { margin-top: 36px; padding-top: 18px; border-top: 1px solid #dce3ed; color: #64748b; font-size: 13px; }
+@media (max-width: 900px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  table { font-size: 13px; }
+  th, td { padding: 8px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+<h1>Nong 最终蓝图</h1>
+<p class="subtitle">2026-06-10 | 这不是路线图，也不是命令表。这是 Nong 最终产品形态的定稿蓝图：复杂对象如何拆、如何看、如何改、如何装回去，以及命令名字到底该怎么起，才能让 AI 和人都看懂。</p>
+<p class="subtitle">补充细项审计：<a href="toolkit-cli-command-naming-audit.html">toolkit-cli-command-naming-audit.html</a></p>
+</header>
+
+<div class="dashboard">
+<div class="card"><div class="card-num">1 个核心</div><div class="card-label">一刀三流</div></div>
+<div class="card"><div class="card-num">3 层</div><div class="card-label">NanoBot / Toolkit / CLI</div></div>
+<div class="card"><div class="card-num">1 套合同</div><div class="card-label">统一 slice 包</div></div>
+<div class="card"><div class="card-num">可拆可装</div><div class="card-label">损耗可控</div></div>
+<div class="card"><div class="card-num">AI 读包</div><div class="card-label">不是读原文件</div></div>
+</div>
+
+<h2>先说最重要的话</h2>
+<div class="note good">
+<p><strong>Nong 不是“很多命令的 Office 工具箱”。</strong></p>
+<p><strong>Nong 的本质，是复杂对象的“可解释拆解 + 可控重装”。</strong> 文档、PDF、PPT、Excel、图片，不应该作为一个黑盒整体直接丢给 AI。它们必须先被拆成 AI 能吃下去的几条信息流，再由 CLI 负责把这些信息在可接受损耗范围内装回去。</p>
+<p>你说的“一刀三流”，不是 Word 的一个 feature，而是整个 Nong 的总产品哲学。</p>
+</div>
+
+<h2>最终总原则</h2>
+<table>
+<thead><tr><th>原则</th><th>含义</th><th>为什么重要</th></tr></thead>
+<tbody>
+<tr><td><strong>一刀</strong></td><td>面对复杂对象，先走一个稳定入口，把原对象切成统一中间表示。</td><td>AI 不再需要自己去解 zip、读 OOXML、猜页面、手搓 XML。</td></tr>
+<tr><td><strong>三流</strong></td><td>至少分成：内容流、结构流、格式/资产流。必要时再附加诊断流。</td><td>AI 可以分开看“写了什么”“怎么组织”“长什么样”，不会混成一锅。</td></tr>
+<tr><td><strong>可重装</strong></td><td>拆出来不是只为了看，还要能用来回写、修复、重排、重建。</td><td>否则 Nong 只能当只读解析器，不是生产工具。</td></tr>
+<tr><td><strong>损耗可控</strong></td><td>重装回去后，内容、结构、表格、图注、图片语义、可见格式不能乱丢。</td><td>用户原本是申报表，就不能被“优化”成一串没表格的文本。</td></tr>
+<tr><td><strong>统一合同</strong></td><td>Word / PDF / PPTX / Excel 的 slice 输出都走统一包形状。</td><td>AI 学一套读法，就能读四类复杂对象。</td></tr>
+</tbody>
+</table>
+
+<h2>Nong 到底在做什么</h2>
+<pre>
+复杂对象
+  - docx
+  - pdf
+  - pptx
+  - xlsx
+  - image
+        ↓
+一刀：dissect / slice
+        ↓
+统一中间包
+  manifest.json
+  document.json
+  content.jsonl
+  content.nongmark
+  structure.json
+  format.json
+  diagnostics.json
+  assets/manifest.json
+  preview/content.txt|content.md
+        ↓
+AI 只读“包”
+  - 看内容
+  - 看结构
+  - 看格式
+  - 看素材
+  - 看诊断
+        ↓
+确定性修改
+  - add
+  - merge
+  - protect
+  - fix-order
+  - rebuild / clean-styles
+  - format / audit
+        ↓
+重装回去
+  - docx
+  - xlsx
+  - pptx（未来）
+  - 对齐后的 Word/PDF 产物
+</pre>
+
+<h2>三层结构，围绕一刀三流服务</h2>
+<table>
+<thead><tr><th>层</th><th>身份</th><th>围绕一刀三流该做什么</th><th>不该做什么</th></tr></thead>
+<tbody>
+<tr>
+<td><strong><code>Nong.NanoBot.Net</code></strong></td>
+<td>Agent 运行层</td>
+<td>接用户意图，决定是先切片、先读包，还是先做重装；负责多轮任务编排。</td>
+<td>不直接解析原始复杂对象，不自己拼 OOXML / PDF / PPT XML。</td>
+</tr>
+<tr>
+<td><strong><code>Nong.Toolkit.Net</code></strong></td>
+<td>AI 教学层</td>
+<td>教 AI：什么时候必须先切，读哪个流，什么证据算数，什么损耗不能接受。</td>
+<td>不自己做底层重建，不绕过 CLI 直连库。</td>
+</tr>
+<tr>
+<td><strong><code>Nong.Cli.Net</code></strong></td>
+<td>执行层</td>
+<td>实现所有“切、读、改、装”的硬能力。保证 JSON 合同、产物和错误码。</td>
+<td>不负责对话，不负责模糊语义推理。</td>
+</tr>
+</tbody>
+</table>
+
+<h2>一刀三流，不是三个文件，是三类真相</h2>
+<div class="grid-2">
+<div class="box">
+<h3>1. 内容流</h3>
+<p>回答“它到底写了什么”。</p>
+<ul>
+<li><code>content.nongmark</code>：主要给人和 AI 读的增强文本投影</li>
+<li><code>content.jsonl</code>：逐块 canonical block 流，带稳定 ID</li>
+<li>段落、标题、表格、图注、公式、图片占位、脚注、引用都要有类型</li>
+</ul>
+</div>
+<div class="box">
+<h3>2. 结构流</h3>
+<p>回答“这些内容是怎么组织的”。</p>
+<ul>
+<li><code>structure.json</code>：标题树、块顺序、页/节/slide/sheet 映射</li>
+<li>表格、图、标题、注释、批注、修订都要能定位</li>
+<li>块 ID 要稳定，后续插入和回写靠它</li>
+</ul>
+</div>
+<div class="box">
+<h3>3. 格式/资产流</h3>
+<p>回答“它长什么样，有哪些素材”。</p>
+<ul>
+<li><code>format.json</code>：字体、行距、边框、样式、页面、节、版式证据</li>
+<li><code>assets/manifest.json</code>：图片、媒体、嵌入对象、来源、关联块</li>
+<li>图片不能只保存文件路径，还要有尺寸、来源、所处位置、图像分析、OCR 结果</li>
+</ul>
+</div>
+<div class="box">
+<h3>4. 诊断流</h3>
+<p>回答“这个对象哪里可能有问题，哪些地方不能太自信”。</p>
+<ul>
+<li><code>diagnostics.json</code> 或子目录诊断文件</li>
+<li>比如：这一页到底先读左边还是右边不太确定；这张图片里的字识别得不太准；这个表格边框信息不完整；这个图有图片文件但没找到图注。</li>
+<li>它不是正文，也不是结构本身，而是“风险提示”和“不确定性说明”。</li>
+</ul>
+</div>
+</div>
+
+<div class="note">
+<p><strong>说人话：</strong> 诊断流就像医生在检查报告旁边写的备注，不是在重复报告内容，而是在提醒你“这里可能看错”“这里证据不够”“这里需要人工再看一眼”。</p>
+<p>如果没有诊断流，AI 很容易把不确定的信息当成确定事实。比如 OCR 其实只认对了七成，AI 却把它当成原文；或者页面是双栏排版，AI 把阅读顺序读反了。</p>
+</div>
+
+<h2>为什么必须这样拆</h2>
+<div class="note warn">
+<p>AI 天生是偏纯文本的。即便多模态模型能看图，真正稳定、长上下文、可引用、可复核的，仍然要靠文本化、结构化后的证据包。</p>
+<p>所以图片不能只是一个 <code>img.png</code>。表格不能只是“看起来像表格的一堆文字”。图注不能丢。段落层级不能丢。格式不能只剩一个“差不多”。</p>
+</div>
+
+<h2>什么叫“像拆小汽车一样拆出来”</h2>
+<table>
+<thead><tr><th>对象</th><th>不能只拆成什么</th><th>必须至少拆出什么</th></tr></thead>
+<tbody>
+<tr><td>段落</td><td>一整段纯文本</td><td>段落块、runs、每段/每 run 的文字和格式、所属位置</td></tr>
+<tr><td>标题</td><td>“一行大字”</td><td>标题级别、标题文本、块 ID、所属章节</td></tr>
+<tr><td>表格</td><td>按行拼起来的散文本</td><td>表格块、行列、单元格内容、边框/宽度/合并信息、标题/图注关系</td></tr>
+<tr><td>图片</td><td>文件路径或二进制</td><td>assetId、尺寸、来源页/位置、关联段落、图像结构分析、OCR 文字、图注关系</td></tr>
+<tr><td>公式</td><td>普通字符串</td><td>公式块、来源、可见文本 fallback、是否 display、原始表示来源</td></tr>
+<tr><td>批注/修订</td><td>忽略不看</td><td>批注内容、作者、锚点；修订类型、前后片段</td></tr>
+<tr><td>PDF 页面</td><td>整页 OCR 文本</td><td>page、bbox、reading order、native text / OCR source、图块、表块、图注候选</td></tr>
+<tr><td>PPT 一页</td><td>整页文本拼接</td><td>slide 结构、文本框、图片、表格、布局顺序、素材关联</td></tr>
+<tr><td>Excel 表</td><td>CSV 字符串</td><td>sheet、range、表头、数据块、格式线索、后续图表/统计入口</td></tr>
+</tbody>
+</table>
+
+<h2>什么叫“像组装小汽车一样装回去”</h2>
+<div class="note good">
+<p>重装不是“把文本重新写一遍”。重装是：在保留用户原始意图的前提下，借助更规整的结构和格式，把文档重新落成一个更干净、更可维护、更可交付的对象。</p>
+</div>
+
+<table>
+<thead><tr><th>场景</th><th>允许的变化</th><th>不允许的变化</th></tr></thead>
+<tbody>
+<tr><td>老旧 Word 清理样式</td><td>清掉脏样式、重复样式、错序 OOXML，重新规范字体/段距</td><td>原来的表格消失、图注丢失、图片脱离上下文、段落顺序变掉</td></tr>
+<tr><td>申报表整理</td><td>表格边框更规矩、列宽更合理、字体统一、跨页更可读</td><td>表格被打散成段落文本、表单字段失位</td></tr>
+<tr><td>论文格式修复</td><td>标题、正文、三线表、参考文献、行距更规范</td><td>原有章节结构、公式、图表关系被破坏</td></tr>
+<tr><td>PDF 转可编辑中间层</td><td>把扫描件变成 page-aware、block-aware 的可读包</td><td>只剩一整篇平铺文本，看不出页、图、表、图注、来源</td></tr>
+<tr><td>PPT 读取后再生成</td><td>按 slide 结构和元素重建</td><td>只保留提纲文字，看不出每页布局和素材</td></tr>
+</tbody>
+</table>
+
+<h2>最终的损耗标准</h2>
+<table>
+<thead><tr><th>级别</th><th>可以接受</th><th>不能接受</th></tr></thead>
+<tbody>
+<tr><td><strong>内容损耗</strong></td><td>兼容预览里少量标点/空白差异；OCR 低置信字符保留 warning</td><td>整段内容、整张表、图注、脚注、图片说明、页内顺序丢失</td></tr>
+<tr><td><strong>结构损耗</strong></td><td>极少数二级细节暂未精确映射，可明确标 warning</td><td>标题树错乱、表格拆散、图片与图注脱钩、块 ID 不稳定</td></tr>
+<tr><td><strong>格式损耗</strong></td><td>在明确说明下，极少量高级继承样式或 Office 私有细节未完全恢复</td><td>表格边框/续表/页边距/段距/字体混乱到改变用户原始意图</td></tr>
+<tr><td><strong>素材损耗</strong></td><td>图片结构分析不确定时给低置信或 null</td><td>图片只剩文件，没有语义，没有位置，没有和正文的关系</td></tr>
+</tbody>
+</table>
+
+<h2>育种类比：Nong 的交付标准就是“性状一致”</h2>
+<div class="note good">
+<p>如果借用育种的话说，Nong 的目标不是把材料“处理过”就算完，而是要让重装后的对象<strong>保持性状一致</strong>。不能原本是一个规整的申报表、带层级的论文、带图注的报告，经过拆解和重装之后发生“性状分离”，最后变成只剩纯文本、表格散掉、图和图注脱钩、格式全乱的新对象。</p>
+</div>
+
+<table>
+<thead><tr><th>性状层</th><th>必须保持的一致性</th><th>典型“性状分离”失败</th></tr></thead>
+<tbody>
+<tr><td><strong>语义性状</strong></td><td>原文要表达的内容、字段、图注、注释、公式、说明关系保持一致。</td><td>文字还在，但图注没了；表格说明没了；公式退化成乱码字符串。</td></tr>
+<tr><td><strong>结构性状</strong></td><td>章节层级、表格结构、页面顺序、slide 顺序、sheet 结构保持一致。</td><td>表格被拆成散段落；标题树乱了；页内阅读顺序颠倒。</td></tr>
+<tr><td><strong>格式性状</strong></td><td>用户原本依赖的可见格式意图被保住，并在必要时更规范。</td><td>申报表原本靠表格表达，结果被优化成平铺文本；续表关系消失；字体段距失控。</td></tr>
+<tr><td><strong>素材性状</strong></td><td>图片、媒体、裁剪区域、OCR 文字、来源位置要保持可追踪。</td><td>图片只剩文件名，不知道它在文档哪儿，也不知道它表达什么。</td></tr>
+</tbody>
+</table>
+
+<div class="note warn">
+<p><strong>Nong 允许“规范化”，但不允许“变种化”。</strong> 样式可以清理，排版可以更规矩，边框可以更统一，但这些动作都只能是在原始意图之上做整理，不能把对象整理成另一个物种。</p>
+</div>
+
+<h2>统一 slice 包，才是 AI 真正要读的对象</h2>
+<div class="note">
+<p>AI 不应该默认读原始 <code>.docx</code> / <code>.pdf</code> / <code>.pptx</code> / <code>.xlsx</code>。AI 应该默认读它们的 slice 包。</p>
+</div>
+
+<pre>
+source file
+  -> dissect
+  -> a.slice/
+       manifest.json
+       document.json
+       content.jsonl
+       content.nongmark
+       structure.json
+       format.json
+       diagnostics.json
+       assets/manifest.json
+       preview/content.txt|content.md
+</pre>
+
+<table>
+<thead><tr><th>文件</th><th>最终职责</th><th>给谁看</th></tr></thead>
+<tbody>
+<tr><td><code>manifest.json</code></td><td>包总目录，告诉你有哪些流、版本、指标、warning</td><td>AI 和工具都先读</td></tr>
+<tr><td><code>document.json</code></td><td>canonical 文档对象，带 schemaVersion 和总元信息</td><td>执行层、桥接层、回写层</td></tr>
+<tr><td><code>content.jsonl</code></td><td>逐块 canonical block 流，稳定 ID，最适合精确读和改</td><td>AI、检索、增量处理</td></tr>
+<tr><td><code>content.nongmark</code></td><td>主要可读文本投影，不是普通 Markdown</td><td>AI 和人类快速理解</td></tr>
+<tr><td><code>structure.json</code></td><td>层级和导航</td><td>AI 判断章节/页/slide/sheet 关系</td></tr>
+<tr><td><code>format.json</code></td><td>格式和版式证据</td><td>格式审计、重装回写、视觉证据</td></tr>
+<tr><td><code>diagnostics.json</code></td><td>不确定性、warning、修复建议</td><td>AI 决策和风控</td></tr>
+<tr><td><code>assets/manifest.json</code></td><td>图片/媒体/嵌入对象总清单</td><td>AI 做图像语义和证据追踪</td></tr>
+<tr><td><code>preview/content.txt</code> 或 <code>content.md</code></td><td>lossy 预览</td><td>只做快速看，不是 source of truth</td></tr>
+</tbody>
+</table>
+
+<h2>这套思想不是只适用于 Word</h2>
+<table>
+<thead><tr><th>对象</th><th>一刀入口</th><th>三流如何体现</th><th>最终可重装目标</th></tr></thead>
+<tbody>
+<tr>
+<td>Word</td>
+<td><code>word dissect</code></td>
+<td>内容流看段落/表格/图注/图片；结构流看章节/块顺序；格式流看字体/段距/表格边框/页设置；资产流看图片与分析。</td>
+<td>清理样式、修表、补内容、公文/学术格式化、保护、合并、追加元素。</td>
+</tr>
+<tr>
+<td>PDF</td>
+<td><code>pdf dissect</code></td>
+<td>内容流看 block 文本；结构流看页和阅读顺序；格式流看 bbox、字体、排版线索；资产流看页图、内嵌图、OCR 证据。</td>
+<td>先对齐到可读可引用中间层，再与 Word 路线桥接，最终进入可编辑交付物。</td>
+</tr>
+<tr>
+<td>PPTX</td>
+<td><code>pptx dissect</code></td>
+<td>内容流看每页文字和表格；结构流看 slide、shape、顺序；格式流看布局和字体；资产流看图片和媒体。</td>
+<td>未来应能进入 <code>pptx create/edit</code> 的重装路线。</td>
+</tr>
+<tr>
+<td>Excel</td>
+<td><code>excel dissect</code></td>
+<td>内容流看 cells/table；结构流看 workbook/sheet/table；格式流看表头、范围、基本格式；资产流看嵌入对象和图表线索。</td>
+<td>未来应能从结构化 sheet/table 模型重装成更规范 workbook。</td>
+</tr>
+<tr>
+<td>图片</td>
+<td><code>ocr analyze-image</code> / <code>ocr local</code> / <code>ocr cloud</code></td>
+<td>内容流是 OCR 文本；结构流是 region/block；格式流是位置/尺寸/方向；资产流是原图与裁剪图。</td>
+<td>服务 Word/PDF/PPT 的复原与解释，不是孤立图片识别而已。</td>
+</tr>
+</tbody>
+</table>
+
+<h2>最终命令起名原则，也要服从这个核心</h2>
+<div class="note warn">
+<p>命令名不是随便取好听的，而是要和“拆、读、改、装”的产品动作一一对上。</p>
+</div>
+
+<table>
+<thead><tr><th>词</th><th>最终含义</th><th>为什么适合 Nong</th></tr></thead>
+<tbody>
+<tr><td><code>dissect</code></td><td>把复杂对象切成统一包</td><td>这就是“一刀”</td></tr>
+<tr><td><code>slice</code></td><td>读取切出来的包，而不是读原文件</td><td>AI 的主入口应该是 slice，不是原始 Office/PDF</td></tr>
+<tr><td><code>read</code></td><td>轻量读取原对象某一部分</td><td>适合快读，但不能代替 dissect</td></tr>
+<tr><td><code>diagnose</code></td><td>读包后给出综合判断</td><td>比 check 更深，比 edit 更轻</td></tr>
+<tr><td><code>validate</code></td><td>判定对象是否过线</td><td>对应质量闸门</td></tr>
+<tr><td><code>write</code></td><td>从规格写出一个内容对象</td><td>适合论文、公文、信函这类语义对象</td></tr>
+<tr><td><code>format</code></td><td>把已有对象排成某种样子</td><td>适合公文、学术格式、表格重排</td></tr>
+<tr><td><code>audit</code></td><td>只读审计证据，不改对象</td><td>适合格式和质量验证</td></tr>
+<tr><td><code>add</code></td><td>在现有对象里追加一个明确类型的块</td><td>适合 block-aware 重装</td></tr>
+<tr><td><code>merge</code></td><td>把多个对象安全拼装成一个对象</td><td>适合重装路线，不只是文本拼接</td></tr>
+</tbody>
+</table>
+
+<h2>AI 最应该怎么理解 Nong</h2>
+<table>
+<thead><tr><th>用户说的话</th><th>AI 不该直接想什么</th><th>AI 应该先想什么</th></tr></thead>
+<tbody>
+<tr><td>“帮我整理这个申报表”</td><td>直接读纯文本然后重写</td><td>先切片，保住表格、字段、图注、页面和格式证据，再决定怎么规范化</td></tr>
+<tr><td>“帮我看看这个 PDF 讲了什么”</td><td>直接 OCR 一整页文本</td><td>先分类 text/hybrid/scan，再把页、图、表、阅读顺序、图片语义分开读</td></tr>
+<tr><td>“把这个 DOCX 优化一下”</td><td>用文本逻辑重写整篇</td><td>先判断这是样式修复、结构修复还是内容追加；重装时不能破坏原布局意图</td></tr>
+<tr><td>“给我做成规范的公文”</td><td>只关心文字内容</td><td>内容生成和版式整理是两步：<code>inspect write-official</code> 是写内容，<code>word format-gongwen</code> 是排版</td></tr>
+<tr><td>“帮我看这张图是什么”</td><td>只给一句图片描述</td><td>如果图片属于文档对象，还要把它和 block、caption、page、bbox 绑定起来</td></tr>
+</tbody>
+</table>
+
+<h2>最终设计下，各命令组该怎么站位</h2>
+<table>
+<thead><tr><th>命令组</th><th>最终角色</th><th>在总蓝图里的位置</th></tr></thead>
+<tbody>
+<tr><td><code>word</code></td><td>复杂 Word 对象的拆、证据化、修、装</td><td>一刀三流最成熟的主战场</td></tr>
+<tr><td><code>pdf</code></td><td>复杂 PDF 对象的拆、阅读顺序、页级证据化</td><td>把 PDF 从黑盒变成可桥接对象</td></tr>
+<tr><td><code>pptx</code></td><td>复杂幻灯片对象的拆</td><td>当前偏读，未来应进入可重装</td></tr>
+<tr><td><code>excel</code></td><td>复杂表格对象的拆和简化生成</td><td>当前偏数据入口，未来应进入可重装 workbook</td></tr>
+<tr><td><code>slice</code></td><td>统一读包入口</td><td>AI 最重要的阅读面</td></tr>
+<tr><td><code>inspect</code></td><td>读内容语义，生成语义对象</td><td>建立在切片与文档对象之上，不代替切片</td></tr>
+<tr><td><code>ocr</code></td><td>补内容流和资产流中的图像文字/区域语义</td><td>服务文档对象，不是孤立工具</td></tr>
+<tr><td><code>chart</code> / <code>diagram</code></td><td>把结构化数据或关系对象装成图</td><td>偏“组装输出”，不是复杂输入拆解主线</td></tr>
+<tr><td><code>skill</code></td><td>保证 Toolkit 这层本身也是规范对象</td><td>维护 AI 教学层的确定性</td></tr>
+</tbody>
+</table>
+
+<h2>现在这套命令名，哪些是对路的，哪些要补更准的词</h2>
+<table>
+<thead><tr><th>现名</th><th>判断</th><th>原因</th><th>最终建议</th></tr></thead>
+<tbody>
+<tr><td><code>word dissect</code></td><td><span class="tag ok">对</span></td><td>完全符合“一刀”的语义。</td><td>保留</td></tr>
+<tr><td><code>pdf dissect</code></td><td><span class="tag ok">对</span></td><td>也完全符合“一刀”的语义。</td><td>保留</td></tr>
+<tr><td><code>slice inspect</code></td><td><span class="tag ok">对</span></td><td>读的是包，不是原对象，很准。</td><td>保留</td></tr>
+<tr><td><code>word preview</code></td><td><span class="tag watch">不够准</span></td><td>听起来像视觉预览，实际上更像结构诊断。</td><td>补 alias：<code>word diagnose</code></td></tr>
+<tr><td><code>word rebuild</code></td><td><span class="tag watch">不够准</span></td><td>真实动作是清理样式污染并规范化。</td><td>补 alias：<code>word clean-styles</code></td></tr>
+<tr><td><code>inspect refs</code></td><td><span class="tag watch">不够准</span></td><td>太短，AI 容易误会成外部文献检索。</td><td>补 alias：<code>inspect references</code></td></tr>
+<tr><td><code>inspect varplan</code></td><td><span class="tag watch">不够准</span></td><td>缩写太内部。</td><td>补 alias：<code>inspect variables</code></td></tr>
+<tr><td><code>inspect data-req</code></td><td><span class="tag watch">不够准</span></td><td>缩写不适合教学。</td><td>补 alias：<code>inspect data-requirements</code></td></tr>
+<tr><td><code>word format-gongwen</code></td><td><span class="tag ok">对</span></td><td>它是“已有对象的公文排版”，词和动作对得上。</td><td>保留</td></tr>
+<tr><td><code>inspect write-official</code></td><td><span class="tag ok">对</span></td><td>它是“从规格写公文草稿”，和排版职责区分清楚。</td><td>保留</td></tr>
+</tbody>
+</table>
+
+<h2>最终蓝图下，重复、缺少、不对该怎么判断</h2>
+<table>
+<thead><tr><th>类别</th><th>最终标准</th><th>例子</th></tr></thead>
+<tbody>
+<tr><td>重复</td><td>同一个动作被两套主入口教给 AI，这才叫坏重复。</td><td><code>word add paragraph</code> 与 <code>word add-paragraph</code> 这种兼容 alias 不算坏重复。</td></tr>
+<tr><td>缺少</td><td>不是文案没写，而是“拆”和“装”的链条缺了一段。</td><td>没有 <code>pptx create</code>，就说明 PPT 还没进入真正可重装阶段。</td></tr>
+<tr><td>不对</td><td>名字或 description 让 AI 猜错动作。</td><td><code>word preview</code>、<code>inspect refs</code> 这类。</td></tr>
+</tbody>
+</table>
+
+<h2>最后的定稿口径</h2>
+<div class="note good">
+<p><strong>最后应该定成这样：</strong></p>
+<ul>
+<li>Nong 的核心不是“命令多”，而是“复杂对象一刀三流，拆得开，装得回去”。</li>
+<li>AI 的主阅读对象不是原始 Office/PDF 文件，而是统一 slice 包。</li>
+<li><code>content.nongmark</code> 和 <code>content.jsonl</code> 是主要语义流；<code>structure.json</code> 是导航流；<code>format.json</code> 和 <code>assets/manifest.json</code> 是视觉/素材证据流。</li>
+<li>图片必须语义化，表格必须结构化，图注必须保留，格式必须留证据，回写必须控制损耗。</li>
+<li>命令名必须服从这条总产品逻辑：<code>dissect</code> 是切，<code>slice</code> 是读包，<code>write</code> 是按规格写内容，<code>format</code> 是排版已有对象，<code>audit</code> 是只读审计。</li>
+</ul>
+</div>
+
+<h2>按这份蓝图，最先该定死的几件事</h2>
+<table>
+<thead><tr><th>优先项</th><th>为什么</th></tr></thead>
+<tbody>
+<tr><td>把“一刀三流”写进所有对象的总原则，而不只是 Word 特性</td><td>这决定整个产品是不是一个统一系统。</td></tr>
+<tr><td>把 slice 包定成 AI 的默认阅读对象</td><td>这决定 Toolkit 和 NanoBot 以后是不是稳定。</td></tr>
+<tr><td>把“可重装 + 损耗控制”写成验收标准</td><td>这决定 Nong 是不是生产工具，而不是只读解析器。</td></tr>
+<tr><td>把不够准的命令补 alias，而不是继续靠口头解释</td><td>这决定 AI 是否能从命令名直接猜对动作。</td></tr>
+<tr><td>把未来缺口定义成“哪类对象还不能完整拆装”</td><td>比按命令数凑功能更接近产品本质。</td></tr>
+</tbody>
+</table>
+
+<footer>
+<p>来源：Word 一刀三流指导、PDF 本地一刀三流指导、Pandoc 共享合同、Toolkit 的 Word/Slice 说明，以及当前 CLI 命令面。这个蓝图是“最终产品哲学和结构”的定稿，不等于所有未来命令都已经实现。</p>
+</footer>
+
+</div>
+</body>
+</html>

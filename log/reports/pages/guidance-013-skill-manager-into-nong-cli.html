@@ -1,0 +1,413 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-03 阶段 12 指导：废弃 skill-manager global tool，迁入 nong skill - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../guidance.html" class="back-link">&larr; 开发指导</a>
+<h1>2026-06-03 阶段 12 指导：废弃 skill-manager global tool，迁入 nong skill</h1>
+<p class="subtitle">2026-06-03 | <span style="color: #7c3aed">开发指导</span></p></header>
+<article class="content">
+<h1>2026-06-03 阶段 12 指导：废弃 skill-manager global tool，迁入 nong skill</h1>
+<br>
+<h2>背景</h2>
+<br>
+<p>当前 <code>SkillManager/SkillManager.Cli.csproj</code> 源码目标框架是 <code>net8.0</code>，但用户本机全局安装的旧版：</p>
+<br>
+<pre><code class="language-text">
+angri450.nong.skill.manager  1.0.3  skill-manager
+</code></pre>
+<br>
+<p>运行时依赖 <code>.NET 11 preview</code>，在大多数推广环境中不可用。推广环境应以 <code>.NET 8+</code> 为基线，不应要求用户安装 .NET 11 preview。</p>
+<br>
+<h2>决策</h2>
+<br>
+<p>直接废弃独立 <code>skill-manager</code> global tool 路线。</p>
+<br>
+<p>从本阶段开始，skill 生命周期能力迁入 <code>nong</code> 主 CLI：</p>
+<br>
+<pre><code class="language-text">
+nong skill validate &lt;dir&gt; --json
+nong skill scan &lt;dir&gt; --json
+nong skill inventory &lt;dir&gt; --json
+nong skill package &lt;dir&gt; --json
+</code></pre>
+<br>
+<p>旧命令：</p>
+<br>
+<pre><code class="language-text">
+skill-manager validate .
+skill-manager scan .
+skill-manager package .
+</code></pre>
+<br>
+<p>不再作为推广路径，不再写入 Nong.Toolkit.Net 2.0.0 的安装说明。</p>
+<br>
+<h2>原则</h2>
+<br>
+<p>1. <strong>目标框架固定 net8.0。</strong></p>
+<p>不引入 net10/net11 preview 依赖，不写 <code>global.json</code> 锁 SDK。</p>
+<br>
+<p>2. <strong>统一 CLI 契约。</strong></p>
+<p>所有 <code>nong skill ... --json</code> 输出必须复用现有 <code>JsonOutput</code> schema：</p>
+<br>
+<pre><code class="language-json">
+   {
+     &quot;status&quot;: &quot;ok&quot;,
+     &quot;command&quot;: &quot;skill validate&quot;,
+     &quot;summary&quot;: &quot;...&quot;,
+     &quot;data&quot;: {},
+     &quot;issues&quot;: [],
+     &quot;artifacts&quot;: {},
+     &quot;metrics&quot;: {},
+     &quot;errors&quot;: [],
+     &quot;meta&quot;: { &quot;durationMs&quot;: 0, &quot;version&quot;: &quot;3.1.0&quot; }
+   }
+</code></pre>
+<br>
+<p>3. <strong>不要从零重写核心逻辑。</strong></p>
+<p>复用现有 <code>SkillManager/Tools</code> 与 <code>SkillManager/Models</code>：</p>
+<br>
+<pre><code class="language-text">
+   SkillValidator.cs
+   SecurityScanner.cs
+   Packager.cs
+   InventoryRunner.cs
+   Scaffolder.cs
+   EvalRunner.cs
+   EvalViewer.cs
+   DescriptionOptimizer.cs
+   LoopRunner.cs
+   BlindAnonymizer.cs
+   Models/*.cs
+</code></pre>
+<br>
+<p>4. <strong>先做 P0，不扩 eval 体系。</strong></p>
+<p>本阶段只迁移稳定、确定性、对 Nong.Toolkit.Net 2.0.0 立即有用的命令。</p>
+<br>
+<p>5. <strong>旧 global tool 只保留源码，不作为产品入口。</strong></p>
+<p>可以暂时保留 <code>SkillManager/</code> 项目，方便复用代码；但 README、skill、agent contract 不再推荐安装 <code>Angri450.Nong.Skill.Manager</code>。</p>
+<br>
+<h2>推荐实现方案</h2>
+<br>
+<h3>方案 A：短期最小改动</h3>
+<br>
+<p>在 <code>Cli/NongCli.csproj</code> 中直接引用 <code>SkillManager</code> 项目：</p>
+<br>
+<pre><code class="language-xml">
+&lt;ProjectReference Include=&quot;..\SkillManager\SkillManager.Cli.csproj&quot; /&gt;
+</code></pre>
+<br>
+<p>然后新增：</p>
+<br>
+<pre><code class="language-text">
+Cli/Commands/SkillCommands.cs
+</code></pre>
+<br>
+<p>将 <code>SkillManager.Cli.Tools</code> 中的类作为库调用。</p>
+<br>
+<p>优点：最快。</p>
+<br>
+<p>风险：<code>SkillManager.Cli.csproj</code> 是 <code>Exe</code> + <code>PackAsTool</code>，作为库引用不够干净。</p>
+<br>
+<h3>方案 B：推荐收口方案</h3>
+<br>
+<p>把 <code>SkillManager</code> 拆成核心库 + 可选旧壳：</p>
+<br>
+<pre><code class="language-text">
+SkillManagerCore/
+  SkillManagerCore.csproj       # net8.0 classlib
+  Tools/
+  Models/
+  assets/viewer.html
+
+SkillManager/
+  SkillManager.Cli.csproj       # 可选旧壳，后续可删除
+  Program.cs
+
+Cli/
+  Commands/SkillCommands.cs     # nong skill ...
+</code></pre>
+<br>
+<p>依赖方向：</p>
+<br>
+<pre><code class="language-text">
+Cli -&gt; SkillManagerCore
+SkillManager.Cli -&gt; SkillManagerCore   # 仅兼容/本地调试用
+</code></pre>
+<br>
+<p>优点：架构干净，后续不会让 <code>nong</code> 依赖一个工具壳。</p>
+<br>
+<p>建议 ClaudeCode 采用方案 B。如果时间不够，可以先用方案 A 跑通，再立刻改 B。</p>
+<br>
+<h2>P0 命令规范</h2>
+<br>
+<h3><code>nong skill validate &lt;dir&gt; --json</code></h3>
+<br>
+<p>用途：验证单个 skill 目录。</p>
+<br>
+<p>输入：含 <code>SKILL.md</code> 的目录。</p>
+<br>
+<p>成功：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;command&quot;: &quot;skill validate&quot;,
+  &quot;summary&quot;: &quot;Skill valid: word&quot;,
+  &quot;data&quot;: {
+    &quot;valid&quot;: true,
+    &quot;skill&quot;: &quot;word&quot;,
+    &quot;lines&quot;: 50,
+    &quot;errors&quot;: [],
+    &quot;warnings&quot;: []
+  }
+}
+</code></pre>
+<br>
+<p>失败但工具正常运行：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;status&quot;: &quot;error&quot;,
+  &quot;command&quot;: &quot;skill validate&quot;,
+  &quot;errors&quot;: [
+    {
+      &quot;code&quot;: &quot;E006&quot;,
+      &quot;name&quot;: &quot;validation_failed&quot;,
+      &quot;message&quot;: &quot;SKILL.md not found in skill directory.&quot;
+    }
+  ]
+}
+</code></pre>
+<br>
+<h3><code>nong skill scan &lt;dir&gt; --json</code></h3>
+<br>
+<p>用途：安全扫描 skill 或插件目录。</p>
+<br>
+<p>成功条件：</p>
+<br>
+<ul>
+<li>无 Critical/High：<code>status: ok</code></li>
+<li>有 Critical/High：<code>status: error</code>，退出码非 0</li>
+<li>Medium/Low 只进入 <code>issues</code>，不进入 <code>errors</code></li>
+</ul>
+<br>
+<p>数据结构建议：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;data&quot;: {
+    &quot;critical&quot;: 0,
+    &quot;high&quot;: 0,
+    &quot;medium&quot;: 14,
+    &quot;low&quot;: 1,
+    &quot;findings&quot;: [
+      {
+        &quot;severity&quot;: &quot;Medium&quot;,
+        &quot;rule&quot;: &quot;HOME_PATH_REFERENCE&quot;,
+        &quot;file&quot;: &quot;word/references/workspace-setup.md&quot;,
+        &quot;line&quot;: 7,
+        &quot;detail&quot;: &quot;Home directory reference detected&quot;
+      }
+    ]
+  }
+}
+</code></pre>
+<br>
+<h3><code>nong skill inventory &lt;dir&gt; --json</code></h3>
+<br>
+<p>用途：列出 skill 目录内容，用于审计和发布前检查。</p>
+<br>
+<p>如果输入是插件根目录，应支持汇总所有含 <code>SKILL.md</code> 的子目录。</p>
+<br>
+<p>建议输出：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;data&quot;: {
+    &quot;root&quot;: &quot;...&quot;,
+    &quot;skills&quot;: [&quot;word&quot;, &quot;inspect&quot;, &quot;excel&quot;],
+    &quot;skillCount&quot;: 17,
+    &quot;hasPluginManifest&quot;: true,
+    &quot;hasMarketplaceManifest&quot;: true
+  }
+}
+</code></pre>
+<br>
+<h3><code>nong skill package &lt;dir&gt; --json</code></h3>
+<br>
+<p>用途：打包单个 skill 或插件根目录。</p>
+<br>
+<p>流程：</p>
+<br>
+<p>1. validate</p>
+<p>2. scan</p>
+<p>3. 如果 scan 有 Critical/High，返回 error，不打包</p>
+<p>4. 生成 zip</p>
+<p>5. <code>artifacts.zip</code> 返回 zip 绝对路径</p>
+<br>
+<p>成功：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;command&quot;: &quot;skill package&quot;,
+  &quot;summary&quot;: &quot;Package created.&quot;,
+  &quot;artifacts&quot;: {
+    &quot;zip&quot;: &quot;C:/.../nong-toolkit-2.0.0.zip&quot;
+  }
+}
+</code></pre>
+<br>
+<h2>P1 暂缓</h2>
+<br>
+<p>以下命令先不要做，避免再次跑太快：</p>
+<br>
+<pre><code class="language-text">
+nong skill scaffold
+nong skill eval
+nong skill eval serve
+nong skill optimize-description
+nong skill run-loop
+nong skill compare
+</code></pre>
+<br>
+<p>这些等 P0 稳定、Nong.Toolkit.Net 2.0.0 能打包发布后再迁移。</p>
+<br>
+<h2>代码修改建议</h2>
+<br>
+<h3>1. 新建 SkillManagerCore</h3>
+<br>
+<p>把以下目录从 <code>SkillManager/</code> 移到 <code>SkillManagerCore/</code>：</p>
+<br>
+<pre><code class="language-text">
+Tools/
+Models/
+assets/
+</code></pre>
+<br>
+<p>命名空间可暂时保留 <code>SkillManager.Cli.<em></code>，降低迁移风险；后续再统一成 <code>Nong.SkillManager.</em></code>。</p>
+<br>
+<p><code>SkillManagerCore.csproj</code>：</p>
+<br>
+<pre><code class="language-xml">
+&lt;Project Sdk=&quot;Microsoft.NET.Sdk&quot;&gt;
+  &lt;PropertyGroup&gt;
+    &lt;TargetFramework&gt;net8.0&lt;/TargetFramework&gt;
+    &lt;ImplicitUsings&gt;enable&lt;/ImplicitUsings&gt;
+    &lt;Nullable&gt;enable&lt;/Nullable&gt;
+  &lt;/PropertyGroup&gt;
+  &lt;ItemGroup&gt;
+    &lt;PackageReference Include=&quot;YamlDotNet&quot; Version=&quot;*&quot; /&gt;
+  &lt;/ItemGroup&gt;
+  &lt;ItemGroup&gt;
+    &lt;EmbeddedResource Include=&quot;assets\viewer.html&quot; /&gt;
+  &lt;/ItemGroup&gt;
+&lt;/Project&gt;
+</code></pre>
+<br>
+<h3>2. Cli 引用 SkillManagerCore</h3>
+<br>
+<p><code>Cli/NongCli.csproj</code> 加：</p>
+<br>
+<pre><code class="language-xml">
+&lt;ProjectReference Include=&quot;..\SkillManagerCore\SkillManagerCore.csproj&quot; /&gt;
+</code></pre>
+<br>
+<h3>3. 注册 SkillCommands</h3>
+<br>
+<p><code>Program.cs</code>：</p>
+<br>
+<pre><code class="language-csharp">
+root.AddCommand(SkillCommands.Create(jsonOpt));
+</code></pre>
+<br>
+<h3>4. Manifest 增加 implemented 命令</h3>
+<br>
+<p><code>Cli/Common/Manifest.cs</code> 增加：</p>
+<br>
+<pre><code class="language-text">
+skill validate
+skill scan
+skill inventory
+skill package
+</code></pre>
+<br>
+<p>状态为 implemented。</p>
+<br>
+<h3>5. 更新 AGENT.md</h3>
+<br>
+<p>加入：</p>
+<br>
+<pre><code class="language-text">
+nong skill validate &lt;dir&gt; --json
+nong skill scan &lt;dir&gt; --json
+nong skill inventory &lt;dir&gt; --json
+nong skill package &lt;dir&gt; --json
+</code></pre>
+<br>
+<p>并明确：</p>
+<br>
+<pre><code class="language-text">
+Do not use the old skill-manager global tool. Use nong skill instead.
+</code></pre>
+<br>
+<h2>验收清单</h2>
+<br>
+<p>必须通过：</p>
+<br>
+<pre><code class="language-powershell">
+dotnet build .\Cli\NongCli.csproj -c Release
+nong skill validate C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net\word --json
+nong skill scan C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
+nong skill inventory C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
+nong commands --json
+</code></pre>
+<br>
+<p>预期：</p>
+<br>
+<p>1. Release build 0 错误。</p>
+<p>2. <code>skill validate</code> 对 <code>word</code> 返回 <code>status: ok</code>。</p>
+<p>3. <code>skill scan</code> 对 Nong.Toolkit.Net 当前状态返回 <code>status: ok</code>，因为无 High/Critical。</p>
+<p>4. <code>skill inventory</code> 能识别 17 个 skill。</p>
+<p>5. <code>nong commands --json</code> 包含 24 个 implemented 命令：</p>
+<ul>
+<li>原 20 个</li>
+<li>新增 4 个 <code>skill ...</code></li>
+</ul>
+<br>
+<h2>不要做</h2>
+<br>
+<p>1. 不要要求用户安装 .NET 11 preview。</p>
+<p>2. 不要继续推广 <code>dotnet tool install --global Angri450.Nong.Skill.Manager</code>。</p>
+<p>3. 不要把旧 <code>skill-manager.exe</code> 的行为当成验收标准。</p>
+<p>4. 不要在本阶段迁移 eval viewer / optimizer / loop runner。</p>
+<p>5. 不要把 PPTX/OCR skill 重新加回 Nong.Toolkit.Net，除非 <code>nong pptx</code> / <code>nong ocr</code> 已经真实 implemented。</p>
+<br>
+<h2>给 ClaudeCode 的任务描述</h2>
+<br>
+<p>目标：将 SkillManager P0 能力迁入 Nong CLI。</p>
+<br>
+<p>请按方案 B 实现：</p>
+<br>
+<p>1. 新建 <code>SkillManagerCore</code> net8.0 classlib。</p>
+<p>2. 将 <code>SkillManager/Tools</code>、<code>SkillManager/Models</code>、<code>SkillManager/assets</code> 迁入 core。</p>
+<p>3. <code>Cli</code> 引用 <code>SkillManagerCore</code>。</p>
+<p>4. 新增 <code>Cli/Commands/SkillCommands.cs</code>，实现：</p>
+<ul>
+<li><code>nong skill validate &lt;dir&gt; --json</code></li>
+<li><code>nong skill scan &lt;dir&gt; --json</code></li>
+<li><code>nong skill inventory &lt;dir&gt; --json</code></li>
+<li><code>nong skill package &lt;dir&gt; --json</code></li>
+</ul>
+<p>5. 更新 Manifest 和 AGENT.md。</p>
+<p>6. Release build。</p>
+<p>7. 用 Nong.Toolkit.Net 当前目录跑 validate/scan/inventory 验收。</p>
+<br>
+<p>只做 P0，不做 eval/scaffold/serve/optimizer。</p>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

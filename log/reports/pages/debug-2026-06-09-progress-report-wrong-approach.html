@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>progress-report skill 创建问题诊断 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../debug.html" class="back-link">&larr; 用户反馈</a>
+<h1>progress-report skill 创建问题诊断</h1>
+<p class="subtitle">2026-06-09 | <span style="color: #dc2626">用户反馈</span></p></header>
+<article class="content">
+<h1>progress-report skill 创建问题诊断</h1>
+<br>
+<h2>时间</h2>
+<p>2026-06-09</p>
+<br>
+<h2>触发场景</h2>
+<br>
+<p>用户要求创建 progress-report skill 后，skill-manager 指导创建了一个独立 .NET 工具项目 <code>tools/ProgressReport/</code>，用户质疑为什么不在 <code>nong</code> CLI 里实现。</p>
+<br>
+<h2>问题清单</h2>
+<br>
+<h3>问题 1：独立 .NET 工具项目违反了 Nong&quot;一个二进制&quot;原则</h3>
+<br>
+<p><strong>严重程度</strong>: HIGH</p>
+<br>
+<p><strong>现象</strong>: 在 <code>tools/ProgressReport/</code> 下创建了独立的 .NET 项目（含 csproj + Program.cs），通过 <code>dotnet run --project tools/ProgressReport</code> 调用。</p>
+<br>
+<p><strong>正确做法</strong>: Nong.NET 的 README 明确写&quot;93 个命令。一个二进制文件。跨平台运行&quot;。所有功能应该作为 <code>nong</code> 的子命令进入 <code>Cli/Commands/</code>，例如 <code>nong progress report --json</code>。参考已有的 <code>Cli/Commands/WordCommands.cs</code>、<code>Cli/Commands/ChartCommands.cs</code> 模式。</p>
+<br>
+<p><strong>为什么错了</strong>:</p>
+<ul>
+<li>skill-manager 的规则是&quot;确定性工作走 .NET 工具&quot;——这里理解错了。规则说的是不要在 prompt 里做确定性工作，应该用代码实现。但实现方式应该走现有 CLI 管线，而不是另建项目。</li>
+<li>项目里已经有了 14 个命令模块在 <code>Cli/Commands/</code> 下，模式非常清晰，不应该创建一个孤立的 <code>tools/</code> 项目。</li>
+</ul>
+<br>
+<p><strong>影响</strong>: 如果有用户安装 <code>nong</code> CLI，他们拿不到 report 功能。这个功能成了游离于主二进制之外的孤儿。</p>
+<br>
+<h3>问题 2：nong 工具链状态误判</h3>
+<br>
+<p><strong>严重程度</strong>: MEDIUM</p>
+<br>
+<p><strong>现象</strong>: 运行 <code>nong commands --json</code> 返回 exit code 154，报错 <code>nong.dll</code> 不存在。Agent 未排查错误根因，直接假设&quot;没有 progress/report 命令&quot;。</p>
+<br>
+<p><strong>实际根因</strong>: <code>C:\Users\Administrator\.dotnet\tools\.store\angri450.nong.cli\3.2.4\...\nong.dll</code> 缺失。这是一个已安装但损坏的旧版本（3.2.4）。项目当前版本是 4.0.0，本地 DLL 应该在项目 build 输出目录，不应该依赖过期的全局 tool 安装。</p>
+<br>
+<p><strong>为什么错了</strong>:</p>
+<ul>
+<li>退出码 154 不等于&quot;没有这个功能&quot;，需要 <code>nong --help</code> 或直接看 <code>Cli/Commands/</code> 源码才能确认</li>
+<li>应该先修复环境再判断，而不是基于一个错误输出做决策</li>
+</ul>
+<br>
+<p><strong>影响</strong>: 误判导致走了独立项目这条错路。如果早发现 <code>nong</code> 有 14 个命令模块在 <code>Cli/Commands/</code> 下，就能按现有模式添加 <code>ProgressCommands.cs</code>。</p>
+<br>
+<h3>问题 3：SKILL.md 调用链路不合理</h3>
+<br>
+<p><strong>严重程度</strong>: MEDIUM</p>
+<br>
+<p><strong>现象</strong>: SKILL.md 写的调用方式是：</p>
+<pre><code class="language-powershell">
+dotnet run --project tools/ProgressReport -- --project-root .
+</code></pre>
+<br>
+<p><strong>正确做法</strong>: 应该写成：</p>
+<pre><code class="language-powershell">
+nong progress report --json
+</code></pre>
+<br>
+<p>Agent 触发 skill 后，skill 应该指导 Agent 调用 <code>nong</code> 命令，而不是要求 Agent 编译并运行一个独立项目。</p>
+<br>
+<p><strong>影响</strong>:</p>
+<ul>
+<li>Agent 每次用这个 skill 都要编译一次 <code>tools/ProgressReport</code></li>
+<li>与项目其他 skill（Word、Chart、Diagram 等都走 <code>nong word ...</code>、<code>nong chart ...</code>）模式不一致</li>
+<li>用户手动使用时不方便，只能通过 Agent</li>
+</ul>
+<br>
+<h2>需要修复</h2>
+<br>
+<p>1. 撤回 <code>tools/ProgressReport/</code>，不推入主线</p>
+<p>2. 在 <code>Cli/Commands/</code> 下新增 <code>ProgressCommands.cs</code>，实现 <code>nong progress report</code> 命令</p>
+<p>3. 把 markdown 解析和 HTML 生成逻辑放到对应的库项目（可能是 <code>Cli/</code> 本身或新建一个小项目，然后 Cli 引用它）</p>
+<p>4. 重新编译 <code>nong</code> CLI，让 <code>nong commands --json</code> 可见新命令</p>
+<p>5. 更新 SKILL.md 调用方式为 <code>nong progress report</code></p>
+<p>6. 修复 nong 全局工具安装问题（当前 3.2.4 版本已损坏，需重装 4.0.0）</p>
+<br>
+<h2>根本原因</h2>
+<br>
+<p>Agent 受到 skill-manager 中&quot;Deterministic work goes into .NET tools&quot;这句规则的过度影响，忽略了 Nong.NET 项目自己的架构约束：&quot;一个二进制文件&quot;。项目自己的 CLAUDE.md 明确写了这个原则，Agent 没有用它来纠正 skill-manager 的通用规则。</p>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

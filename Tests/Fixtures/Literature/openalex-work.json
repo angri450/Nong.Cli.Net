@@ -1,0 +1,67 @@
+{
+  "id": "https://openalex.org/W1234567890",
+  "doi": "https://doi.org/10.1016/j.chemgeo.2007.05.018",
+  "title": "Rare earth element complexation by humic acid",
+  "publication_year": 2007,
+  "cited_by_count": 42,
+  "abstract_inverted_index": {
+    "Humic": [0],
+    "acid": [1],
+    "binds": [2],
+    "rare": [3],
+    "earth": [4],
+    "elements": [5]
+  },
+  "primary_location": {
+    "source": {
+      "display_name": "Chemical Geology",
+      "issn": ["0009-2541"]
+    }
+  },
+  "authorships": [
+    {
+      "author": {
+        "display_name": "Alice Chen"
+      },
+      "institutions": [
+        {
+          "display_name": "Nong Research Institute"
+        }
+      ]
+    },
+    {
+      "author": {
+        "display_name": "Bo Wang"
+      },
+      "institutions": []
+    }
+  ],
+  "concepts": [
+    {
+      "display_name": "Humic acid"
+    },
+    {
+      "display_name": "Rare earth element"
+    }
+  ],
+  "topics": [
+    {
+      "display_name": "Soil chemistry"
+    }
+  ],
+  "keywords": [
+    {
+      "display_name": "complexation"
+    }
+  ],
+  "open_access": {
+    "is_oa": true,
+    "oa_status": "gold",
+    "oa_url": "https://example.org/article"
+  },
+  "best_oa_location": {
+    "pdf_url": "https://example.org/article.pdf",
+    "landing_page_url": "https://example.org/article",
+    "license": "cc-by"
+  }
+}

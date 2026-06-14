@@ -1,7 +1,5 @@
 using System.CommandLine;
-using System.Text.Json;
 using DiagramCore;
-using DiagramCore.Models;
 using Nong.Cli.Common;
 
 namespace Nong.Cli.Commands;
@@ -33,21 +31,8 @@ public static class DiagramCommands
 
             try
             {
-                CliHelpers.EnsureParentDir(output);
-                var elapsed = CliHelpers.Time(() =>
-                {
-                    var jsonText = File.ReadAllText(spec);
-                    DiagramBuilder.FromDsl(jsonText, output);
-                });
-
-                if (json)
-                {
-                    var oj = JsonOutput.Ok("diagram flowchart", $"Saved: {output}");
-                    oj.Artifacts["png"] = Path.GetFullPath(output);
-                    oj.Meta.DurationMs = elapsed;
-                    Console.WriteLine(JsonSerializer.Serialize(oj, CliHelpers.JsonOpts));
-                }
-                else Console.WriteLine($"OK: {Path.GetFullPath(output)}");
+                NativeRenderWorkerHost.Run("diagram flowchart", json,
+                    new[] { "diagram", "flowchart", "--file", spec, "--output", output });
             }
             catch (Exception ex)
             {
@@ -73,22 +58,8 @@ public static class DiagramCommands
 
             try
             {
-                CliHelpers.EnsureParentDir(output);
-                var elapsed = CliHelpers.Time(() =>
-                {
-                    var graph = JsonSerializer.Deserialize<Graph>(File.ReadAllText(spec),
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    DiagramBuilder.NetworkGraph(graph!, output);
-                });
-
-                if (json)
-                {
-                    var oj = JsonOutput.Ok("diagram network", $"Saved: {output}");
-                    oj.Artifacts["png"] = Path.GetFullPath(output);
-                    oj.Meta.DurationMs = elapsed;
-                    Console.WriteLine(JsonSerializer.Serialize(oj, CliHelpers.JsonOpts));
-                }
-                else Console.WriteLine($"OK: {Path.GetFullPath(output)}");
+                NativeRenderWorkerHost.Run("diagram network", json,
+                    new[] { "diagram", "network", "--file", spec, "--output", output });
             }
             catch (Exception ex)
             {
@@ -116,38 +87,8 @@ public static class DiagramCommands
 
             try
             {
-                CliHelpers.EnsureParentDir(output);
-
-                var elapsed = CliHelpers.Time(() =>
-                {
-                    var ext = Path.GetExtension(spec).ToLowerInvariant();
-
-                    if (ext == ".json")
-                    {
-                        // Parse JSON: {"newick":"...", "title":"..."}
-                        var jsonText = File.ReadAllText(spec);
-                        DiagramBuilder.FromDsl(jsonText, output);
-                    }
-                    else
-                    {
-                        // Read as raw Newick string
-                        var newick = File.ReadAllText(spec).Trim();
-                        var tree = NewickTree.Parse(newick);
-                        DiagramBuilder.PhylogeneticTree(tree, output);
-                    }
-                });
-
-                var aerr = CliHelpers.CheckArtifact(output, "PNG");
-                if (aerr != null) { CliHelpers.WriteError("diagram tree", aerr, json); return; }
-
-                if (json)
-                {
-                    var oj = JsonOutput.Ok("diagram tree", $"Saved: {output}");
-                    oj.Artifacts["png"] = Path.GetFullPath(output);
-                    oj.Meta.DurationMs = elapsed;
-                    Console.WriteLine(JsonSerializer.Serialize(oj, CliHelpers.JsonOpts));
-                }
-                else Console.WriteLine($"OK: {Path.GetFullPath(output)}");
+                NativeRenderWorkerHost.Run("diagram tree", json,
+                    new[] { "diagram", "tree", "--file", spec, "--output", output });
             }
             catch (Exception ex)
             {

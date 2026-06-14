@@ -1,0 +1,34 @@
+{
+  "results": [
+    {
+      "id": "https://openalex.org/W123",
+      "display_name": "Humic acid and rare earth",
+      "doi": "https://doi.org/10.1016/j.chemgeo.2007.05.018",
+      "publication_year": 2007,
+      "cited_by_count": 42,
+      "abstract_inverted_index": {
+        "This": [0],
+        "is": [1],
+        "abstract": [2]
+      },
+      "primary_location": {
+        "source": {
+          "display_name": "Chem Geol"
+        }
+      },
+      "open_access": {
+        "is_oa": true,
+        "oa_status": "green",
+        "oa_url": "https://example.test/oa"
+      },
+      "authorships": [
+        {
+          "author": { "display_name": "Qian W" },
+          "institutions": [{ "display_name": "Tsinghua University" }]
+        }
+      ],
+      "concepts": [{ "display_name": "Soil chemistry" }],
+      "topics": [{ "display_name": "Humic acid" }]
+    }
+  ]
+}

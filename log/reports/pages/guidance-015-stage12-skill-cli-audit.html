@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>阶段 12 审计：nong skill CLI 命令 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../guidance.html" class="back-link">&larr; 开发指导</a>
+<h1>阶段 12 审计：nong skill CLI 命令</h1>
+<p class="subtitle">2026-06-03 | <span style="color: #7c3aed">开发指导</span></p></header>
+<article class="content">
+<h1>阶段 12 审计：nong skill CLI 命令</h1>
+<br>
+<p>日期：2026-06-03</p>
+<p>状态：2 项修复，10 项测试通过</p>
+<br>
+<hr>
+<br>
+<h2>发现并修复</h2>
+<br>
+<h3>#1 空字符串路径导致未处理异常</h3>
+<br>
+<ul>
+<li><strong>问题</strong>：<code>nong skill validate &quot;&quot; --json</code> 在所有四个命令中触发 <code>ArgumentException</code>（<code>Path.GetFullPath(&quot;&quot;)</code>），stack trace 裸奔，无 JSON 输出</li>
+<li><strong>修复</strong>：四个命令（validate/scan/inventory/package）均在 <code>Path.GetFullPath</code> 前加入 <code>string.IsNullOrWhiteSpace(dir)</code> 守卫，空路径返回 E003 missing_argument + <code>&quot;Directory path is required.&quot;</code>，EXIT:1</li>
+<li><strong>影响命令</strong>：skill validate、skill scan、skill inventory、skill package</li>
+<li><strong>文件</strong>：<code>Cli/Commands/SkillCommands.cs</code></li>
+</ul>
+<br>
+<h3>#2 skill package 缺少 CheckArtifact</h3>
+<br>
+<ul>
+<li><strong>问题</strong>：其他生成命令（chart bar、word fill、word rebuild）在生成产物后调用 <code>CheckArtifact</code> 验证文件存在且非空，<code>skill package</code> 缺失此检查</li>
+<li><strong>修复</strong>：PackageAsync 后加入 <code>CheckArtifact(outputPath, &quot;ZIP&quot;)</code>，文件缺失或 0 bytes 返回 E008 write_failed</li>
+<li><strong>文件</strong>：<code>Cli/Commands/SkillCommands.cs</code></li>
+</ul>
+<br>
+<hr>
+<br>
+<h2>审计通过的测试（10 项）</h2>
+<br>
+<table>
+<tr><th>#</th><th>测试场景</th><th>预期</th><th>结果</th></tr>
+<tr><td>1</td><td>空路径</td><td>E003 + EXIT:1</td><td>PASS</td></tr>
+<tr><td>2</td><td>不存在的目录</td><td>E001 + 含路径 + EXIT:1</td><td>PASS</td></tr>
+<tr><td>3</td><td><code>skill validate</code> word skill</td><td>status:ok, valid:true, lines:50</td><td>PASS</td></tr>
+<tr><td>4</td><td><code>skill scan</code> Nong.Toolkit.Net</td><td>0 High+, 15 findings (14M+1L)</td><td>PASS</td></tr>
+<tr><td>5</td><td><code>skill inventory</code> Nong.Toolkit.Net</td><td>17 skills found</td><td>PASS</td></tr>
+<tr><td>6</td><td><code>skill package</code> word skill</td><td>zip 生成, CheckArtifact 通过</td><td>PASS</td></tr>
+<tr><td>7</td><td>scan 含 HIGH 发现 (EMAIL_EXPOSED)</td><td>status:error, errors[] populated, EXIT:1</td><td>PASS</td></tr>
+<tr><td>8</td><td>validate 无效 SKILL.md (无 frontmatter)</td><td>status:error, valid:false, EXIT:1</td><td>PASS</td></tr>
+<tr><td>9</td><td>package 被 validation 阻断 (无 SKILL.md)</td><td>不生成 zip, EXIT:1</td><td>PASS</td></tr>
+<tr><td>10</td><td>inventory 空目录</td><td>0 skills, EXIT:0</td><td>PASS</td></tr>
+</table>
+<br>
+<h3>测试参数缺失（System.CommandLine 内置行为，无需修复）</h3>
+<br>
+<ul>
+<li><code>nong skill validate --json</code>（缺 &lt;dir&gt;）→ 自动显示 help + EXIT:1 — PASS</li>
+<li><code>nong skill package --json</code>（缺 &lt;dir&gt;）→ 自动显示 help + EXIT:1 — PASS</li>
+</ul>
+<br>
+<hr>
+<br>
+<h2>JSON 契约一致性</h2>
+<br>
+<p>与现有 20 个 CLI 命令对齐：</p>
+<br>
+<ul>
+<li><code>status</code>: ok/error 语义正确</li>
+<li><code>command</code>: &quot;skill validate&quot; / &quot;skill scan&quot; / &quot;skill inventory&quot; / &quot;skill package&quot;</li>
+<li><code>errors[]</code>: 使用 <code>{code, name, message}</code> ErrorEntry 格式</li>
+<li><code>issues[]</code>: 使用 <code>{id, severity, message}</code> Issue 格式（Medium/Low 扫描发现）</li>
+<li><code>artifacts</code>: package 命令返回 <code>{&quot;zip&quot;: &quot;&lt;absolute-path&gt;&quot;}</code></li>
+<li><code>metrics</code>: 各命令填充相关指标</li>
+<li><code>meta</code>: durationMs + version 一致</li>
+<li>退出码：error 路径 EXIT:1，成功 EXIT:0</li>
+</ul>
+<br>
+<hr>
+<br>
+<h2>已知未修复（不在本阶段范围）</h2>
+<br>
+<p>1. <code>data.hasPluginManifest</code> 和 <code>data.hasMarketplaceManifest</code> 都检查 <code>marketplace.json</code>，应区分 <code>plugin.json</code> 和 <code>marketplace.json</code>。当前 Nong.Toolkit.Net 无这两个文件，不影响使用</p>
+<p>2. SkillValidator 中 broken references 在非 JSON 文本输出中同时出现在 WARNING 列表和 &quot;Broken references&quot; 区域，属上游 SkillValidator 展示重复。JSON 输出无此问题</p>
+<br>
+<hr>
+<br>
+<h2>编译</h2>
+<br>
+<p>Release build: 0 错误，0 警告（ThirdParty 的 CS3003 CLS 警告不计）</p>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

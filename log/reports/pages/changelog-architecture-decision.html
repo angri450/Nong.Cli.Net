@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nong.NET v3.x 架构重构方案 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>Nong.NET v3.x 架构重构方案</h1>
+<p class="subtitle">2026-06-02 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>Nong.NET v3.x 架构重构方案</h1>
+<br>
+<p>日期：2026-06-02</p>
+<p>状态：开发中，待发版</p>
+<br>
+<hr>
+<br>
+<h2>一、背景</h2>
+<br>
+<p>当前 <code>Angri450.Nong.Docx</code>（v3.0.2）混合了两层职责：底层 Word 引擎操作（读写、格式、图片嵌入、样式）和高层论文语义（类型分类、结构提取、质量诊断、变量生成）。AI 调用时需经过&quot;写 Program.cs → dotnet run&quot;路径，编译开销大，导致 word skill 频繁降级为 PowerShell 直接解析 XML。</p>
+<br>
+<h2>二、决策</h2>
+<br>
+<h3>2.1 包拆分</h3>
+<br>
+<p>原有 9 个包不变。<strong>新增 2 个包</strong>，从 Docx 拆出：</p>
+<br>
+<table>
+<tr><th>包</th><th>版本</th><th>定位</th><th>职责</th></tr>
+<tr><td><code>Angri450.Nong.Docx</code></td><td>3.0.2 → 3.1.0</td><td>Word 引擎</td><td>读写 Word、排版格式、图片嵌入、样式引擎、模板填充、OOXML 修复、数学公式渲染</td></tr>
+<tr><td><code>Angri450.Nong.Inspect</code></td><td>3.0.0（新建）</td><td>内容审查+写作</td><td>论文诊断（6 个分析器）、论文写作（PaperWriter）、公文写作（OfficialDocWriter）、信函写作（LetterWriter）、参考文献管理（ReferenceManager）</td></tr>
+<tr><td><code>Angri450.Nong.Genre</code></td><td>3.0.0（新建）</td><td>格式模板库</td><td>纯 JSON 模板：期刊论文、毕业论文、竞赛论文、答辩 PPT、通知公文、商务信函</td></tr>
+</table>
+<br>
+<p>依赖链：<code>ThirdParty → Docx → Inspect</code>，<code>Genre</code> 独立（纯资源包）。</p>
+<br>
+<h3>2.2 CLI 化方案（待实施）</h3>
+<br>
+<p>确定性的&quot;一个文件进去、一个结果出来&quot;操作走 CLI，创作型任务保留库调用。</p>
+<br>
+<p>CLI 覆盖范围：<code>nong word read/extract/dissect/preview</code>、<code>nong inspect classify/structure/diagnose</code>、<code>nong chart bar</code>、<code>nong ocr</code>。</p>
+<br>
+<p>不分发 NuGet 包给终端用户（隐藏旧包），仅通过 CLI 二进制分发。源码在 GitHub/Gitee 公开，协议后续统一切换为 Apache 2.0。</p>
+<br>
+<h3>2.3 协议</h3>
+<br>
+<p>暂保持 MIT。等 CLI 就绪后统一切换为 Apache 2.0，与 nong-toolkit skill 保持一致。原因：允许商用合作、专利保护条款、与依赖的开源项目协议兼容。</p>
+<br>
+<h2>三、新功能</h2>
+<br>
+<h3>3.1 Pandoc 内联格式标记</h3>
+<br>
+<p>PaperWriter.Body() 支持以下标记语法（Pandoc Markdown 子集）：</p>
+<br>
+<table>
+<tr><th>标记</th><th>效果</th><th>示例</th></tr>
+<tr><td><code><em>text</em></code></td><td>斜体</td><td><code><em>Bacillus subtilis</em></code></td></tr>
+<tr><td><code><strong>text</strong></code></td><td>加粗</td><td><code><strong>P &lt; 0.01</strong></code></td></tr>
+<tr><td><code><strong><em>text</strong></em></code></td><td>加粗+斜体</td><td><code><strong><em>关键结论</strong></em></code></td></tr>
+<tr><td><code>==text==</code></td><td>荧光黄高亮</td><td><code>==需复核==</code></td></tr>
+<tr><td><code>~~text~~</code></td><td>删除线</td><td><code>~~旧数据~~</code></td></tr>
+<tr><td><code>^text^</code></td><td>上标</td><td><code>^注1^</code></td></tr>
+<tr><td><code>~text~</code></td><td>下标</td><td><code>H~2~O</code></td></tr>
+<tr><td><code>[N]</code></td><td>引文上标</td><td>自动检测</td></tr>
+<tr><td><code>（Latin）</code></td><td>拉丁名斜体</td><td>自动检测</td></tr>
+</table>
+<br>
+<h3>3.2 数学公式渲染</h3>
+<br>
+<p>DocxCore.MathRenderer：LaTeX 语法 → OMML（Office Math Markup Language），利用 ThirdParty 合并的 DocumentFormat.OpenXml.Math 类型（128+ 类）。</p>
+<br>
+<p>支持：分数 <code>\frac</code>、根号 <code>\sqrt</code>、上下标、希腊字母（28 个）、积分/求和 <code>\sum\int</code>、函数名 <code>\sin\cos\log\lim</code>、重音 <code>\hat\bar\dot\vec</code>、矩阵 <code>\begin{matrix}</code>、括号 <code>\left(...\right)</code>。</p>
+<br>
+<h3>3.3 参考文献管理</h3>
+<br>
+<p>用 <code>[@smith2024]</code> 标记替代手写 <code>[1]</code>，ReferenceManager 在生成时自动分配编号并格式化 GB/T 7714 条目。</p>
+<br>
+<p>流程：<code>Body(&quot;...[@smith2024]...&quot;)</code> → ReferenceManager.Resolve → <code>&quot;...[1]...&quot;</code> → Word 自动上标 + 编号。<code>AutoReferences()</code> 从数据库中读取条目并自动生成参考文献列表。</p>
+<br>
+<p>支持 8 种文献类型：article / book / thesis / conference / patent / report / standard / online。</p>
+<br>
+<h2>四、Bug 修复</h2>
+<br>
+<table>
+<tr><th>#</th><th>严重度</th><th>描述</th><th>修复</th></tr>
+<tr><td>2</td><td>MEDIUM</td><td>StyleBuilder JSON 缺少 lineRule 字段，公文固定行距无法设置</td><td>增加 lineRule 字段解析（auto/exact/atLeast）</td></tr>
+<tr><td>3</td><td>LOW</td><td>Body() 逐字 w:t 切分，每个中文字符独立 Run</td><td>改用 Regex.Split 按标记分组，连续文本合并</td></tr>
+<tr><td>7</td><td>MEDIUM</td><td>参考文献序号重复/缺失，手写 [1] 与 Word 自动编号冲突</td><td>References() 自动剥离手写 [N] 前缀 + AutoReferences() 统一管理</td></tr>
+</table>
+<br>
+<p>另有 3 个问题归属 skill 层（nong-toolkit），非包问题：Write 工具中文引号转换（#1）、dissect 脚本路由检测（#4）、word skill dispatch 优先级（#6）。</p>
+<br>
+<h2>五、待办</h2>
+<br>
+<ul>
+<li>[ ] CLI 工具 <code>nong</code>（Angri450.Nong.Cli）开发</li>
+<li>[ ] 协议 MIT → Apache 2.0 批量切换</li>
+<li>[ ] NuGet 旧包 unlist，CLI 发布后执行</li>
+<li>[ ] nong-toolkit word skill 适配新包结构</li>
+<li>[ ] nong-toolkit genre skill 新建</li>
+<li>[ ] Docx 旧论文文件清理（6 个文件仍保留在 Docx/ 中，待测试通过后删除）</li>
+<li>[ ] 打包发版：Docx 3.1.0 + Inspect 3.0.0 + Genre 3.0.0</li>
+</ul>
+<br>
+<h2>六、相关文件</h2>
+<br>
+<ul>
+<li>仓库：<code>C:\Users\Administrator\Documents\Github\Nong.Cli.Net</code></li>
+<li>changelog：<code>changelog/2026-06-02-docx-split-and-bugs.md</code>（报错诊断）</li>
+<li>新增源文件：<code>Docx/MathRenderer.cs</code>、<code>Inspect/PaperWriter.cs</code>、<code>Inspect/ReferenceManager.cs</code>、<code>Inspect/ReferenceModels.cs</code>、<code>Inspect/OfficialDocWriter.cs</code>、<code>Inspect/LetterWriter.cs</code>、<code>Genre/GenreTemplate.cs</code></li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>nong excel CLI 命令规范 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>nong excel CLI 命令规范</h1>
+<p class="subtitle">2026-06-02 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>nong excel CLI 命令规范</h1>
+<br>
+<p>日期：2026-06-02</p>
+<p>状态：规划中，待开发</p>
+<br>
+<hr>
+<br>
+<h2>概述</h2>
+<br>
+<p><code>nong excel</code> 是 Excel 层（Angri450.Nong.Excel）的 CLI 入口。覆盖读、查、写三类操作。底层基于 ClosedXML（via ThirdParty）。</p>
+<br>
+<p>底层实现：ExcelBuilder、AdvancedBuilder、ExcelPreview、FormulaValidator、StylePresets。</p>
+<br>
+<hr>
+<br>
+<h2>Excel 包 5 个文件 → CLI 命令映射</h2>
+<br>
+<h3>1. ExcelBuilder.cs（基础工作表构建器 + SheetBuilder 链式 API）</h3>
+<br>
+<p>对应命令（写）：</p>
+<br>
+<h4><code>nong excel read &lt;file&gt; [--sheet &lt;name|N&gt;] [--range &lt;A1:B10&gt;]</code></h4>
+<p>读取 Excel 文件内容。</p>
+<br>
+<p>输入：.xlsx 文件路径</p>
+<p>输出：CSV 或 JSON（<code>--json</code>），指定 sheet 和范围</p>
+<br>
+<p>实现：SheetBuilder 读取 → 逐行输出</p>
+<br>
+<h4><code>nong excel sheets &lt;file&gt;</code></h4>
+<p>列出所有工作表名称 + 行列数。</p>
+<br>
+<p>实现：XLWorkbook.Worksheets 遍历</p>
+<br>
+<h4><code>nong excel create &lt;file&gt; [--sheet &lt;name&gt;]</code></h4>
+<p>创建空白 .xlsx 文件（含一个 sheet）。</p>
+<br>
+<p>实现：ExcelBuilder.Sheet(wb, name)</p>
+<br>
+<hr>
+<br>
+<h3>2. AdvancedBuilder.cs（高级功能：透视表、图片、迷你图、条件格式等）</h3>
+<br>
+<p>对应命令（写）：</p>
+<br>
+<h4><code>nong excel add pivot &lt;file&gt; --sheet &lt;name&gt; --source &lt;range&gt; --rows &lt;cols&gt; --values &lt;cols&gt; [-o &lt;file&gt;]</code></h4>
+<p>添加透视表。</p>
+<br>
+<h4><code>nong excel add picture &lt;file&gt; --sheet &lt;name&gt; --src &lt;image&gt; [--cell &lt;A1&gt;]</code></h4>
+<p>插入图片。</p>
+<br>
+<h4><code>nong excel add sparkline &lt;file&gt; --sheet &lt;name&gt; --type &lt;line|column|winloss&gt; --source &lt;range&gt; --cell &lt;A1&gt;</code></h4>
+<p>插入迷你图。</p>
+<br>
+<h4><code>nong excel add filter &lt;file&gt; --sheet &lt;name&gt; --range &lt;A1:B10&gt;</code></h4>
+<p>添加自动筛选器。</p>
+<br>
+<h4><code>nong excel add conditional &lt;file&gt; --sheet &lt;name&gt; --range &lt;A1:B10&gt; --rule &lt;type&gt; --value &lt;v&gt;</code></h4>
+<p>添加条件格式。规则类型：contains / equals / greater / less / between / blank / error / duplicate / unique / top / bottom。</p>
+<br>
+<h4><code>nong excel add databar &lt;file&gt; --sheet &lt;name&gt; --range &lt;A1:A10&gt; [--color &lt;hex&gt;]</code></h4>
+<p>数据条。</p>
+<br>
+<h4><code>nong excel add colorscale &lt;file&gt; --sheet &lt;name&gt; --range &lt;A1:A10&gt; [--low &lt;red&gt; --mid &lt;yellow&gt; --high &lt;green&gt;]</code></h4>
+<p>色阶。</p>
+<br>
+<h4><code>nong excel add iconset &lt;file&gt; --sheet &lt;name&gt; --range &lt;A1:A10&gt;</code></h4>
+<p>图标集。</p>
+<br>
+<h4><code>nong excel sort &lt;file&gt; --sheet &lt;name&gt; --range &lt;A1:B10&gt; --by &lt;col&gt; --order &lt;asc|desc&gt;</code></h4>
+<p>排序。</p>
+<br>
+<h4><code>nong excel protect &lt;file&gt; --sheet &lt;name&gt; [--password &lt;pw&gt;]</code></h4>
+<p>保护工作表。</p>
+<br>
+<hr>
+<br>
+<h3>3. ExcelPreview.cs（预览诊断器）</h3>
+<br>
+<p>对应命令（查）：</p>
+<br>
+<h4><code>nong excel preview &lt;file&gt; [--sheet &lt;name&gt;]</code></h4>
+<p>预览工作表内容和结构。</p>
+<br>
+<p>输出：</p>
+<pre><code>
+Sheet: 实验数据 (30行 &#215; 5列)
+列: A(菌株) B(OD600) C(pH) D(温度) E(时间)
+
+  A       B      C     D    E
+  枯草1   2.34   7.0   37   24h
+  枯草2   1.89   6.8   37   24h
+  ...
+  警告: 列 D 包含零宽列
+</code></pre>
+<br>
+<p>实现：ExcelPreview.Preview()</p>
+<br>
+<h4><code>nong excel validate &lt;file&gt;</code></h4>
+<p>公式审计。</p>
+<br>
+<p>输出：所有公式的错误检查结果（计算错误、未保护除法、未保护 VLOOKUP）。</p>
+<br>
+<p>实现：FormulaValidator.Audit()</p>
+<br>
+<hr>
+<br>
+<h3>4. FormulaValidator.cs（公式验证器）</h3>
+<br>
+<p>对应命令：</p>
+<br>
+<h4><code>nong excel audit &lt;file&gt;</code></h4>
+<p>等价于 <code>nong excel validate</code>，专门审计公式。</p>
+<br>
+<h4><code>nong excel eval &lt;file&gt; [-o &lt;file&gt;]</code></h4>
+<p>保存含公式预计算结果的工作簿。</p>
+<br>
+<p>实现：FormulaValidator.SaveWithEvaluation()</p>
+<br>
+<hr>
+<br>
+<h3>5. StylePresets.cs（样式预设）</h3>
+<br>
+<p>内部使用，不暴露命令。<code>Mono</code> 和 <code>Finance</code> 两套主题在 create 时自动应用。</p>
+<br>
+<hr>
+<br>
+<h2>命令总数：17 个</h2>
+<br>
+<table>
+<tr><th>类别</th><th>数量</th><th>命令</th></tr>
+<tr><td>读</td><td>3</td><td>read, sheets, preview</td></tr>
+<tr><td>查</td><td>3</td><td>validate, audit, eval</td></tr>
+<tr><td>写</td><td>11</td><td>create, add pivot/picture/sparkline/filter/conditional/databar/colorscale/iconset, sort, protect</td></tr>
+</table>
+<br>
+<hr>
+<br>
+<h2>第一版实施计划</h2>
+<br>
+<table>
+<tr><th>命令</th><th>优先级</th><th>说明</th></tr>
+<tr><td>read</td><td>P0</td><td>读取 Excel，最高频</td></tr>
+<tr><td>sheets</td><td>P0</td><td>列 sheet，跟 read 配合</td></tr>
+<tr><td>create</td><td>P0</td><td>创建空白文件</td></tr>
+<tr><td>preview</td><td>P1</td><td>预览诊断</td></tr>
+<tr><td>validate</td><td>P1</td><td>公式审计</td></tr>
+<tr><td>其余 12 个</td><td>P2</td><td>后续迭代</td></tr>
+</table>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

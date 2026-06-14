@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>nong icons + nong genre CLI 命令规范 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>nong icons + nong genre CLI 命令规范</h1>
+<p class="subtitle">2026-06-02 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>nong icons + nong genre CLI 命令规范</h1>
+<br>
+<p>日期：2026-06-02</p>
+<p>状态：规划中，待开发</p>
+<br>
+<hr>
+<br>
+<h2>一、nong icons（Bioicons 包）</h2>
+<br>
+<h3>概述</h3>
+<br>
+<p><code>nong icons</code> 是科学图标层（Angri450.Nong.Bioicons）的 CLI 入口。覆盖 40 个 SVG 科学图标的搜索、预览和导出。</p>
+<br>
+<p>底层实现：IconProvider（6 个分类：Biology、Chemistry、Medical、LabEquipment、Arrows、Experimental）。</p>
+<br>
+<h3>IconProvider.cs → CLI 命令映射</h3>
+<br>
+<h4><code>nong icons list</code></h4>
+<p>列出所有可用图标分类及数量。</p>
+<br>
+<p>输出：</p>
+<pre><code>
+Biology (12): dna, cell, protein, enzyme, bacteria, virus, leaf, ...
+Chemistry (8): flask, beaker, test-tube, molecule, atom, ...
+Medical (6): syringe, pill, stethoscope, heart, ...
+LabEquipment (7): microscope, centrifuge, pipette, ...
+Arrows (4): arrow-up, arrow-down, arrow-left, arrow-right
+Experimental (3): thermometer, ph-meter, spectrophotometer
+</code></pre>
+<br>
+<p>实现：IconProvider.GetCategories() + GetIcons()</p>
+<br>
+<h4><code>nong icons search &lt;keyword&gt;</code></h4>
+<p>搜索图标。</p>
+<br>
+<pre><code>
+nong icons search dna   →  &quot;Biology/dna&quot;
+nong icons search flask →  &quot;Chemistry/flask&quot;
+</code></pre>
+<br>
+<p>实现：遍历所有分类的图标名称，模糊匹配</p>
+<br>
+<h4><code>nong icons show &lt;category&gt; &lt;name&gt;</code></h4>
+<p>显示图标 SVG 内容。</p>
+<br>
+<pre><code>
+nong icons show Biology dna   →  输出 SVG 源码
+</code></pre>
+<br>
+<p>实现：IconProvider.GetSvg(category, name)</p>
+<br>
+<h4><code>nong icons export &lt;category&gt; &lt;name&gt; [-o &lt;svg&gt;]</code></h4>
+<p>导出图标为 .svg 文件。</p>
+<br>
+<p>实现：IconProvider.SaveSvg(category, name, outputPath)</p>
+<br>
+<hr>
+<br>
+<h3>命令总数：4 个</h3>
+<br>
+<hr>
+<br>
+<h2>二、nong genre（Genre 模板库）</h2>
+<br>
+<h3>概述</h3>
+<br>
+<p><code>nong genre</code> 是格式模板层（Angri450.Nong.Genre）的 CLI 入口。覆盖 6 个 JSON 格式模板的浏览和查询。</p>
+<br>
+<p>底层实现：GenreTemplate（Load/List）。</p>
+<br>
+<h3>GenreTemplate.cs → CLI 命令映射</h3>
+<br>
+<h4><code>nong genre list</code></h4>
+<p>列出所有可用模板。</p>
+<br>
+<p>输出：</p>
+<pre><code>
+journal-paper     — 期刊论文（GB/T 7714）
+degree-thesis     — 毕业论文
+contest-paper     — 竞赛论文
+defense-ppt       — 答辩 PPT
+official-notice   — 通知公文
+business-letter   — 商务信函
+</code></pre>
+<br>
+<p>实现：GenreTemplate.List()</p>
+<br>
+<h4><code>nong genre show &lt;name&gt;</code></h4>
+<p>显示模板完整 JSON 内容。</p>
+<br>
+<pre><code>
+nong genre show degree-thesis   →  输出完整 JSON
+</code></pre>
+<br>
+<p>实现：GenreTemplate.Load(name)</p>
+<br>
+<hr>
+<br>
+<h3>命令总数：2 个</h3>
+<br>
+<hr>
+<br>
+<h2>第一版实施计划</h2>
+<br>
+<h3>icons</h3>
+<br>
+<table>
+<tr><th>命令</th><th>优先级</th><th>说明</th></tr>
+<tr><td>list</td><td>P1</td><td>列出图标</td></tr>
+<tr><td>search</td><td>P1</td><td>搜索图标</td></tr>
+<tr><td>show</td><td>P2</td><td>显示 SVG</td></tr>
+<tr><td>export</td><td>P2</td><td>导出 SVG</td></tr>
+</table>
+<br>
+<h3>genre</h3>
+<br>
+<table>
+<tr><th>命令</th><th>优先级</th><th>说明</th></tr>
+<tr><td>list</td><td>P0</td><td>列出模板</td></tr>
+<tr><td>show</td><td>P0</td><td>查看模板</td></tr>
+</table>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

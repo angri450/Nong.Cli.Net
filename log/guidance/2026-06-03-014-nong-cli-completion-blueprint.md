@@ -154,7 +154,7 @@ E009 not_implemented
 Cli/Common/ErrorCodes.cs
 Cli/AGENT.md
 README.md
-GroundPA-Toolkit 对应 skill
+Nong.Toolkit.Net 对应 skill
 ```
 
 ### 3. 不允许 silent fallback
@@ -169,7 +169,7 @@ GroundPA-Toolkit 对应 skill
 Cli/Common/Manifest.cs
 Cli/AGENT.md
 Cli/README.md
-GroundPA-Toolkit 对应 SKILL.md
+Nong.Toolkit.Net 对应 SKILL.md
 changelog
 ```
 
@@ -337,7 +337,7 @@ dependency check behavior
 Manifest sync
 AGENT.md
 README.md
-GroundPA-Toolkit skill sync
+Nong.Toolkit.Net skill sync
 release checklist
 CLI contract tests
 ```
@@ -376,15 +376,15 @@ nong skill package
 
 1. 废弃旧 `skill-manager` global tool。
 2. 解决 `.NET 11 preview` 依赖问题。
-3. 让 GroundPA-Toolkit 2.0.0 可以由 `nong skill ...` 验证和打包。
+3. 让 Nong.Toolkit.Net 2.0.0 可以由 `nong skill ...` 验证和打包。
 
 验收：
 
 ```powershell
 dotnet build .\Cli\NongCli.csproj -c Release
-nong skill validate C:\Users\Administrator\Documents\Github\GroundPA-Toolkit\word --json
-nong skill scan C:\Users\Administrator\Documents\Github\GroundPA-Toolkit --json
-nong skill inventory C:\Users\Administrator\Documents\Github\GroundPA-Toolkit --json
+nong skill validate C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net\word --json
+nong skill scan C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
+nong skill inventory C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
 nong commands --json
 ```
 
@@ -1123,14 +1123,14 @@ ocr local = 0 or 1
 
 ---
 
-## 阶段 19：GroundPA-Toolkit skill 同步
+## 阶段 19：Nong.Toolkit.Net skill 同步
 
 每个 CLI 阶段完成后同步 skill 层。
 
 位置：
 
 ```text
-C:\Users\Administrator\Documents\Github\GroundPA-Toolkit
+C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net
 ```
 
 规则：
@@ -1205,8 +1205,8 @@ dotnet test
 
 1. `nong commands --json` implemented 数量符合阶段目标。
 2. `nong commands --all --json` stub 状态准确。
-3. GroundPA-Toolkit plugin validate 通过。
-4. GroundPA-Toolkit skill 清单不包含 stub。
+3. Nong.Toolkit.Net plugin validate 通过。
+4. Nong.Toolkit.Net skill 清单不包含 stub。
 5. changelog 写清楚新增命令、剩余 stub、已知限制。
 
 ---

@@ -21,7 +21,7 @@ public sealed class JsonOutput
         Command = command,
         Summary = summary,
         Data = data,
-        Meta = new MetaInfo { Version = "3.1.0" }
+        Meta = new MetaInfo { Version = CliVersion.Current }
     };
 
     public static JsonOutput Fail(string command, List<ErrorEntry> errors) => new()
@@ -29,7 +29,7 @@ public sealed class JsonOutput
         Status = "error",
         Command = command,
         Errors = errors,
-        Meta = new MetaInfo { Version = "3.1.0" }
+        Meta = new MetaInfo { Version = CliVersion.Current }
     };
 }
 

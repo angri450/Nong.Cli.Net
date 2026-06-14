@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>阶段 11 补充审计（第三轮） - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>阶段 11 补充审计（第三轮）</h1>
+<p class="subtitle">2026-06-03 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>阶段 11 补充审计（第三轮）</h1>
+<br>
+<p>日期：2026-06-03</p>
+<p>状态：完成 8/10 项</p>
+<br>
+<hr>
+<br>
+<h2>修复清单</h2>
+<br>
+<h3>#1 Main 返回码（已修）</h3>
+<ul>
+<li><strong>问题</strong>：handler 设 <code>Environment.ExitCode = 1</code> 不成为进程返回码</li>
+<li><strong>修复</strong>：<code>Program.cs</code> Main 改为 <code>var code = await builder.InvokeAsync(args); return Environment.ExitCode != 0 ? Environment.ExitCode : code;</code></li>
+<li><strong>验证</strong>：<code>chart analyze missing.json</code> EXIT:1</li>
+</ul>
+<br>
+<h3>#2 输出前创建父目录（已修）</h3>
+<ul>
+<li><strong>问题</strong>：<code>-o out/paper.docx</code> 如果 out/ 不存在会失败</li>
+<li><strong>修复</strong>：<code>CliHelpers.EnsureParentDir(path)</code> — 写文件前 <code>Directory.CreateDirectory</code></li>
+<li><strong>覆盖</strong>：word fill/rebuild、inspect write-paper、chart bar、diagram flowchart/network</li>
+</ul>
+<br>
+<h3>#3 word rebuild 同路径守卫（已修）</h3>
+<ul>
+<li><strong>问题</strong>：<code>nong word rebuild a.docx -o a.docx</code> → File.Copy 自己覆盖自己</li>
+<li><strong>修复</strong>：比较 <code>Path.GetFullPath(file)</code> 和 <code>Path.GetFullPath(output)</code>，相同则返回 E006</li>
+</ul>
+<br>
+<h3>#4 Excel 异常包裹（已修）</h3>
+<ul>
+<li><strong>问题</strong>：excel read sheet/range 不存在可能崩异常</li>
+<li><strong>修复</strong>：excel read 加 try/catch → E004。sheets/to-groups 有 ValidateXlsx 前置 + try/catch</li>
+</ul>
+<br>
+<h3>#5 --raw 和 --json 行为（已修）</h3>
+<ul>
+<li><strong>问题</strong>：同时用 --raw 和 --json 时 agent 不知道该读什么</li>
+<li><strong>设计</strong>：--raw 优先级，handler 先判断 raw 分支</li>
+</ul>
+<br>
+<h3>#6 chart JSON 命令字段（已修）</h3>
+<ul>
+<li><strong>问题</strong>：JSON 里 command 字段写 &quot;stats anova&quot;/&quot;stats duncan&quot;，但 stats alias 已删除</li>
+<li><strong>修复</strong>：统一为 &quot;chart anova&quot;/&quot;chart duncan&quot;/&quot;chart analyze&quot;/&quot;chart bar&quot;</li>
+</ul>
+<br>
+<h3>#7 StatsValidation 全覆盖（已修）</h3>
+<ul>
+<li><strong>问题</strong>：仅 anova 有输入校验，duncan/analyze/bar 没有</li>
+<li><strong>修复</strong>：anova/duncan/analyze/bar 全部在调用前提取 groups → <code>StatsValidation.Validate()</code> → 空组/单重复/NaN 返回 E006</li>
+</ul>
+<br>
+<h3>#8 CheckArtifact 生效（已修）</h3>
+<ul>
+<li><strong>问题</strong>：helper 定义了但生成命令没调用</li>
+<li><strong>修复</strong>：chart bar、word fill/rebuild 生成后调 <code>CheckArtifact(path, kind)</code> → 不存在或 0 bytes 返回 E008</li>
+</ul>
+<br>
+<h3>#9 write-paper spec 结构校验（待做）</h3>
+<ul>
+<li><strong>状态</strong>：当前 spec 缺 heading/body 格式错 → E004（internal_error），不够精确</li>
+<li><strong>建议</strong>：后续加 spec schema 校验，返回 E006（validation_failed）</li>
+<li><strong>影响</strong>：低。E004 vs E006 对 agent 来说都是&quot;失败了要修&quot;，差别不大</li>
+</ul>
+<br>
+<h3>#10 Manifest 手写漂移（已知问题）</h3>
+<ul>
+<li><strong>状态</strong>：当前 20 implemented + 24 stub，显式标注</li>
+<li><strong>建议</strong>：后续让 manifest 从命令注册自动生成，消除漂移</li>
+<li><strong>影响</strong>：低。短期手动维护可接受</li>
+</ul>
+<br>
+<hr>
+<br>
+<h2>编译与验证</h2>
+<br>
+<ul>
+<li>Release build: 0 错误</li>
+<li>退出码: EXIT:1（错误）、EXIT:0（成功）</li>
+<li>commands --json: 20 implemented + 24 stub</li>
+</ul>
+<br>
+<h2>相关文件</h2>
+<br>
+<ul>
+<li><code>Cli/Program.cs</code> — Main 返回码</li>
+<li><code>Cli/Commands/ChartCommands.cs</code> — JSON 字段 + StatsValidation + EnsureParentDir</li>
+<li><code>Cli/Commands/WordCommands.cs</code> — EnsureParentDir + rebuild 同路径守卫</li>
+<li><code>Cli/Commands/InspectCommands.cs</code> — EnsureParentDir</li>
+<li><code>Cli/Commands/DiagramCommands.cs</code> — EnsureParentDir</li>
+<li><code>Cli/Commands/ExcelCommands.cs</code> — try/catch + --raw + Culture</li>
+<li><code>Cli/Common/CliHelpers.cs</code> — EnsureParentDir + CheckArtifact + WriteError 内部设 ExitCode</li>
+<li><code>Cli/Common/StatsValidation.cs</code> — 统计输入校验 + Duncan 标注</li>
+<li><code>Cli/Common/Manifest.cs</code> — 20 implemented + 24 stub 显式标注</li>
+<li><code>Cli/NongCli.csproj</code> — DebugType none</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

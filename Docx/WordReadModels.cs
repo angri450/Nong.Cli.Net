@@ -20,17 +20,21 @@ public sealed record OutlineResult(
 
 public sealed record ImageInfo(
     [property: JsonPropertyName("id")] string Id,
+    [property: JsonPropertyName("source")] string Source,
     [property: JsonPropertyName("contentType")] string ContentType,
     [property: JsonPropertyName("width")] int? Width,
     [property: JsonPropertyName("height")] int? Height,
     [property: JsonPropertyName("fileName")] string FileName,
     [property: JsonPropertyName("internalRelationshipId")] string InternalRelationshipId,
-    [property: JsonPropertyName("usedBy")] List<string> UsedBy
+    [property: JsonPropertyName("usedBy")] List<string> UsedBy,
+    [property: JsonPropertyName("extractable")] bool Extractable,
+    [property: JsonPropertyName("warning")] string? Warning
 );
 
 public sealed record ImageListResult(
     [property: JsonPropertyName("images")] List<ImageInfo> Images,
-    [property: JsonPropertyName("summary")] string Summary
+    [property: JsonPropertyName("summary")] string Summary,
+    [property: JsonPropertyName("warnings")] List<string> Warnings
 );
 
 // ===== Command 3: word comments =====

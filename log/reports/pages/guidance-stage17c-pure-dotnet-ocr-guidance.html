@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-05 后续指导：本地 OCR 禁止回退 Python - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../guidance.html" class="back-link">&larr; 开发指导</a>
+<h1>2026-06-05 后续指导：本地 OCR 禁止回退 Python</h1>
+<p class="subtitle">2026-06-05 | <span style="color: #7c3aed">开发指导</span></p></header>
+<article class="content">
+<h1>2026-06-05 后续指导：本地 OCR 禁止回退 Python</h1>
+<br>
+<h2>当前唯一口径</h2>
+<br>
+<ul>
+<li>Nong CLI：<code>3.2.3</code>。</li>
+<li>本地 OCR：纯 .NET PP-OCRv5，engine=<code>pp-ocrv5-dotnet-sdcb</code>。</li>
+<li>模型/runtime：managed PP-OCRv5 模型元数据随 CLI 引用；heavy native runtime 通过按平台拆分的 <code>Angri450.Nong.OcrRuntime.*</code> NuGet 包部署到用户缓存；默认不回退上游 Sdcb/OpenCvSharp runtime 包。</li>
+<li>客户机要求：不安装 Python、pip、<code>paddleocr</code> Python 包或外部 OCR 可执行文件。</li>
+<li><code>ocr check-env</code> 字段：<code>localDotNetPpOcrV5</code>。</li>
+<li><code>ocr local</code>：不再接受 <code>--python</code>。</li>
+<li><code>ocr install-model pp-ocrv5-mobile --dry-run</code>：输出华为 NuGet 部署方案，不输出 pip 计划。</li>
+<li><code>ocr install-model pp-ocrv5-mobile --json</code>：安装/检查 runtime 后自动清理 <code>runtimeCache\downloads</code> 临时下载缓存；JSON 会返回 <code>downloadCleanup</code>。</li>
+<li><code>ocr install-model pp-ocrv5-mobile --allow-upstream-fallback</code>：显式救急路径；只有用户/维护者明确接受上游大包下载时使用。</li>
+</ul>
+<br>
+<h2>禁止事项</h2>
+<br>
+<p>1. 不要恢复 <code>LocalOcrClient</code> Python bridge。</p>
+<p>2. 不要把 <code>scripts/ocr_local.py</code> 重新打包进 MultiModal。</p>
+<p>3. 不要在 GroundPA skill 中提示 <code>pip install paddlepaddle paddleocr</code>。</p>
+<p>4. 不要把 <code>localPythonPaddleOcr</code> 写回 JSON 合同。</p>
+<p>5. 不要把 Linux/macOS 本地 OCR 描述成已稳定验收；runtime 包已生成，但仍需要对应平台真实图片 smoke test。</p>
+<p>6. 不要把腾讯/清华地址写成默认 NuGet v3 源；默认只写已验证的华为源。</p>
+<p>7. 不要在 first-party runtime 包未同步时静默 fallback；应报告发布/镜像同步问题，除非显式使用 <code>--allow-upstream-fallback</code>。</p>
+<br>
+<h2>发布前必须验证</h2>
+<br>
+<pre><code class="language-powershell">
+dotnet build .\Cli\NongCli.csproj -c Release --nologo
+dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release --nologo
+powershell -NoProfile -ExecutionPolicy Bypass -File .\OcrRuntime\pack-runtimes.ps1
+.\Cli\bin\Release\net8.0\nong.exe ocr check-env --json
+.\Cli\bin\Release\net8.0\nong.exe ocr install-model pp-ocrv5-mobile --dry-run --json
+.\Cli\bin\Release\net8.0\nong.exe ocr install-model pp-ocrv5-mobile --source .\nupkg --json
+.\Cli\bin\Release\net8.0\nong.exe ocr local &lt;real-image.png&gt; --json
+</code></pre>
+<br>
+<p>如果验证下载缓存清理，可临时创建 <code>runtimeCache\downloads\dummy.nupkg</code>，重跑 <code>install-model --json</code>，期待 <code>downloadCleanup.cleaned=true</code> 且 <code>downloads</code> 目录被删除。</p>
+<br>
+<p>GroundPA 同步验证：</p>
+<br>
+<pre><code class="language-powershell">
+.\Nong.Cli.Net\Cli\bin\Release\net8.0\nong.exe skill validate .\Nong.Toolkit.Net\multimodal --json
+.\Nong.Cli.Net\Cli\bin\Release\net8.0\nong.exe skill scan .\Nong.Toolkit.Net --json
+claude plugin validate .\Nong.Toolkit.Net
+</code></pre>
+<br>
+<h2>国内镜像说明</h2>
+<br>
+<p>客户机安装 Nong CLI 时使用 NuGet 国内镜像源，例如：</p>
+<br>
+<pre><code class="language-powershell">
+dotnet tool install --global Angri450.Nong.Cli --add-source https://mirrors.huaweicloud.com/repository/nuget/v3/index.json
+</code></pre>
+<br>
+<p>如果已经安装旧版：</p>
+<br>
+<pre><code class="language-powershell">
+dotnet tool update --global Angri450.Nong.Cli --add-source https://mirrors.huaweicloud.com/repository/nuget/v3/index.json
+</code></pre>
+<br>
+<p>首次使用本地 OCR 前部署 native runtime。华为云同步 Nong runtime 包后会下载当前平台 <code>Angri450.Nong.OcrRuntime.*</code>。未同步时默认报错，提示发布/镜像同步问题；只有显式添加 <code>--allow-upstream-fallback</code> 才会下载上游 Sdcb/OpenCvSharp runtime 包：</p>
+<br>
+<pre><code class="language-powershell">
+nong ocr install-model pp-ocrv5-mobile --source https://mirrors.huaweicloud.com/repository/nuget/v3/index.json --json
+</code></pre>
+<br>
+<p>发布顺序必须是：先推 5 个 <code>Angri450.Nong.OcrRuntime.*</code>，再推 <code>Angri450.Nong.Cli</code>，等华为镜像同步后从华为源验证 <code>install-model</code>。</p>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

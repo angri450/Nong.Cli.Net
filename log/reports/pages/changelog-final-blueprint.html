@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Final blueprint - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>Final blueprint</h1>
+<p class="subtitle">2026-06-10 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>Final blueprint</h1>
+<br>
+<h2>What changed</h2>
+<br>
+<ul>
+<li>Added a standalone Chinese blueprint HTML that explains Nong&#39;s intended end-state around <code>一刀三流</code>, unified slice contracts, controlled reassembly, and loss boundaries.</li>
+<li>Reframed the final three-layer architecture so:</li>
+<li><code>Nong.NanoBot.Net</code> orchestrates tasks,</li>
+<li><code>Nong.Toolkit.Net</code> teaches AI how to route and judge evidence,</li>
+<li><code>Nong.Cli.Net</code> performs the actual cut/read/reassemble work.</li>
+<li>Defined Nong&#39;s core philosophy for complex objects:</li>
+<li>cut first;</li>
+<li>split into content, structure, and format/assets streams;</li>
+<li>let AI read the package, not the raw file;</li>
+<li>reassemble with controlled loss instead of flattening everything to plain text.</li>
+<li>Reworked the naming guidance so command words line up with the cut/read/reassemble model instead of being only a flat command catalog.</li>
+<li>Kept the clearer-alias recommendations, but placed them under the broader document-object blueprint.</li>
+</ul>
+<br>
+<h2>Why</h2>
+<br>
+<p>The earlier audit answered whether commands were duplicated, missing, or poorly named. What was still missing was Nong&#39;s real center: a plain-language blueprint that treats complex documents and similar objects as things to dissect into AI-readable streams and rebuild with controlled loss.</p>
+<br>
+<h2>Files touched</h2>
+<br>
+<ul>
+<li><code>log/plans/2026-06-10-final-blueprint.md</code></li>
+<li><code>log/reports/nong-final-blueprint.html</code></li>
+<li><code>log/plans/index.md</code></li>
+<li><code>log/changelog/index.md</code></li>
+</ul>
+<br>
+<h2>Tests</h2>
+<br>
+<ul>
+<li><code>nong commands --json</code></li>
+<li><code>nong progress report --project-root . --json</code></li>
+</ul>
+<br>
+<h2>Remaining risks</h2>
+<br>
+<ul>
+<li>This blueprint does not yet implement the recommended aliases or missing commands.</li>
+<li>If the command surface changes later, the slice-contract explanations, naming dictionary, and Toolkit teaching docs must stay in sync.</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

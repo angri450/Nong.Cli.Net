@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toolkit / CLI command parity - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>Toolkit / CLI command parity</h1>
+<p class="subtitle">2026-06-10 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>Toolkit / CLI command parity</h1>
+<br>
+<h2>What changed</h2>
+<br>
+<ul>
+<li>Added <code>nong word format-gongwen &lt;input.docx&gt; -o &lt;out.docx&gt; [--config &lt;style.json&gt;] --json</code>.</li>
+<li>Added <code>nong inspect write-official &lt;spec.json&gt; -o &lt;out.docx&gt; --json</code>.</li>
+<li>Registered both commands in the manifest; <code>nong commands --json</code> now reports 96 implemented commands.</li>
+<li>Added CLI regression coverage for manifest exposure, missing-file errors, official-document generation, and gongwen formatting.</li>
+<li>Updated the Toolkit/CLI HTML map to show 96/96 command coverage and the official-document parity fix.</li>
+</ul>
+<br>
+<h2>Why</h2>
+<br>
+<p>Nong.Cli.Net already had <code>GongWenFormatter</code> and <code>OfficialDocWriter</code>, while Toolkit docs still had to describe official-document work as a library-only gap. The command surface and skill layer now agree.</p>
+<br>
+<h2>Files touched</h2>
+<br>
+<ul>
+<li><code>Cli/Commands/WordCommands.cs</code></li>
+<li><code>Cli/Commands/InspectCommands.cs</code></li>
+<li><code>Cli/Common/Manifest.cs</code></li>
+<li><code>Cli.Tests/CliContractTests.cs</code></li>
+<li><code>log/reports/toolkit-vs-cli-full-map.html</code></li>
+</ul>
+<br>
+<h2>Tests</h2>
+<br>
+<ul>
+<li><code>dotnet build SkillManagerCore\SkillManagerCore.csproj -c Release --no-restore -maxcpucount:1</code></li>
+<li><code>dotnet build Cli\NongCli.csproj -c Release --no-restore -maxcpucount:1</code></li>
+<li><code>dotnet test Cli.Tests\Cli.Tests.csproj -c Release --no-build</code></li>
+</ul>
+<br>
+<h2>Remaining risks</h2>
+<br>
+<ul>
+<li><code>word format-gongwen</code> is an OpenXML formatting pass. It validates artifact creation but does not replace human review of final official-document typography.</li>
+<li>NuGet lock-file normalization remains separate because restore may churn unrelated package graphs.</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

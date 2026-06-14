@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>progress-report CLI migration plan - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../plans.html" class="back-link">&larr; 施工方案</a>
+<h1>progress-report CLI migration plan</h1>
+<p class="subtitle">2026-06-10 | <span style="color: #2563eb">施工方案</span></p></header>
+<article class="content">
+<h1>progress-report CLI migration plan</h1>
+<br>
+<h2>Goal</h2>
+<br>
+<p>Move the project progress report generator from the ad hoc <code>tools/ProgressReport</code> project into the main <code>nong</code> command surface.</p>
+<br>
+<h2>Scope</h2>
+<br>
+<ul>
+<li>Add <code>nong progress report</code> under <code>Cli/Commands/</code>.</li>
+<li>Register the command in <code>Cli/Program.cs</code> and <code>Cli/Common/Manifest.cs</code>.</li>
+<li>Preserve the existing <code>log/plans</code>, <code>log/changelog</code>, <code>log/debug</code>, and <code>log/guidance</code> HTML report behavior.</li>
+<li>Remove the misplaced <code>.claude/skills/progress-report</code> and <code>tools/ProgressReport</code> directories from Nong.Cli.Net after the command works.</li>
+<li>Keep the Toolkit-side <code>progress-report</code> skill as the user-facing routing layer.</li>
+</ul>
+<br>
+<h2>Verification</h2>
+<br>
+<ul>
+<li><code>dotnet build SkillManagerCore\SkillManagerCore.csproj -c Release</code></li>
+<li><code>dotnet build Cli\NongCli.csproj -c Release --no-restore</code></li>
+<li><code>Cli\bin\Release\net8.0\nong.exe progress report --project-root . --json</code></li>
+<li>Toolkit skill inventory, validate, scan, and package gates after the CLI binary is rebuilt.</li>
+</ul>
+<br>
+<h2>Status</h2>
+<br>
+<p>Done.</p>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

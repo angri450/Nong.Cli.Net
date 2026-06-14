@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>lockfile and local tool sync plan - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../plans.html" class="back-link">&larr; 施工方案</a>
+<h1>lockfile and local tool sync plan</h1>
+<p class="subtitle">2026-06-10 | <span style="color: #2563eb">施工方案</span></p></header>
+<article class="content">
+<h1>lockfile and local tool sync plan</h1>
+<br>
+<h2>Goal</h2>
+<br>
+<p>Finish P9 by regenerating stale lock files after the Nong.Cli.Net 4.0.0 repo rename/alignment work, then replace the broken global <code>nong</code> shim with a locally packed 4.0.0 tool.</p>
+<br>
+<h2>Work</h2>
+<br>
+<p>1. Audit stale <code>packages.lock.json</code> entries that still mention old Nong dependency versions.</p>
+<p>2. Run <code>dotnet restore --use-lock-file --force-evaluate</code> on the CLI and test project entrypoints.</p>
+<p>3. Remove the obsolete <code>tools/ProgressReport/packages.lock.json</code> after the tool project was migrated into <code>nong progress report</code>.</p>
+<p>4. Pack a local <code>Angri450.Nong.Cli.4.0.0.nupkg</code>.</p>
+<p>5. Replace the broken global <code>nong</code> shim that pointed to missing 3.2.4 files.</p>
+<p>6. Validate global <code>nong</code> with <code>commands</code>, <code>write-official</code>, <code>format-gongwen</code>, and <code>word validate</code>.</p>
+<br>
+<h2>Status</h2>
+<br>
+<p>Done.</p>
+<br>
+<h2>Verification</h2>
+<br>
+<ul>
+<li><code>dotnet restore Cli\NongCli.csproj --use-lock-file --force-evaluate</code></li>
+<li><code>dotnet restore Cli.Tests\Cli.Tests.csproj --use-lock-file --force-evaluate</code></li>
+<li><code>dotnet restore Tests\Tests.csproj --use-lock-file --force-evaluate</code></li>
+<li>Precise stale-version search over <code>packages.lock.json</code> returned no old Nong 3.2.x/3.1.x/0.1.x entries.</li>
+<li><code>nong --version</code></li>
+<li><code>nong commands --json</code></li>
+<li><code>nong inspect write-official ...</code>, <code>nong word format-gongwen ...</code>, <code>nong word validate ...</code></li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

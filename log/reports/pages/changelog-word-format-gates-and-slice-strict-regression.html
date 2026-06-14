@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-08 - Word format gates and slice strict regression - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>2026-06-08 - Word format gates and slice strict regression</h1>
+<p class="subtitle">2026-06-08 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>2026-06-08 - Word format gates and slice strict regression</h1>
+<br>
+<h2>Time</h2>
+<br>
+<p>2026-06-08</p>
+<br>
+<h2>Affected Packages</h2>
+<br>
+<ul>
+<li>Angri450.Nong.Cli</li>
+<li>Angri450.Nong.Docx</li>
+<li>Angri450.Nong.Pdf</li>
+<li>Angri450.Nong.Pandoc</li>
+<li>Cli.Tests</li>
+</ul>
+<br>
+<h2>Change Type</h2>
+<br>
+<ul>
+<li>Feature</li>
+<li>Regression coverage</li>
+<li>Documentation</li>
+</ul>
+<br>
+<h2>What Changed</h2>
+<br>
+<ul>
+<li>Upgraded <code>nong word format-audit</code> into a CI-capable visual quality gate.</li>
+<li>Added <code>--fail-on-warning</code>.</li>
+<li>Added <code>--min-score &lt;0-100&gt;</code>.</li>
+<li>Gate failures return E006 and non-zero exit code while preserving full audit <code>data</code> and issue evidence in JSON.</li>
+<li>Added generated Word regression fixtures for controlled dirty OOXML and visual formatting failures.</li>
+<li>Legacy <code>tblLook</code> attributes.</li>
+<li>Misplaced <code>tcPr</code>.</li>
+<li>Direct <code>style/tcPr</code>.</li>
+<li><code>m:mathPr</code> settings order.</li>
+<li><code>docGrid</code> line-spacing conflict.</li>
+<li>Mixed fonts, table shading, table-cell first-line indent, and chemistry subscripts.</li>
+<li>Strengthened table reflow regression.</li>
+<li>Combined long+wide table sample.</li>
+<li>Verifies row chunks, column groups, repeated left key columns, continuation labels, repeated header rows, thin previous-part bottom lines, and thick final bottom lines.</li>
+<li>Connected real Word/PDF/Excel/PPT <code>dissect</code> outputs to <code>slice inspect --strict</code> in unified contract tests.</li>
+<li>PDF now uses a generated real PDF plus <code>pdf dissect</code>, not only a synthetic package.</li>
+</ul>
+<br>
+<h2>Files Touched</h2>
+<br>
+<ul>
+<li><code>Cli/Commands/WordCommands.cs</code></li>
+<li><code>Cli/Common/Manifest.cs</code></li>
+<li><code>Cli/AGENT.md</code></li>
+<li><code>Docx/WORD_CAPABILITY_MATRIX.md</code></li>
+<li><code>Cli.Tests/WordCommandTests.cs</code></li>
+<li><code>Cli.Tests/CliContractTests.cs</code></li>
+<li><code>Cli.Tests/TestAssets/WordRegression/MANIFEST.md</code></li>
+</ul>
+<br>
+<h2>Tests Run</h2>
+<br>
+<ul>
+<li><code>dotnet build .\Cli\NongCli.csproj -c Release</code></li>
+<li><code>dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release --filter &quot;FullyQualifiedName~WordCommandTests.WordFormatAudit|FullyQualifiedName~WordCommandTests.WordAcademicFormat_ControlledDirty|FullyQualifiedName~WordCommandTests.WordAcademicFormat_RealZeoliteRegressionAssets|FullyQualifiedName~WordCommandTests.WordTableReflow|FullyQualifiedName~CliContractTests.SliceInspect_WordExcelPptxPdfPackages|FullyQualifiedName~CliContractTests.SliceStructure_BlockIndexUsesUnifiedProvenanceContract|FullyQualifiedName~CliContractTests.SliceFormats_IncludeUnifiedVisualEvidence&quot;</code></li>
+</ul>
+<br>
+<h2>Remaining Risks</h2>
+<br>
+<ul>
+<li><code>word table-reflow</code> still uses explicit row/column thresholds. It does not yet detect actual Word pagination overflow.</li>
+<li>Full arbitrary superscript/subscript authoring remains partial; chemistry formula subscripts are covered.</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

@@ -1,0 +1,776 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-06 Stage18 Guidance: Local PDF One-Cut Three-Stream - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../guidance.html" class="back-link">&larr; 开发指导</a>
+<h1>2026-06-06 Stage18 Guidance: Local PDF One-Cut Three-Stream</h1>
+<p class="subtitle">2026-06-06 | <span style="color: #7c3aed">开发指导</span></p></header>
+<article class="content">
+<h1>2026-06-06 Stage18 Guidance: Local PDF One-Cut Three-Stream</h1>
+<br>
+<h2>Mission</h2>
+<br>
+<p>Build Nong&#39;s local PDF document parser so users without a cloud OCR key can still turn PDFs into a machine-readable, page-aware, asset-aware, AI-readable document package.</p>
+<br>
+<p>This is not a minimal repair. The target is a working local pipeline:</p>
+<br>
+<pre><code class="language-text">
+PDF -&gt; classify -&gt; extract/render -&gt; local OCR where needed -&gt; reading-order blocks
+    -&gt; NongMark/Pandoc-enhanced text projection
+    -&gt; canonical JSON streams
+    -&gt; assets and provenance
+</code></pre>
+<br>
+<p>The user-facing result must feel like MinerU&#39;s useful path, but implemented inside Nong&#39;s pure .NET ecosystem. Do not require Python, pip, MinerU, Pandoc executable, or manual model builds on the client machine.</p>
+<br>
+<h2>Product Decision</h2>
+<br>
+<p>Critical correction: the final readable output is not plain Markdown.</p>
+<br>
+<p>Stage18 must align with the Word-side enhanced Pandoc/NongMark language used by Nong for document work: a richer text projection with block IDs, page/bbox evidence, formatting markers, assets, tables, math, captions, and provenance. Plain <code>.md</code> may exist only as a lossy compatibility preview.</p>
+<br>
+<p>Use this naming unless a later implementation finds an existing stronger project convention:</p>
+<br>
+<pre><code class="language-text">
+content.nongmark    # primary AI-readable enhanced text projection
+preview/content.md  # optional lossy preview, never the source of truth
+</code></pre>
+<br>
+<p>The source of truth is still JSON-first <code>nongmark/v1</code> / <code>nongpdf/v1</code>; <code>content.nongmark</code> is the required human/AI text projection generated from that canonical model.</p>
+<br>
+<p>Cloud OCR remains the strongest route when <code>PADDLEOCR_ACCESS_TOKEN</code> exists. It can parse full PDFs in one step.</p>
+<br>
+<p>But Nong must not make cloud key availability a hard dependency. Local PDF parsing must cover three cases:</p>
+<br>
+<p>1. <strong>Text PDF</strong></p>
+<ul>
+<li>Usually exported from Word, browser, LaTeX, WPS, or reporting systems.</li>
+<li>Has selectable text and often font/position data.</li>
+<li>Primary route: extract text, coordinates, fonts, images, and reading order.</li>
+<li>Local OCR is only used on embedded images, figures, formulas, stamps, or cropped regions.</li>
+</ul>
+<br>
+<p>2. <strong>Hybrid PDF</strong></p>
+<ul>
+<li>Has some text layer and some scanned/image-only regions.</li>
+<li>Primary route: extract real text where available; crop image-only regions; run local OCR on those regions.</li>
+<li>Preserve both native text and OCR evidence.</li>
+</ul>
+<br>
+<p>3. <strong>Scan PDF</strong></p>
+<ul>
+<li>Page is mostly bitmap image.</li>
+<li>Primary route: render pages to images; detect regions; run local OCR; build content streams from OCR blocks.</li>
+<li>Layout is approximate in early versions, but must be page-aware and provenance-safe.</li>
+</ul>
+<br>
+<h2>What to Learn From MinerU</h2>
+<br>
+<p>MinerU&#39;s important idea is not &quot;use OCR everywhere&quot;. Its useful architecture is:</p>
+<br>
+<ul>
+<li>Input collection supports PDF/images/office files.</li>
+<li><code>parse_method=auto|txt|ocr</code> chooses native text extraction or OCR.</li>
+<li>Pipeline emits multiple outputs: readable text projection, content list JSON, middle JSON, model JSON, images.</li>
+<li>It treats document parsing as orchestration: layout, OCR, formula, table, image analysis, reading order, and assets are separate stages.</li>
+<li>It supports CPU pipeline mode and stronger VLM/hybrid modes.</li>
+</ul>
+<br>
+<p>Nong should copy the architecture pattern, not the Python implementation.</p>
+<br>
+<h2>What to Learn From Pandoc</h2>
+<br>
+<p>Pandoc is not the solution for reading PDF. Pandoc primarily converts between document formats through an AST; it is not a high-quality PDF parser and will not solve scanned PDFs.</p>
+<br>
+<p>Use Pandoc as design inspiration for the enhanced text projection layer:</p>
+<br>
+<ul>
+<li>Blocks have types.</li>
+<li>Inline text has formatting.</li>
+<li>Images carry captions/alt text.</li>
+<li>Tables and math have structured representations.</li>
+<li>Attribute-bearing block syntax can preserve IDs, page coordinates, and formatting hints.</li>
+<li>Plain Markdown is an interchange/preview format.</li>
+</ul>
+<br>
+<p>Do not make Markdown the canonical edit model. Nong&#39;s canonical model remains JSON-first, aligned with <code>nongmark/v1</code>.</p>
+<p>Do not make <code>.md</code> the final user-facing extraction artifact for Stage18.</p>
+<br>
+<h2>New Command Surface</h2>
+<br>
+<p>Add a first-class <code>pdf</code> command group.</p>
+<br>
+<pre><code class="language-powershell">
+nong pdf check &lt;file.pdf&gt; --json
+nong pdf dissect &lt;file.pdf&gt; --output &lt;slice-dir&gt; --mode auto --json
+nong pdf render &lt;file.pdf&gt; --output &lt;pages-dir&gt; --dpi 200 --json
+nong pdf images &lt;file.pdf&gt; --output &lt;assets-dir&gt; --json
+</code></pre>
+<br>
+<p>Optional follow-up commands after the core pipeline works:</p>
+<br>
+<pre><code class="language-powershell">
+nong pdf to-nongmark &lt;file.pdf&gt; -o out.nongmark --mode auto --json
+nong pdf to-markdown &lt;file.pdf&gt; -o out.md --mode auto --json
+nong pdf to-word &lt;file.pdf&gt; -o out.docx --mode auto --json
+</code></pre>
+<br>
+<p><code>to-markdown</code> is a compatibility/export command only. It must not be used as the main PDF extraction route in skills or completion criteria.</p>
+<br>
+<p>Do not expose a command as implemented until it performs real work and has tests. Planned commands can be added only if <code>commands --all</code> distinguishes them correctly.</p>
+<br>
+<h2>Error Contract</h2>
+<br>
+<p>Use existing Nong error codes:</p>
+<br>
+<ul>
+<li><code>E001 file_not_found</code>: PDF path missing.</li>
+<li><code>E002 unsupported_format</code>: not <code>.pdf</code> or cannot be parsed as PDF.</li>
+<li><code>E005 dependency_missing</code>: required native PDF render runtime or OCR runtime missing.</li>
+<li><code>E006 validation_failed</code>: invalid page range, invalid mode, invalid output path.</li>
+<li><code>E007 read_failed</code>: PDF exists but text/image/page extraction failed.</li>
+<li><code>E008 write_failed</code>: output directory/artifact creation failed.</li>
+<li><code>E004 internal_error</code>: only for unexpected bugs after more specific errors are ruled out.</li>
+</ul>
+<br>
+<p>Never return success with empty critical artifacts.</p>
+<br>
+<h2>Output Layout</h2>
+<br>
+<p><code>pdf dissect</code> must create a deterministic slice directory.</p>
+<br>
+<pre><code class="language-text">
+&lt;slice-dir&gt;/
+  manifest.json
+  document.json
+  content.jsonl
+  structure.json
+  format.json
+  content.nongmark
+  preview/
+    content.md
+  pages/
+    page-0001.png
+    page-0002.png
+  assets/
+    manifest.json
+    img0001.png
+    crop0001.png
+  ocr/
+    pages.jsonl
+    blocks.jsonl
+  diagnostics/
+    check.json
+    reading-order.json
+    warnings.json
+</code></pre>
+<br>
+<p>The command is not done unless <code>manifest.json</code>, <code>document.json</code>, <code>content.jsonl</code>, <code>structure.json</code>, <code>format.json</code>, and <code>content.nongmark</code> exist and are non-empty for a non-empty PDF.</p>
+<br>
+<p><code>preview/content.md</code> can be generated for compatibility, but it is not required to prove the Stage18 contract. If it exists, it must clearly be described as lossy preview.</p>
+<br>
+<h2>Canonical Schema Direction</h2>
+<br>
+<p>Create a PDF-specific bridge model, but keep it compatible with Word <code>nongmark/v1</code>.</p>
+<br>
+<p>Recommended schema names:</p>
+<br>
+<pre><code class="language-text">
+nongpdf/v1       # PDF extraction and page evidence
+nongmark/v1      # shared canonical document blocks
+</code></pre>
+<br>
+<p><code>document.json</code> should include:</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;schemaVersion&quot;: &quot;nongpdf/v1&quot;,
+  &quot;source&quot;: {
+    &quot;path&quot;: &quot;input.pdf&quot;,
+    &quot;sha256&quot;: &quot;...&quot;,
+    &quot;pageCount&quot;: 0,
+    &quot;classification&quot;: &quot;text|hybrid|scan|unknown&quot;
+  },
+  &quot;streams&quot;: {
+    &quot;contentJsonl&quot;: &quot;content.jsonl&quot;,
+    &quot;structureJson&quot;: &quot;structure.json&quot;,
+    &quot;formatJson&quot;: &quot;format.json&quot;,
+    &quot;nongmarkText&quot;: &quot;content.nongmark&quot;,
+    &quot;markdownPreview&quot;: &quot;preview/content.md&quot;,
+    &quot;assetsManifest&quot;: &quot;assets/manifest.json&quot;
+  }
+}
+</code></pre>
+<br>
+<p>Every content block must have stable IDs:</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;id&quot;: &quot;p0001&quot;,
+  &quot;blockId&quot;: &quot;p0001&quot;,
+  &quot;index&quot;: 1,
+  &quot;kind&quot;: &quot;paragraph|heading|table|image|formula|pageBreak|ocrText&quot;,
+  &quot;page&quot;: 1,
+  &quot;bbox&quot;: [72.0, 108.0, 480.0, 140.0],
+  &quot;source&quot;: &quot;pdfText|pdfImage|localOcr|cloudOcr|inferred&quot;,
+  &quot;text&quot;: &quot;...&quot;
+}
+</code></pre>
+<br>
+<p>For images:</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;id&quot;: &quot;img0001&quot;,
+  &quot;kind&quot;: &quot;image&quot;,
+  &quot;page&quot;: 2,
+  &quot;bbox&quot;: [60, 180, 520, 420],
+  &quot;assetId&quot;: &quot;img0001&quot;,
+  &quot;captionBlockId&quot;: &quot;p0018&quot;,
+  &quot;ocrBlockIds&quot;: [&quot;ocr0021&quot;]
+}
+</code></pre>
+<br>
+<p>For tables, early versions may be approximate:</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;id&quot;: &quot;tbl0001&quot;,
+  &quot;kind&quot;: &quot;table&quot;,
+  &quot;page&quot;: 3,
+  &quot;bbox&quot;: [60, 120, 520, 360],
+  &quot;source&quot;: &quot;pdfText|localOcr|inferred&quot;,
+  &quot;html&quot;: &quot;&lt;table&gt;...&lt;/table&gt;&quot;,
+  &quot;confidence&quot;: &quot;high|medium|low&quot;
+}
+</code></pre>
+<br>
+<h2>PDF Classification Heuristics</h2>
+<br>
+<p><code>pdf check</code> must report enough evidence for routing.</p>
+<br>
+<p>Required metrics:</p>
+<br>
+<ul>
+<li><code>pageCount</code></li>
+<li><code>hasTextLayer</code></li>
+<li><code>textCharCount</code></li>
+<li><code>textCharsPerPage</code></li>
+<li><code>imageCount</code></li>
+<li><code>imageCoverageRatio</code></li>
+<li><code>renderRequired</code></li>
+<li><code>classification</code></li>
+<li><code>recommendedMode</code></li>
+<li><code>warnings</code></li>
+</ul>
+<br>
+<p>Suggested classification:</p>
+<br>
+<pre><code class="language-text">
+text:
+  textCharsPerPage is high and imageCoverageRatio is low/medium.
+
+hybrid:
+  meaningful text layer exists, but image coverage or blank text regions are substantial.
+
+scan:
+  text layer missing/near-empty and page image coverage is high.
+
+unknown:
+  encrypted, malformed, or extractor cannot inspect enough evidence.
+</code></pre>
+<br>
+<p>Do not classify a PDF as text-only just because it has a tiny hidden/OCR text layer. Check text density and geometry coverage.</p>
+<br>
+<h2>Local Pipeline</h2>
+<br>
+<h3>Mode Auto</h3>
+<br>
+<p><code>--mode auto</code> runs:</p>
+<br>
+<p>1. <code>pdf check</code></p>
+<p>2. If classification is <code>text</code>: native text/image extraction, optional local OCR on image crops.</p>
+<p>3. If classification is <code>hybrid</code>: native extraction plus page/region rendering and local OCR.</p>
+<p>4. If classification is <code>scan</code>: page rendering plus local OCR.</p>
+<p>5. Build reading order.</p>
+<p>6. Write JSON streams and NongMark/Pandoc-enhanced text projection.</p>
+<br>
+<h3>Mode Text</h3>
+<br>
+<p><code>--mode text</code> forces native text extraction and fails with clear warnings if the PDF has no useful text layer.</p>
+<br>
+<h3>Mode OCR</h3>
+<br>
+<p><code>--mode ocr</code> renders pages and OCRs them, even if text exists.</p>
+<br>
+<h3>Mode Hybrid</h3>
+<br>
+<p><code>--mode hybrid</code> extracts text and OCRs image/blank regions.</p>
+<br>
+<h2>Local OCR Role</h2>
+<br>
+<p>Use the repaired <code>PpOcrV5Client</code> only for text recognition:</p>
+<br>
+<ul>
+<li>Page render OCR.</li>
+<li>Cropped image OCR.</li>
+<li>Figure caption OCR if caption is inside an image.</li>
+<li>Stamp/scan text OCR.</li>
+</ul>
+<br>
+<p>Do not ask local PP-OCRv5 to do layout classification. Any layout classification in Stage18 must be heuristic or a separate model/runtime, not hidden inside <code>ocr local</code>.</p>
+<br>
+<p>If local OCR emits numeric warnings, preserve text but downgrade confidence/geometry claims.</p>
+<br>
+<h2>Page Rendering</h2>
+<br>
+<p>A pure .NET PDF parser may not be enough for rendering. The implementation agent must choose a package strategy that fits Nong&#39;s distribution rules:</p>
+<br>
+<ul>
+<li>No Python.</li>
+<li>No client-side source builds.</li>
+<li>Prefer NuGet packages with runtime assets.</li>
+<li>If native runtime is large, split it into first-party runtime packages like <code>Angri450.Nong.OcrRuntime.*</code>.</li>
+<li>Install from Huawei NuGet mirror/cache when possible.</li>
+</ul>
+<br>
+<p>Candidate rendering approaches to evaluate:</p>
+<br>
+<ul>
+<li>PDFium-based .NET package.</li>
+<li>MuPDF-based .NET package.</li>
+<li>SkiaSharp-compatible renderer.</li>
+</ul>
+<br>
+<p>Do not hardcode a renderer until a real smoke test renders at least one page on Windows. Linux/macOS can be packaged later, but must not be claimed stable without target-machine smoke tests.</p>
+<br>
+<h2>Text Extraction</h2>
+<br>
+<p>The implementation agent must evaluate .NET text extraction libraries before coding. The required output is text with page, bbox, font name/size when possible.</p>
+<br>
+<p>Candidate approaches:</p>
+<br>
+<ul>
+<li>UglyToad.PdfPig or equivalent for text positions and images.</li>
+<li>A PDFium/MuPDF wrapper if it exposes text page APIs.</li>
+<li>A custom parser only if packages fail; do not hand-roll PDF parsing as the first route.</li>
+</ul>
+<br>
+<p>The first release can accept approximate reading order. It must still preserve page and bbox evidence.</p>
+<br>
+<h2>Reading Order</h2>
+<br>
+<p>Reading order is a required feature, not a nice-to-have.</p>
+<br>
+<p>Initial heuristic:</p>
+<br>
+<p>1. Group by page.</p>
+<p>2. Remove obvious headers/footers using repeated text and top/bottom bands.</p>
+<p>3. Detect columns by x-coordinate clustering.</p>
+<p>4. Sort blocks top-to-bottom inside each column.</p>
+<p>5. Merge adjacent text spans into paragraphs by line spacing, font continuity, and x alignment.</p>
+<p>6. Keep page breaks as explicit blocks.</p>
+<br>
+<p>Record reading-order diagnostics:</p>
+<br>
+<pre><code class="language-text">
+diagnostics/reading-order.json
+</code></pre>
+<br>
+<p>If the order is uncertain, mark it in <code>issues</code> and in block-level <code>confidence</code>.</p>
+<br>
+<h2>Image and Caption Handling</h2>
+<br>
+<p>Images must have provenance.</p>
+<br>
+<p>For every extracted or cropped image:</p>
+<br>
+<ul>
+<li>Save asset file.</li>
+<li>Record source page.</li>
+<li>Record bbox.</li>
+<li>Record extraction method: embedded image, page crop, stitched crop.</li>
+<li>Link related OCR blocks.</li>
+<li>Try to associate nearby caption text:</li>
+<li>below image first</li>
+<li>above image second</li>
+<li>same-page nearest text with keywords like Figure, Fig., 图, 表</li>
+</ul>
+<br>
+<p>Do not invent captions. If no caption is found, leave <code>caption</code> null and optionally provide OCR text as <code>altTextCandidate</code>.</p>
+<br>
+<h2>Cross-Page Stitching</h2>
+<br>
+<p>Stage18 should include design and initial implementation for cross-page image/table continuation, but do it conservatively.</p>
+<br>
+<p>Rules:</p>
+<br>
+<p>1. Only adjacent pages are candidates.</p>
+<p>2. Candidate bottom/top regions must have similar x ranges and width.</p>
+<p>3. Continuation evidence must be recorded:</p>
+<ul>
+<li>no caption before split</li>
+<li>matching border/line at page edge</li>
+<li>similar image background</li>
+<li>table continues with no closing boundary</li>
+</ul>
+<p>4. Never delete original segments.</p>
+<p>5. Stitched assets go to <code>assets/stitches.jsonl</code>.</p>
+<br>
+<p>If confidence is not high, do not stitch; record a warning and keep segments separate.</p>
+<br>
+<h2>NongMark/Pandoc-Enhanced Text Projection</h2>
+<br>
+<p><code>content.nongmark</code> is the required AI-readable and human-auditable text projection. It must be generated from canonical blocks and must carry enough layout markers to line up with Word <code>nongmark/v1</code>.</p>
+<br>
+<p>This is not plain Markdown. Use Pandoc-style inline conventions where useful, then add Nong layout/provenance attributes.</p>
+<br>
+<p>Required language features:</p>
+<br>
+<ul>
+<li>Block IDs on every block.</li>
+<li>Page number and bbox on every page-derived block.</li>
+<li>Source channel: <code>pdfText</code>, <code>pdfImage</code>, <code>localOcr</code>, <code>cloudOcr</code>, or <code>inferred</code>.</li>
+<li>Paragraph style hints: font, size, alignment, indent, line spacing when available.</li>
+<li>Inline format markers compatible with the Word/PaperWriter enhanced Pandoc subset:</li>
+</ul>
+<p><code><em>italic</em></code>, <code><strong>bold</strong></code>, <code><strong><em>boldItalic</strong></em></code>, <code>==highlight==</code>, <code>~~strike~~</code>, <code>^sup^</code>, <code>~sub~</code>, <code>[@ref]</code>.</p>
+<ul>
+<li>Tables, images, captions, formulas, footnotes, comments, and warnings must stay typed instead of being flattened into anonymous text.</li>
+</ul>
+<br>
+<p>Recommended syntax:</p>
+<br>
+<pre><code class="language-text">
+::: page {#page-0001 number=1 width=595.28 height=841.89 unit=pt}
+
+# Heading {#h0001 page=1 bbox=&quot;72,80,520,112&quot; source=pdfText font=&quot;SimHei&quot; size=16 align=center}
+
+::: paragraph {#p0002 page=1 bbox=&quot;72,128,520,170&quot; source=pdfText font=&quot;SimSun&quot; size=12 align=justify indent=2em lineSpacing=1.5}
+Paragraph with **bold**, *italic*, ==highlight==, H~2~O, x^2^, and [@ref1].
+:::
+
+![Caption](assets/img0001.png){#img0001 page=2 bbox=&quot;60,180,520,420&quot; source=embeddedImage captionBlock=p0018}
+
+::: table {#tbl0001 page=3 bbox=&quot;60,120,520,360&quot; source=pdfText confidence=medium}
+&lt;table&gt;
+...
+&lt;/table&gt;
+:::
+
+:::
+</code></pre>
+<br>
+<p>Do not rely on HTML comments as the primary provenance mechanism. Provenance belongs in block attributes and canonical JSON.</p>
+<br>
+<p><code>preview/content.md</code>, if generated, is a lossy projection from <code>content.nongmark</code> or from canonical JSON. It exists for tools that only accept Markdown and must not be treated as the final output.</p>
+<br>
+<p>Do not make Markdown the only output. Do not call the PDF feature done if the main readable artifact is <code>.md</code>.</p>
+<br>
+<h2>Word Alignment</h2>
+<br>
+<p>The local PDF slice must be able to align later with Word <code>nongmark/v1</code>.</p>
+<br>
+<p>Shared concepts:</p>
+<br>
+<ul>
+<li><code>blockId</code></li>
+<li><code>kind</code></li>
+<li><code>page</code></li>
+<li><code>bbox</code></li>
+<li><code>assetId</code></li>
+<li><code>captionBlockId</code></li>
+<li><code>source</code></li>
+<li><code>text</code></li>
+</ul>
+<br>
+<p>Future bridge command may be:</p>
+<br>
+<pre><code class="language-powershell">
+nong pdf align-word &lt;pdf-slice-dir&gt; &lt;docx-slice-dir&gt; -o map.json --json
+</code></pre>
+<br>
+<p>Do not implement this until <code>pdf dissect</code> works, but design block IDs and schemas now so the bridge is possible.</p>
+<br>
+<h2>Project Structure</h2>
+<br>
+<p>Recommended new project:</p>
+<br>
+<pre><code class="language-text">
+Pdf/
+  PdfCore.csproj
+  PdfCheck.cs
+  PdfDocumentInspector.cs
+  PdfTextExtractor.cs
+  PdfImageExtractor.cs
+  PdfPageRenderer.cs
+  PdfReadingOrder.cs
+  PdfSlice.cs
+  PdfNongMarkTextWriter.cs
+  PdfMarkdownPreviewWriter.cs
+  PdfModels.cs
+  README.md
+</code></pre>
+<br>
+<p>CLI:</p>
+<br>
+<pre><code class="language-text">
+Cli/Commands/PdfCommands.cs
+Cli/Common/Manifest.cs
+Cli/Program.cs
+Cli.Tests/PdfCommandTests.cs
+</code></pre>
+<br>
+<p>Optional runtime packaging if renderer requires native files:</p>
+<br>
+<pre><code class="language-text">
+PdfRuntime/
+  Angri450.Nong.PdfRuntime.WinX64
+  Angri450.Nong.PdfRuntime.LinuxX64
+  Angri450.Nong.PdfRuntime.OsxArm64
+</code></pre>
+<br>
+<p>Do not dump PDF code into <code>OcrCommands.cs</code>.</p>
+<br>
+<h2>Multi-Agent Construction Plan</h2>
+<br>
+<p>Run agents in parallel with disjoint write scopes.</p>
+<br>
+<h3>Agent A: PDF Library/Runtimes Spike</h3>
+<br>
+<p>Scope:</p>
+<br>
+<ul>
+<li>Evaluate PDF text extraction and render options.</li>
+<li>Create a small spike or report in <code>log/guidance</code> if code is not yet safe.</li>
+<li>Recommend final NuGet packages and runtime strategy.</li>
+</ul>
+<br>
+<p>Acceptance:</p>
+<br>
+<ul>
+<li>Windows page render smoke test.</li>
+<li>Text extraction with coordinates from a text PDF.</li>
+<li>Package/runtime size notes.</li>
+<li>No Python.</li>
+</ul>
+<br>
+<h3>Agent B: PdfCore Models and Check</h3>
+<br>
+<p>Scope:</p>
+<br>
+<ul>
+<li>Create <code>Pdf/</code> project.</li>
+<li>Implement <code>pdf check</code>.</li>
+<li>Add JSON models and classification heuristics.</li>
+</ul>
+<br>
+<p>Acceptance:</p>
+<br>
+<ul>
+<li><code>nong pdf check sample.pdf --json</code> returns classification and metrics.</li>
+<li>Tests cover missing file, non-PDF, text PDF, dummy/malformed PDF.</li>
+</ul>
+<br>
+<h3>Agent C: Text PDF Dissect</h3>
+<br>
+<p>Scope:</p>
+<br>
+<ul>
+<li>Implement native text extraction path.</li>
+<li>Build content blocks, structure, format, and <code>content.nongmark</code>.</li>
+<li>Add Markdown preview only as a compatibility projection.</li>
+</ul>
+<br>
+<p>Acceptance:</p>
+<br>
+<ul>
+<li>Text PDF produces full slice directory.</li>
+<li><code>content.jsonl</code> has stable IDs, page, bbox, source=<code>pdfText</code>.</li>
+<li><code>content.nongmark</code> is readable and includes block/page/bbox/format attributes.</li>
+<li><code>preview/content.md</code>, if present, is marked as lossy preview.</li>
+</ul>
+<br>
+<h3>Agent D: Rendering + OCR Path</h3>
+<br>
+<p>Scope:</p>
+<br>
+<ul>
+<li>Implement page rendering.</li>
+<li>Run local OCR per page or region.</li>
+<li>Write <code>ocr/pages.jsonl</code> and <code>ocr/blocks.jsonl</code>.</li>
+</ul>
+<br>
+<p>Acceptance:</p>
+<br>
+<ul>
+<li>Scan/image PDF produces OCR text blocks.</li>
+<li>JSON has no NaN/Infinity.</li>
+<li>Missing OCR runtime returns E005 with <code>ocr install-model</code> guidance.</li>
+</ul>
+<br>
+<h3>Agent E: Assets, Images, Captions, Cross-Page</h3>
+<br>
+<p>Scope:</p>
+<br>
+<ul>
+<li>Extract embedded images.</li>
+<li>Crop page regions when needed.</li>
+<li>Associate captions.</li>
+<li>Implement conservative cross-page continuation manifest.</li>
+</ul>
+<br>
+<p>Acceptance:</p>
+<br>
+<ul>
+<li><code>assets/manifest.json</code> records page/bbox/provenance.</li>
+<li>Captions are linked or explicitly null.</li>
+<li>Cross-page candidates are recorded without destructive merging.</li>
+</ul>
+<br>
+<h3>Agent F: CLI, Tests, Docs, GroundPA Sync</h3>
+<br>
+<p>Scope:</p>
+<br>
+<ul>
+<li>Register commands.</li>
+<li>Update manifest and docs.</li>
+<li>Add tests.</li>
+<li>Keep Word and PDF text projection language aligned through a shared NongMark text writer/spec.</li>
+<li>Update GroundPA skill only after CLI behavior is real.</li>
+</ul>
+<br>
+<p>Acceptance:</p>
+<br>
+<ul>
+<li><code>dotnet build .\Cli\NongCli.csproj -c Release --nologo</code></li>
+<li><code>dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release --nologo</code></li>
+<li><code>nong commands --json</code> lists implemented PDF commands only after real implementation.</li>
+<li>GroundPA skill scan remains 0 High+.</li>
+</ul>
+<br>
+<h2>Test Assets</h2>
+<br>
+<p>Create deterministic test PDFs in tests, do not depend on external files for CI.</p>
+<br>
+<p>Required fixtures:</p>
+<br>
+<p>1. Text PDF with:</p>
+<ul>
+<li>title</li>
+<li>two paragraphs</li>
+<li>simple table-like text</li>
+<li>one embedded image if feasible</li>
+</ul>
+<br>
+<p>2. Image-only PDF:</p>
+<ul>
+<li>one rendered page image containing <code>测试123</code> or English text</li>
+</ul>
+<br>
+<p>3. Hybrid PDF:</p>
+<ul>
+<li>selectable title/body</li>
+<li>embedded image with text inside</li>
+</ul>
+<br>
+<p>4. Multi-page PDF:</p>
+<ul>
+<li>two pages</li>
+<li>repeated header/footer</li>
+<li>page break validation</li>
+</ul>
+<br>
+<p>5. Malformed/dummy PDF:</p>
+<ul>
+<li>verifies E002/E007 behavior.</li>
+</ul>
+<br>
+<h2>Verification Commands</h2>
+<br>
+<p>Run these before claiming done:</p>
+<br>
+<pre><code class="language-powershell">
+dotnet build .\Cli\NongCli.csproj -c Release --nologo
+dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release --nologo
+.\Cli\bin\Release\net8.0\nong.exe pdf check &lt;text.pdf&gt; --json
+.\Cli\bin\Release\net8.0\nong.exe pdf dissect &lt;text.pdf&gt; --output tests-output\pdf-text-slice --mode auto --json
+.\Cli\bin\Release\net8.0\nong.exe pdf dissect &lt;scan.pdf&gt; --output tests-output\pdf-scan-slice --mode ocr --json
+Test-Path tests-output\pdf-text-slice\content.jsonl
+Test-Path tests-output\pdf-text-slice\content.nongmark
+Test-Path tests-output\pdf-text-slice\assets\manifest.json
+</code></pre>
+<br>
+<p>If OCR runtime is unavailable on the machine, scan-mode tests may assert E005 only in dependency-specific tests. At least one real OCR smoke test must pass before scan-mode is called stable.</p>
+<br>
+<h2>Done Criteria</h2>
+<br>
+<p>Stage18 is done only when:</p>
+<br>
+<ul>
+<li><code>pdf check</code> works.</li>
+<li><code>pdf dissect --mode auto</code> works for text PDFs.</li>
+<li><code>pdf dissect --mode ocr</code> works for image PDFs when local OCR runtime is installed.</li>
+<li>Slice artifacts are complete and non-empty.</li>
+<li>Content blocks include stable IDs, page, bbox, source.</li>
+<li><code>content.nongmark</code> is generated from canonical JSON blocks and carries Word-aligned enhanced Pandoc/NongMark annotations.</li>
+<li>Plain Markdown is optional preview/export only.</li>
+<li>Assets have manifest provenance.</li>
+<li>Tests pass.</li>
+<li>Changelog records real command outputs and limitations.</li>
+</ul>
+<br>
+<p>Do not declare done if the result is only plain text extraction.</p>
+<p>Do not declare done if the final readable output is only <code>.md</code>.</p>
+<p>Do not declare done if PDF images are lost.</p>
+<p>Do not declare done if scan PDFs silently return empty content.</p>
+<p>Do not declare done if the user still needs cloud key for basic local PDF slicing.</p>
+<br>
+<h2>Changelog Requirement</h2>
+<br>
+<p>After implementation, create a changelog:</p>
+<br>
+<pre><code class="language-text">
+changelog/2026-06-06-stage18-local-pdf-one-cut-three-stream-result.md
+</code></pre>
+<br>
+<p>It must include:</p>
+<br>
+<ul>
+<li>Implemented commands.</li>
+<li>Package/runtime choices and sizes.</li>
+<li>Test summary.</li>
+<li>Real sample outputs.</li>
+<li>Known limitations.</li>
+<li>Whether Windows/Linux/macOS were actually smoke-tested.</li>
+</ul>
+<br>
+<h2>GroundPA Sync Requirement</h2>
+<br>
+<p>Only after <code>nong pdf</code> commands are real:</p>
+<br>
+<ul>
+<li>Add or update a <code>pdf</code> skill in GroundPA.</li>
+<li>Route PDF requests:</li>
+<li><code>pdf check</code> first.</li>
+<li><code>pdf dissect</code> for local one-cut three-stream.</li>
+<li>Read <code>content.nongmark</code> as the primary text artifact.</li>
+<li><code>ocr cloud/to-word</code> only when cloud key exists and stronger parsing is desired.</li>
+<li>Keep <code>word</code> skill focused on <code>.doc/.docx</code>.</li>
+<li>Keep <code>multimodal</code> skill honest: local OCR is still text recognition, while <code>pdf dissect</code> is the local document parser.</li>
+</ul>
+<br>
+<p>Validate:</p>
+<br>
+<pre><code class="language-powershell">
+.\Nong.Cli.Net\Cli\bin\Release\net8.0\nong.exe skill validate .\Nong.Toolkit.Net\pdf --json
+.\Nong.Cli.Net\Cli\bin\Release\net8.0\nong.exe skill scan .\Nong.Toolkit.Net --json
+claude plugin validate .\Nong.Toolkit.Net
+</code></pre>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

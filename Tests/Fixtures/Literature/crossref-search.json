@@ -1,0 +1,26 @@
+{
+  "message": {
+    "items": [
+      {
+        "DOI": "10.1016/j.chemgeo.2007.05.018",
+        "title": ["Humic acid and rare earth"],
+        "container-title": ["Chem Geol"],
+        "publisher": "Elsevier",
+        "volume": "10",
+        "issue": "2",
+        "page": "1-8",
+        "is-referenced-by-count": 30,
+        "issued": { "date-parts": [[2007, 5, 1]] },
+        "author": [
+          { "given": "W", "family": "Qian" }
+        ],
+        "license": [
+          { "URL": "https://example.test/license" }
+        ],
+        "funder": [
+          { "name": "Example Fund" }
+        ]
+      }
+    ]
+  }
+}

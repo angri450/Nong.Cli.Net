@@ -15,15 +15,20 @@ public static class ImageLister
     public static ImageListResult ListImages(string docxPath, string? outputDir = null)
     {
         var images = new List<ImageInfo>();
+        var warnings = new List<string>();
+        var unlinkedVmlReferences = new List<VmlImageReference>();
 
         using var doc = WordprocessingDocument.Open(docxPath, false);
         var mainPart = doc.MainDocumentPart;
-        if (mainPart == null) return new ImageListResult(images, "0 images (no main document part)");
+        if (mainPart == null) return new ImageListResult(images, "0 images (no main document part)", warnings);
 
         var body = mainPart.Document?.Body;
 
-        // Build relId -> paragraph blockIds mapping by iterating body paragraphs
+        // Build relId -> paragraph blockIds mapping by iterating body paragraphs.
+        // Transitional/legacy Word documents may store pictures as VML
+        // w:pict/v:imagedata instead of DrawingML a:blip.
         var relToBlockIds = new Dictionary<string, List<string>>();
+        var relToSource = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         if (body != null)
         {
             int hCounter = 0, pCounter = 0;
@@ -35,10 +40,27 @@ public static class ImageLister
                 {
                     if (blip.Embed?.Value is string rid && rid.Length > 0)
                     {
-                        if (!relToBlockIds.ContainsKey(rid))
-                            relToBlockIds[rid] = new List<string>();
-                        if (!relToBlockIds[rid].Contains(blockId))
-                            relToBlockIds[rid].Add(blockId);
+                        AddUsedBy(relToBlockIds, rid, blockId);
+                        relToSource.TryAdd(rid, "drawingml");
+                    }
+                }
+
+                foreach (var imageData in para.Descendants()
+                    .Where(e => e.LocalName.Equals("imagedata", StringComparison.OrdinalIgnoreCase)))
+                {
+                    var rid = GetRelationshipId(imageData);
+                    if (!string.IsNullOrWhiteSpace(rid))
+                    {
+                        AddUsedBy(relToBlockIds, rid, blockId);
+                        relToSource[rid] = "vml";
+                    }
+                    else
+                    {
+                        var title = GetAttributeValue(imageData, "title")
+                            ?? GetAttributeValue(imageData, "alt")
+                            ?? "";
+                        var sourceUri = GetAttributeValue(imageData, "src") ?? "";
+                        unlinkedVmlReferences.Add(new VmlImageReference(blockId, title, sourceUri));
                     }
                 }
             }
@@ -57,6 +79,7 @@ public static class ImageLister
             var usedBy = relToBlockIds.TryGetValue(relId, out var ids)
                 ? ids
                 : new List<string>();
+            var source = relToSource.TryGetValue(relId, out var src) ? src : "package";
 
             // Get dimensions via temp file
             int? width = null;
@@ -87,12 +110,15 @@ public static class ImageLister
 
             images.Add(new ImageInfo(
                 Id: id,
+                Source: source,
                 ContentType: imagePart.ContentType,
                 Width: width,
                 Height: height,
                 FileName: fileNameHint,
                 InternalRelationshipId: relId,
-                UsedBy: usedBy
+                UsedBy: usedBy,
+                Extractable: true,
+                Warning: null
             ));
 
             // Extract to output directory if requested
@@ -121,11 +147,60 @@ public static class ImageLister
             }
         }
 
+        foreach (var reference in unlinkedVmlReferences)
+        {
+            index++;
+            string id = $"img{index:D4}";
+            var fileNameHint = !string.IsNullOrWhiteSpace(reference.SourceUri)
+                ? ExtractFileName(reference.SourceUri)
+                : reference.Title;
+            var warning = $"VML image reference in {reference.BlockId} has no relationship id; the image bytes cannot be extracted from package relationships.";
+            warnings.Add(warning);
+            images.Add(new ImageInfo(
+                Id: id,
+                Source: "vml",
+                ContentType: "application/vnd.ms-office.vml-image-reference",
+                Width: null,
+                Height: null,
+                FileName: fileNameHint,
+                InternalRelationshipId: "",
+                UsedBy: new List<string> { reference.BlockId },
+                Extractable: false,
+                Warning: warning
+            ));
+        }
+
+        var extractableCount = images.Count(i => i.Extractable);
         string summary = images.Count == 0
             ? "0 images"
-            : $"{images.Count} image{(images.Count == 1 ? "" : "s")}";
+            : extractableCount == images.Count
+                ? $"{images.Count} image{(images.Count == 1 ? "" : "s")}"
+                : $"{images.Count} image reference{(images.Count == 1 ? "" : "s")}, {extractableCount} extractable";
 
-        return new ImageListResult(images, summary);
+        return new ImageListResult(images, summary, warnings);
+    }
+
+    private static void AddUsedBy(Dictionary<string, List<string>> relToBlockIds, string relId, string blockId)
+    {
+        if (!relToBlockIds.ContainsKey(relId))
+            relToBlockIds[relId] = new List<string>();
+        if (!relToBlockIds[relId].Contains(blockId))
+            relToBlockIds[relId].Add(blockId);
+    }
+
+    private static string? GetRelationshipId(DocumentFormat.OpenXml.OpenXmlElement element)
+    {
+        foreach (var attr in element.GetAttributes())
+        {
+            if (attr.LocalName.Equals("id", StringComparison.OrdinalIgnoreCase) &&
+                attr.NamespaceUri.Contains("relationships", StringComparison.OrdinalIgnoreCase))
+                return attr.Value;
+
+            if (attr.LocalName.Equals("relid", StringComparison.OrdinalIgnoreCase))
+                return attr.Value;
+        }
+
+        return null;
     }
 
     /// <summary>Assign a stable block ID (h0001+ or p0001+) to a paragraph.</summary>
@@ -151,16 +226,31 @@ public static class ImageLister
 
     private static string ExtractFileName(Uri uri)
     {
+        return ExtractFileName(uri.OriginalString);
+    }
+
+    private static string ExtractFileName(string raw)
+    {
         // OpenXML part URIs are usually relative (for example
         // /word/media/image1.png). Uri.Segments throws for relative URIs, so
         // use the original text and split it manually.
-        var raw = uri.OriginalString;
         if (string.IsNullOrWhiteSpace(raw)) return "";
         var normalized = raw.Replace('\\', '/').TrimEnd('/');
         var slash = normalized.LastIndexOf('/');
         var last = slash >= 0 ? normalized[(slash + 1)..] : normalized;
         // Uri may encode spaces etc.; decode
         return Uri.UnescapeDataString(last);
+    }
+
+    private static string? GetAttributeValue(DocumentFormat.OpenXml.OpenXmlElement element, string localName)
+    {
+        foreach (var attr in element.GetAttributes())
+        {
+            if (attr.LocalName.Equals(localName, StringComparison.OrdinalIgnoreCase))
+                return attr.Value;
+        }
+
+        return null;
     }
 
     private static string ContentTypeToExtension(string contentType) => contentType switch
@@ -175,4 +265,6 @@ public static class ImageLister
         "image/svg+xml" => ".svg",
         _ => ".bin"
     };
+
+    private sealed record VmlImageReference(string BlockId, string Title, string SourceUri);
 }

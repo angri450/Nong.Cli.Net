@@ -210,7 +210,7 @@ namespace SkiaSharp
 			private const int RTLD_NOW = 2;
 			private const int RTLD_DEEPBIND = 8;
 
-			private static bool UseSystemLibrary2 = true;
+			private static volatile bool UseSystemLibrary2 = true;
 
 			public static IntPtr dlopen (string path, bool lazy = true)
 			{
@@ -224,12 +224,14 @@ namespace SkiaSharp
 
 			public static IntPtr dlsym (IntPtr handle, string symbol)
 			{
-				return UseSystemLibrary2 ? dlsym2 (handle, symbol) : dlsym1 (handle, symbol);
+				var use2 = UseSystemLibrary2; // local snapshot to prevent torn read
+				return use2 ? dlsym2 (handle, symbol) : dlsym1 (handle, symbol);
 			}
 
 			public static void dlclose (IntPtr handle)
 			{
-				if (UseSystemLibrary2)
+				var use2 = UseSystemLibrary2;
+				if (use2)
 					dlclose2 (handle);
 				else
 					dlclose1 (handle);

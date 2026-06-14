@@ -29,7 +29,7 @@ public class NetworkGraphRenderer : IRenderer
 
     public SKBitmap RenderToBitmap(int width = 800, int height = 600)
     {
-        var cjkFont = SKTypeface.FromFamilyName(FontHelper.GetCjkFamilyName());
+        using var cjkFont = SKTypeface.FromFamilyName(FontHelper.GetCjkFamilyName());
 
         // 测量文本，计算节点半径
         var nodeRadii = new Dictionary<string, double>();
@@ -126,10 +126,10 @@ public class NetworkGraphRenderer : IRenderer
             float cx = (float)(node.X + offsetX);
             float cy = (float)(node.Y + offsetY);
 
-            nodePaint.Color = SKColor.Parse(node.FillColor);
+            nodePaint.Color = ParseColor(node.FillColor, _defaultNodeFill);
             canvas.DrawCircle(cx, cy, r, nodePaint);
 
-            nodeStrokePaint.Color = SKColor.Parse(node.StrokeColor);
+            nodeStrokePaint.Color = ParseColor(node.StrokeColor, _defaultNodeStroke);
             canvas.DrawCircle(cx, cy, r, nodeStrokePaint);
 
             var lines = node.Label.Split('\n');
@@ -193,5 +193,14 @@ public class NetworkGraphRenderer : IRenderer
             node.X = cx + (node.X - cx) * factor;
             node.Y = cy + (node.Y - cy) * factor;
         }
+    }
+
+    private static readonly SKColor _defaultNodeFill = new(74, 144, 217);
+    private static readonly SKColor _defaultNodeStroke = new(44, 95, 125);
+
+    private static SKColor ParseColor(string hex, SKColor fallback)
+    {
+        if (SKColor.TryParse(hex, out var c)) return c;
+        return fallback;
     }
 }

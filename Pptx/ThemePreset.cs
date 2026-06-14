@@ -5,6 +5,22 @@ namespace PptxCore;
 
 public sealed class ThemePreset : IEquatable<ThemePreset>
 {
+    // --- Platform defaults — override these before creating any ThemePreset ---
+    // On Linux/macOS, set to available fonts before using PPTX creation:
+    //   ThemePreset.DefaultBodyCJK = "Noto Sans CJK SC";
+    //   ThemePreset.DefaultHeadCJK = "Noto Sans CJK SC";
+    //   ThemePreset.DefaultBodyFont = "DejaVu Sans";
+    //   ThemePreset.DefaultHeadFont = "DejaVu Sans";
+
+    /// <summary>Default latin body font. Change before creating presets.</summary>
+    public static string DefaultBodyFont { get; set; } = "Calibri";
+    /// <summary>Default latin heading font.</summary>
+    public static string DefaultHeadFont { get; set; } = "Calibri";
+    /// <summary>Default CJK body font. Windows: 微软雅黑, Linux: Noto Sans CJK SC, macOS: PingFang SC.</summary>
+    public static string DefaultBodyCJK { get; set; } = "微软雅黑";
+    /// <summary>Default CJK heading font.</summary>
+    public static string DefaultHeadCJK { get; set; } = "微软雅黑";
+
     public string Accent1 { get; set; } = "1F4E79";
     public string Accent2 { get; set; } = "2E75B6";
     public string Accent3 { get; set; } = "4A90D9";
@@ -12,10 +28,10 @@ public sealed class ThemePreset : IEquatable<ThemePreset>
     public string Light1 { get; set; } = "FFFFFF";
     public string Dark2 { get; set; } = "333333";
     public string Light2 { get; set; } = "F5F5F5";
-    public string BodyFont { get; set; } = "Calibri";
-    public string HeadFont { get; set; } = "Calibri";
-    public string BodyCJK { get; set; } = "微软雅黑";
-    public string HeadCJK { get; set; } = "微软雅黑";
+    public string BodyFont { get; set; } = DefaultBodyFont;
+    public string HeadFont { get; set; } = DefaultHeadFont;
+    public string BodyCJK { get; set; } = DefaultBodyCJK;
+    public string HeadCJK { get; set; } = DefaultHeadCJK;
 
     public ThemePreset() { }
 
@@ -130,7 +146,7 @@ public sealed class ThemePreset : IEquatable<ThemePreset>
             font.IsBold = true;
             font.Color.Set(Accent1);
         }
-        catch { /* best effort */ }
+        catch (Exception ex) { Console.Error.WriteLine($"[ThemePreset] StyleTitle: {ex.GetType().Name}"); }
     }
 
     /// <summary>Apply body text style to a shape's first paragraph.</summary>
@@ -147,7 +163,7 @@ public sealed class ThemePreset : IEquatable<ThemePreset>
             font.Size = fontSize;
             font.Color.Set(Dark1);
         }
-        catch { /* best effort */ }
+        catch (Exception ex) { Console.Error.WriteLine($"[ThemePreset] StyleBody: {ex.GetType().Name}"); }
     }
 
     /// <summary>Apply bullet styling to a paragraph.</summary>
@@ -162,7 +178,7 @@ public sealed class ThemePreset : IEquatable<ThemePreset>
             para.SetFontSize(18);
             para.SetFontColor(Dark1);
         }
-        catch { /* best effort */ }
+        catch (Exception ex) { Console.Error.WriteLine($"[ThemePreset] StyleBullet: {ex.GetType().Name}"); }
     }
 
     /// <summary>Inject theme into a presentation's master slide.</summary>
@@ -185,7 +201,7 @@ public sealed class ThemePreset : IEquatable<ThemePreset>
             fs.HeadEastAsianFont = HeadCJK;
             fs.BodyEastAsianFont = BodyCJK;
         }
-        catch { /* theme injection is best-effort; per-shape fallback always runs */ }
+        catch (Exception ex) { Console.Error.WriteLine($"[ThemePreset] ApplyToMasterSlide: {ex.GetType().Name}"); }
     }
 
     public bool Equals(ThemePreset? other) =>

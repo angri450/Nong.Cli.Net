@@ -51,7 +51,7 @@ Cli/NongCli.csproj
 禁止：
 
 ```text
-不要修改 GroundPA-Toolkit。
+不要修改 Nong.Toolkit.Net。
 不要改 skill。
 不要把 tests-output/、临时 png/xlsx/docx/json 加入提交。
 不要新增 net10/net11。
@@ -237,7 +237,7 @@ Test-Path tests-output\stage15-slice\content.jsonl
 ```text
 Angri450.Nong.Cli: 3.2.0
 相关包如果项目统一版本，也升到 3.2.0。
-GroundPA-Toolkit 不在今晚发布；明早由 skill 管理 agent 更新。
+Nong.Toolkit.Net 不在今晚发布；明早由 skill 管理 agent 更新。
 ```
 
 发布前检查：

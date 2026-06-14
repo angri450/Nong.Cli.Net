@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-08 Angri450.Nong.Pandoc package kickoff - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>2026-06-08 Angri450.Nong.Pandoc package kickoff</h1>
+<p class="subtitle">2026-06-08 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>2026-06-08 Angri450.Nong.Pandoc package kickoff</h1>
+<br>
+<h2>What changed</h2>
+<br>
+<ul>
+<li>Added the initial <code>Angri450.Nong.Pandoc</code> package under <code>Pandoc/</code>.</li>
+<li>Added a pure .NET <code>nong-pandoc/v1</code> semantic document model.</li>
+<li>Added shared stream names and package manifest types for Word/PDF/PPT/Excel slice alignment.</li>
+<li>Added NongMark text reader/writer support for metadata, headings, paragraphs, lists, block quotes, tables, figures, references, and raw blocks.</li>
+<li>Added tests for writer output, fenced table/reference parsing, and runtime policy.</li>
+<li>Added <code>Pandoc/CONSTRUCTION_PLAN.md</code> to define the cross-package adapter plan.</li>
+</ul>
+<br>
+<h2>Why</h2>
+<br>
+<p>Nong needs a Pandoc-style Markdown-upgrade layer without vendoring GPL Pandoc or depending on <code>pandoc.exe</code>. This package starts the Apache-2.0 core boundary that can later bridge NongMark, DOCX, PDF, and optional external Pandoc interop.</p>
+<br>
+<h2>Files touched</h2>
+<br>
+<ul>
+<li><code>Pandoc/PandocCore.csproj</code></li>
+<li><code>Pandoc/NongPandocDocument.cs</code></li>
+<li><code>Pandoc/NongPandocSlicePackage.cs</code></li>
+<li><code>Pandoc/NongMarkTextWriter.cs</code></li>
+<li><code>Pandoc/NongMarkTextReader.cs</code></li>
+<li><code>Pandoc/README.md</code></li>
+<li><code>Pandoc/CONSTRUCTION_PLAN.md</code></li>
+<li><code>Pandoc/packages.lock.json</code></li>
+<li><code>Docx/README.md</code></li>
+<li><code>Tests/Tests.csproj</code></li>
+<li><code>Tests/NongPandocTests.cs</code></li>
+<li><code>Tests/packages.lock.json</code></li>
+</ul>
+<br>
+<h2>Verification</h2>
+<br>
+<ul>
+<li>Passed: <code>dotnet build .\Pandoc\PandocCore.csproj -c Release</code></li>
+<li>Passed: <code>dotnet test .\Tests\Tests.csproj -c Release --filter NongPandocTests</code></li>
+</ul>
+<br>
+<h2>Remaining risks</h2>
+<br>
+<ul>
+<li>The first reader is intentionally conservative and does not yet parse full Pandoc Markdown inline grammar.</li>
+<li>DOCX adapters still need to be connected after the package boundary stabilizes.</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

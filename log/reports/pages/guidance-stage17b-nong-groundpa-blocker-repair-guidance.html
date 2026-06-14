@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-05 后续指导：Stage17b Nong/GroundPA 阻断修复后的唯一口径 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../guidance.html" class="back-link">&larr; 开发指导</a>
+<h1>2026-06-05 后续指导：Stage17b Nong/GroundPA 阻断修复后的唯一口径</h1>
+<p class="subtitle">2026-06-05 | <span style="color: #7c3aed">开发指导</span></p></header>
+<article class="content">
+<h1>2026-06-05 后续指导：Stage17b Nong/GroundPA 阻断修复后的唯一口径</h1>
+<br>
+<blockquote>Superseded on 2026-06-05 by <code>2026-06-05-stage17c-pure-dotnet-ocr-guidance.md</code> for OCR. Do not follow the Python/PaddleOCR bridge guidance in this file for current local OCR work.</blockquote>
+<br>
+<h2>当前事实</h2>
+<br>
+<ul>
+<li>Nong CLI 当前目标版本：<code>3.2.2</code>。</li>
+<li><code>nong commands --json</code> 当前口径：73 implemented commands。</li>
+<li>Word 当前口径：32 commands，包括 <code>word check</code> 和 <code>word convert</code>。</li>
+<li>CLI tests 当前口径：68/68 PASS。</li>
+<li>CLI 包已写入 <code>RollForward=LatestMajor</code>，用于兼容只有 .NET 9/10 运行时的机器。</li>
+<li>Nong.Toolkit.Net 当前口径：2.2.0，Nong CLI-first skills。</li>
+</ul>
+<br>
+<p>不要再把 2026-06-04 的 71 commands / 58 tests / <code>meta.version=3.1.0</code> 当作当前事实。那些文件只能作为历史记录读取。</p>
+<br>
+<h2>必须保留的行为</h2>
+<br>
+<p>1. Plugin Marketplace 只安装 skills，不安装 <code>nong</code> CLI。所有 Nong-facing skills 必须先做 <code>nong commands --json</code> preflight，缺失时提示安装或更新 <code>Angri450.Nong.Cli</code>。</p>
+<p>2. <code>.doc</code> 不直接进入 Open XML 管线。先跑 <code>nong word check</code>，再跑 <code>nong word convert</code>，得到 <code>.docx</code> 后再 dissect/read/edit。</p>
+<p>3. Word COM 只允许作为 <code>.doc -&gt; .docx</code> 边界转换 fallback，不作为主编辑路径。</p>
+<p>4. VML 图片不能静默丢失。<code>word dissect</code> 必须输出 image block、asset/Markdown 标记和 warning；<code>word images</code> 必须列出 VML。</p>
+<p>5. <code>content.jsonl</code> 必须包含 <code>blockId</code> 和 <code>index</code>，否则 <code>word add --after</code> 的 agent 路径会再次断掉。</p>
+<p>6. <code>ocr install-model pp-ocrv5-mobile</code> 不是 E009 空桩。<code>--dry-run</code> 输出计划；非 dry-run 安装/更新 Python PaddleOCR 依赖。</p>
+<p>7. <code>ocr local</code> 是实现入口，但只有 <code>check-env</code> 与真实图片 smoke test 都通过后，才能写成稳定本地 OCR 路径。</p>
+<p>8. 云端 OCR token 只写 <code>PADDLEOCR_ACCESS_TOKEN</code>，来源页面是 <code>https://aistudio.baidu.com/account/accessToken</code>。</p>
+<br>
+<h2>发布前检查</h2>
+<br>
+<pre><code class="language-powershell">
+dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release --nologo
+.\Cli\bin\Release\net8.0\nong.exe commands --json
+.\Cli\bin\Release\net8.0\nong.exe ocr install-model pp-ocrv5-mobile --dry-run --json
+</code></pre>
+<br>
+<p>GroundPA 同步检查：</p>
+<br>
+<pre><code class="language-powershell">
+.\Nong.Cli.Net\Cli\bin\Release\net8.0\nong.exe skill validate .\Nong.Toolkit.Net\word --json
+.\Nong.Cli.Net\Cli\bin\Release\net8.0\nong.exe skill validate .\Nong.Toolkit.Net\multimodal --json
+.\Nong.Cli.Net\Cli\bin\Release\net8.0\nong.exe skill scan .\Nong.Toolkit.Net --json
+claude plugin validate .\Nong.Toolkit.Net
+</code></pre>
+<br>
+<h2>发布说明</h2>
+<br>
+<p>代码修复不等于 NuGet 发布。对外使用前还要：</p>
+<br>
+<p>1. <code>dotnet pack</code> 生成 <code>Angri450.Nong.Cli.3.2.2.nupkg</code>。</p>
+<p>2. 推 NuGet.org。</p>
+<p>3. 推 GitHub/Gitee 源码镜像。</p>
+<p>4. 更新 Nong.Toolkit.Net plugin 版本并重新发布。</p>
+<p>5. 在发布记录里同时写清楚 CLI package version、<code>nong commands --json</code> 的 <code>meta.version</code> 和 git hash。</p>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

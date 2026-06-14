@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Command naming audit report - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>Command naming audit report</h1>
+<p class="subtitle">2026-06-10 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>Command naming audit report</h1>
+<br>
+<h2>What changed</h2>
+<br>
+<ul>
+<li>Added a standalone Chinese HTML audit for Nong.Toolkit.Net and Nong.Cli.Net command naming.</li>
+<li>Split command-surface findings into three concrete buckets:</li>
+<li>command duplication;</li>
+<li>missing commands;</li>
+<li>commands whose names or descriptions do not fully match their behavior.</li>
+<li>Identified one real overlap group, the Word image extraction surface, and separated it from compatibility aliases such as <code>word add-*</code>.</li>
+<li>Listed missing command families that are real future features rather than documentation fixes.</li>
+<li>Listed command names that are usable today but should gain clearer aliases or descriptions.</li>
+</ul>
+<br>
+<h2>Why</h2>
+<br>
+<p>The Toolkit/CLI parity report already showed that command coverage is aligned. The next decision is whether the command surface has duplicate commands, lacks important commands, or uses names that mislead users. This report gives that analysis in Chinese so it can drive the next CLI and Toolkit cleanup pass.</p>
+<br>
+<h2>Files touched</h2>
+<br>
+<ul>
+<li><code>log/plans/2026-06-10-command-naming-audit.md</code></li>
+<li><code>log/reports/toolkit-cli-command-naming-audit.html</code></li>
+<li><code>log/plans/index.md</code></li>
+<li><code>log/changelog/index.md</code></li>
+</ul>
+<br>
+<h2>Tests</h2>
+<br>
+<ul>
+<li><code>nong commands --json</code></li>
+<li>Targeted review of CLI command declarations and Toolkit SKILL routing.</li>
+</ul>
+<br>
+<h2>Remaining risks</h2>
+<br>
+<ul>
+<li>The report is an audit artifact. It does not yet implement the recommended aliases or missing commands.</li>
+<li>Any future alias work must update System.CommandLine registration, <code>Cli/Common/Manifest.cs</code>, CLI contract tests, and Nong.Toolkit.Net docs together.</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

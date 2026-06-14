@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Nong.Cli</RootNamespace>
+    <AssemblyName>nong-ocr</AssemblyName>
+    <PackageId>Angri450.Nong.Tool.Ocr</PackageId>
+    <ToolCommandName>nong-ocr</ToolCommandName>
+    <PackAsTool>true</PackAsTool>
+    <Version>4.1.7</Version>
+    <Authors>angri450</Authors>
+    <Description>Local OCR (PP-OCRv6)</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MultiModalCore.csproj" />
+    <ProjectReference Include="..\..\OcrModels\OcrModels.csproj" />
+    <ProjectReference Include="..\..\ThirdParty\ThirdParty.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Cli\Commands\OcrCommands.cs" />
+    <Compile Include="..\..\Cli\Common\*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

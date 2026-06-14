@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-03 后续总路线 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../guidance.html" class="back-link">&larr; 开发指导</a>
+<h1>2026-06-03 后续总路线</h1>
+<p class="subtitle">2026-06-03 | <span style="color: #7c3aed">开发指导</span></p></header>
+<article class="content">
+<h1>2026-06-03 后续总路线</h1>
+<br>
+<h2>当前状态</h2>
+<br>
+<p>已完成：</p>
+<br>
+<p>1. 阶段 1：CLI 架构</p>
+<p>2. 阶段 2：Word 读取与预览</p>
+<p>3. 阶段 3：科研核心诊断与统计</p>
+<br>
+<p>正在推进：</p>
+<br>
+<p>4. 阶段 4：统计结果生成图表</p>
+<br>
+<h2>后续阶段</h2>
+<br>
+<table>
+<tr><th>阶段</th><th>名称</th><th>核心目标</th></tr>
+<tr><td>4</td><td>生成核心</td><td><code>chart analyze</code> + <code>chart bar</code></td></tr>
+<tr><td>5</td><td>Excel 数据入口</td><td><code>excel sheets/read/to-groups</code></td></tr>
+<tr><td>6</td><td>Word/Inspect 生成</td><td><code>word fill/rebuild</code> + <code>inspect write paper</code></td></tr>
+<tr><td>7</td><td>Diagram/PPTX</td><td>方法图、网络图、汇报 PPT</td></tr>
+<tr><td>8</td><td>Assets/Genre/OCR</td><td>模板、图标、OCR 依赖探测</td></tr>
+<tr><td>9</td><td>Agent Contract</td><td>命令 schema、examples、skill 同步准备</td></tr>
+<tr><td>10</td><td>稳定发布</td><td>CLI 测试、pack、tool install、release checklist</td></tr>
+</table>
+<br>
+<h2>总原则</h2>
+<br>
+<p>1. 每阶段只做 2-4 个真实命令。</p>
+<p>2. 每个真实命令必须有 <code>--json</code>。</p>
+<p>3. 生成文件必须写入 <code>artifacts</code>。</p>
+<p>4. 不在 CLI 里重写底层业务逻辑。</p>
+<p>5. 每阶段结束必须写 changelog。</p>
+<p>6. 阶段 9 前不动 Nong.Toolkit.Net。</p>
+<p>7. 阶段 10 前不纠结许可证，但发布前必须回头处理。</p>
+<br>
+<h2>最重要的闭环</h2>
+<br>
+<p>最终要优先保证这条链：</p>
+<br>
+<pre><code class="language-powershell">
+nong word read paper.docx --json
+nong inspect diagnose paper.txt --json
+nong inspect refs paper.txt --json
+nong excel to-groups data.xlsx --sheet Sheet1 --group A --value B --json
+nong chart analyze groups.json --json
+nong chart bar groups.json -o fig.png --json
+nong word fill template.docx data.json -o paper.docx --json
+</code></pre>
+<br>
+<p>这条链跑通，<code>nong</code> 就已经不是普通 Office .NET 库，而是面向农学生和 AI agent 的低 token 科研工具底座。</p>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

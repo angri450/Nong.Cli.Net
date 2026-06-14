@@ -6,7 +6,7 @@ using Nong.Inspect;
 namespace Nong.Cli.Commands;
 
 /// <summary>
-/// Inspect command group: paper diagnose and refs check (phase 3), others stubbed.
+/// Inspect command group: paper diagnostics, references, structure, evidence, and writing.
 /// </summary>
 public static class InspectCommands
 {
@@ -17,6 +17,8 @@ public static class InspectCommands
         cmd.AddCommand(CreateDiagnose(jsonOpt));
         cmd.AddCommand(CreateRefsCheck(jsonOpt));
         cmd.AddCommand(CreateWritePaper(jsonOpt));
+        cmd.AddCommand(CreateWriteOfficial(jsonOpt));
+        cmd.AddCommand(CreateOfficialCheck(jsonOpt));
         cmd.AddCommand(CreateClassify(jsonOpt));
         cmd.AddCommand(CreateStructure(jsonOpt));
         cmd.AddCommand(CreateVarplan(jsonOpt));
@@ -28,7 +30,7 @@ public static class InspectCommands
         return cmd;
     }
 
-    // ===== paper diagnose =====
+    // ===== inspect diagnose =====
 
     static Command CreateDiagnose(Option<bool> jsonOpt)
     {
@@ -169,6 +171,7 @@ public static class InspectCommands
     {
         var fileArg = new Argument<string>("file", "Path to paper text file (.txt)");
         var cmd = new Command("refs", "Reference analysis and risk check") { fileArg };
+        cmd.AddAlias("references");
 
         cmd.SetHandler((string file, bool json) =>
         {
@@ -320,7 +323,13 @@ public static class InspectCommands
                     var w = new PaperWriter(body, doc);
                     if (root.TryGetProperty("title", out var t)) w.Title(t.GetString()!);
                     if (root.TryGetProperty("abstract", out var a)) { w.AbstractTitle(); w.Abstract(a.GetString()!); }
-                    if (root.TryGetProperty("keywords", out var kw)) w.Keywords(kw.GetString()!);
+                    if (root.TryGetProperty("keywords", out var kw))
+                    {
+                        if (kw.ValueKind == JsonValueKind.Array)
+                            w.Keywords(string.Join("; ", kw.EnumerateArray().Select(e => e.GetString() ?? "")));
+                        else
+                            w.Keywords(kw.GetString()!);
+                    }
 
                     if (root.TryGetProperty("sections", out var secs))
                     {
@@ -329,7 +338,7 @@ public static class InspectCommands
                             var heading = sec.GetProperty("heading").GetString()!;
                             var level = sec.TryGetProperty("level", out var l) ? l.GetInt32() : 1;
                             w.Heading(heading, level);
-                            if (sec.TryGetProperty("body", out var bodyArr))
+                            if (sec.TryGetProperty("body", out var bodyArr) || sec.TryGetProperty("content", out bodyArr))
                             {
                                 foreach (var bp in bodyArr.EnumerateArray())
                                     w.Body(bp.GetString()!);
@@ -386,8 +395,15 @@ public static class InspectCommands
             return ErrorCodes.ValidationFailed with { Message = "title must be a string." };
         if (root.TryGetProperty("abstract", out var a) && a.ValueKind != JsonValueKind.String)
             return ErrorCodes.ValidationFailed with { Message = "abstract must be a string." };
-        if (root.TryGetProperty("keywords", out var kw) && kw.ValueKind != JsonValueKind.String)
-            return ErrorCodes.ValidationFailed with { Message = "keywords must be a string." };
+        if (root.TryGetProperty("keywords", out var kw))
+        {
+            if (kw.ValueKind == JsonValueKind.Array)
+            {
+                // Accept string[] — will be joined later
+            }
+            else if (kw.ValueKind != JsonValueKind.String)
+                return ErrorCodes.ValidationFailed with { Message = "keywords must be a string or array of strings." };
+        }
 
         if (root.TryGetProperty("sections", out var secs))
         {
@@ -402,7 +418,7 @@ public static class InspectCommands
                     return ErrorCodes.ValidationFailed with { Message = $"sections[{i}].level must be a number (1-3)." };
                 if (sec.TryGetProperty("level", out var lv2) && lv2.GetInt32() is var lvi && (lvi < 1 || lvi > 3))
                     return ErrorCodes.ValidationFailed with { Message = $"sections[{i}].level must be 1-3, got {lvi}." };
-                if (sec.TryGetProperty("body", out var bd))
+                if (sec.TryGetProperty("body", out var bd) || sec.TryGetProperty("content", out bd))
                 {
                     if (bd.ValueKind != JsonValueKind.Array)
                         return ErrorCodes.ValidationFailed with { Message = $"sections[{i}].body must be an array." };
@@ -433,6 +449,313 @@ public static class InspectCommands
 
         return null;
         }
+    }
+
+    // ===== inspect write official =====
+
+    static Command CreateWriteOfficial(Option<bool> jsonOpt)
+    {
+        var specArg = new Argument<string>("spec", "Path to official-document spec JSON");
+        var outOpt = new Option<string>("-o", "Output docx path") { IsRequired = true };
+        var cmd = new Command("write-official", "Generate official-document docx from JSON spec") { specArg, outOpt };
+
+        cmd.SetHandler((string spec, string output, bool json) =>
+        {
+            const string command = "inspect write-official";
+            var err = CliHelpers.ValidateTextFile(spec);
+            if (err != null) { CliHelpers.WriteError(command, err, json); return; }
+            if (!string.Equals(Path.GetExtension(output), ".docx", StringComparison.OrdinalIgnoreCase))
+            {
+                CliHelpers.WriteError(command,
+                    ErrorCodes.ValidationFailed with { Message = "Output path must end with .docx." }, json);
+                return;
+            }
+
+            try
+            {
+                var specJson = File.ReadAllText(spec);
+                var verr = ValidateOfficialSpec(specJson);
+                if (verr != null) { CliHelpers.WriteError(command, verr, json); return; }
+
+                var (data, elapsed) = CliHelpers.Time(() =>
+                {
+                    using var docEl = JsonDocument.Parse(specJson);
+                    var root = docEl.RootElement;
+                    var paragraphs = ReadOfficialParagraphs(root).ToList();
+
+                    CliHelpers.EnsureParentDir(output);
+                    using var doc = DocumentFormat.OpenXml.Packaging.WordprocessingDocument.Create(output,
+                        DocumentFormat.OpenXml.WordprocessingDocumentType.Document);
+                    var main = doc.AddMainDocumentPart();
+                    main.Document = new DocumentFormat.OpenXml.Wordprocessing.Document(
+                        new DocumentFormat.OpenXml.Wordprocessing.Body());
+                    var body = main.Document.Body!;
+
+                    var w = new OfficialDocWriter(body, doc);
+                    WriteOfficialPart(root, "redHeader", w.RedHeader);
+                    WriteOfficialPart(root, "docNumber", w.DocNumber);
+                    w.Title(root.GetProperty("title").GetString()!);
+                    WriteOfficialPart(root, "recipient", w.Recipient);
+                    foreach (var paragraph in paragraphs)
+                        w.Body(paragraph);
+                    WriteOfficialPart(root, "closing", w.Closing);
+                    WriteOfficialPart(root, "signature", w.Signature);
+                    WriteOfficialPart(root, "date", w.Date);
+
+                    main.Document.Save();
+                    return new
+                    {
+                        spec = Path.GetFullPath(spec),
+                        output = Path.GetFullPath(output),
+                        title = root.GetProperty("title").GetString(),
+                        bodyParagraphs = paragraphs.Count,
+                    };
+                });
+
+                var a = CliHelpers.CheckArtifact(output, "DOCX");
+                if (a != null) { CliHelpers.WriteError(command, a, json); return; }
+
+                if (json)
+                {
+                    var outputJson = JsonOutput.Ok(command, $"Official document saved: {output}", data);
+                    outputJson.Artifacts["docx"] = Path.GetFullPath(output);
+                    outputJson.Metrics["bodyParagraphs"] = data.bodyParagraphs;
+                    outputJson.Meta.DurationMs = elapsed;
+                    Console.WriteLine(JsonSerializer.Serialize(outputJson, CliHelpers.JsonOpts));
+                }
+                else
+                {
+                    Console.WriteLine($"OK: {Path.GetFullPath(output)}");
+                }
+            }
+            catch (Exception ex)
+            {
+                try { if (File.Exists(output)) File.Delete(output); } catch { }
+                CliHelpers.WriteError(command, ErrorCodes.InternalError with { Message = ex.Message }, json);
+            }
+        }, specArg, outOpt, jsonOpt);
+
+        return cmd;
+    }
+
+    static ErrorEntry? ValidateOfficialSpec(string json)
+    {
+        JsonDocument doc;
+        try { doc = JsonDocument.Parse(json); }
+        catch (JsonException) { return ErrorCodes.ValidationFailed with { Message = "Spec is not valid JSON." }; }
+
+        using (doc)
+        {
+            var root = doc.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+                return ErrorCodes.ValidationFailed with { Message = "Spec must be a JSON object." };
+
+            if (!root.TryGetProperty("title", out var title) || title.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(title.GetString()))
+                return ErrorCodes.ValidationFailed with { Message = "title is required and must be a non-empty string." };
+
+            foreach (var name in new[] { "redHeader", "docNumber", "recipient", "closing", "signature", "date" })
+            {
+                if (root.TryGetProperty(name, out var value) && value.ValueKind != JsonValueKind.String)
+                    return ErrorCodes.ValidationFailed with { Message = $"{name} must be a string." };
+            }
+
+            if (root.TryGetProperty("body", out var body))
+            {
+                var err = ValidateOfficialParagraphValue(body, "body");
+                if (err != null) return err;
+            }
+
+            if (root.TryGetProperty("paragraphs", out var paragraphs))
+            {
+                if (paragraphs.ValueKind != JsonValueKind.Array)
+                    return ErrorCodes.ValidationFailed with { Message = "paragraphs must be an array." };
+                var err = ValidateOfficialParagraphArray(paragraphs, "paragraphs");
+                if (err != null) return err;
+            }
+
+            return null;
+        }
+    }
+
+    static ErrorEntry? ValidateOfficialParagraphValue(JsonElement value, string name)
+    {
+        if (value.ValueKind == JsonValueKind.String) return null;
+        if (value.ValueKind != JsonValueKind.Array)
+            return ErrorCodes.ValidationFailed with { Message = $"{name} must be a string or array of strings." };
+        return ValidateOfficialParagraphArray(value, name);
+    }
+
+    static ErrorEntry? ValidateOfficialParagraphArray(JsonElement array, string name)
+    {
+        var index = 0;
+        foreach (var item in array.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.String)
+                return ErrorCodes.ValidationFailed with { Message = $"{name}[{index}] must be a string." };
+            index++;
+        }
+        return null;
+    }
+
+    static IEnumerable<string> ReadOfficialParagraphs(JsonElement root)
+    {
+        if (root.TryGetProperty("body", out var body))
+        {
+            if (body.ValueKind == JsonValueKind.String)
+            {
+                var value = body.GetString();
+                if (!string.IsNullOrWhiteSpace(value)) yield return value;
+            }
+            else if (body.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in body.EnumerateArray())
+                {
+                    var value = item.GetString();
+                    if (!string.IsNullOrWhiteSpace(value)) yield return value;
+                }
+            }
+        }
+
+        if (root.TryGetProperty("paragraphs", out var paragraphs))
+        {
+            foreach (var item in paragraphs.EnumerateArray())
+            {
+                var value = item.GetString();
+                if (!string.IsNullOrWhiteSpace(value)) yield return value;
+            }
+        }
+    }
+
+    static void WriteOfficialPart(JsonElement root, string propertyName, Func<string, OfficialDocWriter> write)
+    {
+        if (root.TryGetProperty(propertyName, out var value))
+        {
+            var text = value.GetString();
+            if (!string.IsNullOrWhiteSpace(text))
+                write(text);
+        }
+    }
+
+    // ===== official-check =====
+
+    static Command CreateOfficialCheck(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .docx file to audit");
+        var cmd = new Command("official-check", "Audit official-document DOCX format compliance") { fileArg };
+
+        cmd.SetHandler((string file, bool json) =>
+        {
+            var err = CliHelpers.ValidateDocxFile(file);
+            if (err != null) { CliHelpers.WriteError("inspect official-check", err, json); return; }
+
+            try
+            {
+                var (result, elapsed) = CliHelpers.Time(() =>
+                {
+                    using var doc = DocumentFormat.OpenXml.Packaging.WordprocessingDocument.Open(file, false);
+                    var body = doc.MainDocumentPart?.Document?.Body;
+                    if (body == null) return new OfficialCheckResult { Status = "error", Issues = { "Document has no body." } };
+
+                    var paras = body.Elements<DocumentFormat.OpenXml.Wordprocessing.Paragraph>().ToList();
+                    var result = new OfficialCheckResult { Status = "ok" };
+                    var texts = paras.Select(p => p.InnerText.Trim()).Where(t => !string.IsNullOrEmpty(t)).ToList();
+
+                    // Check for gongwen structural elements
+                    bool hasRedHeader = false, hasDocNumber = false, hasTitle = false;
+                    bool hasRecipient = false, hasBody = false, hasClosing = false;
+                    bool hasSignature = false, hasDate = false;
+
+                    foreach (var p in paras)
+                    {
+                        var t = p.InnerText.Trim();
+                        if (string.IsNullOrEmpty(t)) continue;
+
+                        var runs = p.Elements<DocumentFormat.OpenXml.Wordprocessing.Run>();
+                        bool isRed = runs.Any(r => r.RunProperties?.Color?.Val?.Value == "FF0000"
+                            || r.RunProperties?.Color?.Val?.Value == "C00000");
+                        bool isBold = runs.Any(r => r.RunProperties?.Bold?.Val?.Value == true);
+                        bool isCenter = p.ParagraphProperties?.Justification?.Val?.Value
+                            == DocumentFormat.OpenXml.Wordprocessing.JustificationValues.Center;
+                        bool isRight = p.ParagraphProperties?.Justification?.Val?.Value
+                            == DocumentFormat.OpenXml.Wordprocessing.JustificationValues.Right;
+                        double? fontSize = runs.Select(r =>
+                            r.RunProperties?.FontSize?.Val?.Value is string v && double.TryParse(v, out var d) ? d : (double?)null)
+                            .FirstOrDefault(f => f.HasValue);
+
+                        if (!hasRedHeader && isRed && isCenter)
+                        { hasRedHeader = true; result.RedHeaderText = t; continue; }
+                        if (!hasDocNumber && isCenter && fontSize < 18 && t.Length > 4 && t.Contains("〔"))
+                        { hasDocNumber = true; result.DocNumber = t; continue; }
+                        if (!hasTitle && isBold && isCenter && fontSize >= 16)
+                        { hasTitle = true; result.TitleText = t; continue; }
+                        if (!hasRecipient && t.EndsWith("：") && t.Length < 40)
+                        { hasRecipient = true; result.RecipientText = t; continue; }
+                        if (!hasClosing && (t.StartsWith("特此") || t.StartsWith("此致") || t.StartsWith("以上")))
+                        { hasClosing = true; result.ClosingText = t; continue; }
+                        if (!hasSignature && isRight && (t.Length < 30) && paras.IndexOf(p) > paras.Count * 0.7)
+                        { hasSignature = true; result.SignatureText = t; continue; }
+                        if (!hasDate && isRight && System.Text.RegularExpressions.Regex.IsMatch(t, @"\d{4}年\d{1,2}月\d{1,2}日"))
+                        { hasDate = true; result.DateText = t; continue; }
+
+                        if (hasTitle && !hasBody)
+                        { hasBody = true; }
+                    }
+
+                    if (!hasRedHeader) result.Issues.Add("缺少红头标题（红色居中文字）");
+                    if (!hasDocNumber) result.Issues.Add("缺少发文字号（居中、含〔〕的文字）");
+                    if (!hasTitle) result.Issues.Add("缺少公文标题（粗体居中、字号>=16pt）");
+                    if (!hasRecipient) result.Issues.Add("缺少主送机关（以：结尾的短文字）");
+                    if (!hasBody) result.Issues.Add("缺少正文内容");
+                    if (!hasClosing) result.Issues.Add("缺少结束语（特此xx/此致等）");
+                    if (!hasSignature) result.Issues.Add("缺少落款（靠右侧的机关署名）");
+                    if (!hasDate) result.Issues.Add("缺少成文日期（XXXX年X月X日格式）");
+
+                    result.PassCount = 8 - result.Issues.Count;
+                    return result;
+                });
+
+                if (json)
+                {
+                    var output = JsonOutput.Ok("inspect official-check",
+                        $"{result.PassCount}/8 gongwen checks passed, {result.Issues.Count} issue(s)",
+                        result);
+                    output.Metrics["passCount"] = result.PassCount;
+                    output.Metrics["issueCount"] = result.Issues.Count;
+                    output.Meta.DurationMs = elapsed;
+                    foreach (var issue in result.Issues)
+                        output.Issues.Add(new Issue { Id = "gongwen_check", Severity = "Warning", Message = issue });
+                    Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
+                }
+                else
+                {
+                    Console.WriteLine($"=== 公文格式检查 ({result.PassCount}/8) ===");
+                    foreach (var issue in result.Issues)
+                        Console.WriteLine($"  [!] {issue}");
+                    if (result.Issues.Count == 0)
+                        Console.WriteLine("  全部通过。");
+                }
+            }
+            catch (Exception ex)
+            {
+                CliHelpers.WriteError("inspect official-check",
+                    ErrorCodes.InternalError with { Message = ex.Message }, json);
+            }
+        }, fileArg, jsonOpt);
+        return cmd;
+    }
+
+    public class OfficialCheckResult
+    {
+        public string Status { get; set; } = "ok";
+        public int PassCount { get; set; }
+        public string? RedHeaderText { get; set; }
+        public string? DocNumber { get; set; }
+        public string? TitleText { get; set; }
+        public string? RecipientText { get; set; }
+        public string? ClosingText { get; set; }
+        public string? SignatureText { get; set; }
+        public string? DateText { get; set; }
+        public List<string> Issues { get; set; } = new();
     }
 
     // ===== classify =====
@@ -615,6 +938,7 @@ public static class InspectCommands
     {
         var fileArg = new Argument<string>("file", "Path to paper text file (.txt)");
         var cmd = new Command("data-req", "Data requirements diagnosis") { fileArg };
+        cmd.AddAlias("data-requirements");
 
         cmd.SetHandler((string file, bool json) =>
         {
@@ -726,6 +1050,7 @@ public static class InspectCommands
     {
         var fileArg = new Argument<string>("file", "Path to paper text file (.txt)");
         var cmd = new Command("varplan", "Variable operationalization plan") { fileArg };
+        cmd.AddAlias("variables");
 
         cmd.SetHandler((string file, bool json) =>
         {

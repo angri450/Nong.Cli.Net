@@ -31,7 +31,7 @@
 3. 生成文件必须写入 `artifacts`。
 4. 不在 CLI 里重写底层业务逻辑。
 5. 每阶段结束必须写 changelog。
-6. 阶段 9 前不动 GroundPA-Toolkit。
+6. 阶段 9 前不动 Nong.Toolkit.Net。
 7. 阶段 10 前不纠结许可证，但发布前必须回头处理。
 
 ## 最重要的闭环

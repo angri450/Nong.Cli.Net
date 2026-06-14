@@ -1,330 +1,168 @@
-<h1 align="center">
-  <a href="https://github.com/angri450/Nong.NET">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgNjAwIDEwMCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzZXJpZiIgZm9udC1zaXplPSI1MiIgZmlsbD0iI0ZGRiI+Tm9uZy5ORVQ8L3RleHQ+PC9zdmc+">
-      <img alt="Nong.NET" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgNjAwIDEwMCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzZXJpZiIgZm9udC1zaXplPSI1MiIgZmlsbD0iIzIyMiI+Tm9uZy5ORVQ8L3RleHQ+PC9zdmc+" height="80">
-+  </picture>
-+  </a>
-+</h1>
-+
-+<p align="center">
-+  <strong>Pure .NET CLI toolkit for scientific document generation and inspection.</strong><br>
-+  Zero JavaScript. One binary. 71 commands. Cross-platform.
-+</p>
-+
-+<p align="center">
-+  <a href="https://www.nuget.org/packages/Angri450.Nong.Cli/"><img src="https://img.shields.io/nuget/v/Angri450.Nong.Cli.svg?label=NuGet" alt="NuGet"></a>
-+  <a href="https://github.com/angri450/Nong.NET/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License"></a>
-+  <a href="https://dotnet.microsoft.com/en-us/download"><img src="https://img.shields.io/badge/.NET-8.0-8A2BE2" alt=".NET 8.0"></a>
-+  <img src="https://img.shields.io/badge/commands-71-green" alt="71 commands">
-+  <a href="#中文文档"><img src="https://img.shields.io/badge/中文-README.zh--CN.md-orange" alt="中文"></a>
-+</p>
-+
-+<hr>
-+
-+<h2>Quick Install</h2>
-+
-+<pre><code>dotnet tool install --global Angri450.Nong.Cli
-+nong commands --json</code></pre>
-+
-+<p>That's it. No Node.js, no Python, no Docker. One <code>nong</code> command in your terminal.</p>
-+
-+<hr>
-+
-+<h2>What is Nong.NET?</h2>
-+
-+<p><strong>Nong</strong> (农) is a pure .NET CLI toolkit built for agricultural research papers and scientific document workflows. It replaces fragmented script chains — Word COM automation, Python chart scripts, JavaScript diagram tools — with a single, deterministic, cross-platform binary.</p>
-+
-+<table>
-+  <tr>
-+    <td width="50%">
-+      <h3>The Model does semantics</h3>
-+      <p>Claude / GPT chooses the workflow, prepares JSON specs, and interprets diagnostic results.</p>
-+    </td>
-+    <td width="50%">
-+      <h3>The CLI does deterministic work</h3>
-+      <p>Reading, writing, rendering, layout, statistics — all in compiled .NET code. No prompt-based guessing.</p>
-+    </td>
-+  </tr>
-+</table>
-+
-+<hr>
-+
-+<h2>Capability Overview — 71 Commands</h2>
-+
-+<h3>word — Word Document Engine (30 commands)</h3>
-+
-+<table>
-+  <tr><th>Command</th><th>What it does</th></tr>
-+  <tr><td><code>nong word read</code></td><td>Extract plain text from .docx</td></tr>
-+  <tr><td><code>nong word preview</code></td><td>7-step diagnostic report</td></tr>
-+  <tr><td><code>nong word fill</code></td><td>Template fill from .docx + .json</td></tr>
-+  <tr><td><code>nong word rebuild</code></td><td>Style cleanup and normalization</td></tr>
-+  <tr><td><code>nong word stats</code></td><td>Count paragraphs, tables, images, footnotes</td></tr>
-+  <tr><td><code>nong word fonts</code></td><td>List all fonts used in document</td></tr>
-+  <tr><td><code>nong word styles</code></td><td>List all style definitions</td></tr>
-+  <tr><td><code>nong word validate</code></td><td>OOXML schema validation</td></tr>
-+  <tr><td><code>nong word extract</code></td><td>Extract embedded images</td></tr>
-+  <tr><td><code>nong word dissect</code></td><td>Format fingerprint aggregation (nongmark/v1)</td></tr>
-+  <tr><td><code>nong word merge</code></td><td>Merge multiple .docx into one</td></tr>
-+  <tr><td><code>nong word outline</code></td><td>Extract document outline/headings</td></tr>
-+  <tr><td><code>nong word images</code></td><td>List or extract all images</td></tr>
-+  <tr><td><code>nong word comments</code></td><td>Read all comments</td></tr>
-+  <tr><td><code>nong word revisions</code></td><td>List tracked revisions</td></tr>
-+  <tr><td><code>nong word infer-format</code></td><td>Infer format from Chinese description</td></tr>
-+  <tr><td><code>nong word fix-order</code></td><td>Fix OOXML element ordering</td></tr>
-+  <tr><td><code>nong word protect</code></td><td>Document protection (readonly, comments, track-changes)</td></tr>
-+  <tr><td><code>nong word embed-font</code></td><td>Embed TrueType font into document</td></tr>
-+  <tr><td><code>nong word add paragraph</code></td><td>Append paragraph from JSON spec</td></tr>
-+  <tr><td><code>nong word add table</code></td><td>Append table from JSON spec</td></tr>
-+  <tr><td><code>nong word add footnote</code></td><td>Append footnote</td></tr>
-+  <tr><td><code>nong word add endnote</code></td><td>Append endnote</td></tr>
-+  <tr><td><code>nong word add image</code></td><td>Append image with optional caption</td></tr>
-+  <tr><td><code>nong word add toc</code></td><td>Insert table of contents</td></tr>
-+  <tr><td><code>nong word add xref</code></td><td>Insert cross-reference to bookmark</td></tr>
-+  <tr><td><code>nong word add link</code></td><td>Insert hyperlink</td></tr>
-+  <tr><td><code>nong word add bookmark</code></td><td>Insert bookmark</td></tr>
-+  <tr><td><code>nong word add comment</code></td><td>Insert comment</td></tr>
-+  <tr><td><code>nong word add math</code></td><td>Insert math equation from LaTeX</td></tr>
-+</table>
-+
-+<h3>inspect — Paper Diagnostics &amp; Generation (10 commands)</h3>
-+
-+<table>
-+  <tr><th>Command</th><th>What it does</th></tr>
-+  <tr><td><code>nong inspect diagnose</code></td><td>Full paper diagnostic report</td></tr>
-+  <tr><td><code>nong inspect refs</code></td><td>Reference list check</td></tr>
-+  <tr><td><code>nong inspect write-paper</code></td><td>Generate paper .docx from JSON spec</td></tr>
-+  <tr><td><code>nong inspect classify</code></td><td>Classify paper type (16 types)</td></tr>
-+  <tr><td><code>nong inspect structure</code></td><td>Extract paper structure</td></tr>
-+  <tr><td><code>nong inspect evidence</code></td><td>Evidence chain diagnosis</td></tr>
-+  <tr><td><code>nong inspect data-req</code></td><td>Data requirements diagnosis</td></tr>
-+  <tr><td><code>nong inspect gap</code></td><td>Gap grade assessment</td></tr>
-+  <tr><td><code>nong inspect varplan</code></td><td>Variable operationalization plan</td></tr>
-+  <tr><td><code>nong inspect semantics</code></td><td>Semantic/logic risk diagnosis</td></tr>
-+</table>
-+
-+<h3>chart — Statistics &amp; Charts (7 commands)</h3>
-+
-+<table>
-+  <tr><th>Command</th><th>What it does</th></tr>
-+  <tr><td><code>nong chart analyze</code></td><td>ANOVA + Duncan MRT + descriptive statistics</td></tr>
-+  <tr><td><code>nong chart anova</code></td><td>One-way ANOVA</td></tr>
-+  <tr><td><code>nong chart duncan</code></td><td>Duncan multiple range test</td></tr>
-+  <tr><td><code>nong chart bar</code></td><td>Bar chart with error bars + significance letters</td></tr>
-+  <tr><td><code>nong chart line</code></td><td>Multi-series line chart</td></tr>
-+  <tr><td><code>nong chart scatter</code></td><td>Scatter plot with optional trendline</td></tr>
-+  <tr><td><code>nong chart pie</code></td><td>Pie chart</td></tr>
-+</table>
-+
-+<p>Charts are rendered with <strong>ScottPlot</strong>. Statistical analysis uses simplified Q-value approximations — verify with formal tools for publication.</p>
-+
-+<h3>excel — Excel Data Entry (4 commands)</h3>
-+
-+<table>
-+  <tr><th>Command</th><th>What it does</th></tr>
-+  <tr><td><code>nong excel sheets</code></td><td>List worksheets</td></tr>
-+  <tr><td><code>nong excel read</code></td><td>Read cell content</td></tr>
-+  <tr><td><code>nong excel to-groups</code></td><td>Convert treatment/value columns to grouped JSON</td></tr>
-+  <tr><td><code>nong excel create</code></td><td>Create .xlsx from JSON spec</td></tr>
-+</table>
-+
-+<h3>diagram — Scientific Diagrams (3 commands)</h3>
-+
-+<table>
-+  <tr><th>Command</th><th>What it does</th></tr>
-+  <tr><td><code>nong diagram flowchart</code></td><td>Flowchart from JSON spec (Sugiyama layout)</td></tr>
-+  <tr><td><code>nong diagram network</code></td><td>Network/relationship graph (force-directed)</td></tr>
-+  <tr><td><code>nong diagram tree</code></td><td>Phylogenetic tree (Newick/JSON input)</td></tr>
-+</table>
-+
-+<p>Rendered with <strong>MSAGL</strong> (automatic layout) + <strong>SkiaSharp</strong> (rasterization). No Graphviz, no Mermaid, no JavaScript.</p>
-+
-+<h3>pptx — Slide Reading (2 commands)</h3>
-+
-+<table>
-+  <tr><th>Command</th><th>What it does</th></tr>
-+  <tr><td><code>nong pptx read</code></td><td>Extract all slide text</td></tr>
-+  <tr><td><code>nong pptx slides</code></td><td>Count shapes/elements per slide</td></tr>
-+</table>
-+
-+<h3>ocr — Optical Character Recognition (7 commands)</h3>
-+
-+<table>
-+  <tr><th>Command</th><th>What it does</th></tr>
-+  <tr><td><code>nong ocr cloud</code></td><td>PaddleOCR-VL cloud OCR</td></tr>
-+  <tr><td><code>nong ocr local</code></td><td>Local PP-OCRv5 recognition (E005/E009 — honest)</td></tr>
-+  <tr><td><code>nong ocr check-env</code></td><td>Check OCR environment status</td></tr>
-+  <tr><td><code>nong ocr analyze-image</code></td><td>Image structure analysis (no token needed)</td></tr>
-+  <tr><td><code>nong ocr models</code></td><td>List available OCR models</td></tr>
-+  <tr><td><code>nong ocr install-model</code></td><td>Install OCR model</td></tr>
-+  <tr><td><code>nong ocr to-word</code></td><td>Cloud OCR → .docx conversion</td></tr>
-+</table>
-+
-+<h3>genre / icons — Templates &amp; Assets (4 commands)</h3>
-+
-+<table>
-+  <tr><th>Command</th><th>What it does</th></tr>
-+  <tr><td><code>nong genre list</code></td><td>List available writing templates</td></tr>
-+  <tr><td><code>nong genre show</code></td><td>View template content</td></tr>
-+  <tr><td><code>nong icons list</code></td><td>List 40 scientific SVG icons</td></tr>
-+  <tr><td><code>nong icons search</code></td><td>Search icons by keyword</td></tr>
-+</table>
-+
-+<h3>skill — Skill Lifecycle Management (4 commands)</h3>
-+
-+<table>
-+  <tr><th>Command</th><th>What it does</th></tr>
-+  <tr><td><code>nong skill validate</code></td><td>Validate SKILL.md structure and references</td></tr>
-+  <tr><td><code>nong skill scan</code></td><td>Security scan on skill/plugin directory</td></tr>
-+  <tr><td><code>nong skill inventory</code></td><td>List directory contents (single skill or plugin root)</td></tr>
-+  <tr><td><code>nong skill package</code></td><td>Validate + scan + package into .zip</td></tr>
-+</table>
-+
-+<hr>
-+
-+<h2>Design Principles</h2>
-+
-+<table>
-+  <tr>
-+    <td><strong>1. Models handle semantics</strong></td>
-+    <td>AI models choose workflows, prepare JSON specs, and interpret diagnostic results. The CLI never guesses.</td>
-+  </tr>
-+  <tr>
-+    <td><strong>2. Deterministic work stays in .NET</strong></td>
-+    <td>All reading, writing, rendering, layout, and statistics are compiled C# code. Reproducible every time.</td>
-+  </tr>
-+  <tr>
-+    <td><strong>3. JSON-first output</strong></td>
-+    <td>Every command supports <code>--json</code> for machine-readable output. Designed for AI agent consumption and shell pipelines.</td>
-+  </tr>
-+  <tr>
-+    <td><strong>4. Unified error codes</strong></td>
-+    <td>E001 through E009 cover every failure mode. Scripts and agents get predictable, parseable errors.</td>
-+  </tr>
-+  <tr>
-+    <td><strong>5. Zero JavaScript forever</strong></td>
-+    <td>No npm, no webpack, no Node.js. The entire stack is C# from parsing to rendering.</td>
-+  </tr>
-+</table>
-+
-+<hr>
-+
-+<h2>Core Workflows</h2>
-+
-+<h3>1. Excel &rarr; Statistics &rarr; Chart</h3>
-+<pre><code>nong excel to-groups data.xlsx --group A --value B --raw &gt; groups.json
-+nong chart analyze groups.json --json
-+nong chart bar groups.json -o fig.png --json</code></pre>
-+
-+<h3>2. Paper Generation &rarr; Inspection</h3>
-+<pre><code>nong inspect write-paper spec.json -o paper.docx --json
-+nong word preview paper.docx --json
-+nong word read paper.docx --json</code></pre>
-+
-+<h3>3. Paper Diagnostics</h3>
-+<pre><code>nong word read paper.docx &gt; paper.txt
-+nong inspect diagnose paper.txt --json
-+nong inspect refs paper.txt --json</code></pre>
-+
-+<h3>4. Document Forensics</h3>
-+<pre><code>nong word stats paper.docx --json
-+nong word fonts paper.docx --json
-+nong word dissect paper.docx -o paper.slice --json</code></pre>
-+
-+<h3>5. Cloud OCR Pipeline</h3>
-+<pre><code>nong ocr check-env --json
-+nong ocr cloud scan.png -o ocr-out/ --json
-+nong ocr to-word scan.png -o out.docx --json</code></pre>
-+
-+<hr>
-+
-+<h2>JSON Output Schema</h2>
-+
-+<p>Every command with <code>--json</code> returns a unified structure:</p>
-+
-+<pre><code>{
-+  "status": "ok" | "error",
-+  "command": "word read",
-+  "summary": "...",
-+  "data": {},
-+  "issues": [],
-+  "artifacts": { "png": "fig.png" },
-+  "metrics": { "paragraphs": 29 },
-+  "errors": [],
-+  "meta": { "durationMs": 42, "version": "3.2.0" }
-+}</code></pre>
-+
-+<hr>
-+
-+<h2>Error Codes</h2>
-+
-+<table>
-+  <tr><th>Code</th><th>Name</th><th>Meaning</th></tr>
-+  <tr><td><code>E001</code></td><td>file_not_found</td><td>File not found</td></tr>
-+  <tr><td><code>E002</code></td><td>unsupported_format</td><td>Wrong extension or unsupported format</td></tr>
-+  <tr><td><code>E003</code></td><td>missing_argument</td><td>Required argument missing</td></tr>
-+  <tr><td><code>E004</code></td><td>internal_error</td><td>Unexpected crash</td></tr>
-+  <tr><td><code>E005</code></td><td>dependency_missing</td><td>Tool or token not installed</td></tr>
-+  <tr><td><code>E006</code></td><td>validation_failed</td><td>Bad input or schema violation</td></tr>
-+  <tr><td><code>E007</code></td><td>read_failed</td><td>Cannot read file</td></tr>
-+  <tr><td><code>E008</code></td><td>write_failed</td><td>Cannot write file</td></tr>
-+  <tr><td><code>E009</code></td><td>not_implemented</td><td>Command not implemented yet</td></tr>
-+</table>
-+
-+<hr>
-+
-+<h2>Project Structure — 9 NuGet Packages</h2>
-+
-+<p>All packages share the version <strong>3.2.0</strong>. Each is a purpose-built library with a single responsibility.</p>
-+
-+<table>
-+  <tr><th>Package</th><th>Purpose</th></tr>
-+  <tr><td><code>Angri450.Nong.ThirdParty</code></td><td><strong>Foundation</strong> — 15 inlined open-source libraries compiled as a single DLL</td></tr>
-+  <tr><td><code>Angri450.Nong.Docx</code></td><td>Word generation, template fill, paper diagnostics</td></tr>
-+  <tr><td><code>Angri450.Nong.Excel</code></td><td>Chainable Excel generation API with formula validation</td></tr>
-+  <tr><td><code>Angri450.Nong.Chart</code></td><td>18 chart types + ANOVA/Duncan MRT statistical analysis</td></tr>
-+  <tr><td><code>Angri450.Nong.Diagram</code></td><td>Flowchart, network graph, phylogenetic tree rendering</td></tr>
-+  <tr><td><code>Angri450.Nong.Pptx</code></td><td>PowerPoint generation with 10 theme presets</td></tr>
-+  <tr><td><code>Angri450.Nong.MultiModal</code></td><td>PaddleOCR cloud + local OCR integration</td></tr>
-+  <tr><td><code>Angri450.Nong.Bioicons</code></td><td>40 SVG scientific icons</td></tr>
-+  <tr><td><code>Angri450.Nong.Skill.Manager</code></td><td>Skill lifecycle management CLI</td></tr>
-+</table>
-+
-+<hr>
-+
-+<h2>Inlined Third-Party Libraries</h2>
-+
-+<table>
-+  <tr><th>Library</th><th>License</th><th>Use</th></tr>
-+  <tr><td>ClosedXML</td><td>MIT</td><td>Excel read/write</td></tr>
-+  <tr><td>DocumentFormat.OpenXml</td><td>MIT</td><td>Word/PPTX OOXML handling</td></tr>
-+  <tr><td>ScottPlot</td><td>MIT</td><td>Chart rendering</td></tr>
-+  <tr><td>MSAGL</td><td>MIT</td><td>Automatic graph layout</td></tr>
-+  <tr><td>SkiaSharp</td><td>MIT</td><td>2D graphics rasterization</td></tr>
-+  <tr><td>HarfBuzzSharp</td><td>MIT</td><td>Text shaping</td></tr>
-+  <tr><td>SixLabors.Fonts</td><td>Apache-2.0</td><td>Font loading and measurement</td></tr>
-+</table>
-+
-+<hr>
-+
-+<h2>Requirements</h2>
-+
-+<ul>
-+  <li><strong>.NET SDK 8.0</strong> or later (forward-compatible with 9.0, 10.0, 11.0)</li>
-+  <li>Windows, macOS, or Linux</li>
-+  <li>Native SkiaSharp/HarfBuzzSharp binaries (auto-installed via NuGet)</li>
-+</ul>
-+
-+<hr>
-+
-+<h2>License</h2>
-+
-+<p>Apache-2.0. See <a href="LICENSE">LICENSE</a> for details.</p>
-+
-+<hr>
-+
-+<h2>中文文档</h2>
-+
-+<p>See <a href="README.zh-CN.md">README.zh-CN.md</a> for full Chinese documentation.</p>
-+
+<h1 align="center">Nong.Cli.Net</h1>
+
+<p align="center">
+  <strong>Pure .NET CLI toolkit for scientific document generation, inspection, charts, OCR, and package slicing.</strong><br>
+  Zero JavaScript. Modular architecture: one light router plus 6 external dotnet tools. 126 commands.
+</p>
+
+<p align="center">
+  <a href="https://www.nuget.org/packages/Angri450.Nong.Cli/"><img src="https://img.shields.io/nuget/v/Angri450.Nong.Cli.svg?label=NuGet" alt="NuGet"></a>
+  <a href="https://github.com/angri450/Nong.Cli.Net/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License"></a>
+  <a href="https://dotnet.microsoft.com/en-us/download"><img src="https://img.shields.io/badge/.NET-8.0-8A2BE2" alt=".NET 8.0"></a>
+  <img src="https://img.shields.io/badge/commands-126-green" alt="126 commands">
+  <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/Chinese-README.zh--CN.md-orange" alt="Chinese"></a>
+</p>
+
+<hr>
+
+<h2>Quick Install</h2>
+
+<pre><code>dotnet tool install --global Angri450.Nong.Cli
+nong commands --json</code></pre>
+
+<p>The main <code>nong</code> package is a light router plus pure .NET built-in modules. Heavy groups are split into independent dotnet tools and are routed by the same user commands: <code>nong chart ...</code>, <code>nong diagram ...</code>, <code>nong pdf ...</code>, <code>nong pptx ...</code>, <code>nong ocr ...</code>, and imaging paths under <code>nong word images</code>. No Node.js, Docker, Python, Graphviz, or Mermaid runtime is required for core local features.</p>
+
+<p>For local OCR, install the default PP-OCRv6 model once:</p>
+
+<pre><code>nong ocr install-model pp-ocrv6-medium --json</code></pre>
+
+<p>PP-OCRv6 models are downloaded into the Nong cache and run through the pure .NET local OCR runtime. The first-party native runtime packages remain in the separate <code>Nong.OcrRuntime</code> repository under the <code>Angri450.Nong.OcrRuntime.*</code> prefix and are pinned independently from the CLI version. <code>pp-ocrv5-mobile</code> remains available only as a legacy compatibility path.</p>
+
+<p>The CLI targets <code>net8.0</code> and the packaged tool opts into major-version roll-forward, so current .NET 9/10 runtimes can run it. If an older installed build fails on a newer runtime, update the tool or set <code>DOTNET_ROLL_FORWARD=LatestMajor</code>.</p>
+
+<hr>
+
+<h2>4.1.x Modular Line</h2>
+
+<p>Nong.Cli.Net 4.1.x separates command routing from heavy native dependencies:</p>
+
+<pre><code>nong (Angri450.Nong.Cli)
+  built in: word / excel / inspect / lit / genre / icons / slice / skill / progress
+  external: chart / diagram / pdf / pptx / ocr / imaging</code></pre>
+
+<table>
+  <tr><th>User surface</th><th>Tool command</th><th>PackageId</th><th>Role</th></tr>
+  <tr><td><code>nong</code></td><td><code>nong</code></td><td><code>Angri450.Nong.Cli</code></td><td>Light router and pure .NET built-ins</td></tr>
+  <tr><td><code>nong chart ...</code></td><td><code>nong-chart</code></td><td><code>Angri450.Nong.Tool.Chart</code></td><td>Statistics and charts</td></tr>
+  <tr><td><code>nong diagram ...</code></td><td><code>nong-diagram</code></td><td><code>Angri450.Nong.Tool.Diagram</code></td><td>Scientific diagrams</td></tr>
+  <tr><td><code>nong pdf ...</code></td><td><code>nong-pdf</code></td><td><code>Angri450.Nong.Tool.Pdf</code></td><td>PDF slicing, rendering, images, merge/split/OCR</td></tr>
+  <tr><td><code>nong pptx ...</code></td><td><code>nong-pptx</code></td><td><code>Angri450.Nong.Tool.Pptx</code></td><td>PowerPoint read/write and slicing</td></tr>
+  <tr><td><code>nong ocr ...</code></td><td><code>nong-ocr</code></td><td><code>Angri450.Nong.Tool.Ocr</code></td><td>Cloud OCR and local PP-OCRv6</td></tr>
+  <tr><td><code>nong word images ...</code></td><td><code>nong-imaging</code></td><td><code>Angri450.Nong.Tool.Imaging</code></td><td>Image analysis and crop support</td></tr>
+</table>
+
+<p>User command names stay stable; package identity changed so library package IDs such as <code>Angri450.Nong.Chart</code> are not reused as dotnet tool package IDs.</p>
+
+<hr>
+
+<h2>Capability Overview</h2>
+
+<p>The canonical command contract is generated by the CLI:</p>
+
+<pre><code>nong commands --json
+nong commands --format openai-tools</code></pre>
+
+<p>Current local discovery returns <code>126 commands available</code> and 126 OpenAI tool schemas. Group counts are:</p>
+
+<table>
+  <tr><th>Group</th><th>Count</th><th>Notes</th></tr>
+  <tr><td><code>word</code></td><td>51</td><td>DOCX creation, repair, visible formatting, image/table compaction, add operations, compare, render preview</td></tr>
+  <tr><td><code>inspect</code></td><td>12</td><td>Paper and official-document diagnostics and generation</td></tr>
+  <tr><td><code>excel</code></td><td>8</td><td>Read, create, style, formula, pivot, grouped data, slicing</td></tr>
+  <tr><td><code>chart</code></td><td>11</td><td>ANOVA/Duncan plus bar, line, scatter, pie, boxplot, histogram, heatmap, radar</td></tr>
+  <tr><td><code>diagram</code></td><td>3</td><td>Flowchart, network, phylogenetic tree</td></tr>
+  <tr><td><code>pdf</code></td><td>8</td><td>Check, dissect, render, images, merge, split, OCR, compress</td></tr>
+  <tr><td><code>pptx</code></td><td>4</td><td>Read, slides, dissect, create</td></tr>
+  <tr><td><code>ocr</code></td><td>11</td><td>PP-OCRv6 local, PaddleOCR-VL cloud, model install, batch/video/screen/camera OCR</td></tr>
+  <tr><td><code>lit</code></td><td>5</td><td>CNKI-like DSL parse/validate/plan/search/export over legal metadata providers</td></tr>
+  <tr><td><code>slice</code></td><td>4</td><td><code>nong-pandoc/package/v1</code> package inspection</td></tr>
+  <tr><td><code>genre</code>, <code>icons</code>, <code>skill</code>, <code>progress</code></td><td>9</td><td>Templates, scientific icons, skill lifecycle, HTML progress reports</td></tr>
+</table>
+
+<hr>
+
+<h2>Core Workflows</h2>
+
+<h3>Excel to statistics to chart</h3>
+<pre><code>nong excel to-groups data.xlsx --group A --value B --raw &gt; groups.json
+nong chart analyze groups.json --json
+nong chart bar groups.json -o fig.png --json</code></pre>
+
+<h3>Paper generation and inspection</h3>
+<pre><code>nong inspect write-paper spec.json -o paper.docx --json
+nong word preview paper.docx --json
+nong word format-audit paper.docx --json</code></pre>
+
+<h3>Document package slicing</h3>
+<pre><code>nong word dissect paper.docx -o paper.slice --json
+nong slice inspect paper.slice --strict --json
+nong slice block paper.slice p0001 --json</code></pre>
+
+<h3>PDF one-cut package workflow</h3>
+<pre><code>nong pdf check guide.pdf --json
+nong pdf dissect guide.pdf --output guide.slice --mode auto --json
+nong pdf render guide.pdf --output guide.pages --dpi 150 --json
+nong pdf images guide.pdf --output guide.assets --json</code></pre>
+
+<h3>Local OCR</h3>
+<pre><code>nong ocr models --json
+nong ocr install-model pp-ocrv6-medium --json
+nong ocr local scan.png --json</code></pre>
+
+<h3>Literature DSL retrieval</h3>
+<pre><code>nong lit parse --query "SU=('腐植酸'+'腐殖酸')*('稀土'+'微肥')" --json
+nong lit plan --query "SU=('腐植酸'+'腐殖酸')*('稀土'+'微肥')" --sources openalex,crossref,unpaywall --json
+nong lit export --input refs.json --format bibtex --out refs.bib --json</code></pre>
+
+<hr>
+
+<h2>JSON Output Schema</h2>
+
+<p>Every command with <code>--json</code> returns the shared structure:</p>
+
+<pre><code>{
+  "status": "ok" | "error",
+  "command": "word read",
+  "summary": "...",
+  "data": {},
+  "issues": [],
+  "artifacts": { "docx": "out.docx" },
+  "metrics": {},
+  "errors": [],
+  "meta": { "durationMs": 42, "version": "4.1.2" }
+}</code></pre>
+
+<p>Error codes <code>E001</code> through <code>E009</code> cover file-not-found, unsupported format, missing argument, internal error, dependency missing, validation failed, read failed, write failed, and not implemented.</p>
+
+<hr>
+
+<h2>Release Notes</h2>
+
+<ul>
+  <li>Publishable 4.1.2 tool packages are <code>Angri450.Nong.Cli</code> and the six <code>Angri450.Nong.Tool.*</code> packages listed above.</li>
+  <li>Current pack audits must use a clean output directory. Do not publish from root <code>nupkg/</code> unless it has been refreshed from current project files.</li>
+  <li><code>Cli/Common/OcrRuntimeVersion.cs</code> is intentionally independent from <code>CliVersion.Current</code>. Do not bump the OCR runtime version for routine CLI releases.</li>
+  <li>Chart, Diagram, and Imaging 4.1.2 packages currently use the Windows native asset strategy. Linux/macOS users should build from source or wait for a dedicated native runtime packaging pass.</li>
+</ul>
+
+<hr>
+
+<h2>Requirements</h2>
+
+<ul>
+  <li>.NET SDK 8.0 or later for development; installed tools can roll forward to current major runtimes.</li>
+  <li>Windows is the validated native-rendering path for Chart, Diagram, and Imaging 4.1.2 packages.</li>
+  <li>No JavaScript, npm, Python, pip, Graphviz, or Mermaid runtime is required for core local workflows.</li>
+</ul>
+
+<hr>
+
+<h2>License</h2>
+
+<p>Apache-2.0. See <a href="LICENSE">LICENSE</a> for details.</p>
+
+<hr>
+
+<h2>Chinese Documentation</h2>
+
+<p>See <a href="README.zh-CN.md">README.zh-CN.md</a>.</p>

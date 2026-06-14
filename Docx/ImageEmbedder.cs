@@ -124,7 +124,11 @@ public static class ImageEmbedder
     static (int w, int h) GetImageSize(string path)
     {
         try { return ImageHeaderReader.GetDimensions(path); }
-        catch { return (800, 600); }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            // Fall back to a reasonable default; callers use this for aspect-ratio fitting
+            return (800, 600);
+        }
     }
 
     /// <summary>创建图片 Run（供外部使用，如 DocxTemplate）。</summary>

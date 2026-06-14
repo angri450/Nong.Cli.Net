@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>PdfCore</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <Version>4.1.2</Version>
+    <Authors>angri450</Authors>
+    <Description>Local PDF document slicing engine for Nong: PDF classification, text extraction, rendering, assets, OCR bridge, and NongMark/Pandoc-enhanced text projection.</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
+    <PackageTags>nong pdf nongmark document-parsing ocr pdfium pdfpig</PackageTags>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>$(NoWarn);CS0169;CS0649;CS1591;CS8600;CS8618;CS8625;CS8765</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="tools/**" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Pandoc\PandocCore.csproj" />
+    <ProjectReference Include="..\ThirdParty\ThirdParty.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+    <None Include="Docnet\LICENSE" Pack="true" PackagePath="third-party/docnet/" />
+    <None Include="runtimes\**\*.*" Pack="true" PackagePath="runtimes/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

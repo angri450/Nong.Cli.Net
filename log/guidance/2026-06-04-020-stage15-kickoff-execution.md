@@ -32,7 +32,7 @@ changelog/2026-06-03-018-stage15-gate-report.md
 不要做：
 
 ```text
-不要修改 GroundPA-Toolkit。
+不要修改 Nong.Toolkit.Net。
 不要做 OCR 阶段 16。
 不要接 PP-OCRv5。
 不要改 PaddleOCR token。

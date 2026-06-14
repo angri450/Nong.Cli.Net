@@ -1,0 +1,1334 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-03 阶段 13 指导：Nong CLI stub 全量补全蓝图 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../guidance.html" class="back-link">&larr; 开发指导</a>
+<h1>2026-06-03 阶段 13 指导：Nong CLI stub 全量补全蓝图</h1>
+<p class="subtitle">2026-06-03 | <span style="color: #7c3aed">开发指导</span></p></header>
+<article class="content">
+<h1>2026-06-03 阶段 13 指导：Nong CLI stub 全量补全蓝图</h1>
+<br>
+<h2>目标</h2>
+<br>
+<p>当前 <code>nong</code> CLI 已经形成稳定基础：</p>
+<br>
+<ul>
+<li>统一 <code>JsonOutput</code> schema</li>
+<li>错误码体系已收口</li>
+<li>stub 返回 <code>E009 not_implemented</code> + 非零退出码</li>
+<li>生成命令支持自动创建输出目录</li>
+<li><code>word rebuild</code> 已有同路径守卫</li>
+<li><code>chart</code> 统计输入已有基础校验</li>
+<li>Nong.Toolkit.Net 2.0.0 skill 层已经切到 Nong CLI-first</li>
+</ul>
+<br>
+<p>下一阶段目标：系统性消灭 stub，补全 <code>nong</code> 的工具调用基础能力，让它成为农学生工作流的主入口。</p>
+<br>
+<p>不要再做零散修补。按本蓝图分阶段、多 agent 并行推进。</p>
+<br>
+<h2>当前 stub 清单</h2>
+<br>
+<pre><code class="language-text">
+word extract / dissect / stats / fonts / styles / validate / merge
+inspect classify / structure / varplan / evidence / data-req / gap / semantics
+chart line / scatter / pie
+diagram tree
+pptx read / slides
+ocr local / cloud
+excel create
+</code></pre>
+<br>
+<h2>总原则</h2>
+<br>
+<h3>1. 只实现真实能力</h3>
+<br>
+<p>每个命令必须可运行、可验收、可返回结构化 JSON。不能为了移除 stub 而写假实现。</p>
+<br>
+<h3>2. 所有命令必须遵守 agent contract</h3>
+<br>
+<p>JSON 输出固定：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;command&quot;: &quot;word stats&quot;,
+  &quot;summary&quot;: &quot;...&quot;,
+  &quot;data&quot;: {},
+  &quot;issues&quot;: [],
+  &quot;artifacts&quot;: {},
+  &quot;metrics&quot;: {},
+  &quot;errors&quot;: [],
+  &quot;meta&quot;: {
+    &quot;durationMs&quot;: 0,
+    &quot;version&quot;: &quot;3.1.0&quot;
+  }
+}
+</code></pre>
+<br>
+<p>错误处理：</p>
+<br>
+<pre><code class="language-text">
+E001 file_not_found
+E002 unsupported_format
+E003 missing_argument
+E004 internal_error
+E005 dependency_missing
+E006 validation_failed
+E007 read_failed
+E008 write_failed
+E009 not_implemented
+</code></pre>
+<br>
+<p>新增错误码前必须确认已有错误码不能表达。</p>
+<br>
+<h3>3. 生成 artifact 必须校验</h3>
+<br>
+<p>所有生成文件命令必须：</p>
+<br>
+<p>1. <code>EnsureParentDir(output)</code></p>
+<p>2. 写文件</p>
+<p>3. <code>CheckArtifact(output, kind)</code></p>
+<p>4. JSON 中写 <code>artifacts</code></p>
+<br>
+<h3>4. 所有输入 spec 必须先校验再执行</h3>
+<br>
+<p>JSON spec 错误返回 <code>E006 validation_failed</code>，不要落入 <code>E004 internal_error</code>。</p>
+<br>
+<h3>5. Manifest / AGENT / README / skill 层必须同步</h3>
+<br>
+<p>每实现一个命令：</p>
+<br>
+<p>1. <code>Cli/Common/Manifest.cs</code> 状态从 <code>stub</code> 改为 implemented。</p>
+<p>2. <code>Cli/AGENT.md</code> 增加输入格式、示例、输出字段。</p>
+<p>3. Nong.Toolkit.Net 对应 skill 如需暴露能力，同步更新。</p>
+<p>4. release checklist 更新。</p>
+<br>
+<h3>6. 不引入 .NET 11 preview</h3>
+<br>
+<p>目标框架保持 net8.0。推广环境按 <code>.NET 8+</code> 设计。</p>
+<br>
+<h3>7. 多 agent 并行，但最后必须统一审计</h3>
+<br>
+<p>ClaudeCode 可开多 agent：</p>
+<br>
+<pre><code class="language-text">
+Agent A: Word commands
+Agent B: Inspect commands
+Agent C: Chart + Excel
+Agent D: Diagram + PPTX + OCR
+Agent E: Contract tests + docs + manifest + skill sync
+</code></pre>
+<br>
+<p>每个 agent 只改自己负责的命令。最后由主 agent 汇总 build、验收和文档同步。</p>
+<br>
+<h2>阶段总览</h2>
+<br>
+<pre><code class="language-text">
+Phase 0: skill-manager 迁入 nong skill P0
+Phase 1: CLI contract test harness
+Phase 2: Word stub 补全
+Phase 3: Inspect stub 补全
+Phase 4: Chart + Excel 补全
+Phase 5: Diagram tree
+Phase 6: PPTX read/slides
+Phase 7: OCR local/cloud
+Phase 8: GroundPA skill sync
+Phase 9: release audit
+</code></pre>
+<br>
+<p>建议顺序：先 Phase 0/1，再并行 Phase 2-7，最后 Phase 8/9。</p>
+<br>
+<hr>
+<br>
+<h1>Phase 0：skill-manager 迁入 nong skill</h1>
+<br>
+<p>参考：</p>
+<br>
+<pre><code class="language-text">
+log/guidance/2026-06-03-013-skill-manager-into-nong-cli.md
+</code></pre>
+<br>
+<p>目标命令：</p>
+<br>
+<pre><code class="language-text">
+nong skill validate &lt;dir&gt; --json
+nong skill scan &lt;dir&gt; --json
+nong skill inventory &lt;dir&gt; --json
+nong skill package &lt;dir&gt; --json
+</code></pre>
+<br>
+<p>完成后 implemented 命令数从 20 变 24。</p>
+<br>
+<p>验收：</p>
+<br>
+<pre><code class="language-powershell">
+dotnet build .\Cli\NongCli.csproj -c Release
+nong skill validate C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net\word --json
+nong skill scan C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
+nong skill inventory C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
+nong commands --json
+</code></pre>
+<br>
+<hr>
+<br>
+<h1>Phase 1：CLI contract test harness</h1>
+<br>
+<h2>目标</h2>
+<br>
+<p>在继续扩功能前，建立专门的 CLI contract 测试，防止快速开发再次造成：</p>
+<br>
+<ul>
+<li>JSON command 字段漂移</li>
+<li>error status 但 exit code 为 0</li>
+<li>stub 返回 ok</li>
+<li>manifest 与真实命令不一致</li>
+<li>artifact 未生成却返回 ok</li>
+</ul>
+<br>
+<h2>推荐新增项目</h2>
+<br>
+<pre><code class="language-text">
+Cli.Tests/
+  NongCliContractTests.cs
+  TestAssets/
+</code></pre>
+<br>
+<p>目标框架：<code>net8.0</code></p>
+<br>
+<p>可用测试框架：xUnit 或 MSTest。若仓库已有偏好，沿用已有偏好。</p>
+<br>
+<h2>必测项</h2>
+<br>
+<h3>1. 所有 stub 返回 E009</h3>
+<br>
+<p>读取 <code>nong commands --all --json</code>，找 <code>status == &quot;stub&quot;</code>，逐个调用最小命令。若需要参数，允许用固定 dummy 参数，但预期必须：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;status&quot;: &quot;error&quot;,
+  &quot;errors&quot;: [{ &quot;code&quot;: &quot;E009&quot; }]
+}
+</code></pre>
+<br>
+<p>退出码必须非 0。</p>
+<br>
+<h3>2. commands 默认只列 implemented</h3>
+<br>
+<pre><code class="language-powershell">
+nong commands --json
+</code></pre>
+<br>
+<p>不应出现 <code>status: stub</code>。</p>
+<br>
+<h3>3. commands --all 列出 implemented + stub</h3>
+<br>
+<pre><code class="language-powershell">
+nong commands --all --json
+</code></pre>
+<br>
+<p>每个命令必须有 <code>name/group/status</code>。</p>
+<br>
+<h3>4. 错误命令非零退出</h3>
+<br>
+<p>示例：</p>
+<br>
+<pre><code class="language-powershell">
+nong chart analyze missing.json --json
+</code></pre>
+<br>
+<p>预期 <code>E001</code> + exit != 0。</p>
+<br>
+<h3>5. malformed JSON spec 返回 E006</h3>
+<br>
+<p>覆盖：</p>
+<br>
+<pre><code class="language-text">
+inspect write-paper
+diagram flowchart
+diagram network
+chart analyze/anova/duncan/bar data file
+</code></pre>
+<br>
+<p>可先从已实现命令开始，后续新命令加入。</p>
+<br>
+<h2>验收</h2>
+<br>
+<pre><code class="language-powershell">
+dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release
+</code></pre>
+<br>
+<hr>
+<br>
+<h1>Phase 2：Word stub 补全</h1>
+<br>
+<p>负责人：Agent A</p>
+<br>
+<p>目标命令：</p>
+<br>
+<pre><code class="language-text">
+word extract
+word dissect
+word stats
+word fonts
+word styles
+word validate
+word merge
+</code></pre>
+<br>
+<h2>2.1 <code>nong word stats &lt;file.docx&gt; --json</code></h2>
+<br>
+<p>用途：极低 token 成本获取 Word 文档统计。</p>
+<br>
+<p>输入：<code>.docx</code></p>
+<br>
+<p>输出建议：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;data&quot;: {
+    &quot;paragraphs&quot;: 29,
+    &quot;tables&quot;: 2,
+    &quot;images&quot;: 3,
+    &quot;footnotes&quot;: 1,
+    &quot;endnotes&quot;: 0,
+    &quot;characters&quot;: 3210,
+    &quot;wordsApprox&quot;: 1200,
+    &quot;sections&quot;: 1
+  },
+  &quot;metrics&quot;: {
+    &quot;paragraphs&quot;: 29,
+    &quot;tables&quot;: 2,
+    &quot;images&quot;: 3
+  }
+}
+</code></pre>
+<br>
+<p>实现来源：</p>
+<br>
+<ul>
+<li>复用 <code>DocxCore.WordTextReader</code></li>
+<li>复用 <code>WordPreview</code> 统计能力</li>
+<li>必要时直接 OpenXML 计数</li>
+</ul>
+<br>
+<p>验收：</p>
+<br>
+<pre><code class="language-powershell">
+nong word stats sample.docx --json
+</code></pre>
+<br>
+<p>必须返回 <code>status: ok</code>，无 artifact。</p>
+<br>
+<h2>2.2 <code>nong word fonts &lt;file.docx&gt; --json</code></h2>
+<br>
+<p>用途：列出正文、样式、runs 中出现的字体。</p>
+<br>
+<p>输出建议：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;data&quot;: {
+    &quot;fonts&quot;: [
+      { &quot;name&quot;: &quot;宋体&quot;, &quot;count&quot;: 120, &quot;source&quot;: &quot;run&quot; },
+      { &quot;name&quot;: &quot;Times New Roman&quot;, &quot;count&quot;: 80, &quot;source&quot;: &quot;run&quot; }
+    ],
+    &quot;eastAsiaFonts&quot;: [],
+    &quot;asciiFonts&quot;: [],
+    &quot;warnings&quot;: []
+  }
+}
+</code></pre>
+<br>
+<p>实现要点：</p>
+<br>
+<ul>
+<li>读取 <code>RunProperties.RunFonts</code></li>
+<li>区分 <code>Ascii</code>, <code>HighAnsi</code>, <code>EastAsia</code>, <code>ComplexScript</code></li>
+<li>样式字体可单独 source=<code>style</code></li>
+</ul>
+<br>
+<h2>2.3 <code>nong word styles &lt;file.docx&gt; --json</code></h2>
+<br>
+<p>用途：列出 style definitions，帮助 agent 判断模板结构。</p>
+<br>
+<p>输出建议：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;data&quot;: {
+    &quot;styles&quot;: [
+      {
+        &quot;id&quot;: &quot;Heading1&quot;,
+        &quot;name&quot;: &quot;heading 1&quot;,
+        &quot;type&quot;: &quot;paragraph&quot;,
+        &quot;basedOn&quot;: &quot;Normal&quot;,
+        &quot;isDefault&quot;: false
+      }
+    ],
+    &quot;count&quot;: 12
+  }
+}
+</code></pre>
+<br>
+<h2>2.4 <code>nong word validate &lt;file.docx&gt; --json</code></h2>
+<br>
+<p>用途：OOXML 与基础质量校验。</p>
+<br>
+<p>输出规则：</p>
+<br>
+<ul>
+<li>文件可读、OOXML validator 无 error：<code>status: ok</code></li>
+<li>validator 有 error：<code>status: error</code> + <code>E006</code></li>
+<li>warnings 放 <code>issues</code></li>
+</ul>
+<br>
+<p>输出建议：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;data&quot;: {
+    &quot;valid&quot;: true,
+    &quot;errors&quot;: [],
+    &quot;warnings&quot;: [],
+    &quot;statistics&quot;: {}
+  },
+  &quot;issues&quot;: []
+}
+</code></pre>
+<br>
+<p>实现来源：</p>
+<br>
+<ul>
+<li><code>DocumentFormat.OpenXml.Validation.OpenXmlValidator</code></li>
+<li><code>WordPreview</code> 的 warnings/errors</li>
+</ul>
+<br>
+<h2>2.5 <code>nong word extract &lt;file.docx&gt; -o &lt;out-dir&gt; --json</code></h2>
+<br>
+<p>用途：提取图片等嵌入资源。</p>
+<br>
+<p>参数：</p>
+<br>
+<pre><code class="language-text">
+file.docx
+-o/--output &lt;dir&gt; required
+--images true by default
+</code></pre>
+<br>
+<p>输出：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;artifacts&quot;: {
+    &quot;dir&quot;: &quot;...&quot;,
+    &quot;images&quot;: [&quot;.../image1.png&quot;, &quot;.../image2.jpeg&quot;]
+  },
+  &quot;metrics&quot;: {
+    &quot;images&quot;: 2
+  }
+}
+</code></pre>
+<br>
+<p>实现要点：</p>
+<br>
+<ul>
+<li>读取 <code>MainDocumentPart.ImageParts</code></li>
+<li>保留原扩展名或按 content type 推断</li>
+<li>输出目录自动创建</li>
+<li>0 张图片也可 <code>status: ok</code>，summary 写明 0 images</li>
+</ul>
+<br>
+<h2>2.6 <code>nong word dissect &lt;file.docx&gt; --json</code></h2>
+<br>
+<p>用途：格式指纹 / 文档结构 DNA。</p>
+<br>
+<p>输出建议：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;data&quot;: {
+    &quot;stats&quot;: {},
+    &quot;fonts&quot;: {},
+    &quot;styles&quot;: {},
+    &quot;tables&quot;: {},
+    &quot;numbering&quot;: {},
+    &quot;sections&quot;: {},
+    &quot;warnings&quot;: []
+  }
+}
+</code></pre>
+<br>
+<p>实现方式：</p>
+<br>
+<ul>
+<li>聚合 <code>stats/fonts/styles</code></li>
+<li>加 tables 基础格式</li>
+<li>加 numbering count</li>
+<li>不要试图一次做复杂模板还原</li>
+</ul>
+<br>
+<h2>2.7 <code>nong word merge &lt;file1.docx&gt; &lt;file2.docx&gt; ... -o &lt;out.docx&gt; --json</code></h2>
+<br>
+<p>用途：合并多个 Word 文档。</p>
+<br>
+<p>参数：</p>
+<br>
+<pre><code class="language-text">
+files[] min 2
+-o required
+</code></pre>
+<br>
+<p>实现建议：</p>
+<br>
+<ul>
+<li>优先使用 OpenXML AltChunk 或已有 DocxCore merge 能力</li>
+<li>若没有可靠 merge API，先做“正文段落追加”的保守实现</li>
+<li>不要破坏输入文件</li>
+<li>输出必须 <code>CheckArtifact</code></li>
+</ul>
+<br>
+<p>验收：</p>
+<br>
+<pre><code class="language-powershell">
+nong word merge a.docx b.docx -o merged.docx --json
+nong word validate merged.docx --json
+</code></pre>
+<br>
+<hr>
+<br>
+<h1>Phase 3：Inspect stub 补全</h1>
+<br>
+<p>负责人：Agent B</p>
+<br>
+<p>目标命令：</p>
+<br>
+<pre><code class="language-text">
+inspect classify
+inspect structure
+inspect varplan
+inspect evidence
+inspect data-req
+inspect gap
+inspect semantics
+</code></pre>
+<br>
+<h2>总体原则</h2>
+<br>
+<p>这些命令不是新算法，优先拆分 <code>inspect diagnose</code> 已经调用的内部能力：</p>
+<br>
+<pre><code class="language-text">
+PaperTypeClassifier
+PaperStructureExtractor
+VariablePlanGenerator
+PaperDiagnostics.DiagnoseEvidenceChain
+PaperDiagnostics.DiagnoseDataRequirements
+PaperDiagnostics.DiagnoseGapGrade
+PaperDiagnostics.DiagnosePaperQuality / semantic-related methods
+ReferenceAnalyzer
+</code></pre>
+<br>
+<p>目的：让 agent 可以按需调用小命令，节省 token。</p>
+<br>
+<h2>3.1 <code>nong inspect classify &lt;paper.txt&gt; --json</code></h2>
+<br>
+<p>输出：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;data&quot;: {
+    &quot;topType&quot;: &quot;问卷调查型论文&quot;,
+    &quot;match&quot;: 80,
+    &quot;candidates&quot;: [
+      {
+        &quot;type&quot;: &quot;问卷调查型论文&quot;,
+        &quot;match&quot;: 80,
+        &quot;recommendedData&quot;: &quot;...&quot;,
+        &quot;recommendedMethods&quot;: &quot;...&quot;
+      }
+    ]
+  }
+}
+</code></pre>
+<br>
+<h2>3.2 <code>nong inspect structure &lt;paper.txt&gt; --json</code></h2>
+<br>
+<p>输出：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;data&quot;: {
+    &quot;title&quot;: &quot;...&quot;,
+    &quot;keywords&quot;: [],
+    &quot;sections&quot;: [
+      { &quot;level&quot;: 1, &quot;heading&quot;: &quot;1 引言&quot;, &quot;startLine&quot;: 10, &quot;endLine&quot;: 20 }
+    ],
+    &quot;hasReferences&quot;: true,
+    &quot;referenceStartLine&quot;: 120,
+    &quot;hasAppendix&quot;: false
+  },
+  &quot;metrics&quot;: {
+    &quot;sectionCount&quot;: 6
+  }
+}
+</code></pre>
+<br>
+<h2>3.3 <code>nong inspect evidence &lt;paper.txt&gt; --json</code></h2>
+<br>
+<p>输出 evidence chain 表。</p>
+<br>
+<p>字段和 <code>inspect diagnose</code> 中 <code>data.evidence</code> 保持一致。</p>
+<br>
+<h2>3.4 <code>nong inspect data-req &lt;paper.txt&gt; --json</code></h2>
+<br>
+<p>输出 data requirements 表。</p>
+<br>
+<p>字段和 <code>inspect diagnose</code> 中 <code>data.dataRequirements</code> 保持一致。</p>
+<br>
+<h2>3.5 <code>nong inspect gap &lt;paper.txt&gt; --json</code></h2>
+<br>
+<p>实现：</p>
+<br>
+<p>1. classify</p>
+<p>2. structure</p>
+<p>3. evidence</p>
+<p>4. data-req</p>
+<p>5. gap grade</p>
+<br>
+<p>输出：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;data&quot;: {
+    &quot;grade&quot;: &quot;C&quot;,
+    &quot;description&quot;: &quot;...&quot;,
+    &quot;canContinue&quot;: &quot;...&quot;
+  }
+}
+</code></pre>
+<br>
+<h2>3.6 <code>nong inspect varplan &lt;paper.txt&gt; --json</code></h2>
+<br>
+<p>输出变量操作化方案。</p>
+<br>
+<p>若现有 <code>VariablePlanGenerator</code> 返回文本，则先结构化为：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;data&quot;: {
+    &quot;variables&quot;: [],
+    &quot;measurement&quot;: [],
+    &quot;dataNeeded&quot;: [],
+    &quot;methods&quot;: [],
+    &quot;raw&quot;: &quot;...&quot;
+  }
+}
+</code></pre>
+<br>
+<h2>3.7 <code>nong inspect semantics &lt;paper.txt&gt; --json</code></h2>
+<br>
+<p>用途：论文语义/逻辑风险诊断。</p>
+<br>
+<p>如果现有 Inspect 包没有独立 semantic API，则使用 <code>PaperDiagnostics.DiagnosePaperQuality</code> 的语义相关输出，先保守实现：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;data&quot;: {
+    &quot;issues&quot;: [
+      {
+        &quot;category&quot;: &quot;...&quot;,
+        &quot;issue&quot;: &quot;...&quot;,
+        &quot;fixRequirement&quot;: &quot;...&quot;,
+        &quot;priority&quot;: &quot;高&quot;
+      }
+    ]
+  },
+  &quot;metrics&quot;: {
+    &quot;issueCount&quot;: 12
+  }
+}
+</code></pre>
+<br>
+<h2>Inspect 验收</h2>
+<br>
+<p>准备 <code>paper-test.txt</code>，逐个跑：</p>
+<br>
+<pre><code class="language-powershell">
+nong inspect classify paper-test.txt --json
+nong inspect structure paper-test.txt --json
+nong inspect evidence paper-test.txt --json
+nong inspect data-req paper-test.txt --json
+nong inspect gap paper-test.txt --json
+nong inspect varplan paper-test.txt --json
+nong inspect semantics paper-test.txt --json
+</code></pre>
+<br>
+<p>全部 <code>status: ok</code>。</p>
+<br>
+<hr>
+<br>
+<h1>Phase 4：Chart + Excel 补全</h1>
+<br>
+<p>负责人：Agent C</p>
+<br>
+<p>目标命令：</p>
+<br>
+<pre><code class="language-text">
+chart line
+chart scatter
+chart pie
+excel create
+</code></pre>
+<br>
+<h2>4.1 <code>nong excel create &lt;spec.json&gt; -o &lt;out.xlsx&gt; --json</code></h2>
+<br>
+<p>用途：从简单 JSON spec 创建 Excel。</p>
+<br>
+<p>不要一开始做复杂公式/样式。P0 支持：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;sheets&quot;: [
+    {
+      &quot;name&quot;: &quot;Data&quot;,
+      &quot;headers&quot;: [&quot;Treatment&quot;, &quot;Yield&quot;],
+      &quot;rows&quot;: [
+        [&quot;A&quot;, 1.2],
+        [&quot;A&quot;, 1.3],
+        [&quot;B&quot;, 2.1]
+      ]
+    }
+  ]
+}
+</code></pre>
+<br>
+<p>验收：</p>
+<br>
+<pre><code class="language-powershell">
+nong excel create spec.json -o data.xlsx --json
+nong excel sheets data.xlsx --json
+nong excel read data.xlsx --json
+</code></pre>
+<br>
+<h2>4.2 <code>nong chart line &lt;spec.json&gt; -o &lt;out.png&gt; --json</code></h2>
+<br>
+<p>输入 spec：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;title&quot;: &quot;Growth curve&quot;,
+  &quot;xLabel&quot;: &quot;Days&quot;,
+  &quot;yLabel&quot;: &quot;Height&quot;,
+  &quot;series&quot;: [
+    {
+      &quot;name&quot;: &quot;Control&quot;,
+      &quot;x&quot;: [0, 7, 14],
+      &quot;y&quot;: [1.0, 2.0, 3.2]
+    }
+  ]
+}
+</code></pre>
+<br>
+<p>校验：</p>
+<br>
+<ul>
+<li>series array 非空</li>
+<li>x/y 长度一致</li>
+<li>数值不能 NaN/Infinity</li>
+</ul>
+<br>
+<h2>4.3 <code>nong chart scatter &lt;spec.json&gt; -o &lt;out.png&gt; --json</code></h2>
+<br>
+<p>输入 spec：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;title&quot;: &quot;Correlation&quot;,
+  &quot;xLabel&quot;: &quot;Soil pH&quot;,
+  &quot;yLabel&quot;: &quot;Yield&quot;,
+  &quot;points&quot;: [
+    { &quot;x&quot;: 6.1, &quot;y&quot;: 12.3, &quot;group&quot;: &quot;A&quot; }
+  ],
+  &quot;trendline&quot;: true
+}
+</code></pre>
+<br>
+<p>P0 可选 trendline；若实现不了，先忽略并在 <code>issues</code> 提示。</p>
+<br>
+<h2>4.4 <code>nong chart pie &lt;spec.json&gt; -o &lt;out.png&gt; --json</code></h2>
+<br>
+<p>输入 spec：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;title&quot;: &quot;Composition&quot;,
+  &quot;values&quot;: [
+    { &quot;label&quot;: &quot;A&quot;, &quot;value&quot;: 30 },
+    { &quot;label&quot;: &quot;B&quot;, &quot;value&quot;: 70 }
+  ]
+}
+</code></pre>
+<br>
+<p>校验：</p>
+<br>
+<ul>
+<li>values 至少 2 项</li>
+<li>value &gt; 0</li>
+</ul>
+<br>
+<h2>Chart/Excel 验收</h2>
+<br>
+<pre><code class="language-powershell">
+nong excel create excel-spec.json -o data.xlsx --json
+nong chart line line-spec.json -o line.png --json
+nong chart scatter scatter-spec.json -o scatter.png --json
+nong chart pie pie-spec.json -o pie.png --json
+</code></pre>
+<br>
+<p>所有图片生成后必须 <code>CheckArtifact</code>。</p>
+<br>
+<hr>
+<br>
+<h1>Phase 5：Diagram tree</h1>
+<br>
+<p>负责人：Agent D</p>
+<br>
+<p>目标命令：</p>
+<br>
+<pre><code class="language-text">
+diagram tree
+</code></pre>
+<br>
+<h2><code>nong diagram tree &lt;newick.txt|spec.json&gt; -o &lt;out.png&gt; --json</code></h2>
+<br>
+<p>用途：系统发育树 / Newick tree。</p>
+<br>
+<p>建议支持两种输入：</p>
+<br>
+<h3>Newick 文本</h3>
+<br>
+<pre><code class="language-text">
+((A:0.1,B:0.2):0.3,C:0.4);
+</code></pre>
+<br>
+<h3>JSON spec</h3>
+<br>
+<pre><code class="language-json">
+{
+  &quot;newick&quot;: &quot;((A:0.1,B:0.2):0.3,C:0.4);&quot;,
+  &quot;title&quot;: &quot;Phylogenetic tree&quot;
+}
+</code></pre>
+<br>
+<p>实现来源：</p>
+<br>
+<ul>
+<li>如果 <code>DiagramCore</code> 已有 <code>NewickTree.Parse</code> / <code>TreeRenderer</code>，复用。</li>
+<li>如果没有，先检查 <code>diagram/examples/primate_tree.cs</code> 对应 API。</li>
+</ul>
+<br>
+<p>验收：</p>
+<br>
+<pre><code class="language-powershell">
+nong diagram tree tree.nwk -o tree.png --json
+</code></pre>
+<br>
+<hr>
+<br>
+<h1>Phase 6：PPTX read/slides</h1>
+<br>
+<p>负责人：Agent D</p>
+<br>
+<p>关键约束：</p>
+<br>
+<pre><code class="language-text">
+pptx read 暂桩，PptxCore 需适配 ShapeCrawler 合并
+</code></pre>
+<br>
+<p>目标命令：</p>
+<br>
+<pre><code class="language-text">
+pptx read
+pptx slides
+</code></pre>
+<br>
+<h2>原则</h2>
+<br>
+<p>PPTX 先只做读取，不做生成，不做编辑。</p>
+<br>
+<p>不要恢复旧 GroundPA <code>pptx</code> skill，直到这两个命令真实 implemented 并验收通过。</p>
+<br>
+<h2>6.1 <code>nong pptx read &lt;file.pptx&gt; --json</code></h2>
+<br>
+<p>用途：抽取全部 slide 文本。</p>
+<br>
+<p>输出：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;data&quot;: {
+    &quot;text&quot;: &quot;...&quot;,
+    &quot;slides&quot;: [
+      {
+        &quot;index&quot;: 1,
+        &quot;title&quot;: &quot;...&quot;,
+        &quot;texts&quot;: [&quot;...&quot;, &quot;...&quot;]
+      }
+    ]
+  },
+  &quot;metrics&quot;: {
+    &quot;slides&quot;: 10,
+    &quot;textBlocks&quot;: 42,
+    &quot;characters&quot;: 3200
+  }
+}
+</code></pre>
+<br>
+<h2>6.2 <code>nong pptx slides &lt;file.pptx&gt; --json</code></h2>
+<br>
+<p>用途：列 slide 结构，不只是文本。</p>
+<br>
+<p>输出：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;data&quot;: {
+    &quot;slides&quot;: [
+      {
+        &quot;index&quot;: 1,
+        &quot;shapeCount&quot;: 8,
+        &quot;textCount&quot;: 3,
+        &quot;pictureCount&quot;: 1,
+        &quot;tableCount&quot;: 0,
+        &quot;chartCount&quot;: 0,
+        &quot;title&quot;: &quot;...&quot;
+      }
+    ]
+  }
+}
+</code></pre>
+<br>
+<p>实现路线：</p>
+<br>
+<p>1. 先确认 PptxCore 当前是否编译。</p>
+<p>2. 适配 ShapeCrawler 合并后的 API。</p>
+<p>3. 若 ShapeCrawler 复杂，先用 OpenXML SDK 直接遍历 <code>PresentationDocument.PresentationPart.SlideParts</code> 提取 text。</p>
+<p>4. <code>slides</code> 结构统计可先用 OpenXML element 类型计数。</p>
+<br>
+<p>验收：</p>
+<br>
+<pre><code class="language-powershell">
+nong pptx read sample.pptx --json
+nong pptx slides sample.pptx --json
+</code></pre>
+<br>
+<hr>
+<br>
+<h1>Phase 7：OCR local/cloud</h1>
+<br>
+<p>负责人：Agent D</p>
+<br>
+<p>目标命令：</p>
+<br>
+<pre><code class="language-text">
+ocr local
+ocr cloud
+</code></pre>
+<br>
+<p>关键决策：</p>
+<br>
+<p>不要让 skill 层直接调用 Python OCR。OCR 应该是 <code>nong ocr ...</code> 的 .NET CLI 能力。</p>
+<br>
+<h2>7.1 <code>nong ocr cloud &lt;file&gt; -o &lt;out-dir&gt; --json</code></h2>
+<br>
+<p>用途：云端 OCR，输出 Markdown/文本/可选 Word。</p>
+<br>
+<p>参数建议：</p>
+<br>
+<pre><code class="language-text">
+file
+-o/--output &lt;dir&gt; required
+--format markdown|text|docx default markdown
+--token-env PADDLEOCR_TOKEN default
+</code></pre>
+<br>
+<p>输出：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;artifacts&quot;: {
+    &quot;dir&quot;: &quot;...&quot;,
+    &quot;markdown&quot;: &quot;.../result.md&quot;,
+    &quot;text&quot;: &quot;.../result.txt&quot;,
+    &quot;docx&quot;: &quot;.../result.docx&quot;
+  },
+  &quot;data&quot;: {
+    &quot;pages&quot;: 3,
+    &quot;blocks&quot;: 120
+  }
+}
+</code></pre>
+<br>
+<p>错误：</p>
+<br>
+<ul>
+<li>token 缺失：<code>E005 dependency_missing</code></li>
+<li>API 失败：<code>E004 internal_error</code> 或新增 <code>E010 external_service_failed</code>，只有确有必要才新增</li>
+<li>输出失败：<code>E008 write_failed</code></li>
+</ul>
+<br>
+<h2>7.2 <code>nong ocr local &lt;image&gt; -o &lt;out.json|out.txt&gt; --json</code></h2>
+<br>
+<p>用途：本地 OCR。</p>
+<br>
+<p>现实约束：</p>
+<br>
+<p>本地 OCR 若依赖 Python/PaddleOCR，则推广环境成本高。P0 可先实现环境检查 + 调用包装，但必须如实返回依赖缺失。</p>
+<br>
+<p>参数建议：</p>
+<br>
+<pre><code class="language-text">
+image
+-o/--output &lt;file&gt; optional
+--lang ch|en default ch
+</code></pre>
+<br>
+<p>依赖缺失：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;status&quot;: &quot;error&quot;,
+  &quot;command&quot;: &quot;ocr local&quot;,
+  &quot;errors&quot;: [
+    {
+      &quot;code&quot;: &quot;E005&quot;,
+      &quot;name&quot;: &quot;dependency_missing&quot;,
+      &quot;message&quot;: &quot;Local OCR dependency is missing: PaddleOCR runtime not found.&quot;
+    }
+  ]
+}
+</code></pre>
+<br>
+<p>重要：</p>
+<br>
+<p>如果不能保证本地 OCR 在普通 net8 环境可用，不要把它改成 implemented。可以先只实现 <code>ocr cloud</code>，<code>ocr local</code> 继续 E009。</p>
+<br>
+<h2>OCR 验收</h2>
+<br>
+<p>云端 OCR 需要 token，不可在无 token 环境假装通过。</p>
+<br>
+<p>验收分两类：</p>
+<br>
+<pre><code class="language-powershell">
+nong ocr cloud sample.pdf -o ocr-out --json
+</code></pre>
+<br>
+<p>有 token：<code>status: ok</code> + artifacts。</p>
+<br>
+<p>无 token：<code>E005 dependency_missing</code> + exit != 0。</p>
+<br>
+<hr>
+<br>
+<h1>Phase 8：GroundPA skill sync</h1>
+<br>
+<p>负责人：Agent E</p>
+<br>
+<p>每完成一个 phase，更新 Nong.Toolkit.Net。</p>
+<br>
+<p>当前 2.0.0 已暴露：</p>
+<br>
+<pre><code class="language-text">
+word inspect excel chart diagram genre icons
+</code></pre>
+<br>
+<h2>同步规则</h2>
+<br>
+<h3>Word</h3>
+<br>
+<p>当实现：</p>
+<br>
+<pre><code class="language-text">
+word extract/stats/fonts/styles/validate/merge/dissect
+</code></pre>
+<br>
+<p>更新 <code>Nong.Toolkit.Net/word/SKILL.md</code>。</p>
+<br>
+<h3>Inspect</h3>
+<br>
+<p>当实现：</p>
+<br>
+<pre><code class="language-text">
+inspect classify/structure/varplan/evidence/data-req/gap/semantics
+</code></pre>
+<br>
+<p>更新 <code>Nong.Toolkit.Net/inspect/SKILL.md</code>。</p>
+<br>
+<h3>Chart</h3>
+<br>
+<p>当实现：</p>
+<br>
+<pre><code class="language-text">
+chart line/scatter/pie
+</code></pre>
+<br>
+<p>更新 <code>Nong.Toolkit.Net/chart/SKILL.md</code>。</p>
+<br>
+<h3>Excel</h3>
+<br>
+<p>当实现：</p>
+<br>
+<pre><code class="language-text">
+excel create
+</code></pre>
+<br>
+<p>更新 <code>Nong.Toolkit.Net/excel/SKILL.md</code>。</p>
+<br>
+<h3>Diagram</h3>
+<br>
+<p>当实现：</p>
+<br>
+<pre><code class="language-text">
+diagram tree
+</code></pre>
+<br>
+<p>更新 <code>Nong.Toolkit.Net/diagram/SKILL.md</code>。</p>
+<br>
+<h3>PPTX/OCR</h3>
+<br>
+<p>只有当以下命令真实 implemented 且验收通过，才恢复对应 skill：</p>
+<br>
+<pre><code class="language-text">
+pptx read
+pptx slides
+ocr cloud
+ocr local
+</code></pre>
+<br>
+<p>恢复时：</p>
+<br>
+<p>1. 新建/恢复 <code>pptx/SKILL.md</code> 或 <code>multimodal/SKILL.md</code></p>
+<p>2. 加入 <code>.claude-plugin/plugin.json</code></p>
+<p>3. 加入 <code>skills.sh.json</code></p>
+<p>4. 更新 README</p>
+<p>5. <code>claude plugin validate .</code></p>
+<br>
+<h2>GroundPA 验收</h2>
+<br>
+<pre><code class="language-powershell">
+claude plugin validate .
+</code></pre>
+<br>
+<p>以及：</p>
+<br>
+<pre><code class="language-powershell">
+nong skill scan C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
+nong skill inventory C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
+</code></pre>
+<br>
+<hr>
+<br>
+<h1>Phase 9：Release audit</h1>
+<br>
+<p>负责人：主 agent + Agent E</p>
+<br>
+<h2>全局验收命令</h2>
+<br>
+<pre><code class="language-powershell">
+dotnet build .\Cli\NongCli.csproj -c Release
+nong commands --json
+nong commands --all --json
+dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release
+</code></pre>
+<br>
+<h2>命令级验收</h2>
+<br>
+<p>所有 implemented 命令至少有：</p>
+<br>
+<p>1. happy path</p>
+<p>2. file missing path</p>
+<p>3. malformed JSON/spec path</p>
+<p>4. JSON command 字段正确</p>
+<p>5. exit code 正确</p>
+<br>
+<h2>Manifest 验收</h2>
+<br>
+<pre><code class="language-text">
+commands --json
+</code></pre>
+<br>
+<p>只列 implemented。</p>
+<br>
+<pre><code class="language-text">
+commands --all --json
+</code></pre>
+<br>
+<p>列 implemented + stub，stub 必须明确 status。</p>
+<br>
+<h2>release checklist</h2>
+<br>
+<p>新增或更新：</p>
+<br>
+<pre><code class="language-text">
+changelog/2026-06-03-xxx-stage13-stub-completion.md
+</code></pre>
+<br>
+<p>记录：</p>
+<br>
+<ul>
+<li>实现了哪些 stub</li>
+<li>哪些仍保留 E009</li>
+<li>哪些命令因为外部依赖只能部分验收</li>
+<li>Duncan 简化 Q 值近似仍需提示正式论文复核</li>
+</ul>
+<br>
+<hr>
+<br>
+<h1>多 agent 分工细则</h1>
+<br>
+<h2>Agent A：Word</h2>
+<br>
+<p>只改：</p>
+<br>
+<pre><code class="language-text">
+Cli/Commands/WordCommands.cs
+Docx/ 或 DocxCore 相关辅助 API
+Cli/Common 如必要
+</code></pre>
+<br>
+<p>交付：</p>
+<br>
+<pre><code class="language-text">
+word stats/fonts/styles/validate/extract/dissect/merge
+</code></pre>
+<br>
+<p>不要改 Inspect/Chart/PPTX/OCR。</p>
+<br>
+<h2>Agent B：Inspect</h2>
+<br>
+<p>只改：</p>
+<br>
+<pre><code class="language-text">
+Cli/Commands/InspectCommands.cs
+Inspect/ 相关 API
+</code></pre>
+<br>
+<p>交付：</p>
+<br>
+<pre><code class="language-text">
+inspect classify/structure/evidence/data-req/gap/varplan/semantics
+</code></pre>
+<br>
+<p>不要新增论文算法，先拆已有诊断管线。</p>
+<br>
+<h2>Agent C：Chart + Excel</h2>
+<br>
+<p>只改：</p>
+<br>
+<pre><code class="language-text">
+Cli/Commands/ChartCommands.cs
+Cli/Commands/ExcelCommands.cs
+Chart/ ChartCore
+Excel/ 如需要
+</code></pre>
+<br>
+<p>交付：</p>
+<br>
+<pre><code class="language-text">
+chart line/scatter/pie
+excel create
+</code></pre>
+<br>
+<p>Duncan 简化 Q 值近似保留说明，不在本阶段改统计核心。</p>
+<br>
+<h2>Agent D：Diagram + PPTX + OCR</h2>
+<br>
+<p>只改：</p>
+<br>
+<pre><code class="language-text">
+Cli/Commands/DiagramCommands.cs
+Cli/Commands/PptxCommands.cs
+Cli/Commands/OcrCommands.cs
+Diagram/
+Pptx/
+MultiModal/
+</code></pre>
+<br>
+<p>交付：</p>
+<br>
+<pre><code class="language-text">
+diagram tree
+pptx read/slides
+ocr cloud
+ocr local only if dependency path is honest and testable
+</code></pre>
+<br>
+<p>OCR local 如果依赖不可控，可继续 E009。</p>
+<br>
+<h2>Agent E：Contract + docs + skill sync</h2>
+<br>
+<p>只改：</p>
+<br>
+<pre><code class="language-text">
+Cli/Common/Manifest.cs
+Cli/AGENT.md
+Cli/README.md
+Cli.Tests/
+Nong.Toolkit.Net skill files
+changelog/
+</code></pre>
+<br>
+<p>职责：</p>
+<br>
+<p>1. command 字段统一</p>
+<p>2. Manifest 不漂移</p>
+<p>3. stub 状态正确</p>
+<p>4. GroundPA 只暴露 implemented</p>
+<p>5. release checklist 完整</p>
+<br>
+<hr>
+<br>
+<h1>最终目标</h1>
+<br>
+<p>当本蓝图完成后，<code>nong</code> 应具备：</p>
+<br>
+<pre><code class="language-text">
+Word: read/preview/fill/rebuild/extract/dissect/stats/fonts/styles/validate/merge
+Inspect: diagnose/refs/write-paper/classify/structure/varplan/evidence/data-req/gap/semantics
+Chart: analyze/anova/duncan/bar/line/scatter/pie
+Excel: sheets/read/to-groups/create
+Diagram: flowchart/network/tree
+PPTX: read/slides
+OCR: cloud/local or honest dependency error
+Genre: list/show
+Icons: list/search
+Skill: validate/scan/inventory/package
+</code></pre>
+<br>
+<p>预计 implemented 命令数：</p>
+<br>
+<pre><code class="language-text">
+当前 20
++ skill 4
++ word 7
++ inspect 7
++ chart 3
++ excel 1
++ diagram 1
++ pptx 2
++ ocr 1-2
+= 46-47 implemented
+</code></pre>
+<br>
+<p>如果 <code>ocr local</code> 不能可靠实现，则保持 stub：</p>
+<br>
+<pre><code class="language-text">
+45-46 implemented + ocr local E009
+</code></pre>
+<br>
+<p>这不是失败。诚实边界优先于数量。</p>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

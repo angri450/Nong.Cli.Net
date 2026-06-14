@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nong.Toolkit.Net vs Nong.Cli.Net 全量对应</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif; line-height: 1.6; color: #1f2937; background: #f9fafb; }
+.container { max-width: 1400px; margin: 0 auto; padding: 2rem 1rem; }
+h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #111827; }
+.subtitle { color: #6b7280; font-size: 0.95rem; margin-bottom: 2rem; }
+h2 { font-size: 1.4rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb; color: #111827; }
+h3 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; color: #374151; }
+.dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.card { background: white; border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.card-num { font-size: 2.5rem; font-weight: 800; }
+.card-label { font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem; }
+table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem; font-size: 0.9rem; }
+th { background: #f3f4f6; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; color: #374151; padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid #e5e7eb; }
+td { padding: 0.65rem 1rem; border-bottom: 1px solid #f3f4f6; vertical-align: top; }
+tr:hover td { background: #fafbfc; }
+.ok { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; background: #d1fae5; color: #065f46; }
+.gap { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; background: #fef3c7; color: #92400e; }
+.miss { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; background: #fee2e2; color: #991b1b; }
+.info { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; background: #dbeafe; color: #1e40af; }
+.problem { background: white; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-left: 4px solid #dc2626; }
+.problem h4 { margin-bottom: 0.5rem; }
+.problem p { color: #4b5563; font-size: 0.9rem; }
+.problem .fix { margin-top: 0.5rem; padding: 0.5rem 0.75rem; background: #f9fafb; border-radius: 6px; font-size: 0.85rem; color: #374151; }
+code { background: #f3f4f6; padding: 0.1rem 0.3rem; border-radius: 3px; font-family: 'Cascadia Code', monospace; font-size: 0.85rem; }
+.dep-chain { background: white; border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 2rem; }
+.dep-chain pre { font-family: 'Cascadia Code', monospace; font-size: 0.85rem; line-height: 1.8; color: #374151; }
+footer { margin-top: 3rem; padding: 1.5rem 0; border-top: 1px solid #e5e7eb; text-align: center; color: #9ca3af; font-size: 0.8rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Nong.Toolkit.Net vs Nong.Cli.Net 全量对应</h1>
+<p class="subtitle">2026-06-10 | 96 个 CLI 命令 + 15 个 Toolkit 技能 + Nong.NanoBot.Net 依赖关系</p>
+
+<div class="dep-chain">
+<strong>补充审计：</strong> 命令命名、重复、缺少、不对三类问题已单独整理为
+<a href="toolkit-cli-command-naming-audit.html">toolkit-cli-command-naming-audit.html</a>。
+如果你想先看最终应当长成什么样，再回来看这个对应表，先看
+<a href="nong-final-blueprint.html">nong-final-blueprint.html</a>。
+结论是：当前没有阻断级命令错误；真实重复主要是 Word 图片提取面；缺少的是 PPTX 生成、Excel 高级编辑、Chart 新图种、PDF 编辑、Inspect 扩展写作、Word 高级审阅等新能力；不对主要是少数命令名字或描述不够达意。
+</div>
+
+<div class="dashboard">
+<div class="card"><div class="card-num" style="color:#2563eb">15</div><div class="card-label">CLI 命令模块</div></div>
+<div class="card"><div class="card-num" style="color:#16a34a">96</div><div class="card-label">已实现 CLI 命令</div></div>
+<div class="card"><div class="card-num" style="color:#7c3aed">15</div><div class="card-label">Toolkit 技能</div></div>
+<div class="card"><div class="card-num" style="color:#dc2626">0</div><div class="card-label">技能缺口命令</div></div>
+<div class="card"><div class="card-num" style="color:#f59e0b">0</div><div class="card-label">过期预检版本</div></div>
+<div class="card"><div class="card-num" style="color:#16a34a">4.0.0</div><div class="card-label">全局 nong 已安装</div></div>
+</div>
+
+<h2>1. 三层架构</h2>
+<div class="dep-chain">
+<pre>
+Nong.NanoBot.Net（Agent 运行层）
+  Nanobot.Core/Agent、WebUI、Channel、Memory、MCP、插件/技能启动
+  Nanobot.Web -- 浏览器工作台
+  内置 SkillLoader 加载 Nong.Toolkit.Net 技能
+
+Nong.Toolkit.Net（技能教学层）
+  15 个 SKILL.md 文件，作为 Claude Code 技能包
+  word/pdf/literature/inspect/excel/chart/diagram/pptx/multimodal/genre/icons
+  slice/skill/skill-manager/progress-report
+  不放 C# 执行逻辑，只放文档和少量 PowerShell 辅助脚本
+
+Nong.Cli.Net（确定性执行层）
+  96 个命令，15 个命令模块，一个 nong.dll
+  文档、图表、OCR 等操作都通过 nong 进程调用
+  ThirdParty.csproj 合并 15 组第三方源码目录
+  SkillManagerCore 提供 skill validate/scan/inventory/package
+</pre>
+</div>
+
+<h2>2. 命令模块 / 库 / 技能对应</h2>
+<table>
+<thead><tr><th>CLI 模块</th><th>子命令数</th><th>库依赖</th><th>Toolkit 技能</th><th>状态</th></tr></thead>
+<tbody>
+<tr><td><code>word</code></td><td>39</td><td>DocxCore, ThirdParty, PandocCore, Inspect</td><td>word</td><td><span class="ok">完成</span></td></tr>
+<tr><td><code>chart</code></td><td>7</td><td>ChartCore, ThirdParty</td><td>chart</td><td><span class="ok">完成</span></td></tr>
+<tr><td><code>excel</code></td><td>5</td><td>ExcelCore, ThirdParty, PandocCore</td><td>excel</td><td><span class="ok">完成</span></td></tr>
+<tr><td><code>diagram</code></td><td>3</td><td>DiagramCore, ThirdParty, Bioicons</td><td>diagram</td><td><span class="ok">完成</span></td></tr>
+<tr><td><code>pdf</code></td><td>4</td><td>PdfCore, ThirdParty, 内置 PDFium</td><td>pdf</td><td><span class="ok">完成</span></td></tr>
+<tr><td><code>pptx</code></td><td>3</td><td>PptxCore, ThirdParty, PandocCore</td><td>pptx</td><td><span class="ok">完成</span></td></tr>
+<tr><td><code>lit</code></td><td>5</td><td>LiteratureCore</td><td>literature</td><td><span class="ok">完成</span></td></tr>
+<tr><td><code>ocr</code></td><td>7</td><td>MultiModalCore, DocxCore</td><td>multimodal</td><td><span class="ok">完成</span></td></tr>
+<tr><td><code>inspect</code></td><td>11</td><td>InspectCore, DocxCore, ThirdParty</td><td>inspect</td><td><span class="ok">完成</span></td></tr>
+<tr><td><code>genre</code></td><td>2</td><td>Genre</td><td>genre</td><td><span class="ok">完成</span></td></tr>
+<tr><td><code>icons</code></td><td>2</td><td>Bioicons</td><td>icons</td><td><span class="ok">完成</span></td></tr>
+<tr><td><code>slice</code></td><td>4</td><td>PandocCore</td><td>slice</td><td><span class="ok">完成</span></td></tr>
+<tr><td><code>skill</code></td><td>4</td><td>SkillManagerCore</td><td>skill / skill-manager</td><td><span class="ok">完成</span></td></tr>
+<tr><td><code>progress</code></td><td>1</td><td>Nong.Cli.Net 日志/报告生成器</td><td>progress-report</td><td><span class="ok">完成</span></td></tr>
+<tr><td><code>__render-worker</code></td><td>1</td><td>SkiaSharp, ScottPlot</td><td><span class="info">内部命令</span></td><td>不需要技能</td></tr>
+</tbody>
+</table>
+
+<h2>3. 命令覆盖率（96 个命令）</h2>
+<table>
+<thead><tr><th>领域</th><th>CLI 命令数</th><th>技能覆盖数</th><th>覆盖率</th></tr></thead>
+<tbody>
+<tr><td>word</td><td>39</td><td>39</td><td><span class="ok">100%</span></td></tr>
+<tr><td>chart</td><td>7</td><td>7</td><td><span class="ok">100%</span></td></tr>
+<tr><td>excel</td><td>5</td><td>5</td><td><span class="ok">100%</span></td></tr>
+<tr><td>diagram</td><td>3</td><td>3</td><td><span class="ok">100%</span></td></tr>
+<tr><td>pdf</td><td>4</td><td>4</td><td><span class="ok">100%</span></td></tr>
+<tr><td>pptx</td><td>3</td><td>3</td><td><span class="ok">100%</span></td></tr>
+<tr><td>lit</td><td>5</td><td>5</td><td><span class="ok">100%</span></td></tr>
+<tr><td>ocr</td><td>7</td><td>7</td><td><span class="ok">100%</span></td></tr>
+<tr><td>inspect</td><td>11</td><td>11</td><td><span class="ok">100%</span></td></tr>
+<tr><td>genre</td><td>2</td><td>2</td><td><span class="ok">100%</span></td></tr>
+<tr><td>icons</td><td>2</td><td>2</td><td><span class="ok">100%</span></td></tr>
+<tr><td><strong>slice</strong></td><td>4</td><td>4</td><td><span class="ok">100%</span></td></tr>
+<tr><td><strong>skill</strong></td><td>4</td><td>4</td><td><span class="ok">100%</span></td></tr>
+<tr><td><strong>progress</strong></td><td>1</td><td>1</td><td><span class="ok">100%</span></td></tr>
+<tr style="font-weight:700;background:#f9fafb"><td><strong>总计</strong></td><td><strong>96</strong></td><td><strong>96</strong></td><td><span class="ok"><strong>100%</strong></span></td></tr>
+</tbody>
+</table>
+
+<h2>4. 技能深度审计</h2>
+<h3>预检版本（直接审计 SKILL.md）</h3>
+<table>
+<thead><tr><th>技能</th><th>预检引用</th><th>状态</th></tr></thead>
+<tbody>
+<tr><td>word/pdf/literature/inspect/excel/chart/diagram/pptx/multimodal/genre/icons</td><td>统一引用 Nong.Cli.Net 4.0.0+</td><td><span class="ok">已修复</span></td></tr>
+<tr><td>slice</td><td>统一引用 Nong.Cli.Net 4.0.0+</td><td><span class="ok">已补齐</span></td></tr>
+<tr><td>skill</td><td>统一引用 Nong.Cli.Net 4.0.0+</td><td><span class="ok">已补齐</span></td></tr>
+<tr><td>skill-manager</td><td>统一引用 Nong.Cli.Net 4.0.0+</td><td><span class="ok">已补齐</span></td></tr>
+<tr><td>progress-report</td><td>统一引用 Nong.Cli.Net 4.0.0+</td><td><span class="ok">已补齐</span></td></tr>
+</tbody>
+</table>
+
+<h3>参考资料深度</h3>
+<table>
+<thead><tr><th>技能</th><th>references/</th><th>formats/</th><th>scripts/</th><th>评价</th></tr></thead>
+<tbody>
+<tr><td>word</td><td>7</td><td>5</td><td>3</td><td><span class="ok">很厚</span></td></tr>
+<tr><td>excel</td><td>3</td><td>6</td><td>2</td><td><span class="ok">很厚</span></td></tr>
+<tr><td>pptx</td><td>3</td><td>7</td><td>2</td><td><span class="ok">很厚</span></td></tr>
+<tr><td>diagram</td><td>2</td><td>0</td><td>1</td><td><span class="ok">中等</span></td></tr>
+<tr><td>multimodal</td><td>3</td><td>0</td><td>0</td><td><span class="ok">中等</span></td></tr>
+<tr><td>chart</td><td>2</td><td>1</td><td>2</td><td><span class="ok">中等</span></td></tr>
+<tr><td>genre</td><td>3</td><td>0</td><td>1</td><td><span class="ok">中等</span></td></tr>
+<tr><td>pdf</td><td>1</td><td>0</td><td>0</td><td><span class="ok">够用</span></td></tr>
+<tr><td>literature</td><td>1</td><td>0</td><td>0</td><td><span class="ok">够用</span></td></tr>
+<tr><td>inspect</td><td>1</td><td>0</td><td>0</td><td><span class="ok">够用</span></td></tr>
+<tr><td>icons</td><td>0</td><td>0</td><td>0</td><td><span class="ok">可以</span></td></tr>
+</tbody>
+</table>
+
+<h3>技能之间的命令调用</h3>
+<table>
+<thead><tr><th>来源技能</th><th>调用的命令</th><th>用途</th></tr></thead>
+<tbody>
+<tr><td>chart</td><td><code>nong ocr analyze-image</code></td><td>图表图片质量检查交给 multimodal/OCR 侧</td></tr>
+<tr><td>diagram</td><td><code>nong ocr analyze-image</code></td><td>图示图片质量检查交给 multimodal/OCR 侧</td></tr>
+<tr><td>excel</td><td><code>nong chart analyze/anova/duncan/bar</code></td><td>Excel 数据进入图表/统计分析链路</td></tr>
+<tr><td>inspect</td><td><code>nong word dissect</code>, <code>nong word read</code></td><td>DOCX 先由 word 技能切片/读取，再进入 inspect</td></tr>
+<tr><td>pdf</td><td><code>nong ocr check-env</code>, <code>install-model</code></td><td>扫描版 PDF 需要转到 OCR/multimodal</td></tr>
+<tr><td>genre</td><td><code>nong inspect write-paper</code>, <code>nong inspect write-official</code></td><td>模板发现后，实际写作交给 inspect</td></tr>
+</tbody>
+</table>
+
+<h2>5. 不对齐问题状态</h2>
+<div class="problem"><h4>P0 - 版本过期</h4><p><span class="ok">已修复</span> Toolkit 现在通过共享预检文档统一要求 Nong.Cli.Net 4.0.0+。</p><div class="fix">以后版本号只改 <code>references/shared/nong-cli-preflight.md</code>，不要散落在每个 SKILL.md。</div></div>
+<div class="problem"><h4>P1 - progress-report 放错位置</h4><p><span class="ok">已修复</span> CLI 仓库里误放的 progress-report skill/tool 已撤回，Toolkit 只保留技能指导。</p><div class="fix">实际生成报告走 <code>nong progress report --project-root . --json</code>。</div></div>
+<div class="problem"><h4>P2 - Toolkit 日志不成形</h4><p><span class="ok">已修复</span> Toolkit 的 <code>log/</code> 已整理成 plans、changelog、debug、guidance 和索引。</p><div class="fix">后续工作继续写进结构化日志目录。</div></div>
+<div class="problem"><h4>P3 - 预检安装块重复</h4><p><span class="ok">已修复</span> 重复的 SKILL.md 安装说明已经改成共享预检引用。</p><div class="fix">不要再把安装块复制回各个技能文件。</div></div>
+<div class="problem"><h4>P4 - skill-manager 孤立</h4><p><span class="ok">已修复</span> skill-manager 已纳入 Toolkit，并登记到插件 manifest。</p><div class="fix">真正的打包闸门仍用 <code>nong skill validate/scan/inventory/package</code>。</div></div>
+<div class="problem"><h4>P5 - Toolkit 缺少开发指导</h4><p><span class="ok">已修复</span> Toolkit 已有 CLAUDE.md，写清仓库身份、边界、工作流和验证规则。</p><div class="fix">确定性执行逻辑继续放在 Nong.Cli.Net，不放进 Toolkit。</div></div>
+<div class="problem"><h4>P6 - CLI 有命令但 skill 没有</h4><p><span class="ok">已修复</span> slice 和 skill 技能已覆盖对应 8 个命令。</p><div class="fix">以后 CLI 命令面变化后，同步验证这两个技能。</div></div>
+<div class="problem"><h4>P7 - 部分技能太薄</h4><p><span class="ok">已修复</span> pdf、literature、inspect 已补聚焦 reference。</p><div class="fix">reference 保持短而准，需要时再加载。</div></div>
+<div class="problem"><h4>P8 - NanoBot 文档旧名字</h4><p><span class="ok">基本修复</span> 活跃 NanoBot 文档现在使用 Nong.NanoBot.Net、Nong.Toolkit.Net、Nong.Cli.Net 命名；历史 changelog 只保留历史语境。</p><div class="fix">包名和历史记录可以保留旧语境，但 active docs、命令和路径不能再用旧名。</div></div>
+<div class="problem"><h4>P9 - NuGet lock 文件过期</h4><p><span class="ok">已修复</span> 已用 <code>dotnet restore --use-lock-file --force-evaluate</code> 重算 lock 文件；旧 Nong 3.2.x/3.1.x/0.1.x 依赖范围已清掉。</p><div class="fix">不要手改 lock 文件。项目引用包元数据变动时，重新跑 force-evaluate restore。</div></div>
+<div class="problem"><h4>P10 - progress-report 命令缺失</h4><p><span class="ok">已修复</span> Nong.Cli.Net 已暴露 <code>nong progress report</code>。</p><div class="fix">回归测试覆盖 JSON 输出和 HTML 报告生成。</div></div>
+<div class="problem"><h4>P11 - 公文底层能力没暴露到 CLI</h4><p><span class="ok">已修复</span> <code>GongWenFormatter</code> 和 <code>OfficialDocWriter</code> 已通过 <code>nong word format-gongwen</code> 与 <code>nong inspect write-official</code> 暴露。</p><div class="fix">Toolkit 的 word/inspect/genre 现在都会把公文草稿和公文排版路由到已实现 CLI 命令。</div></div>
+<div class="problem"><h4>P12 - 全局 nong shim 坏了</h4><p><span class="ok">已修复</span> 旧全局 shim 指向不存在的 3.2.4 tool-store 路径。已备份旧 shim，并安装本地打包的 Nong.Cli.Net 4.0.0 tool。</p><div class="fix"><code>nong --version</code> 现在返回 4.0.0，<code>nong commands --json</code> 返回 96 个命令。</div></div>
+
+<h2>6. 本地工具 / Lock 文件验证</h2>
+<table>
+<thead><tr><th>检查项</th><th>结果</th><th>证据</th></tr></thead>
+<tbody>
+<tr><td>Lock 重算</td><td><span class="ok">完成</span></td><td><code>dotnet restore Cli\NongCli.csproj --use-lock-file --force-evaluate</code>，同时处理 Cli.Tests 和 Tests 入口</td></tr>
+<tr><td>旧 Nong lock 引用</td><td><span class="ok">0</span></td><td><code>packages.lock.json</code> 中没有精确匹配的 Nong 3.2.x / 3.1.x / 0.1.x</td></tr>
+<tr><td>废弃 progress-report lock</td><td><span class="ok">已删除</span></td><td><code>tools/ProgressReport/packages.lock.json</code> 随旧项目一起删除</td></tr>
+<tr><td>本地 tool 包</td><td><span class="ok">已创建</span></td><td><code>..\Nong.Cli_archive\local-tools\Angri450.Nong.Cli.4.0.0.nupkg</code></td></tr>
+<tr><td>坏 shim 备份</td><td><span class="ok">已归档</span></td><td><code>..\Nong.Cli_archive\stale-dotnet-tools\nong-3.2.4-broken-shim-*.exe</code></td></tr>
+<tr><td>全局 nong 冒烟测试</td><td><span class="ok">通过</span></td><td><code>inspect write-official</code> → <code>word format-gongwen</code> → <code>word validate</code></td></tr>
+</tbody>
+</table>
+
+<h2>7. 修复顺序</h2>
+<table>
+<thead><tr><th>轮次</th><th>问题</th><th>动作</th><th>仓库</th><th>状态</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>P0+P3</td><td>通过共享 reference 统一预检版本到 4.0.0+</td><td>Toolkit</td><td><span class="ok">完成</span></td></tr>
+<tr><td>2</td><td>P5</td><td>创建 CLAUDE.md</td><td>Toolkit</td><td><span class="ok">完成</span></td></tr>
+<tr><td>3</td><td>P2</td><td>整理 log/ 为 plans/changelog/debug/guidance/index</td><td>Toolkit</td><td><span class="ok">完成</span></td></tr>
+<tr><td>4</td><td>P6</td><td>新增 slice 和 skill 技能</td><td>Toolkit</td><td><span class="ok">完成</span></td></tr>
+<tr><td>5</td><td>P4</td><td>把 skill-manager 注册进 Toolkit</td><td>Toolkit</td><td><span class="ok">完成</span></td></tr>
+<tr><td>6</td><td>P1+P10</td><td>撤回旧 progress-report 工具，并实现 <code>nong progress report</code></td><td>Cli.Net + Toolkit</td><td><span class="ok">完成</span></td></tr>
+<tr><td>7</td><td>P7</td><td>给 pdf、literature、inspect 增加 references/</td><td>Toolkit</td><td><span class="ok">完成</span></td></tr>
+<tr><td>8</td><td>P8</td><td>更新 NanoBot 活跃文档里的旧名引用</td><td>NanoBot</td><td><span class="ok">完成</span></td></tr>
+<tr><td>9</td><td>P9</td><td>用 dotnet restore 重算 lock 文件</td><td>Cli.Net</td><td><span class="ok">完成</span></td></tr>
+<tr><td>10</td><td>P11</td><td>暴露公文写作器和公文排版器，并同步 Toolkit 文档</td><td>Cli.Net + Toolkit</td><td><span class="ok">完成</span></td></tr>
+<tr><td>11</td><td>P12</td><td>用本地 4.0.0 tool 包替换坏掉的全局 nong shim</td><td>Cli.Net</td><td><span class="ok">完成</span></td></tr>
+</tbody>
+</table>
+
+<h2>8. 技能到命令的完整对应</h2>
+<table>
+<thead><tr><th>技能</th><th>对应 nong 命令</th><th>参考文件</th></tr></thead>
+<tbody>
+<tr><td><strong>word</strong></td><td>check convert create read preview fill rebuild extract dissect stats fonts styles validate merge outline images comments revisions infer-format fix-order academic-format format-gongwen format-audit repair-plan table-reflow protect embed-font add(paragraph/table/footnote/endnote/image/toc/xref/link/bookmark/comment/math)</td><td>read-word write-word api-reference existing-document-editing com-automation workspace-setup paper-analysis (7)</td></tr>
+<tr><td><strong>excel</strong></td><td>sheets read to-groups create dissect (5)</td><td>read-excel write-excel workspace-setup (3)</td></tr>
+<tr><td><strong>chart</strong></td><td>analyze anova duncan bar line scatter pie (7)</td><td>chart-api workspace-setup (2)</td></tr>
+<tr><td><strong>diagram</strong></td><td>flowchart network tree (3)</td><td>diagram-api workspace-setup (2) + 3 examples</td></tr>
+<tr><td><strong>pptx</strong></td><td>read slides dissect (3)</td><td>read-pptx write-pptx workspace-setup (3)</td></tr>
+<tr><td><strong>multimodal</strong></td><td>ocr check-env analyze-image cloud to-word models install-model local (7)</td><td>image-analyzer ocr-cloud ocr-local (3)</td></tr>
+<tr><td><strong>pdf</strong></td><td>pdf check dissect render images (4)</td><td>pdf-api (1)</td></tr>
+<tr><td><strong>literature</strong></td><td>lit parse validate plan search export (5)</td><td>literature-api (1)</td></tr>
+<tr><td><strong>inspect</strong></td><td>inspect diagnose refs write-paper write-official classify structure varplan evidence data-req gap semantics (11)</td><td>paper-diagnostics (1)</td></tr>
+<tr><td><strong>genre</strong></td><td>genre list show (2)</td><td>paper-analysis write-paper workspace-setup (3)</td></tr>
+<tr><td><strong>icons</strong></td><td>icons list search (2)</td><td><span class="ok">无需扩展</span></td></tr>
+<tr><td><strong>slice</strong></td><td>slice inspect blocks block assets (4)</td><td>slice/SKILL.md</td></tr>
+<tr><td><strong>skill</strong></td><td>skill validate scan inventory package (4)</td><td>skill/SKILL.md + skill-manager/SKILL.md</td></tr>
+<tr><td><strong>progress-report</strong></td><td>progress report (1)</td><td>progress-report/SKILL.md</td></tr>
+</tbody>
+</table>
+
+<footer>
+<p>Codex 更新 | 来源：Nong.Toolkit.Net（15 个 SKILL.md 审计）+ Nong.Cli.Net（15 个 Commands/*.cs 全量扫描）| 2026-06-10</p>
+</footer>
+</div>
+</body>
+</html>

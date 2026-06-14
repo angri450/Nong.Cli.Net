@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三仓库命名统一设计 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../debug.html" class="back-link">&larr; 用户反馈</a>
+<h1>三仓库命名统一设计</h1>
+<p class="subtitle">2026-06-09 | <span style="color: #dc2626">用户反馈</span></p></header>
+<article class="content">
+<h1>三仓库命名统一设计</h1>
+<br>
+<h2>时间</h2>
+<p>2026-06-09</p>
+<br>
+<h2>现状</h2>
+<br>
+<p>合并 Nong.Toolkit.Net 进 Nong.NanoBot.Net 后，剩下两个仓库。当前名称：</p>
+<br>
+<table>
+<tr><th>仓库</th><th>含义</th><th>问题</th></tr>
+<tr><td><code>Nong.NanoBot.Net</code></td><td>个人 Agent 运行时</td><td><code>.net</code> 后缀像域名不像仓库名</td></tr>
+<tr><td><code>Angri450.Nong</code></td><td>农学文档 CLI 工具集</td><td>带个人前缀 <code>Angri450</code>，与 NanoBot 读不出关联</td></tr>
+<tr><td>~~Nong.Toolkit.Net~~</td><td>即将合并，消失</td></tr>
+</table>
+<br>
+<h2>评估维度</h2>
+<br>
+<h3>要不要统一品牌？</h3>
+<br>
+<p><code>Nong</code>（农）是农学文档工具的品牌，有明确的领域含义——农业科研。Nong 的用户群体是农学研究者、论文写作者，通过 <code>dotnet tool install Angri450.Nong.Cli</code> 安装。</p>
+<br>
+<p><code>NanoBot</code> 是 Agent 运行时的品牌，用户群体是 AI Agent 使用者，通过 WebUI 或 CLI 操作。</p>
+<br>
+<p>这两个品牌的用户有没有交集？有。用 NanoBot 跑 Agent 的人，Agent 会自动调用 nong 命令处理文档。但用户不需要知道底层的 nong 命令怎么写的——Agent 替他们调。</p>
+<br>
+<p>所以两个品牌可以独立存在，但要让人知道它们之间的关系。</p>
+<br>
+<h3>要不要去掉 <code>Angri450</code> 前缀？</h3>
+<br>
+<p>NuGet 包名是 <code>Angri450.Nong.Cli</code>，GitHub 仓库是 <code>angri450/Nong.NET</code>。<code>Angri450</code> 是作者标识，不是功能描述。</p>
+<br>
+<p>如果要更专业的外观，可以去掉，但代价是：</p>
+<ul>
+<li>NuGet 包改名 = 旧安装命令失效</li>
+<li>GitHub 仓库改名 = 所有外部链接断裂</li>
+<li>README / CLAUDE.md / skill 中的引用全部要改</li>
+</ul>
+<br>
+<p><strong>结论</strong>：NuGet 包名不动（破坏面太大），GitHub 仓库名可以考虑微调，但不需要大改。</p>
+<br>
+<h2>推荐方案</h2>
+<br>
+<h3>方案：两个仓库，父子命名</h3>
+<br>
+<pre><code>
+nanobot（Agent 平台）
+  └── nong（文档引擎，内置在 nanobot 的 skill 包中）
+</code></pre>
+<br>
+<table>
+<tr><th>项</th><th>当前</th><th>建议</th></tr>
+<tr><td>Agent 运行时仓库</td><td><code>Nong.NanoBot.Net</code></td><td><code>nanobot</code> 或保持不变</td></tr>
+<tr><td>文档工具仓库</td><td><code>Angri450.Nong</code></td><td>不变（NuGet 包名已固定）</td></tr>
+<tr><td>用户感知的品牌</td><td>模糊</td><td>&quot;NanoBot 是你的 Agent，Nong 是它写论文用的工具箱&quot;</td></tr>
+</table>
+<br>
+<h3>为什么 Nong 不改名</h3>
+<br>
+<p>1. NuGet 包 <code>Angri450.Nong.Cli</code> 已在用，<code>dotnet tool install</code> 命令依赖这个名</p>
+<p>2. GitHub 仓库 <code>angri450/Nong.NET</code> 已被外部引用（README、skill、changelog）</p>
+<p>3. &quot;Nong&quot; = 农，词短、好记、有领域辨识度</p>
+<p>4. 改名成本高、收益低</p>
+<br>
+<h3>为什么 NanoBot 可以考虑微调</h3>
+<br>
+<p>1. <code>Nong.NanoBot.Net</code> 读起来像网站地址而不是项目名</p>
+<p>2. 如果觉得别扭，可以改 repo 名为 <code>nanobot</code>（GitHub URL 变成 <code>angri450/nanobot</code>）</p>
+<p>3. 但这个改动也影响外链和 clone 地址</p>
+<p>4. 如果不太在意，可以不动</p>
+<br>
+<h2>合并后的品牌关系</h2>
+<br>
+<pre><code>
+用户
+  │
+  │  打开 NanoBot WebUI
+  │  跟 Agent 说&quot;帮我诊断这篇论文&quot;
+  │
+  ▼
+NanoBot（Agent 运行时）
+  │
+  │  Agent 调用 skill &quot;inspect&quot;
+  │  skill 指导 Agent 执行 nong inspect diagnose paper.txt
+  │
+  ▼
+Nong CLI（文档执行引擎）
+  └── 返回诊断结果 JSON
+</code></pre>
+<br>
+<p>两个品牌各司其职：</p>
+<ul>
+<li><strong>NanoBot</strong> = 用户看到的界面，Agent 住的地方</li>
+<li><strong>Nong</strong> = Agent 工具箱里的农学文档工具，用户不直接接触，但知道它在</li>
+</ul>
+<br>
+<h2>结论</h2>
+<br>
+<p>两个名字都<strong>不需要大改</strong>。合并 Nong.Toolkit.Net 后自然清晰：</p>
+<br>
+<ul>
+<li><code>Nong.NanoBot.Net</code> = Agent 运行时 + 内置技能包</li>
+<li><code>Angri450.Nong</code> = 独立 CLI 工具（NuGet 分发，Agent 通过 bridge 调用）</li>
+</ul>
+<br>
+<p>名字之间的关系靠 README 和文档说明，不靠品牌统一。两个工具的服务对象不同（终端用户 vs Agent），分开命名是合理的。</p>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

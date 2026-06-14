@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-05 Stage17b Nong/GroundPA 阻断问题修复 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>2026-06-05 Stage17b Nong/GroundPA 阻断问题修复</h1>
+<p class="subtitle">2026-06-05 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>2026-06-05 Stage17b Nong/GroundPA 阻断问题修复</h1>
+<br>
+<blockquote>Superseded on 2026-06-05 by Stage17c pure .NET OCR. The Python/PaddleOCR bridge notes in this file are historical and are no longer the current implementation. Current local OCR uses <code>pp-ocrv5-dotnet-sdcb</code>, <code>localDotNetPpOcrV5</code>, and <code>nong ocr install-model pp-ocrv5-mobile</code> for current-platform first-party <code>Angri450.Nong.OcrRuntime.*</code> native runtime deployment.</blockquote>
+<br>
+<h2>用户反馈</h2>
+<br>
+<p>这次反馈集中在 10 个真实使用阻断点：Plugin Marketplace 只安装 skills 不安装 <code>nong</code> CLI；.NET 10 运行时无法运行 net8 工具；VML 公式图片在 Word dissect 中静默丢失；<code>content.jsonl</code> 的 <code>blockId</code> 为空导致 <code>word add --after</code> 不可用；<code>word images</code> 遇到 VML 相对 URI 抛 E004；<code>ocr install-model</code> 是 E009 空桩；云端 OCR token 来源不清楚；缺少 <code>.doc -&gt; .docx</code> 边界转换；缺少文档级预检命令；SKILL.md 错误恢复指引不足。</p>
+<br>
+<h2>Nong CLI 修复</h2>
+<br>
+<ul>
+<li>CLI 升到 <code>3.2.2</code>，<code>JsonOutput</code> 和错误分支统一使用 <code>CliVersion.Current</code>，清掉 <code>3.1.0</code> 硬编码。</li>
+<li><code>NongCli.csproj</code> 写入 <code>RollForward=LatestMajor</code>，解决只有 .NET 9/10 运行时的机器无法运行 net8 CLI 的问题。</li>
+<li>新增 <code>nong word check &lt;file.doc|file.docx&gt; --json</code>：提前报告 <code>.doc</code> 转换需求、docx 段落/表格/图片统计、VML 图片风险、blockId 可用性和下一步建议。</li>
+<li>新增 <code>nong word convert &lt;file.doc|file.docx&gt; -o &lt;out.docx&gt; --json</code>：<code>.docx</code> 直接复制到目标；<code>.doc</code> 优先使用 LibreOffice，Windows 上可回退到隐藏 Word COM 作为边界转换器。</li>
+<li><code>word dissect</code> 对 VML <code>&lt;w:pict&gt;/&lt;v:imagedata&gt;</code> 不再静默空行：输出 image block、asset、Markdown 图片标记和 warning。</li>
+<li><code>word images</code> 同时扫描 DrawingML 和 VML 图片，并用 raw URI 拆分避免 “relative URI” 内部异常；无 relationship id 的 VML 引用也会作为 <code>extractable=false</code> 的 image reference 返回。</li>
+<li><code>content.jsonl</code> 每个块追加 <code>blockId</code> 和 <code>index</code>，使 <code>word add paragraph --after &lt;blockId&gt;</code> 的规范路径可用。</li>
+<li><code>ocr local</code> 改为真实调用本地 Python/PaddleOCR bridge，依赖缺失返回 E005。</li>
+<li><code>ocr install-model pp-ocrv5-mobile</code> 不再返回 E009 空桩；支持 <code>--dry-run</code>，非 dry-run 调用 <code>python -m pip install -U paddlepaddle paddleocr</code>。</li>
+</ul>
+<br>
+<h2>文档同步</h2>
+<br>
+<ul>
+<li><code>README.md</code> / <code>README.zh-CN.md</code> / <code>CAPABILITY.md</code> / <code>release-checklist.md</code> 从 71/30/58 更新到 73/32/67。</li>
+<li>OCR 文案从 “E005/E009 诚实空桩” 改为 “本地 PaddleOCR bridge + E005 依赖缺失 + install-model dry-run/安装计划”。</li>
+<li><code>Cli/README.md</code> 不再提示旧的 <code>nong paper diagnose</code>，改为 <code>nong inspect diagnose</code>，并补充 <code>word check/convert</code> 和 roll-forward 说明。</li>
+<li><code>Cli/AGENT.md</code> 补充 AI Studio AccessToken 页面、<code>localPythonPaddleOcr</code> 环境字段、<code>3.2.2</code> JSON 示例和 E009 恢复路径。</li>
+</ul>
+<br>
+<h2>验证</h2>
+<br>
+<ul>
+<li><code>dotnet test .\Nong.Cli.Net\Cli.Tests\Cli.Tests.csproj -c Release --nologo</code>：68/68 PASS。</li>
+<li><code>nong commands --json</code>：<code>status=ok; version=3.2.2; commandCount=73</code>。</li>
+<li><code>nong ocr install-model pp-ocrv5-mobile --dry-run --json</code>：<code>status=ok</code>，输出本地 PaddleOCR 安装计划。</li>
+<li><code>nong --version</code>：<code>3.2.2+fe3cfc330e623296286649dd145371feed728c97</code>。</li>
+<li>真实合同 <code>.doc</code>：<code>word check</code> 提示 legacy <code>.doc</code> 需转换；<code>word convert</code> 通过 <code>word-com</code> 输出 <code>.docx</code>；转换后 <code>word check</code> 报 38 段、3 表、3 个 VML 引用；<code>word images</code> 返回 3 个 <code>source=vml</code>、<code>extractable=false</code> 的 image references。</li>
+<li>Nong.Toolkit.Net：9 个 Nong-facing skill validate 均 0 error/0 warning；<code>nong skill scan</code> 为 0 findings；<code>claude plugin validate</code> 通过。</li>
+</ul>
+<br>
+<h2>未执行</h2>
+<br>
+<ul>
+<li>未执行非 dry-run 的 <code>ocr install-model</code>，避免在验收中强制联网安装 PaddleOCR。</li>
+<li>未推送 NuGet/GitHub/Gitee；当前是代码与文档修复完成，发布仍需按 <code>release-checklist.md</code> 执行。</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

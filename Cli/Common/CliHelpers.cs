@@ -113,6 +113,121 @@ public static class CliHelpers
     }
 
     /// <summary>
+    /// Run an external dotnet tool as a subprocess, forwarding args and stdout.
+    /// Installs the tool automatically if not found.
+    /// </summary>
+    public static int RunTool(string toolName, string packageId, string[] args)
+    {
+        var toolPath = EnsureToolInstalled(toolName, packageId);
+        if (toolPath == null)
+            return 1;
+
+        var psi = new ProcessStartInfo(toolPath)
+        {
+            RedirectStandardOutput = false,
+            RedirectStandardError = false,
+            UseShellExecute = false
+        };
+        foreach (var arg in args)
+            psi.ArgumentList.Add(arg);
+
+        using var proc = Process.Start(psi)!;
+        proc.WaitForExit();
+        return proc.ExitCode;
+    }
+
+    public static (int ExitCode, string StdOut, string StdErr) RunToolCapture(string toolName, string packageId, string[] args)
+    {
+        var toolPath = EnsureToolInstalled(toolName, packageId);
+        if (toolPath == null)
+            return (1, "", $"Failed to install or locate {packageId}.");
+
+        var psi = new ProcessStartInfo(toolPath)
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false
+        };
+        foreach (var arg in args)
+            psi.ArgumentList.Add(arg);
+
+        using var proc = Process.Start(psi)!;
+        var stdout = proc.StandardOutput.ReadToEnd();
+        var stderr = proc.StandardError.ReadToEnd();
+        proc.WaitForExit();
+        return (proc.ExitCode, stdout, stderr);
+    }
+
+    static string? EnsureToolInstalled(string toolName, string packageId)
+    {
+        var toolPath = FindTool(toolName);
+        if (toolPath != null)
+            return toolPath;
+
+        Console.Error.WriteLine($"[nong] Installing {packageId}...");
+        var installPsi = new ProcessStartInfo("dotnet")
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false
+        };
+        installPsi.ArgumentList.Add("tool");
+        installPsi.ArgumentList.Add("install");
+        installPsi.ArgumentList.Add("--global");
+        installPsi.ArgumentList.Add(packageId);
+        var source = Environment.GetEnvironmentVariable("NONG_NUGET_SOURCE");
+        if (!string.IsNullOrWhiteSpace(source))
+        {
+            installPsi.ArgumentList.Add("--add-source");
+            installPsi.ArgumentList.Add(source);
+        }
+
+        using var installProc = Process.Start(installPsi)!;
+        var stdout = installProc.StandardOutput.ReadToEnd();
+        var stderr = installProc.StandardError.ReadToEnd();
+        installProc.WaitForExit();
+
+        toolPath = FindTool(toolName);
+        if (toolPath == null)
+        {
+            if (!string.IsNullOrWhiteSpace(stdout))
+                Console.Error.WriteLine(stdout.Trim());
+            if (!string.IsNullOrWhiteSpace(stderr))
+                Console.Error.WriteLine(stderr.Trim());
+            Console.Error.WriteLine($"[nong] Failed to install {packageId}. Install manually: dotnet tool install --global {packageId}");
+        }
+        return toolPath;
+    }
+
+    static string? FindTool(string toolName)
+    {
+        var exeName = OperatingSystem.IsWindows() ? $"{toolName}.exe" : toolName;
+        var candidates = new List<string>
+        {
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".dotnet", "tools", exeName),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "dotnet", "tools", exeName)
+        };
+
+        var path = Environment.GetEnvironmentVariable("PATH") ?? "";
+        foreach (var dir in path.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries))
+        {
+            try
+            {
+                candidates.Add(Path.Combine(dir, exeName));
+            }
+            catch { }
+        }
+
+        foreach (var candidate in candidates)
+        {
+            if (File.Exists(candidate))
+                return candidate;
+        }
+
+        return null;
+    }
+
+    /// <summary>
     /// Shorthand to add a not-implemented handler to a command.
     /// </summary>
     public static void SetNotImplemented(Command cmd, string description, Option<bool> jsonOpt)

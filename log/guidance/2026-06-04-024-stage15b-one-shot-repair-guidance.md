@@ -782,7 +782,7 @@ PP-OCRv5 本地接入仍不属于 Stage 15b。
 开工前：
 
 ```powershell
-cd C:\Users\Administrator\Documents\Github\Angri450.Nong
+cd C:\Users\Administrator\Documents\Github\Nong.Cli.Net
 dotnet build .\Cli\NongCli.csproj -c Release
 dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release
 dotnet .\Cli\bin\Release\net8.0\nong.dll commands --json

@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lockfile and local tool sync - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>Lockfile and local tool sync</h1>
+<p class="subtitle">2026-06-10 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>Lockfile and local tool sync</h1>
+<br>
+<h2>What changed</h2>
+<br>
+<ul>
+<li>Regenerated stale lock files with <code>dotnet restore --use-lock-file --force-evaluate</code>.</li>
+<li>Removed the obsolete <code>tools/ProgressReport/packages.lock.json</code> after the progress-report project was migrated into the main CLI.</li>
+<li>Packed <code>Angri450.Nong.Cli.4.0.0.nupkg</code> to <code>..\Nong.Cli_archive\local-tools</code>.</li>
+<li>Backed up the broken global <code>nong.exe</code> shim that pointed to a missing 3.2.4 tool store path.</li>
+<li>Installed the local 4.0.0 tool globally and verified it exposes 96 commands.</li>
+</ul>
+<br>
+<h2>Why</h2>
+<br>
+<p>The lock files still carried old Nong dependency ranges even though the project graph had moved to 4.0.0 project references. The global <code>nong</code> command was also broken because its shim referenced a deleted 3.2.4 tool install.</p>
+<br>
+<h2>Files touched</h2>
+<br>
+<ul>
+<li><code>Cli/packages.lock.json</code></li>
+<li><code>Cli.Tests/packages.lock.json</code></li>
+<li><code>Inspect/packages.lock.json</code></li>
+<li><code>MultiModal/packages.lock.json</code></li>
+<li><code>Tests/packages.lock.json</code></li>
+<li><code>tools/ProgressReport/packages.lock.json</code></li>
+</ul>
+<br>
+<h2>Tests</h2>
+<br>
+<ul>
+<li><code>dotnet restore Cli\NongCli.csproj --use-lock-file --force-evaluate</code></li>
+<li><code>dotnet restore Cli.Tests\Cli.Tests.csproj --use-lock-file --force-evaluate</code></li>
+<li><code>dotnet restore Tests\Tests.csproj --use-lock-file --force-evaluate</code></li>
+<li>Precise stale-version scan over all <code>packages.lock.json</code></li>
+<li><code>nong --version</code></li>
+<li><code>nong commands --json</code></li>
+<li>Global <code>nong inspect write-official</code> -&gt; <code>nong word format-gongwen</code> -&gt; <code>nong word validate</code></li>
+</ul>
+<br>
+<h2>Remaining risks</h2>
+<br>
+<ul>
+<li>The local global tool is installed from <code>..\Nong.Cli_archive\local-tools\Angri450.Nong.Cli.4.0.0.nupkg</code>, not NuGet.org. Publish a new public package before relying on fresh machines to have these commands.</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

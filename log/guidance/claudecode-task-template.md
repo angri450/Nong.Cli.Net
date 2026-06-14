@@ -15,7 +15,7 @@ Implement:
 Project:
 
 ```text
-C:\Users\Administrator\Documents\Github\Angri450.Nong
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net
 ```
 
 Strategic goal:

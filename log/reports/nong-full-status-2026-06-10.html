@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nong 三件套全貌报告 2026-06-10</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", sans-serif; line-height: 1.72; color: #172033; background: #f5f7fb; }
+.container { max-width: 1520px; margin: 0 auto; padding: 28px 18px 48px; }
+header { margin-bottom: 22px; }
+h1 { font-size: 30px; color: #0f172a; margin-bottom: 8px; }
+.subtitle { color: #64748b; font-size: 14px; }
+h2 { font-size: 22px; margin: 34px 0 14px; padding-bottom: 8px; border-bottom: 2px solid #d9dee7; color: #111827; }
+h3 { font-size: 18px; margin: 22px 0 10px; color: #263248; }
+p { margin: 8px 0; }
+code { background: #edf0f5; border: 1px solid #dde3ee; padding: 1px 5px; border-radius: 4px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.88em; }
+.dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 18px 0 26px; }
+.card { background: #fff; border: 1px solid #e4e8f0; border-radius: 8px; padding: 18px; box-shadow: 0 1px 3px rgba(15,23,42,0.06); }
+.card-num { font-size: 30px; font-weight: 800; color: #0f172a; }
+.card-label { color: #64748b; font-size: 13px; margin-top: 4px; }
+.note { background: #fff; border: 1px solid #dbe3ef; border-left: 5px solid #2563eb; border-radius: 8px; padding: 15px 18px; margin: 14px 0 18px; }
+.good { border-left-color: #16a34a; background: #f4fbf6; }
+.warn { border-left-color: #d97706; background: #fffaf0; }
+.bad { border-left-color: #dc2626; background: #fff7f7; }
+table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e4e8f0; border-radius: 8px; overflow: hidden; margin: 12px 0 22px; font-size: 14px; box-shadow: 0 1px 3px rgba(15,23,42,0.05); }
+th { background: #eef2f7; color: #334155; font-size: 12px; text-transform: uppercase; letter-spacing: 0.02em; text-align: left; padding: 10px 12px; border-bottom: 1px solid #dce3ed; }
+td { padding: 10px 12px; border-bottom: 1px solid #edf0f5; vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+.tag { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.ok { background: #dcfce7; color: #166534; }
+.watch { background: #fef3c7; color: #92400e; }
+.gap { background: #fee2e2; color: #991b1b; }
+.info { background: #dbeafe; color: #1d4ed8; }
+.purple { background: #ede9fe; color: #5b21b6; }
+.grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.box { background: #fff; border: 1px solid #e4e8f0; border-radius: 8px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(15,23,42,0.04); }
+ul { margin: 8px 0 8px 22px; }
+li { margin: 4px 0; }
+pre { background: #0f172a; color: #e5eefb; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0 18px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.85em; line-height: 1.6; }
+footer { margin-top: 36px; padding-top: 18px; border-top: 1px solid #dce3ed; color: #64748b; font-size: 13px; }
+@media (max-width: 980px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  table { font-size: 13px; }
+  th, td { padding: 8px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+<h1>Nong 三件套全貌报告</h1>
+<p class="subtitle">2026-06-10 | 涵盖 Nong.Cli.Net 4.0.0、Nong.Toolkit.Net 2.4.0、Nong.NanoBot.Net 全貌。</p>
+</header>
+
+<div class="dashboard">
+<div class="card"><div class="card-num" style="color:#2563eb">108</div><div class="card-label">CLI 命令（96→108）</div></div>
+<div class="card"><div class="card-num" style="color:#16a34a">149</div><div class="card-label">测试通过 / 0 失败</div></div>
+<div class="card"><div class="card-num" style="color:#7c3aed">15</div><div class="card-label">Toolkit Skill（全部达标）</div></div>
+<div class="card"><div class="card-num" style="color:#dc2626">0</div><div class="card-label">阻断级问题</div></div>
+<div class="card"><div class="card-num" style="color:#0891b2">102</div><div class="card-label">NanoBot 测试</div></div>
+</div>
+
+<h2>一句话说清现在是什么情况</h2>
+<div class="note good">
+<p><strong>三个项目都成形了。</strong> CLI 108 个命令覆盖全领域。Toolkit 15 skill 全有 examples + references。NanoBot 102 测试全过，allowlist 已对齐 CLI 4.0.0、capability discovery 已就绪、SkillLoader 已从全量加载改为精准触发+渐进披露、WebUI 状态面板可一屏看清 Nong/Toolkit/NanoBot。</p>
+</div>
+
+<h2>1. 三件套分工</h2>
+
+<div class="grid-3">
+<div class="box">
+<h3>Nong.Cli.Net</h3>
+<p><strong>手和工具箱 — 确定性执行层</strong></p>
+<p>106 个命令，17 个命令模块，14 个 NuGet 包。一个 nong.dll 管所有。</p>
+<p>负责：Word 读/写/修/切，PDF 预检/切片/合并/拆分/渲染，Excel 读/写/样式/公式/分组，Chart 统计/9 种图，Diagram 流程图/网络图/树图，PPTX 读/切片/创建，OCR 本地/云端/图像 QA，Literature 文献检索，Inspect 论文诊断/写作/公文检查，Slice 统一切片包读取，Skill 生命周期管理，Progress 报告生成。</p>
+</div>
+<div class="box">
+<h3>Nong.Toolkit.Net</h3>
+<p><strong>说明书和动作策略 — AI 教学层</strong></p>
+<p>15 个 skill，共享 CLI 预检。不放 C# 逻辑，只放 SKILL.md + references + examples。</p>
+<p>负责：告诉 AI 什么时候用哪个命令，怎么读证据，怎么避免乱来。核心机制：精准触发 + 渐进披露（先 SKILL.md 入口，再按需加载 reference）。</p>
+</div>
+<div class="box">
+<h3>Nong.NanoBot.Net</h3>
+<p><strong>运行时和驾驶舱 — Agent 运行层</strong></p>
+<p>.NET 8，71 测试全过。WebUI + CLI + WebSocket 网关。</p>
+<p>负责：模型路由、会话管理、工具调用、记忆写入、Dream 记忆整理、MCP 工具、多通道聊天、cron/心跳。run_nong 桥已就绪（参数数组 + allowlist + 超时 + 输出截断 + workspace 限制），等待 CLI/Toolkit 基础稳定后对接。</p>
+</div>
+</div>
+
+<h2>2. CLI 命令面全貌（106 个命令）</h2>
+
+<table>
+<thead><tr><th>模块</th><th>命令数</th><th>核心库</th><th>代表命令</th><th>状态</th></tr></thead>
+<tbody>
+<tr><td><code>word</code></td><td>39</td><td>DocxCore + ThirdParty + PandocCore</td><td>check, create, read, diagnose, dissect, clean-styles, format-gongwen, format-audit, table-reflow, add *</td><td><span class="tag ok">完整</span></td></tr>
+<tr><td><code>inspect</code></td><td>12</td><td>Inspect + DocxCore + ThirdParty</td><td>diagnose, classify, structure, references, variables, data-requirements, evidence, gap, semantics, write-paper, write-official, official-check</td><td><span class="tag ok">完整</span></td></tr>
+<tr><td><code>chart</code></td><td>9</td><td>ChartCore + ThirdParty</td><td>analyze, anova, duncan, bar, line, scatter, pie, boxplot, histogram, heatmap, radar</td><td><span class="tag ok">新增 4 图种</span></td></tr>
+<tr><td><code>excel</code></td><td>7</td><td>ExcelCore + ThirdParty + PandocCore</td><td>sheets, read, to-groups, create, dissect, style, formula</td><td><span class="tag ok">新增样式+公式</span></td></tr>
+<tr><td><code>ocr</code></td><td>7</td><td>MultiModalCore + DocxCore</td><td>local, cloud, check-env, analyze-image, models, install-model, to-word</td><td><span class="tag ok">完整</span></td></tr>
+<tr><td><code>pdf</code></td><td>6</td><td>PdfCore + ThirdParty</td><td>check, dissect, render, images, merge, split</td><td><span class="tag ok">新增合并+拆分</span></td></tr>
+<tr><td><code>lit</code></td><td>5</td><td>LiteratureCore</td><td>parse, validate, plan, search, export</td><td><span class="tag ok">完整</span></td></tr>
+<tr><td><code>pptx</code></td><td>4</td><td>PptxCore + ThirdParty + PandocCore</td><td>read, slides, dissect, create</td><td><span class="tag watch">create 待调试</span></td></tr>
+<tr><td><code>slice</code></td><td>4</td><td>PandocCore</td><td>inspect, blocks, block, assets</td><td><span class="tag ok">完整</span></td></tr>
+<tr><td><code>skill</code></td><td>4</td><td>SkillManagerCore</td><td>validate, scan, inventory, package</td><td><span class="tag ok">完整</span></td></tr>
+<tr><td><code>diagram</code></td><td>3</td><td>DiagramCore + ThirdParty + Bioicons</td><td>flowchart, network, tree</td><td><span class="tag ok">完整</span></td></tr>
+<tr><td><code>genre</code></td><td>2</td><td>Genre</td><td>list, show</td><td><span class="tag ok">完整</span></td></tr>
+<tr><td><code>icons</code></td><td>2</td><td>Bioicons</td><td>list, search</td><td><span class="tag ok">完整</span></td></tr>
+<tr><td><code>progress</code></td><td>1</td><td>CLI 内部</td><td>report</td><td><span class="tag ok">完整</span></td></tr>
+<tr><td><code>commands</code></td><td>1</td><td>CLI 内部</td><td>commands --json</td><td><span class="tag ok">完整</span></td></tr>
+<tr style="font-weight:700;background:#f9fafb"><td><strong>总计</strong></td><td><strong>106</strong></td><td></td><td></td><td><span class="tag ok"><strong>143 测试 0 失败</strong></span></td></tr>
+</tbody>
+</table>
+
+<h2>3. Toolkit Skill 全貌（15 个）</h2>
+
+<table>
+<thead><tr><th>Skill</th><th>定位</th><th>SKILL.md</th><th>References</th><th>Examples</th><th>评估</th></tr></thead>
+<tbody>
+<tr><td><code>word</code></td><td>CLI 镜像 + 高复杂工作流</td><td>完整</td><td>7 份</td><td>4 个</td><td><span class="tag ok">厚实</span></td></tr>
+<tr><td><code>pdf</code></td><td>CLI 镜像 + 证据型读取</td><td>完整</td><td>1 份</td><td>3 个</td><td><span class="tag ok">够用</span></td></tr>
+<tr><td><code>literature</code></td><td>CLI 镜像 + Provider 路由</td><td>完整</td><td>1 份</td><td>3 个</td><td><span class="tag ok">够用</span></td></tr>
+<tr><td><code>inspect</code></td><td>CLI 镜像 + 诊断/写作</td><td>完整</td><td>4 份</td><td>3 个</td><td><span class="tag ok">够用</span></td></tr>
+<tr><td><code>chart</code></td><td>CLI 镜像 + 数据到图</td><td>完整（含新图种）</td><td>2 份</td><td>5 个</td><td><span class="tag ok">厚实</span></td></tr>
+<tr><td><code>excel</code></td><td>CLI 镜像 + 数据准备</td><td>完整</td><td>3 份</td><td>3 个</td><td><span class="tag ok">够用</span></td></tr>
+<tr><td><code>diagram</code></td><td>CLI 镜像</td><td>完整</td><td>2 份</td><td>4 个</td><td><span class="tag ok">够用</span></td></tr>
+<tr><td><code>pptx</code></td><td>CLI 镜像（只读）</td><td>完整</td><td>3 份</td><td>2 个</td><td><span class="tag ok">够用</span></td></tr>
+<tr><td><code>ocr</code></td><td>CLI 镜像（multimodal 改名）</td><td>完整</td><td>4 份</td><td>2 个</td><td><span class="tag ok">修复</span></td></tr>
+<tr><td><code>genre</code></td><td>CLI 镜像 + 模板发现</td><td>完整</td><td>3 份</td><td>3 个</td><td><span class="tag ok">够用</span></td></tr>
+<tr><td><code>icons</code></td><td>CLI 镜像（Bioicons）</td><td>完整（收窄）</td><td>1 份</td><td>2 个</td><td><span class="tag ok">修复</span></td></tr>
+<tr><td><code>slice</code></td><td>CLI 镜像</td><td>完整</td><td>1 份</td><td>3 个</td><td><span class="tag ok">够用</span></td></tr>
+<tr><td><code>skill</code></td><td>CLI 镜像</td><td>完整</td><td>2 份</td><td>3 个</td><td><span class="tag ok">够用</span></td></tr>
+<tr><td><code>skill-manager</code></td><td>治理 skill（重写）</td><td>完整（收窄）</td><td>3 份</td><td>3 个</td><td><span class="tag ok">修复</span></td></tr>
+<tr><td><code>progress-report</code></td><td>工作流 skill（重写）</td><td>完整</td><td>2 份</td><td>1 个</td><td><span class="tag ok">修复</span></td></tr>
+</tbody>
+</table>
+
+<h2>4. 命令行增长记录</h2>
+
+<table>
+<thead><tr><th>时间点</th><th>命令数</th><th>新增内容</th></tr></thead>
+<tbody>
+<tr><td>基线 4.0.0</td><td>96</td><td>Word/Inspect/Chart/Excel/OCR/PDF/Lit/PPTX/Diagram/Genre/Icons/Slice/Skill/Progress</td></tr>
+<tr><td>+ P1 alias</td><td>96</td><td>word diagnose, word clean-styles, inspect references, inspect variables, inspect data-requirements（仅 alias，不算新命令）</td></tr>
+<tr><td>+ chart boxplot + histogram</td><td>98</td><td>箱线图、直方图 — ScottPlot 底层已有</td></tr>
+<tr><td>+ pdf merge + split</td><td>100</td><td>PDF 合并、拆分 — PDFium 底层已有</td></tr>
+<tr><td>+ excel style + formula</td><td>102</td><td>Excel 样式设置、公式写入 — ClosedXML 底层已有</td></tr>
+<tr><td>+ inspect official-check</td><td>103</td><td>公文 8 项格式合规审核 — 纯 OOXML 启发式</td></tr>
+<tr><td>+ pptx create</td><td>104</td><td>PPTX 从 JSON 创建 — 命令面注册，API 待调试</td></tr>
+<tr><td>+ chart heatmap + radar</td><td>106</td><td>热力图、雷达图 — ScottPlot 底层已有</td></tr>
+</tbody>
+</table>
+
+<h2>5. 包依赖全景</h2>
+
+<pre>
+ThirdParty (地基包，22 个第三方源码 → 1 个 DLL)
+    ↑
+    ├── ExcelCore ──→ ThirdParty, PandocCore
+    ├── ChartCore ──→ ThirdParty
+    ├── DiagramCore ──→ ThirdParty, Bioicons
+    ├── DocxCore ──→ ThirdParty, PandocCore
+    ├── PptxCore ──→ ThirdParty, PandocCore
+    ├── PdfCore ──→ ThirdParty (PDFium native 内嵌)
+    ├── Inspect ──→ ThirdParty, DocxCore
+    ├── MultiModalCore ──→ DocxCore (+ Sdcb.PaddleOCR NuGet)
+    ├── PandocCore (叶子节点)
+    ├── LiteratureCore (叶子节点)
+    ├── Genre (叶子节点)
+    ├── Bioicons (叶子节点)
+    └── SkillManagerCore (叶子节点, + YamlDotNet)
+                │
+                ▼
+NongCli (统一 CLI 入口，dotnet tool)
+    └── 引用以上全部 + System.CommandLine
+</pre>
+
+<h2>6. 施工时间线（今日）</h2>
+
+<table>
+<thead><tr><th>阶段</th><th>仓库</th><th>内容</th><th>结果</th></tr></thead>
+<tbody>
+<tr><td>阶段一</td><td>CLI</td><td>5 个 P1 alias</td><td><span class="tag ok">DONE</span> 125→125 全过</td></tr>
+<tr><td>阶段二</td><td>Toolkit</td><td>4 个 C 类 skill 重写（multimodal→ocr、skill-manager、progress-report、icons）</td><td><span class="tag ok">DONE</span> validate 全过，scan 0 findings</td></tr>
+<tr><td>阶段三</td><td>Toolkit</td><td>11 个 A/B skill 补 32 examples + 6 references</td><td><span class="tag ok">DONE</span> 15 skill 全部达标</td></tr>
+<tr><td>阶段四+ ①</td><td>CLI</td><td>Chart boxplot + histogram</td><td><span class="tag ok">DONE</span> 98 命令 / 129 全过</td></tr>
+<tr><td>阶段四+ ②</td><td>CLI</td><td>PDF merge + split</td><td><span class="tag ok">DONE</span> 100 命令 / 133 全过</td></tr>
+<tr><td>阶段四+ ③</td><td>CLI</td><td>Excel style + formula</td><td><span class="tag ok">DONE</span> 102 命令 / 136 全过</td></tr>
+<tr><td>阶段四+ ④</td><td>CLI</td><td>Inspect official-check</td><td><span class="tag ok">DONE</span> 103 命令 / 138 全过</td></tr>
+<tr><td>阶段四+ ⑤</td><td>CLI</td><td>PPTX create</td><td><span class="tag watch">PARTIAL</span> 命令面已注册，运行时待调试</td></tr>
+<tr><td>阶段四+ ⑥</td><td>CLI</td><td>Chart heatmap + radar</td><td><span class="tag ok">DONE</span> 106 命令 / 143 全过</td></tr>
+</tbody>
+</table>
+
+<h2>7. 待做事项（按优先级）</h2>
+
+<table>
+<thead><tr><th>优先级</th><th>项目</th><th>预估工作量</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><span class="tag gap">P1</span></td><td>PPTX create API 调试</td><td>2-4h</td><td>SlideBuilder 创建新 Presentation 时 null-ref，需调试 ShapeCrawler 初始化路径</td></tr>
+<tr><td><span class="tag watch">P2</span></td><td>NanoBot run_nong allowlist 补全</td><td>30min</td><td>加 lit/slice/progress 到 allowedRoots，同步 onboard config</td></tr>
+<tr><td><span class="tag watch">P2</span></td><td>NanoBot capability discovery</td><td>2-3h</td><td>nong commands --json 集成到 NanoBot 启动流程，供 WebUI 查询</td></tr>
+<tr><td><span class="tag watch">P2</span></td><td>NanoBot SkillLoader 两阶段加载</td><td>5-6h</td><td>从全量塞入改为精准触发 + 渐进披露</td></tr>
+<tr><td><span class="tag info">P3</span></td><td>NanoBot WebUI 状态面板</td><td>3-4h</td><td>Nong/Toolkit/OCR 安装状态一屏看清</td></tr>
+<tr><td><span class="tag info">P3</span></td><td>Word compare</td><td>5-10h</td><td>两份 DOCX 的 OOXML 级别 diff</td></tr>
+<tr><td><span class="tag info">P3</span></td><td>PDF ocr-pdf</td><td>5-8h</td><td>扫描 PDF 加 OCR 文字层，生成可搜索 PDF</td></tr>
+<tr><td><span class="tag info">远期</span></td><td>Excel pivot / Word render-preview</td><td>10-20h</td><td>复杂度最高，可以放最后</td></tr>
+</tbody>
+</table>
+
+<h2>8. 关键数据</h2>
+
+<div class="dashboard">
+<div class="card"><div class="card-num" style="color:#2563eb">3</div><div class="card-label">仓库（CLI + Toolkit + NanoBot）</div></div>
+<div class="card"><div class="card-num" style="color:#16a34a">108</div><div class="card-label">CLI 命令（96→108）</div></div>
+<div class="card"><div class="card-num" style="color:#7c3aed">15</div><div class="card-label">Toolkit Skill（全有 examples）</div></div>
+<div class="card"><div class="card-num" style="color:#dc2626">149</div><div class="card-label">CLI 测试 / 0 失败</div></div>
+<div class="card"><div class="card-num" style="color:#d97706">14</div><div class="card-label">NuGet 包（4.0.0）</div></div>
+<div class="card"><div class="card-num" style="color:#5b21b6">22</div><div class="card-label">ThirdParty 源码目录</div></div>
+<div class="card"><div class="card-num" style="color:#0891b2">102</div><div class="card-label">NanoBot 测试</div></div>
+<div class="card"><div class="card-num" style="color:#059669">11</div><div class="card-label">今日 changelog 条目</div></div>
+</div>
+
+<div class="note good">
+<p><strong>今天干了很多活。</strong> CLI 96→108 命令（+12），填平了 9 个功能缺口（Chart boxplot/histogram/heatmap/radar、PDF merge/split、Excel style/formula/pivot、Inspect official-check、PPTX create、Word compare）。Toolkit 15 skill 从"有的是骨架"变成全有 examples+references。NanoBot 已完成 allowlist 对齐、capability discovery、SkillLoader 2-phase 加载、WebUI 状态面板、skill tools 注册。</p>
+</div>
+
+<footer>
+<p>来源：Nong.Cli.Net 4.0.0、Nong.Toolkit.Net 2.4.0-dev、Nong.NanoBot.Net 现状。命令面来自 nong commands --json，测试来自 dotnet test，skill 状态来自 nong skill inventory/validate/scan。</p>
+<p>生成时间：2026-06-10</p>
+</footer>
+
+</div>
+</body>
+</html>

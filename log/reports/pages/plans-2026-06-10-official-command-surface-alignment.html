@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>official command surface alignment plan - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../plans.html" class="back-link">&larr; 施工方案</a>
+<h1>official command surface alignment plan</h1>
+<p class="subtitle">2026-06-10 | <span style="color: #2563eb">施工方案</span></p></header>
+<article class="content">
+<h1>official command surface alignment plan</h1>
+<br>
+<h2>Goal</h2>
+<br>
+<p>Close the Toolkit/CLI parity gap where Toolkit documentation discussed official-document drafting and gongwen formatting but Nong.Cli.Net only exposed the underlying library classes.</p>
+<br>
+<h2>Work</h2>
+<br>
+<p>1. Add a first-class Word command for existing-DOCX gongwen formatting.</p>
+<p>2. Add a first-class Inspect command for official-document DOCX generation from JSON spec.</p>
+<p>3. Register both commands in <code>nong commands --json</code>.</p>
+<p>4. Add command-level regression coverage.</p>
+<p>5. Update Nong.Toolkit.Net word, inspect, genre, and skill docs so the skill layer routes to implemented CLI commands.</p>
+<p>6. Re-run bidirectional command coverage audits and Toolkit package gates.</p>
+<br>
+<h2>Status</h2>
+<br>
+<p>Done.</p>
+<br>
+<h2>Verification</h2>
+<br>
+<ul>
+<li><code>dotnet build SkillManagerCore\SkillManagerCore.csproj -c Release --no-restore -maxcpucount:1</code></li>
+<li><code>dotnet build Cli\NongCli.csproj -c Release --no-restore -maxcpucount:1</code></li>
+<li><code>dotnet test Cli.Tests\Cli.Tests.csproj -c Release --no-build</code></li>
+<li>Toolkit <code>skill validate</code> for <code>word</code>, <code>inspect</code>, <code>genre</code>, and <code>skill</code></li>
+<li>Toolkit <code>skill inventory</code>, <code>skill scan</code>, and <code>skill package</code></li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

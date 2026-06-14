@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Nong.Cli</RootNamespace>
+    <AssemblyName>nong-pdf</AssemblyName>
+    <PackageId>Angri450.Nong.Tool.Pdf</PackageId>
+    <ToolCommandName>nong-pdf</ToolCommandName>
+    <PackAsTool>true</PackAsTool>
+    <Version>4.1.6</Version>
+    <Authors>angri450</Authors>
+    <Description>PDF operations — check, dissect, render, images, merge, split, compress, OCR.</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PdfCore.csproj" />
+    <ProjectReference Include="..\..\ThirdParty\ThirdParty.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="..\..\Cli\Commands\PdfCommands.cs" />
+    <Compile Include="..\..\Cli\Adapters\*.cs" />
+    <Compile Include="..\..\Cli\Common\*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

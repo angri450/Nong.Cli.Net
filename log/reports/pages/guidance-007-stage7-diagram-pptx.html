@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-03 阶段 7 指导：Diagram / PPTX 输出 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../guidance.html" class="back-link">&larr; 开发指导</a>
+<h1>2026-06-03 阶段 7 指导：Diagram / PPTX 输出</h1>
+<p class="subtitle">2026-06-03 | <span style="color: #7c3aed">开发指导</span></p></header>
+<article class="content">
+<h1>2026-06-03 阶段 7 指导：Diagram / PPTX 输出</h1>
+<br>
+<h2>目标</h2>
+<br>
+<p>阶段 7 做展示材料，但只做“科研汇报最小闭环”。</p>
+<br>
+<p>优先级：</p>
+<br>
+<p>1. <code>diagram flowchart</code></p>
+<p>2. <code>diagram network</code></p>
+<p>3. <code>pptx read</code></p>
+<p>4. <code>pptx create-from-json</code></p>
+<br>
+<h2>P0：diagram</h2>
+<br>
+<p>建议命令：</p>
+<br>
+<pre><code class="language-powershell">
+nong diagram flowchart spec.json -o flow.png --json
+nong diagram network spec.json -o net.png --json
+</code></pre>
+<br>
+<p>JSON 输出必须包含：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;artifacts&quot;: {
+    &quot;png&quot;: &quot;flow.png&quot;
+  }
+}
+</code></pre>
+<br>
+<p>阶段 7 不要做复杂图谱 DSL，只接受已有 Diagram 包能支持的 spec。</p>
+<br>
+<h2>P1：pptx</h2>
+<br>
+<p>建议命令：</p>
+<br>
+<pre><code class="language-powershell">
+nong pptx read slides.pptx --json
+nong pptx create-from-json spec.json -o slides.pptx --json
+</code></pre>
+<br>
+<p><code>pptx create-from-json</code> 只支持：</p>
+<br>
+<ul>
+<li>title slide</li>
+<li>bullet slide</li>
+<li>image slide</li>
+<li>chart image slide</li>
+</ul>
+<br>
+<p>不要做复杂主题、动画、母版。</p>
+<br>
+<h2>建议 ClaudeCode 任务</h2>
+<br>
+<pre><code class="language-text">
+目标：实现阶段 7 Diagram / PPTX 最小展示闭环。
+
+只做：
+1. nong diagram flowchart &lt;spec.json&gt; -o &lt;png&gt;
+2. nong diagram network &lt;spec.json&gt; -o &lt;png&gt;
+3. nong pptx read &lt;file&gt;
+4. nong pptx create-from-json &lt;spec.json&gt; -o &lt;pptx&gt;
+
+要求：
+- 新建 DiagramCommands.cs / PptxCommands.cs。
+- 复用已有 Diagram / Pptx 包 API。
+- 所有生成命令 artifacts 返回输出路径。
+- 不实现动画、复杂主题、OCR、交互图。
+- Release build 0 错误。
+</code></pre>
+<br>
+<h2>验收标准</h2>
+<br>
+<p>阶段 7 完成后，应该能做到：</p>
+<br>
+<pre><code class="language-powershell">
+nong chart bar groups.json -o fig.png --json
+nong diagram flowchart method.json -o method.png --json
+nong pptx create-from-json slides.json -o report.pptx --json
+</code></pre>
+<br>
+<p>这表示论文图、方法图、汇报 PPT 已经形成最小闭环。</p>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

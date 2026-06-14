@@ -1,11 +1,13 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using OMML = DocumentFormat.OpenXml.Math;
+using PandocCore;
 
 namespace DocxCore;
 
@@ -460,7 +462,7 @@ public static class WordSlice
     {
         var result = new List<NongBlock>();
         var styleId = para.ParagraphProperties?.ParagraphStyleId?.Val?.Value;
-        var styleName = GetStyleName(mainPart, styleId);
+        var styleName = WordHeadingStyles.GetStyleName(mainPart, styleId);
         var outlineLvl = para.ParagraphProperties?.OutlineLevel?.Val?.Value;
         var paragraphFormat = ExtractParagraphFormat(para.ParagraphProperties);
         int pos = startPos;
@@ -492,8 +494,9 @@ public static class WordSlice
         }
 
         // Check if this is a pure heading
-        bool isHeading = IsHeadingStyle(styleId) || (outlineLvl.HasValue && outlineLvl.Value >= 0);
-        int headingLevel = DetermineHeadingLevel(styleId, outlineLvl);
+        int? detectedHeadingLevel = WordHeadingStyles.GetHeadingLevel(styleId, styleName, outlineLvl, para.InnerText);
+        bool isHeading = detectedHeadingLevel.HasValue;
+        int headingLevel = detectedHeadingLevel ?? 0;
 
         if (isHeading && headingLevel >= 1 && headingLevel <= 9)
         {
@@ -585,8 +588,18 @@ public static class WordSlice
             if (child is Run run)
             {
                 var drawings = run.Elements<Drawing>().ToList();
-                if (drawings.Count > 0)
+                var vmlImages = ExtractImagesFromVml(run, imageParts, idMap, warnings);
+                if (drawings.Count > 0 || vmlImages.Count > 0)
                 {
+                    var runText = run.InnerText;
+                    if (!string.IsNullOrWhiteSpace(runText))
+                    {
+                        var rBlock = ExtractSingleRun(run, idMap);
+                        textRuns.Add(rBlock);
+                        sb.Append(rBlock.Text ?? "");
+                        hasText = true;
+                    }
+
                     // Flush pending text first
                     if (hasText)
                     {
@@ -614,6 +627,12 @@ public static class WordSlice
                             result.Add(imgBlock);
                             pos++;
                         }
+                    }
+
+                    foreach (var imgBlock in vmlImages)
+                    {
+                        result.Add(imgBlock);
+                        pos++;
                     }
                 }
                 else
@@ -1211,6 +1230,7 @@ public static class WordSlice
         {
             Id = idMap.AllocateId("img"),
             Kind = "image",
+            Source = "drawingml",
             ImageId = rId,
             ContentType = imgPart.part?.ContentType,
             WidthEmu = widthEmu,
@@ -1219,6 +1239,80 @@ public static class WordSlice
             HeightPx = heightPx,
             AltText = altText,
         };
+    }
+
+    private static List<ImageBlock> ExtractImagesFromVml(OpenXmlElement root,
+        List<(string rId, ImagePart part)> imageParts,
+        WordBlockIdMap idMap, List<string> warnings)
+    {
+        var result = new List<ImageBlock>();
+        foreach (var imageData in root.Descendants()
+            .Where(e => e.LocalName.Equals("imagedata", StringComparison.OrdinalIgnoreCase)))
+        {
+            var rId = GetRelationshipId(imageData);
+            var altText = GetAttributeValue(imageData, "title")
+                ?? GetAttributeValue(imageData, "alt")
+                ?? "VML image";
+
+            if (string.IsNullOrWhiteSpace(rId))
+            {
+                warnings.Add("VML image data found without a relationship id; content may not be extractable.");
+                result.Add(new ImageBlock
+                {
+                    Id = idMap.AllocateId("img"),
+                    Kind = "image",
+                    Source = "vml",
+                    AltText = altText,
+                    Analysis = new ImageAnalysis { Engine = "not available" }
+                });
+                continue;
+            }
+
+            var imgPart = imageParts.FirstOrDefault(ip => ip.rId == rId);
+            if (imgPart.part == null)
+                warnings.Add($"VML image relationship '{rId}' was referenced but no image part was found.");
+            else
+                warnings.Add($"VML image '{rId}' detected and surfaced as an image block; visual layout is preserved as an extracted asset, not as editable text.");
+
+            result.Add(new ImageBlock
+            {
+                Id = idMap.AllocateId("img"),
+                Kind = "image",
+                Source = "vml",
+                ImageId = rId,
+                ContentType = imgPart.part?.ContentType,
+                AltText = altText,
+            });
+        }
+
+        return result;
+    }
+
+    private static string? GetRelationshipId(OpenXmlElement element)
+    {
+        foreach (var attr in element.GetAttributes())
+        {
+            if (attr.LocalName.Equals("id", StringComparison.OrdinalIgnoreCase) &&
+                attr.NamespaceUri.Contains("relationships", StringComparison.OrdinalIgnoreCase))
+                return attr.Value;
+
+            if (attr.LocalName.Equals("relid", StringComparison.OrdinalIgnoreCase))
+                return attr.Value;
+        }
+
+        return null;
+    }
+
+    private static string? GetAttributeValue(OpenXmlElement element, string localName)
+    {
+        foreach (var attr in element.GetAttributes())
+        {
+            if (attr.LocalName.Equals(localName, StringComparison.OrdinalIgnoreCase) &&
+                !string.IsNullOrWhiteSpace(attr.Value))
+                return attr.Value;
+        }
+
+        return null;
     }
 
     // ========================================================================
@@ -1524,59 +1618,45 @@ public static class WordSlice
         imageAssets ??= new List<NongAssetEntry>();
         var metrics = ComputeMetrics(blocks);
 
-        // 1. Write manifest.json (sourceSha256, createdAt, Content)
-        var manifest = new NongManifest
+        var manifest = new NongPandocSliceManifest
         {
-            SchemaVersion = "nongmark/v1",
-            Source = Path.GetFileName(sourcePath),
-            SourceSha256 = sha256,
-            CreatedAt = DateTime.UtcNow,
-            Streams = new NongStreamPaths
+            Source = new NongPandocSourceInfo
             {
-                Document = "document.json",
-                Content = "content.md",
-                ContentJsonl = "content.jsonl",
-                Structure = "structure.json",
-                Format = "format.json",
-                Assets = "assets/manifest.json",
+                Path = Path.GetFileName(sourcePath),
+                Format = "docx",
+                Sha256 = sha256,
             },
-            Metrics = metrics,
+            CreatedAt = DateTime.UtcNow,
+            Metrics = ToPandocMetrics(metrics, warnings.Count),
             Warnings = warnings,
         };
-        WriteJson(Path.Combine(outputDir, "manifest.json"), manifest);
 
-        // 2. Write document.json (canonical source alongside content.jsonl)
         var document = new NongDocument
         {
             SchemaVersion = "nongmark/v1",
             Source = Path.GetFileName(sourcePath),
             Blocks = blocks,
         };
-        WriteJson(Path.Combine(outputDir, "document.json"), document);
 
-        // 3. Write content.md (human preview)
-        var md = GenerateMarkdown(blocks);
-        File.WriteAllText(Path.Combine(outputDir, "content.md"), md, Encoding.UTF8);
-
-        // 4. Write content.jsonl (one JSON block per line, each with id/kind)
-        using (var sw = new StreamWriter(Path.Combine(outputDir, "content.jsonl"), false, Encoding.UTF8))
+        var nongmark = GenerateNongMark(blocks);
+        var textPreview = GenerateTextPreview(blocks);
+        var contentJsonlLines = new List<string>(blocks.Count);
+        for (int i = 0; i < blocks.Count; i++)
         {
-            foreach (var block in blocks)
-            {
-                string json = JsonSerializer.Serialize(block, block.GetType(), JsonlOpts);
-                sw.WriteLine(json);
-            }
+            var block = blocks[i];
+            string json = JsonSerializer.Serialize(block, block.GetType(), JsonlOpts);
+            var line = JsonNode.Parse(json)?.AsObject() ?? new JsonObject();
+            line["blockId"] = block.Id;
+            line["index"] = i;
+            contentJsonlLines.Add(line.ToJsonString(JsonlOpts));
         }
 
-        // 5. Write structure.json
         var structure = BuildStructure(blocks);
-        WriteJson(Path.Combine(outputDir, "structure.json"), structure);
 
-        // 6. Write format.json
         NongFormat format;
         if (doc != null)
         {
-            format = BuildFormat(doc, blocks, warnings);
+            format = BuildFormat(doc, Path.GetFileName(sourcePath), blocks, warnings);
         }
         else
         {
@@ -1587,30 +1667,55 @@ public static class WordSlice
                 Warnings = new List<string> { "Format extraction skipped (document not available)." },
             };
         }
-        WriteJson(Path.Combine(outputDir, "format.json"), format);
+        var diagnostics = new
+        {
+            schemaVersion = "nongmark/diagnostics/v1",
+            source = Path.GetFileName(sourcePath),
+            warnings,
+        };
 
-        // 7. Write assets/manifest.json (always written, even with 0 images)
         var assetManifest = new NongAssetManifest
         {
             SchemaVersion = "nongmark/v1",
             Source = Path.GetFileName(sourcePath),
             Items = imageAssets,
         };
-        WriteJson(Path.Combine(outputDir, "assets", "manifest.json"), assetManifest);
+        var writeResult = NongPandocSlicePackageWriter.Write(
+            new NongPandocSliceWritePayload
+            {
+                OutputDirectory = outputDir,
+                Manifest = manifest,
+                Document = document,
+                ContentJsonlLines = contentJsonlLines,
+                NongMarkText = nongmark,
+                Structure = structure,
+                Format = format,
+                Diagnostics = diagnostics,
+                AssetsManifest = assetManifest,
+                TextPreview = textPreview,
+            },
+            new NongPandocSliceWriteOptions
+            {
+                JsonOptions = JsonOpts,
+                JsonlOptions = JsonlOpts,
+                RequiredArtifacts = NongPandocSlicePackageWriter.DefaultRequiredArtifacts
+                    .Concat(new[] { NongPandocArtifactNames.TextPreview })
+                    .ToArray(),
+            });
 
         return new WordSliceResult(
-            OutputDir: Path.GetFullPath(outputDir),
-            ManifestPath: Path.GetFullPath(Path.Combine(outputDir, "manifest.json")),
+            OutputDir: writeResult.OutputDirectory,
+            ManifestPath: writeResult.ManifestPath,
             BlockCount: blocks.Count,
             Warnings: warnings
         );
     }
 
     // ========================================================================
-    // Markdown generation (content.md)
+    // NongMark generation (content.nongmark) and plain text preview
     // ========================================================================
 
-    private static string GenerateMarkdown(List<NongBlock> blocks)
+    private static string GenerateNongMark(List<NongBlock> blocks)
     {
         var sb = new StringBuilder();
 
@@ -1620,70 +1725,78 @@ public static class WordSlice
             {
                 case HeadingBlock h:
                     string prefix = new string('#', Math.Min(h.Level, 6));
-                    sb.AppendLine($"{prefix} {h.Text ?? ""}");
+                    sb.AppendLine($"{prefix} {EscapeNongText(h.Text ?? "")} {{#{h.Id} kind=heading level={h.Level}}}");
                     sb.AppendLine();
                     break;
 
                 case ParagraphBlock p:
                     if (!string.IsNullOrEmpty(p.Text))
-                        sb.AppendLine(p.Text);
+                    {
+                        sb.AppendLine($"::: paragraph {{#{p.Id} kind=paragraph style=\"{EscapeAttr(p.StyleId ?? "")}\"}}");
+                        sb.AppendLine(RenderRuns(p.Runs, p.Text));
+                        sb.AppendLine(":::");
+                    }
                     sb.AppendLine();
                     break;
 
                 case TableBlock t:
-                    sb.AppendLine(GenerateMarkdownTable(t));
+                    sb.AppendLine($"::: table {{#{t.Id} kind=table rows={t.RowCount} cols={t.ColCount}}}");
+                    sb.AppendLine(GenerateNongMarkTable(t));
+                    sb.AppendLine(":::");
                     sb.AppendLine();
                     break;
 
                 case ImageBlock img:
                     var alt = img.AltText ?? "image";
                     var src = img.AssetPath ?? img.ImageId ?? "";
-                    sb.AppendLine($"![{alt}]({src})");
+                    sb.AppendLine($"![{EscapeNongText(alt)}]({src}) {{#{img.Id} kind=image source={img.Source}}}");
                     sb.AppendLine();
                     break;
 
                 case EquationBlock eq:
-                    if (eq.Latex != null)
-                    {
-                        if (eq.Display)
-                            sb.AppendLine($"$$\n{eq.Latex}\n$$");
-                        else
-                            sb.AppendLine($"${eq.Latex}$");
-                    }
-                    else
-                    {
-                        sb.AppendLine($"`[Math: {eq.TextFallback ?? "OMML formula"}]`");
-                    }
+                    sb.AppendLine($"::: equation {{#{eq.Id} kind=equation display={eq.Display.ToString().ToLowerInvariant()} source={eq.Source}}}");
+                    sb.AppendLine(eq.Latex ?? eq.TextFallback ?? "");
+                    sb.AppendLine(":::");
                     sb.AppendLine();
                     break;
 
                 case ChemEquationBlock ce:
-                    sb.AppendLine($"`[ChemEq: {ce.Text ?? ""}]`");
+                    sb.AppendLine($"::: chemEquation {{#{ce.Id} kind=chemEquation source={ce.Source}}}");
+                    sb.AppendLine(ce.Text ?? ce.Normalized ?? "");
+                    sb.AppendLine(":::");
                     sb.AppendLine();
                     break;
 
                 case FootnoteBlock fn:
-                    sb.AppendLine($"[^{fn.Number}]: {fn.Text ?? ""}");
+                    sb.AppendLine($"::: footnote {{#{fn.Id} kind=footnote number={fn.Number}}}");
+                    sb.AppendLine(EscapeNongText(fn.Text ?? ""));
+                    sb.AppendLine(":::");
                     sb.AppendLine();
                     break;
 
                 case EndnoteBlock en:
-                    sb.AppendLine($"**[Endnote {en.Number}]** {en.Text ?? ""}");
+                    sb.AppendLine($"::: endnote {{#{en.Id} kind=endnote number={en.Number}}}");
+                    sb.AppendLine(EscapeNongText(en.Text ?? ""));
+                    sb.AppendLine(":::");
                     sb.AppendLine();
                     break;
 
                 case HyperlinkBlock hl:
-                    sb.AppendLine($"[{hl.Text ?? hl.Url}]({hl.Url})");
+                    sb.AppendLine($"[{EscapeNongText(hl.Text ?? hl.Url ?? "")}]({hl.Url}) {{#{hl.Id} kind=hyperlink}}");
                     sb.AppendLine();
                     break;
 
                 case CommentBlock c:
-                    sb.AppendLine($"> **Comment [{c.Author}]** {c.Text ?? ""}");
+                    sb.AppendLine($"::: comment {{#{c.Id} kind=comment author=\"{EscapeAttr(c.Author ?? "")}\"}}");
+                    sb.AppendLine(EscapeNongText(c.Text ?? ""));
+                    sb.AppendLine(":::");
                     sb.AppendLine();
                     break;
 
                 case RevisionBlock rev:
-                    sb.AppendLine($"> **[{rev.Type}]** {rev.Author}: {rev.Text ?? ""}");
+                    sb.AppendLine($"::: revision {{#{rev.Id} kind=revision type={rev.Type ?? "unknown"} author=\"{EscapeAttr(rev.Author ?? "")}\"}}");
+                    sb.AppendLine(EscapeNongText(rev.Text ?? ""));
+                    sb.AppendLine(":::");
                     sb.AppendLine();
                     break;
 
@@ -1696,7 +1809,7 @@ public static class WordSlice
         return sb.ToString().TrimEnd() + "\n";
     }
 
-    private static string GenerateMarkdownTable(TableBlock table)
+    private static string GenerateNongMarkTable(TableBlock table)
     {
         if (table.Rows.Count == 0) return "";
         var sb = new StringBuilder();
@@ -1708,7 +1821,7 @@ public static class WordSlice
         for (int i = 0; i < colCount; i++)
         {
             headers[i] = i < headerRow.Cells.Count
-                ? (headerRow.Cells[i].Text ?? "").Replace("\n", " ").Trim()
+                ? EscapeTableCell(headerRow.Cells[i].Text ?? "")
                 : "";
         }
         sb.AppendLine("| " + string.Join(" | ", headers) + " |");
@@ -1724,7 +1837,7 @@ public static class WordSlice
             for (int i = 0; i < colCount; i++)
             {
                 cells[i] = i < row.Cells.Count
-                    ? (row.Cells[i].Text ?? "").Replace("\n", " ").Trim()
+                    ? EscapeTableCell(row.Cells[i].Text ?? "")
                     : "";
             }
             sb.AppendLine("| " + string.Join(" | ", cells) + " |");
@@ -1732,6 +1845,48 @@ public static class WordSlice
 
         return sb.ToString().TrimEnd();
     }
+
+    private static string GenerateTextPreview(List<NongBlock> blocks)
+    {
+        var sb = new StringBuilder();
+        foreach (var block in blocks)
+        {
+            var text = ExtractTextPreview(block);
+            if (!string.IsNullOrWhiteSpace(text))
+                sb.AppendLine(text);
+        }
+        return sb.ToString().TrimEnd() + "\n";
+    }
+
+    private static string RenderRuns(List<RunBlock> runs, string fallback)
+    {
+        if (runs.Count == 0) return EscapeNongText(fallback);
+
+        var sb = new StringBuilder();
+        foreach (var run in runs)
+        {
+            var text = EscapeNongText(run.Text ?? "");
+            if (text.Length == 0) continue;
+            if (run.Format?.Bold == true && run.Format?.Italic == true)
+                sb.Append("***").Append(text).Append("***");
+            else if (run.Format?.Bold == true)
+                sb.Append("**").Append(text).Append("**");
+            else if (run.Format?.Italic == true)
+                sb.Append('*').Append(text).Append('*');
+            else
+                sb.Append(text);
+        }
+        return sb.ToString();
+    }
+
+    private static string EscapeNongText(string value) =>
+        value.Replace("\r", " ").Replace("\n", " ").Trim();
+
+    private static string EscapeTableCell(string value) =>
+        EscapeNongText(value).Replace("|", "\\|");
+
+    private static string EscapeAttr(string value) =>
+        value.Replace("\\", "\\\\").Replace("\"", "\\\"");
 
     // ========================================================================
     // Structure builder
@@ -1764,6 +1919,7 @@ public static class WordSlice
                 Position = i,
                 TextPreview = textPreview,
                 StyleId = styleId,
+                Provenance = BuildBlockProvenance(block, i),
             };
 
             // Outline (heading blocks only)
@@ -1932,16 +2088,79 @@ public static class WordSlice
         return text.Length <= 80 ? text : text[..80] + "...";
     }
 
+    private static NongPandocBlockProvenance BuildBlockProvenance(NongBlock block, int position)
+    {
+        var notes = new List<string>();
+        string? source = block.Kind;
+        string? assetId = null;
+        string? relationshipId = null;
+        NongPandocLayoutEvidence? layout = null;
+
+        if (block is ImageBlock image)
+        {
+            source = string.IsNullOrWhiteSpace(image.Source) ? "drawingml" : image.Source;
+            assetId = image.ImageId;
+            relationshipId = image.ImageId;
+            if (image.WidthEmu.HasValue || image.HeightEmu.HasValue)
+            {
+                layout = new NongPandocLayoutEvidence
+                {
+                    Width = image.WidthEmu,
+                    Height = image.HeightEmu,
+                    Unit = "emu",
+                };
+            }
+
+            if (image.Source.Equals("vml", StringComparison.OrdinalIgnoreCase))
+                notes.Add("VML image relationship preserved as extracted asset evidence.");
+        }
+        else if (block is FigureBlock figure)
+        {
+            source = "figure";
+            assetId = figure.Image?.ImageId;
+            relationshipId = figure.Image?.ImageId;
+            if (figure.Image?.WidthEmu != null || figure.Image?.HeightEmu != null)
+            {
+                layout = new NongPandocLayoutEvidence
+                {
+                    Width = figure.Image.WidthEmu,
+                    Height = figure.Image.HeightEmu,
+                    Unit = "emu",
+                };
+            }
+        }
+        else if (block is TableBlock table)
+        {
+            source = "wordTable";
+            if (!string.IsNullOrWhiteSpace(table.StyleId))
+                notes.Add($"styleId:{table.StyleId}");
+        }
+
+        return new NongPandocBlockProvenance
+        {
+            Format = "docx",
+            Source = source,
+            Position = position,
+            AssetId = assetId,
+            RelationshipId = relationshipId,
+            Layout = layout,
+            Confidence = "high",
+            Notes = notes.Count > 0 ? notes : null,
+        };
+    }
+
     // ========================================================================
     // Format builder
     // ========================================================================
 
     private static NongFormat BuildFormat(WordprocessingDocument doc,
+        string source,
         List<NongBlock> blocks, List<string> warnings)
     {
         var format = new NongFormat
         {
             SchemaVersion = "nongmark/v1",
+            Source = source,
         };
 
         // Styles
@@ -2063,9 +2282,125 @@ public static class WordSlice
             }
         }
 
+        WordFormatAuditResult? audit = null;
+        try
+        {
+            audit = WordFormatAuditor.Audit(doc, "academic", source);
+        }
+        catch (Exception ex)
+        {
+            warnings.Add($"Format audit visual evidence skipped: {ex.Message}");
+        }
+
         format.Warnings = warnings;
+        format.VisualEvidence = BuildWordVisualEvidence(format, blocks, warnings, audit);
 
         return format;
+    }
+
+    private static NongPandocVisualEvidence BuildWordVisualEvidence(
+        NongFormat format,
+        List<NongBlock> blocks,
+        List<string> warnings,
+        WordFormatAuditResult? audit)
+    {
+        var lineSpacing = blocks
+            .Select(b => b switch
+            {
+                ParagraphBlock p => p.Format,
+                HeadingBlock h => h.Format,
+                _ => null,
+            })
+            .Where(f => f?.LineSpacing != null || f?.LineRule != null)
+            .Select(f => $"line={f?.LineSpacing ?? ""};rule={f?.LineRule ?? ""}")
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(v => v)
+            .ToList();
+
+        if (audit != null)
+        {
+            foreach (var item in audit.LineSpacing.ParagraphRules.Select(kv => $"rule={kv.Key};count={kv.Value}"))
+                lineSpacing.Add(item);
+            foreach (var item in audit.LineSpacing.ParagraphLines.Select(kv => $"line={kv.Key};count={kv.Value}"))
+                lineSpacing.Add(item);
+            lineSpacing = lineSpacing
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(v => v)
+                .ToList();
+        }
+
+        var tables = format.Tables
+            .Select(t =>
+            {
+                var top = t.Format?.Borders?.Top?.Size;
+                var insideH = t.Format?.Borders?.InsideH?.Size;
+                var bottom = t.Format?.Borders?.Bottom?.Size;
+                return $"{t.BlockId}:top={top?.ToString() ?? ""};insideH={insideH?.ToString() ?? ""};bottom={bottom?.ToString() ?? ""}";
+            })
+            .ToList();
+
+        if (audit != null)
+        {
+            tables.AddRange(audit.Tables.Samples.Select(t =>
+                $"{t.BlockId}:threeLine={t.ThreeLineLike};top={t.TopBorderSize?.ToString() ?? ""};header={t.HeaderBottomBorderSize?.ToString() ?? ""};bottom={t.BottomBorderSize?.ToString() ?? ""};shading={t.ShadingCount};cellIndent={t.CellFirstLineIndentCount};headerRepeat={t.HeaderRowsRepeated}"));
+        }
+
+        var layout = format.Sections
+            .Select(s => $"section{s.Index}:page={s.PageWidth}x{s.PageHeight};margin={s.MarginTop},{s.MarginRight},{s.MarginBottom},{s.MarginLeft};orientation={s.Orientation}")
+            .ToList();
+
+        var assets = blocks
+            .OfType<ImageBlock>()
+            .Select(i => $"{i.Id}:{i.Source};{i.WidthEmu}x{i.HeightEmu}emu")
+            .ToList();
+
+        var fonts = format.Fonts.Families.ToList();
+        if (audit != null)
+        {
+            fonts.AddRange(audit.Fonts.EastAsiaFonts.Select(kv => $"eastAsia={kv.Key};count={kv.Value}"));
+            fonts.AddRange(audit.Fonts.AsciiFonts.Select(kv => $"ascii={kv.Key};count={kv.Value}"));
+            fonts.AddRange(audit.Fonts.FontSizes.Select(kv => $"size={kv.Key};count={kv.Value}"));
+            fonts = fonts.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(v => v).ToList();
+        }
+
+        return new NongPandocVisualEvidence
+        {
+            Format = "docx",
+            Source = format.Source,
+            Fonts = fonts,
+            Headings = audit?.Headings.Samples
+                .Select(h => $"{h.BlockId}:level={h.Level};text={h.Text};eastAsia={h.FontEastAsia ?? ""};ascii={h.FontAscii ?? ""};size={h.FontSize ?? ""};align={h.Alignment ?? ""}")
+                .ToList() ?? new List<string>(),
+            Body = audit?.Body.Samples
+                .Select(p => $"{p.BlockId}:text={p.Text};eastAsia={p.FontEastAsia ?? ""};ascii={p.FontAscii ?? ""};size={p.FontSize ?? ""};indent={p.FirstLineIndent ?? ""};line={p.LineSpacing ?? ""};rule={p.LineRule ?? ""}")
+                .ToList() ?? new List<string>(),
+            LineSpacing = lineSpacing,
+            Tables = tables,
+            LatinNames = audit?.LatinNames.Samples
+                .Select(l => $"{l.BlockId}:{l.LatinName};parentheses={l.InsideParentheses};italic={l.Italic};ascii={l.FontAscii ?? ""}")
+                .ToList() ?? new List<string>(),
+            Chemistry = audit?.Chemistry.Samples
+                .Select(c => $"{c.BlockId}:{c.Formula};subscriptedDigits={c.SubscriptedDigits}")
+                .ToList() ?? new List<string>(),
+            Audit = audit == null
+                ? new Dictionary<string, string>()
+                : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["schemaVersion"] = audit.SchemaVersion,
+                    ["profile"] = audit.Profile,
+                    ["statusLevel"] = audit.StatusLevel,
+                    ["score"] = audit.Score.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ["issues"] = audit.Summary.Issues.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ["headings"] = audit.Summary.Headings.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ["bodyParagraphs"] = audit.Summary.BodyParagraphs.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ["tables"] = audit.Summary.Tables.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ["chemistryCandidates"] = audit.Chemistry.Candidates.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ["chemistrySubscripted"] = audit.Chemistry.Subscripted.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                },
+            Layout = layout,
+            Assets = assets,
+            Warnings = warnings,
+        };
     }
 
     private static void AddFont(string? name, HashSet<string> set, Dictionary<string, int> counts)
@@ -2323,9 +2658,15 @@ public static class WordSlice
         return m;
     }
 
-    private static void WriteJson(string path, object obj)
+    private static NongPandocMetrics ToPandocMetrics(NongMetrics metrics, int warnings) => new()
     {
-        var json = JsonSerializer.Serialize(obj, obj.GetType(), JsonOpts);
-        File.WriteAllText(path, json, Encoding.UTF8);
-    }
+        Blocks = metrics.Blocks,
+        Paragraphs = metrics.Paragraphs,
+        Headings = metrics.Headings,
+        Tables = metrics.Tables,
+        Figures = metrics.Figures,
+        Images = metrics.Images,
+        References = 0,
+        Warnings = warnings,
+    };
 }

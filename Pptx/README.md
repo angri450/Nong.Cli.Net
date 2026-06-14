@@ -99,6 +99,29 @@ Console.WriteLine(map.Json);   // 所有形状的结构化 JSON
 SlideValidator.ValidateAndReport("output.pptx");  // 结构完整性检查
 ```
 
+## NongPandoc Slice
+
+```bash
+nong pptx dissect slides.pptx -o slides.slice --json
+```
+
+The command writes the shared `nong-pandoc/package/v1` package:
+
+```text
+manifest.json
+document.json
+content.jsonl
+content.nongmark
+structure.json
+format.json
+diagnostics.json
+assets/manifest.json
+preview/content.txt
+```
+
+Use `content.nongmark` as the primary AI-readable stream, followed by
+`structure.json`, `format.json`, and `diagnostics.json`.
+
 ## Dependencies
 
 - `ShapeCrawler` — OpenXML SDK 封装，用于 PPTX 操作
@@ -117,7 +140,7 @@ SlideValidator.ValidateAndReport("output.pptx");  // 结构完整性检查
 
 ## Author
 
-Built by [angri450](https://github.com/angri450). Source: [Nong.NET](https://github.com/angri450/Nong.NET).
+Built by [angri450](https://github.com/angri450). Source: [Nong.Cli.Net](https://github.com/angri450/Nong.Cli.Net).
 
 ## License
 

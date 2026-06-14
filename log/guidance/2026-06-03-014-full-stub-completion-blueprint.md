@@ -10,7 +10,7 @@
 - 生成命令支持自动创建输出目录
 - `word rebuild` 已有同路径守卫
 - `chart` 统计输入已有基础校验
-- GroundPA-Toolkit 2.0.0 skill 层已经切到 Nong CLI-first
+- Nong.Toolkit.Net 2.0.0 skill 层已经切到 Nong CLI-first
 
 下一阶段目标：系统性消灭 stub，补全 `nong` 的工具调用基础能力，让它成为农学生工作流的主入口。
 
@@ -90,7 +90,7 @@ JSON spec 错误返回 `E006 validation_failed`，不要落入 `E004 internal_er
 
 1. `Cli/Common/Manifest.cs` 状态从 `stub` 改为 implemented。
 2. `Cli/AGENT.md` 增加输入格式、示例、输出字段。
-3. GroundPA-Toolkit 对应 skill 如需暴露能力，同步更新。
+3. Nong.Toolkit.Net 对应 skill 如需暴露能力，同步更新。
 4. release checklist 更新。
 
 ### 6. 不引入 .NET 11 preview
@@ -153,9 +153,9 @@ nong skill package <dir> --json
 
 ```powershell
 dotnet build .\Cli\NongCli.csproj -c Release
-nong skill validate C:\Users\Administrator\Documents\Github\GroundPA-Toolkit\word --json
-nong skill scan C:\Users\Administrator\Documents\Github\GroundPA-Toolkit --json
-nong skill inventory C:\Users\Administrator\Documents\Github\GroundPA-Toolkit --json
+nong skill validate C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net\word --json
+nong skill scan C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
+nong skill inventory C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
 nong commands --json
 ```
 
@@ -998,7 +998,7 @@ nong ocr cloud sample.pdf -o ocr-out --json
 
 负责人：Agent E
 
-每完成一个 phase，更新 GroundPA-Toolkit。
+每完成一个 phase，更新 Nong.Toolkit.Net。
 
 当前 2.0.0 已暴露：
 
@@ -1016,7 +1016,7 @@ word inspect excel chart diagram genre icons
 word extract/stats/fonts/styles/validate/merge/dissect
 ```
 
-更新 `GroundPA-Toolkit/word/SKILL.md`。
+更新 `Nong.Toolkit.Net/word/SKILL.md`。
 
 ### Inspect
 
@@ -1026,7 +1026,7 @@ word extract/stats/fonts/styles/validate/merge/dissect
 inspect classify/structure/varplan/evidence/data-req/gap/semantics
 ```
 
-更新 `GroundPA-Toolkit/inspect/SKILL.md`。
+更新 `Nong.Toolkit.Net/inspect/SKILL.md`。
 
 ### Chart
 
@@ -1036,7 +1036,7 @@ inspect classify/structure/varplan/evidence/data-req/gap/semantics
 chart line/scatter/pie
 ```
 
-更新 `GroundPA-Toolkit/chart/SKILL.md`。
+更新 `Nong.Toolkit.Net/chart/SKILL.md`。
 
 ### Excel
 
@@ -1046,7 +1046,7 @@ chart line/scatter/pie
 excel create
 ```
 
-更新 `GroundPA-Toolkit/excel/SKILL.md`。
+更新 `Nong.Toolkit.Net/excel/SKILL.md`。
 
 ### Diagram
 
@@ -1056,7 +1056,7 @@ excel create
 diagram tree
 ```
 
-更新 `GroundPA-Toolkit/diagram/SKILL.md`。
+更新 `Nong.Toolkit.Net/diagram/SKILL.md`。
 
 ### PPTX/OCR
 
@@ -1086,8 +1086,8 @@ claude plugin validate .
 以及：
 
 ```powershell
-nong skill scan C:\Users\Administrator\Documents\Github\GroundPA-Toolkit --json
-nong skill inventory C:\Users\Administrator\Documents\Github\GroundPA-Toolkit --json
+nong skill scan C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
+nong skill inventory C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
 ```
 
 ---
@@ -1236,7 +1236,7 @@ Cli/Common/Manifest.cs
 Cli/AGENT.md
 Cli/README.md
 Cli.Tests/
-GroundPA-Toolkit skill files
+Nong.Toolkit.Net skill files
 changelog/
 ```
 

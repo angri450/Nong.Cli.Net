@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill 模板全线清除 &lt;skill-path&gt; 绝对路径 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>Skill 模板全线清除 &lt;skill-path&gt; 绝对路径</h1>
+<p class="subtitle">2026-06-01 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>Skill 模板全线清除 &lt;skill-path&gt; 绝对路径</h1>
+<br>
+<p><strong>时间</strong>: 2026-06-01</p>
+<p><strong>影响范围</strong>: Nong.Toolkit.Net — Word/Excel/Pptx/Chart skills</p>
+<p><strong>类型</strong>: Bug Fix (Skill template hardening)</p>
+<br>
+<h2>问题</h2>
+<br>
+<p>多个 skill 的参考文档和模板中包含 <code>&lt;skill-path&gt;</code> 和 <code>&lt;skill-root&gt;</code> 占位符。当 Agent 解析这些占位符时，会将它们替换为包含插件版本号（如 <code>1.1.1</code>）的绝对路径。插件升级到 <code>1.1.2</code> 后，所有之前写入的 <code>Program.cs</code> 中的路径全部失效。</p>
+<br>
+<h2>涉及的 Skill</h2>
+<br>
+<table>
+<tr><th>Skill</th><th>文件</th><th>问题</th></tr>
+<tr><td>Word</td><td><code>workspace-setup.md</code></td><td><code>&lt;format-json-path&gt;</code> → 绝对路径</td></tr>
+<tr><td>Excel</td><td><code>write-excel.md</code></td><td><code>BuildFromJson(&quot;&lt;skill-path&gt;/...&quot;)</code></td></tr>
+<tr><td>Pptx</td><td><code>write-pptx.md</code></td><td><code>BuildFromJson(&quot;&lt;skill-path&gt;/...&quot;)</code></td></tr>
+<tr><td>Pptx</td><td><code>formats/INDEX.md</code></td><td><code>BuildFromJson(&quot;&lt;skill-path&gt;/...&quot;)</code></td></tr>
+<tr><td>Chart</td><td><code>workspace-setup.md</code></td><td>残留注释</td></tr>
+</table>
+<br>
+<h2>修复方案</h2>
+<br>
+<p>统一模式：<strong>复制 JSON 到项目目录 → 相对路径引用</strong></p>
+<br>
+<pre><code>
+cp &lt;skill-root&gt;/&lt;skill&gt;/formats/*.json &lt;project-dir&gt;/formats/
+</code></pre>
+<br>
+<p>Program.cs 中使用相对路径：<code>&quot;formats/xxx.json&quot;</code></p>
+<br>
+<p>每个 skill 的参考文档末尾添加警告：<strong>禁止直接引用 <code>&lt;skill-path&gt;</code> 或 <code>&lt;skill-root&gt;</code> 路径。</strong></p>
+<br>
+<h2>教训</h2>
+<br>
+<ul>
+<li><code>&lt;skill-root&gt;</code> 只能在临时 shell 指令中使用（如 <code>cp</code>），绝不能在持久化代码模板中使用</li>
+<li>所有需要本地文件的 skill 必须遵循&quot;先复制，再引用&quot;模式</li>
+<li>Skill 升级后用户需手动重新复制 format JSON（或者 Agent 检测到项目已存在时跳过复制步骤）</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PackageId>Angri450.Nong.Literature</PackageId>
+    <AssemblyName>Angri450.Nong.Literature</AssemblyName>
+    <Version>4.1.2</Version>
+    <Authors>angri450</Authors>
+    <Description>CNKI-like literature retrieval DSL, metadata providers, ranking, and exports for Nong.NET.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

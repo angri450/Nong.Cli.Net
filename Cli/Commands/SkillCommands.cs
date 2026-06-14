@@ -22,15 +22,6 @@ public static class SkillCommands
 
     // ===== shared helpers =====
 
-    static void GuardEmptyPath(string dir, string command, bool json)
-    {
-        if (string.IsNullOrWhiteSpace(dir))
-        {
-            CliHelpers.WriteError(command,
-                ErrorCodes.MissingArgument with { Message = "Directory path is required." }, json);
-        }
-    }
-
     static bool TryResolveDir(string dir, string command, bool json, out string fullDir)
     {
         fullDir = "";
@@ -94,7 +85,7 @@ public static class SkillCommands
                             ? $"Skill valid: {skillName}"
                             : $"Validation failed: {errorIssues.Count} errors",
                         Data = data,
-                        Meta = new MetaInfo { Version = "3.1.0" }
+                        Meta = new MetaInfo { Version = CliVersion.Current }
                     };
 
                     if (!result.IsValid)
@@ -204,7 +195,7 @@ public static class SkillCommands
                             ? $"{critical + high} High+ findings"
                             : $"{findings.Count} findings, 0 High+",
                         Data = data,
-                        Meta = new MetaInfo { Version = "3.1.0" }
+                        Meta = new MetaInfo { Version = CliVersion.Current }
                     };
 
                     if (hasHighOrAbove)
@@ -449,7 +440,7 @@ public static class SkillCommands
                             Status = "error",
                             Command = "skill package",
                             Summary = "Directory is neither a skill nor a plugin root",
-                            Meta = new MetaInfo { Version = "3.1.0" }
+                            Meta = new MetaInfo { Version = CliVersion.Current }
                         };
                         errOut.Errors.Add(new ErrorEntry(
                             ErrorCodes.ValidationFailed.Code,
@@ -519,7 +510,7 @@ public static class SkillCommands
                                 Status = "error",
                                 Command = "skill package",
                                 Summary = $"Plugin validation failed: {allErrors.Count} skill(s)",
-                                Meta = new MetaInfo { Version = "3.1.0" }
+                                Meta = new MetaInfo { Version = CliVersion.Current }
                             };
                             foreach (var e in allErrors)
                                 errOut.Errors.Add(new ErrorEntry(
@@ -576,7 +567,7 @@ public static class SkillCommands
                 Status = "error",
                 Command = command,
                 Summary = $"Validation failed: {valResult.Issues.Count(i => i.Level == "Error")} errors",
-                Meta = new MetaInfo { Version = "3.1.0" }
+                Meta = new MetaInfo { Version = CliVersion.Current }
             };
             errOut.Errors = valResult.Issues.Where(i => i.Level == "Error").Select(i =>
                 new ErrorEntry(ErrorCodes.ValidationFailed.Code, ErrorCodes.ValidationFailed.Name,
@@ -602,7 +593,7 @@ public static class SkillCommands
                 Status = "error",
                 Command = command,
                 Summary = $"{highPlus.Count} High+ findings block packaging",
-                Meta = new MetaInfo { Version = "3.1.0" }
+                Meta = new MetaInfo { Version = CliVersion.Current }
             };
             errOut.Errors = highPlus.Select(f =>
                 new ErrorEntry(ErrorCodes.ValidationFailed.Code, ErrorCodes.ValidationFailed.Name,

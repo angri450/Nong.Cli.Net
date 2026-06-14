@@ -3,6 +3,19 @@ obj/
 *.nupkg
 *.user
 .vs/
-tests-output/*/bin/
-tests-output/*/obj/
-tests-output/09-skillmanager/
+tests-output/
+output/
+
+# Local upstream clones, fork checkouts, and temporary source archives.
+_archive/
+
+# Third-party source is committed as plain source snapshots only.
+# Do not add nested upstream repositories or submodule metadata.
+**/.git/
+.gitmodules
+
+# Claude agent development files — keep development process private.
+.claude/
+
+# Temporary trash / staging area before permanent deletion.
+delete/

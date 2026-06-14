@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-08 NongPandoc Slice Reader Contract - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>2026-06-08 NongPandoc Slice Reader Contract</h1>
+<p class="subtitle">2026-06-08 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>2026-06-08 NongPandoc Slice Reader Contract</h1>
+<br>
+<h2>Impacted packages</h2>
+<br>
+<ul>
+<li><code>Angri450.Nong.Pandoc</code></li>
+<li><code>Angri450.Nong.Cli</code></li>
+<li>Excel/PPT slice output</li>
+</ul>
+<br>
+<h2>What changed</h2>
+<br>
+<ul>
+<li>Added <code>NongPandocSlicePackageReader</code> for <code>nong-pandoc/package/v1</code> slice directories.</li>
+<li>Made <code>diagnostics.json</code> part of the required package contract, matching writer behavior and AI read order.</li>
+<li>Added <code>nong slice inspect &lt;slice-dir&gt; --json</code>.</li>
+<li>Added cross-format contract tests for Word, Excel, PPTX, and PDF-like packages.</li>
+<li>Deepened Excel slice evidence:</li>
+<li>used range</li>
+<li>formulas</li>
+<li>merged ranges</li>
+<li>table/range regions</li>
+<li>related entries in <code>assets/manifest.json</code></li>
+<li>Deepened PPTX slice evidence:</li>
+<li>shape layout boxes</li>
+<li>picture/chart/table relationship evidence</li>
+<li>speaker notes preview evidence</li>
+<li>related entries in <code>assets/manifest.json</code></li>
+<li>Updated CLI agent contract docs to use <code>slice inspect</code> and the unified AI read order.</li>
+</ul>
+<br>
+<h2>Why</h2>
+<br>
+<p>The slice package is now a stable contract before Word/PDF/Excel/PPT details continue expanding. AI callers can inspect the package once, read <code>content.nongmark -&gt; structure.json -&gt; format.json -&gt; diagnostics.json</code>, and avoid treating lossy previews as canonical content.</p>
+<br>
+<h2>Files touched</h2>
+<br>
+<ul>
+<li><code>Pandoc/NongPandocSlicePackage.cs</code></li>
+<li><code>Pandoc/NongPandocSlicePackageReader.cs</code></li>
+<li><code>Pandoc/NongPandocSlicePackageWriter.cs</code></li>
+<li><code>Tests/NongPandocTests.cs</code></li>
+<li><code>Cli/Commands/SliceCommands.cs</code></li>
+<li><code>Cli/Program.cs</code></li>
+<li><code>Cli/Common/Manifest.cs</code></li>
+<li><code>Cli/AGENT.md</code></li>
+<li><code>Cli/NongCli.csproj</code></li>
+<li><code>Cli.Tests/Cli.Tests.csproj</code></li>
+<li><code>Cli.Tests/CliContractTests.cs</code></li>
+<li><code>Excel/ExcelSlice.cs</code></li>
+<li><code>Pptx/PptxSlice.cs</code></li>
+</ul>
+<br>
+<h2>Verification</h2>
+<br>
+<ul>
+<li><code>dotnet build .\Pandoc\PandocCore.csproj -c Release</code></li>
+<li><code>dotnet test .\Tests\Tests.csproj -c Release --filter NongPandocTests</code></li>
+<li><code>dotnet build .\Excel\ExcelCore.csproj -c Release</code></li>
+<li><code>dotnet build .\Pptx\PptxCore.csproj -c Release</code></li>
+<li><code>dotnet build .\Cli\NongCli.csproj -c Release</code></li>
+<li><code>dotnet build .\Cli.Tests\Cli.Tests.csproj -c Release</code></li>
+<li><code>dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release --filter &quot;FullyQualifiedName~CliContractTests&quot;</code></li>
+<li><code>dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release --filter &quot;FullyQualifiedName~WordCommandTests.WordDissect|FullyQualifiedName~PdfCommandTests.PdfDissect&quot;</code></li>
+</ul>
+<br>
+<h2>Remaining risks</h2>
+<br>
+<ul>
+<li>Excel chart extraction is still basic and represented only as package-level region evidence when available through existing workbook APIs.</li>
+<li>PPTX chart/table payloads are surfaced as relationship/layout evidence, not reconstructed into editable chart/table AST yet.</li>
+<li><code>preview/content.txt</code> remains intentionally lossy and must not be used as the canonical document source.</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

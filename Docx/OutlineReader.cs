@@ -24,23 +24,21 @@ public static class OutlineReader
             var props = para.ParagraphProperties;
             if (props == null) continue;
 
-            int? level = null;
             string? styleId = null;
+            string? styleName = null;
 
             // Check paragraph style for heading styles
             var paraStyle = props.ParagraphStyleId;
             if (paraStyle?.Val?.Value is string sid && sid.Length > 0)
             {
                 styleId = sid;
-                level = MapHeadingStyleToLevel(sid);
+                styleName = WordHeadingStyles.GetStyleName(doc.MainDocumentPart, sid);
             }
 
-            // Fallback: check outlineLvl property (0-based in OOXML, we convert to 1-based)
-            if (level == null && props.OutlineLevel?.Val?.Value is int outlineLvl && outlineLvl >= 0)
-            {
-                level = outlineLvl + 1;
+            var outlineLvl = props.OutlineLevel?.Val?.Value;
+            var level = WordHeadingStyles.GetHeadingLevel(styleId, styleName, outlineLvl);
+            if (level == null && outlineLvl.HasValue)
                 styleId ??= $"outlineLvl{outlineLvl}";
-            }
 
             if (level == null) continue;
 
@@ -52,36 +50,5 @@ public static class OutlineReader
         }
 
         return new OutlineResult(items, items.Count);
-    }
-
-    private static int? MapHeadingStyleToLevel(string styleId)
-    {
-        // Common heading style IDs in Chinese and English documents
-        return styleId switch
-        {
-            "Heading1" or "1" or "heading1" or "标题1" or "标题 1" or "Heading 1" => 1,
-            "Heading2" or "2" or "heading2" or "标题2" or "标题 2" or "Heading 2" => 2,
-            "Heading3" or "3" or "heading3" or "标题3" or "标题 3" or "Heading 3" => 3,
-            _ => TryParseHeadingPrefix(styleId)
-        };
-    }
-
-    private static int? TryParseHeadingPrefix(string styleId)
-    {
-        // Handle Heading4-Heading9 and other "Heading" + digit patterns
-        if (styleId.StartsWith("Heading", StringComparison.OrdinalIgnoreCase))
-        {
-            var numSpan = styleId.AsSpan(7);
-            if (int.TryParse(numSpan, out int hNum) && hNum >= 1 && hNum <= 9)
-                return hNum;
-        }
-        // Handle "标题4" - "标题9" patterns
-        if (styleId.StartsWith("标题", StringComparison.OrdinalIgnoreCase))
-        {
-            var numSpan = styleId.AsSpan(2).TrimStart();
-            if (int.TryParse(numSpan, out int hNum) && hNum >= 1 && hNum <= 9)
-                return hNum;
-        }
-        return null;
     }
 }

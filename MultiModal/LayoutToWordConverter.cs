@@ -218,10 +218,12 @@ public static class LayoutToWordConverter
                     var isTitle = cellBlock.BlockLabel == "paragraph_title";
                     if (isTitle)
                         para.Append(new ParagraphProperties(new SpacingBetweenLines { Before = "100", After = "50" }));
-                    para.Append(new Run(new RunProperties(
+                    var runProps = new RunProperties(
                         new RunFonts { Ascii = "宋体", HighAnsi = "宋体", EastAsia = "宋体" },
-                        new FontSize { Val = isTitle ? "24" : "21" },
-                        isTitle ? new Bold() : null!),
+                        new FontSize { Val = isTitle ? "24" : "21" });
+                    if (isTitle)
+                        runProps.Append(new Bold());
+                    para.Append(new Run(runProps,
                         new Text(text) { Space = SpaceProcessingModeValues.Preserve }));
                     cell.Append(para);
                 }
@@ -346,10 +348,11 @@ public static class LayoutToWordConverter
                 var text = ci < rows[ri].Length ? rows[ri][ci] : "";
                 var para = new Paragraph(new ParagraphProperties(
                     new SpacingBetweenLines { Before = "20", After = "20" }));
-                para.Append(new Run(new RunProperties(
+                var runProps2 = new RunProperties(
                     new RunFonts { Ascii = "宋体", HighAnsi = "宋体", EastAsia = "宋体" },
-                    new FontSize { Val = "20" },
-                    ri == 0 ? new Bold() : null!),
+                    new FontSize { Val = "20" });
+                if (ri == 0) runProps2.Append(new Bold());
+                para.Append(new Run(runProps2,
                     new Text(text) { Space = SpaceProcessingModeValues.Preserve }));
                 tc.Append(para);
                 tr.Append(tc);

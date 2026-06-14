@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repository Document Layout Cleanup - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>Repository Document Layout Cleanup</h1>
+<p class="subtitle">2026-06-09 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>Repository Document Layout Cleanup</h1>
+<br>
+<h2>What Changed</h2>
+<br>
+<ul>
+<li>Moved repository-level maintenance documents into <code>docs/</code>.</li>
+<li>Moved user feedback notes from the root <code>用户反馈/</code> directory into <code>docs/feedback/2026-06-08-word-repair/</code>.</li>
+<li>Added <code>docs/README.md</code> to explain the documentation layout.</li>
+<li>Removed two obsolete GitHub issue-body drafts from <code>log/changelog/</code>.</li>
+<li>Removed the generated HTML duplicate of the OCR runtime decoupling changelog; the Markdown changelog remains the source of truth.</li>
+<li>Kept source project directories, third-party source directories, and build metadata in place.</li>
+</ul>
+<br>
+<h2>Why</h2>
+<br>
+<p>The repository root mixed source projects, vendored source trees, release documents, capability tables, and user feedback notes. Keeping maintenance documents under <code>docs/</code> makes the root easier to scan without disturbing build-sensitive source layout.</p>
+<br>
+<h2>Files Touched</h2>
+<br>
+<ul>
+<li><code>docs/README.md</code></li>
+<li><code>docs/CAPABILITY.md</code></li>
+<li><code>docs/DEPENDENCY_CONTROL.md</code></li>
+<li><code>docs/release-checklist.md</code></li>
+<li><code>docs/feedback/2026-06-08-word-repair/</code></li>
+<li><code>README.md</code></li>
+<li><code>README.zh-CN.md</code></li>
+<li><code>CLAUDE.md</code></li>
+<li><code>log/changelog/issue-body.md</code></li>
+<li><code>log/changelog/issue2-body.md</code></li>
+<li><code>log/changelog/2026-06-08-ocr-runtime-version-decoupling.html</code></li>
+</ul>
+<br>
+<h2>Tests Run</h2>
+<br>
+<ul>
+<li><code>git diff --check</code></li>
+<li><code>dotnet build .\Cli\NongCli.csproj -c Release --nologo</code></li>
+</ul>
+<br>
+<h2>Remaining Risk</h2>
+<br>
+<ul>
+<li>Historical changelog and guidance files may still mention old paths as part of their original task history.</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

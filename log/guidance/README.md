@@ -4,7 +4,7 @@ Date: 2026-06-03
 
 ## Purpose
 
-This folder is the advisory workspace for `Angri450.Nong`.
+This folder is the advisory workspace for `Nong.Cli.Net`.
 
 It records decisions, task prompts, review criteria, and handoff notes for developing `nong` as an AI-agent tool-calling foundation.
 

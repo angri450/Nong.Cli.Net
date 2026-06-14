@@ -11,6 +11,15 @@ class Program
 {
     static async Task<int> Main(string[] args)
     {
+        if (args.Length == 1 && string.Equals(args[0], "--version", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine($"nong v{CliVersion.Current}");
+            return 0;
+        }
+
+        if (TryDispatchExternal(args, out var externalExitCode))
+            return externalExitCode;
+
         var root = new RootCommand("nong — Nong.NET CLI toolkit for document generation and inspection.");
 
         // === Global options ===
@@ -22,16 +31,25 @@ class Program
         // === nong --version ===
         root.SetHandler(() =>
         {
-            Console.WriteLine("nong v3.1.0");
+            Console.WriteLine($"nong v{CliVersion.Current}");
         });
 
-        // === nong commands --json ===
+        // === nong commands --json / --format openai-tools ===
         var allOpt = new Option<bool>("--all", () => false, "Include stub commands");
-        var commandsCmd = new Command("commands", "List available commands") { allOpt };
-        commandsCmd.SetHandler((bool json, bool all) =>
+        var formatOpt = new Option<string>("--format", () => "default", "Output format: default, json, openai-tools");
+        var commandsCmd = new Command("commands", "List available commands") { allOpt, formatOpt };
+        commandsCmd.SetHandler((bool json, bool all, string format) =>
         {
             var manifest = Manifest.All();
             var filtered = all ? manifest : manifest.Where(c => c.Status == "implemented").ToList();
+
+            if (string.Equals(format, "openai-tools", StringComparison.OrdinalIgnoreCase))
+            {
+                var tools = filtered.Select(OpenAiToolSchema.FromCommand).ToList();
+                Console.WriteLine(JsonSerializer.Serialize(tools, CliHelpers.JsonOpts));
+                return;
+            }
+
             if (json)
             {
                 var output = JsonOutput.Ok("commands", $"{filtered.Count} commands available", filtered);
@@ -46,20 +64,25 @@ class Program
                     Console.WriteLine($"{c.Name,-35} {c.Description}{aliasStr}{stubTag}");
                 }
             }
-        }, jsonOpt, allOpt);
+        }, jsonOpt, allOpt, formatOpt);
         root.AddCommand(commandsCmd);
 
         // === Real command groups ===
         root.AddCommand(WordCommands.Create(jsonOpt));
         root.AddCommand(InspectCommands.Create(jsonOpt));
-        root.AddCommand(ChartCommands.Create(jsonOpt));
         root.AddCommand(ExcelCommands.Create(jsonOpt));
-        root.AddCommand(DiagramCommands.Create(jsonOpt));
-        root.AddCommand(PptxCommands.Create(jsonOpt));
         root.AddCommand(GenreCommands.Create(jsonOpt));
         root.AddCommand(IconsCommands.Create(jsonOpt));
         root.AddCommand(SkillCommands.Create(jsonOpt));
-        root.AddCommand(OcrCommands.Create(jsonOpt));
+        root.AddCommand(LitCommands.Create(jsonOpt));
+        root.AddCommand(SliceCommands.Create(jsonOpt));
+        root.AddCommand(ProgressCommands.Create(jsonOpt));
+        // Heavy modules dispatched to external tools:
+        root.AddCommand(CreateExternalGroup("chart"));
+        root.AddCommand(CreateExternalGroup("diagram"));
+        root.AddCommand(CreateExternalGroup("ocr"));
+        root.AddCommand(CreateExternalGroup("pdf"));
+        root.AddCommand(CreateExternalGroup("pptx"));
 
         var builder = new CommandLineBuilder(root)
             .UseDefaults()
@@ -117,4 +140,39 @@ class Program
         }
         return cmd;
     }
+
+    static bool TryDispatchExternal(string[] args, out int exitCode)
+    {
+        exitCode = 0;
+        if (args.Length == 0)
+            return false;
+
+        var normalized = args[0].ToLowerInvariant();
+        if (!ExternalTools.TryGetValue(normalized, out var tool))
+            return false;
+
+        exitCode = CliHelpers.RunTool(tool.ToolName, tool.PackageId, args.Skip(1).ToArray());
+        return true;
+    }
+
+    static Command CreateExternalGroup(string name)
+    {
+        var tool = ExternalTools[name];
+
+        var cmd = new Command(name, $"External: use {tool.ToolName} from {tool.PackageId} (auto-installs on first use)");
+        cmd.SetHandler(() =>
+        {
+            Environment.ExitCode = CliHelpers.RunTool(tool.ToolName, tool.PackageId, Array.Empty<string>());
+        });
+        return cmd;
+    }
+
+    static readonly Dictionary<string, (string ToolName, string PackageId)> ExternalTools = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["chart"] = ("nong-chart", ToolPackages.Chart),
+        ["diagram"] = ("nong-diagram", ToolPackages.Diagram),
+        ["ocr"] = ("nong-ocr", ToolPackages.Ocr),
+        ["pdf"] = ("nong-pdf", ToolPackages.Pdf),
+        ["pptx"] = ("nong-pptx", ToolPackages.Pptx),
+    };
 }

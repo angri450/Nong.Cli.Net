@@ -1,13 +1,13 @@
 # Angri450.Nong.MultiModal
 
-多模态文档处理库。angri450 整合了云端 OCR（PaddleOCR-VL-1.6）、本地 CPU OCR（PaddleOCR）和纯 .NET 图像结构分析 —— 一条管线从扫描件直出 Word。
+多模态文档处理库。angri450 整合了云端 OCR（PaddleOCR-VL-1.6）、本地 CPU OCR（PP-OCRv5 .NET runtime）和纯 .NET 图像结构分析 —— 一条管线从扫描件直出 Word。
 
 [![NuGet](https://img.shields.io/nuget/v/Angri450.Nong.MultiModal)](https://www.nuget.org/packages/Angri450.Nong.MultiModal)
 [![.NET](https://img.shields.io/badge/.NET-8.0%2B-512BD4)](https://dotnet.microsoft.com)
 
 ## Supported Platforms
 
-.NET 8.0 and above (net8.0, net9.0, net10.0, net11.0). Windows, macOS, Linux.
+.NET 8.0 and above (net8.0, net9.0, net10.0, net11.0). Cloud OCR and image analysis are cross-platform. Local PP-OCRv5 uses the current-platform first-party `Angri450.Nong.OcrRuntime.*` native runtime bundle installed by `nong ocr install-model`. The runtime packages are maintained in the separate `Nong.OcrRuntime` repository for Windows x64, Linux x64, Linux arm64, macOS x64, and macOS arm64; each platform still needs target-machine smoke coverage before stable release claims.
 
 ## Install
 
@@ -15,13 +15,16 @@
 dotnet add package Angri450.Nong.MultiModal
 ```
 
-### 可选：本地 OCR
+### 本地 OCR 部署
+
+本地 OCR 使用 .NET/NuGet 部署，客户机不安装 Python、pip 或外部 OCR 可执行文件，也不在本机编译模型。managed ChineseV5 模型元数据随 CLI 引用，heavy native runtime 在独立 `Nong.OcrRuntime` 仓库按平台拆成 `Angri450.Nong.OcrRuntime.WinX64`、`LinuxX64`、`LinuxArm64`、`OsxX64`、`OsxArm64` 五个第一方包，并由 `nong ocr install-model` 从 NuGet 镜像/cache 部署。国内环境默认使用华为 NuGet v3 源：
+
+`nong ocr install-model pp-ocrv5-mobile --json` 安装或检查成功后会自动清理 runtime cache 下的临时 `downloads` 目录，只长期保留推理所需 native runtime 文件。默认只安装 Nong 第一方 runtime 包；如确需临时回退上游 Sdcb/OpenCvSharp 包，显式添加 `--allow-upstream-fallback`。
 
 ```bash
-pip install paddlepaddle paddleocr
+dotnet tool install --global Angri450.Nong.Cli --add-source https://mirrors.huaweicloud.com/repository/nuget/v3/index.json
+nong ocr install-model pp-ocrv5-mobile --source https://mirrors.huaweicloud.com/repository/nuget/v3/index.json --json
 ```
-
-仅使用云端 API 或图像分析则无需 Python。
 
 ---
 
@@ -31,15 +34,15 @@ angri450 整合的三条处理管线：
 
 | 能力 | 类 | 依赖 |
 |------|----|------|
-| 云端 OCR | `PaddleOcrVlClient` | 网络 + `PADDLEOCR_TOKEN` |
+| 云端 OCR | `PaddleOcrVlClient` | 网络 + `PADDLEOCR_ACCESS_TOKEN` |
 | 图像分析 | `ImageAnalyzer` | 无（纯 .NET，通过 ThirdParty 中的 SkiaSharp） |
-| 本地 OCR | `LocalOcrClient` | Python + PaddleOCR |
+| 本地 OCR | `PpOcrV5Client` | Sdcb.PaddleOCR + ChineseV5 + current-platform `Angri450.Nong.OcrRuntime.*` runtime |
 
 ---
 
 ## ImageAnalyzer — 纯 .NET 图像结构分析
 
-加载任意 PNG/JPEG 图片，获取详细的结构化报告 —— 无需 OCR、无需 Python、无需云 API。在代码中理解图像布局。
+加载任意 PNG/JPEG 图片，获取详细的结构化报告 —— 无需 OCR、无需云 API。在代码中理解图像布局。
 
 ```csharp
 using MultiModalCore;
@@ -112,7 +115,7 @@ angri450 的实现：通过 SkiaSharp 加载图片 → 降采样到目标宽度�
 ## 云端 OCR（PaddleOCR-VL-1.6）
 
 ```csharp
-var client = new PaddleOcrVlClient();  // Token 从 PADDLEOCR_TOKEN 环境变量读取
+var client = new PaddleOcrVlClient();  // Token 从 PADDLEOCR_ACCESS_TOKEN 环境变量读取
 
 // 文件 → Markdown
 await client.ProcessAsync("scan.pdf", "output/");
@@ -155,18 +158,21 @@ await client.ProcessAsync("scan.pdf", "output/", options);
 
 ---
 
-## 本地 CPU OCR（PaddleOCR）
+## 本地 CPU OCR（PP-OCRv5 .NET runtime）
 
 ```csharp
-var local = new LocalOcrClient(pythonExe: "python", lang: "ch");
+using var local = new PpOcrV5Client();
 
-var (ok, msg) = await local.CheckEnvironmentAsync();
-if (!ok) Console.WriteLine("Install: pip install paddlepaddle paddleocr");
+var env = PpOcrV5Client.CheckEnvironment();
+if (!env.Available) Console.WriteLine(env.Message);
 
-var blocks = await local.RecognizeAsync("crop.png");
-foreach (var b in blocks)
-    Console.WriteLine($"[{b.Confidence:P0}] {b.Text}");
+var result = await local.RecognizeAsync("crop.png");
+foreach (var page in result.Pages)
+    foreach (var block in page.Blocks)
+        Console.WriteLine($"[{block.Confidence:P0}] {block.Text}");
 ```
+
+CLI `nong ocr local` performs a lightweight preflight before PP-OCRv5 inference. It first tries ZXing.Net barcode/QR decoding from the source merged into `Angri450.Nong.ThirdParty`, then falls back to image-structure heuristics for code-like or graphic-heavy non-text images. QR/barcode/code-like crops are skipped with `E006 validation_failed` and a `local_ocr_preflight_skipped` issue so the local OCR runtime does not spend tens of seconds hallucinating text from dense code/graphic patterns. Use `nong ocr local <image> --force --json` only when text OCR is explicitly required despite the warning.
 
 ---
 
@@ -185,7 +191,7 @@ angri450 设计的 `ProcessToWordAsync` 生成保留布局的 `.docx`：
 ## Dependencies
 
 - `Angri450.Nong.Docx` — Word 生成（`ProcessToWordAsync` 输出用）
-- `Angri450.Nong.ThirdParty` — SkiaSharp（合并，ImageAnalyzer 使用）
+- `Angri450.Nong.ThirdParty` — SkiaSharp（ImageAnalyzer 使用）+ ZXing.Net decode-only source subset（OCR preflight 使用）
 
 ## API Reference
 
@@ -210,18 +216,16 @@ angri450 设计的 `ProcessToWordAsync` 生成保留布局的 `.docx`：
 | `DownloadResultsAsync(resultUrl, dir)` | 下载 Markdown + 图片 |
 | `DownloadResultsStructuredAsync(resultUrl, dir)` | 下载并返回 `OcrResult` |
 
-### LocalOcrClient (本地 CPU)
+### PpOcrV5Client (本地 CPU)
 
 | Method | Description |
 |--------|-------------|
 | `RecognizeAsync(path)` | OCR 单张图片 |
-| `RecognizeAsync(bytes)` | 从内存 OCR |
-| `RecognizeBatchAsync(paths)` | OCR 多张图片 |
-| `CheckEnvironmentAsync()` | 验证 Python + PaddleOCR |
+| `CheckEnvironment()` | 验证 .NET PP-OCRv5 runtime 与内置 ChineseV5 模型 |
 
 ## Author
 
-Built by [angri450](https://github.com/angri450). Source: [Nong.NET](https://github.com/angri450/Nong.NET).
+Built by [angri450](https://github.com/angri450). Source: [Nong.Cli.Net](https://github.com/angri450/Nong.Cli.Net).
 
 ## License
 

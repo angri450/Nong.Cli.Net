@@ -1,0 +1,378 @@
+﻿namespace UglyToad.PdfPig.Content
+{
+    using Core;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    /// <summary>
+    /// A word.
+    /// </summary>
+    public class Word : IBoundingBox
+    {
+        /// <summary>
+        /// The text of the word.
+        /// </summary>
+        public string Text { get; }
+
+        /// <summary>
+        /// The text orientation of the word.
+        /// </summary>
+        public TextOrientation TextOrientation { get; }
+
+        /// <summary>
+        /// The rectangle completely containing the word.
+        /// </summary>
+        public PdfRectangle BoundingBox { get; }
+
+        /// <summary>
+        /// The name of the font for the word.
+        /// </summary>
+        public string? FontName { get; }
+
+        /// <summary>
+        /// The letters contained in the word.
+        /// </summary>
+        public IReadOnlyList<Letter> Letters { get; }
+
+        /// <summary>
+        /// Create a new <see cref="Word"/>.
+        /// </summary>
+        /// <param name="letters">The letters contained in the word, in the correct order.</param>
+        public Word(IReadOnlyList<Letter> letters)
+        {
+            if (letters is null)
+            {
+                throw new ArgumentNullException(nameof(letters));
+            }
+
+            if (letters.Count == 0)
+            {
+                throw new ArgumentException("Empty letters provided.", nameof(letters));
+            }
+
+            Letters = letters;
+
+            var tempTextOrientation = letters[0].TextOrientation;
+            if (tempTextOrientation != TextOrientation.Other)
+            {
+                foreach (var letter in letters)
+                {
+                    if (letter.TextOrientation != tempTextOrientation)
+                    {
+                        tempTextOrientation = TextOrientation.Other;
+                        break;
+                    }
+                }
+            }
+
+            var data = tempTextOrientation switch {
+                TextOrientation.Horizontal => GetBoundingBoxH(letters),
+                TextOrientation.Rotate180  => GetBoundingBox180(letters),
+                TextOrientation.Rotate90   => GetBoundingBox90(letters),
+                TextOrientation.Rotate270  => GetBoundingBox270(letters),
+                _ => GetBoundingBoxOther(letters),
+            };
+
+            Text = data.Item1;
+            BoundingBox = data.Item2;
+
+            FontName = letters[0].FontName;
+            TextOrientation = tempTextOrientation;
+        }
+
+        #region Bounding box
+        private (string, PdfRectangle) GetBoundingBoxH(IReadOnlyList<Letter> letters)
+        {
+            var builder = new StringBuilder();
+
+            var blX = double.MaxValue;
+            var trX = double.MinValue;
+            var blY = double.MaxValue;
+            var trY = double.MinValue;
+
+            for (var i = 0; i < letters.Count; i++)
+            {
+                var letter = letters[i];
+                builder.Append(letter.Value);
+
+                if (letter.StartBaseLine.X < blX)
+                {
+                    blX = letter.StartBaseLine.X;
+                }
+
+                if (letter.StartBaseLine.Y < blY)
+                {
+                    blY = letter.StartBaseLine.Y;
+                }
+
+                var right = letter.StartBaseLine.X + Math.Max(letter.Width, letter.BoundingBox.Width);
+                if (right > trX)
+                {
+                    trX = right;
+                }
+
+                if (letter.BoundingBox.TopLeft.Y > trY)
+                {
+                    trY = letter.BoundingBox.TopLeft.Y;
+                }
+            }
+
+            return new(builder.ToString(), new PdfRectangle(blX, blY, trX, trY));
+        }
+
+        private (string, PdfRectangle) GetBoundingBox180(IReadOnlyList<Letter> letters)
+        {
+            var builder = new StringBuilder();
+
+            var blX = double.MinValue;
+            var blY = double.MinValue;
+            var trX = double.MaxValue;
+            var trY = double.MaxValue;
+
+            for (var i = 0; i < letters.Count; i++)
+            {
+                var letter = letters[i];
+                builder.Append(letter.Value);
+
+                if (letter.StartBaseLine.X > blX)
+                {
+                    blX = letter.StartBaseLine.X;
+                }
+
+                if (letter.StartBaseLine.Y > blY)
+                {
+                    blY = letter.StartBaseLine.Y;
+                }
+
+                var right = letter.StartBaseLine.X - Math.Max(letter.Width, letter.BoundingBox.Width);
+                if (right < trX)
+                {
+                    trX = right;
+                }
+
+                if (letter.BoundingBox.TopRight.Y < trY)
+                {
+                    trY = letter.BoundingBox.TopRight.Y;
+                }
+            }
+
+            return (builder.ToString(), new PdfRectangle(blX, blY, trX, trY));
+        }
+
+        private (string, PdfRectangle) GetBoundingBox90(IReadOnlyList<Letter> letters)
+        {
+            var builder = new StringBuilder();
+
+            var b = double.MaxValue;
+            var r = double.MaxValue;
+            var t = double.MinValue;
+            var l = double.MinValue;
+
+            for (var i = 0; i < letters.Count; i++)
+            {
+                var letter = letters[i];
+                builder.Append(letter.Value);
+
+                if (letter.StartBaseLine.X < b)
+                {
+                    b = letter.StartBaseLine.X;
+                }
+
+                if (letter.EndBaseLine.Y < r)
+                {
+                    r = letter.EndBaseLine.Y;
+                }
+
+                var right = letter.StartBaseLine.X + letter.BoundingBox.Height;
+                if (right > t)
+                {
+                    t = right;
+                }
+
+                if (letter.BoundingBox.BottomLeft.Y > l)
+                {
+                    l = letter.BoundingBox.BottomLeft.Y;
+                }
+            }
+
+            return new (builder.ToString(), new PdfRectangle(
+                new PdfPoint(t, l), new PdfPoint(t, r),
+                new PdfPoint(b, l), new PdfPoint(b, r)));
+        }
+
+        private (string, PdfRectangle) GetBoundingBox270(IReadOnlyList<Letter> letters)
+        {
+            var builder = new StringBuilder();
+
+            var t = double.MaxValue;
+            var b = double.MinValue;
+            var l = double.MaxValue;
+            var r = double.MinValue;
+
+            for (var i = 0; i < letters.Count; i++)
+            {
+                var letter = letters[i];
+                builder.Append(letter.Value);
+
+                if (letter.StartBaseLine.X > b)
+                {
+                    b = letter.StartBaseLine.X;
+                }
+
+                if (letter.StartBaseLine.Y < l)
+                {
+                    l = letter.StartBaseLine.Y;
+                }
+
+                var right = letter.StartBaseLine.X - letter.BoundingBox.Height;
+                if (right < t)
+                {
+                    t = right;
+                }
+
+                if (letter.BoundingBox.BottomRight.Y > r)
+                {
+                    r = letter.BoundingBox.BottomRight.Y;
+                }
+            }
+
+            return new(builder.ToString(), new PdfRectangle(
+                new PdfPoint(t, l), new PdfPoint(t, r),
+                new PdfPoint(b, l), new PdfPoint(b, r)));
+        }
+
+        private (string, PdfRectangle) GetBoundingBoxOther(IReadOnlyList<Letter> letters)
+        {
+            var builder = new StringBuilder();
+            for (var i = 0; i < letters.Count; i++)
+            {
+                builder.Append(letters[i].Value);
+            }
+
+            if (letters.Count == 1)
+            {
+                return new(builder.ToString(), letters[0].BoundingBox);
+            }
+            else
+            {
+                var baseLinePoints = letters.SelectMany(r => new[]
+                {
+                    r.StartBaseLine,
+                    r.EndBaseLine,
+                }).ToList();
+
+                // Fitting a line through the base lines points
+                // to find the orientation (slope)
+                double x0 = baseLinePoints.Average(p => p.X);
+                double y0 = baseLinePoints.Average(p => p.Y);
+                double sumProduct = 0;
+                double sumDiffSquaredX = 0;
+
+                for (int i = 0; i < baseLinePoints.Count; i++)
+                {
+                    var point = baseLinePoints[i];
+                    var x_diff = point.X - x0;
+                    var y_diff = point.Y - y0;
+                    sumProduct += x_diff * y_diff;
+                    sumDiffSquaredX += x_diff * x_diff;
+                }
+
+                double cos = 0;
+                double sin = 1;
+                if (sumDiffSquaredX > 1e-3)
+                {
+                    // not vertical line
+                    double angleRad = Math.Atan(sumProduct / sumDiffSquaredX); // -π/2 ≤ θ ≤ π/2
+                    cos = Math.Cos(angleRad);
+                    sin = Math.Sin(angleRad);
+                }
+
+                // Rotate the points to build the axis-aligned bounding box (AABB)
+                var inverseRotation = new TransformationMatrix(
+                    cos, -sin, 0,
+                    sin, cos, 0,
+                    0, 0, 1);
+
+                var transformedPoints = letters.SelectMany(r => new[]
+                {
+                    r.StartBaseLine,
+                    r.EndBaseLine,
+                    r.BoundingBox.TopLeft,
+                    r.BoundingBox.TopRight
+                }).Distinct().Select(p => inverseRotation.Transform(p));
+
+                var aabb = new PdfRectangle(transformedPoints.Min(p => p.X),
+                                            transformedPoints.Min(p => p.Y),
+                                            transformedPoints.Max(p => p.X),
+                                            transformedPoints.Max(p => p.Y));
+
+                // Rotate back the AABB to obtain to oriented bounding box (OBB)
+                var rotateBack = new TransformationMatrix(
+                    cos, sin, 0,
+                    -sin, cos, 0,
+                    0, 0, 1);
+
+                // Candidates bounding boxes
+                var obb = rotateBack.Transform(aabb);
+                var obb1 = new PdfRectangle(obb.BottomLeft, obb.TopLeft, obb.BottomRight, obb.TopRight);
+                var obb2 = new PdfRectangle(obb.BottomRight, obb.BottomLeft, obb.TopRight, obb.TopLeft);
+                var obb3 = new PdfRectangle(obb.TopRight, obb.BottomRight, obb.TopLeft, obb.BottomLeft);
+
+                // Find the orientation of the OBB, using the baseline angle
+                // Assumes word order is correct
+                var firstLetter = letters[0];
+                var lastLetter = letters[letters.Count - 1];
+
+                var baseLineAngle = Math.Atan2(
+                    lastLetter.EndBaseLine.Y - firstLetter.StartBaseLine.Y,
+                    lastLetter.EndBaseLine.X - firstLetter.StartBaseLine.X) * 180 / Math.PI;
+
+                double deltaAngle = Math.Abs(BoundAngle180(obb.Rotation - baseLineAngle));
+                double deltaAngle1 = Math.Abs(BoundAngle180(obb1.Rotation - baseLineAngle));
+                if (deltaAngle1 < deltaAngle)
+                {
+                    deltaAngle = deltaAngle1;
+                    obb = obb1;
+                }
+
+                double deltaAngle2 = Math.Abs(BoundAngle180(obb2.Rotation - baseLineAngle));
+                if (deltaAngle2 < deltaAngle)
+                {
+                    deltaAngle = deltaAngle2;
+                    obb = obb2;
+                }
+
+                double deltaAngle3 = Math.Abs(BoundAngle180(obb3.Rotation - baseLineAngle));
+                if (deltaAngle3 < deltaAngle)
+                {
+                    obb = obb3;
+                }
+
+                return new(builder.ToString(), obb);
+            }
+        }
+        #endregion
+
+        /// <summary>
+        /// Bound angle so that -180 ≤ θ ≤ 180.
+        /// </summary>
+        /// <param name="angle">The angle to bound.</param>
+        private static double BoundAngle180(double angle)
+        {
+            angle = (angle + 180) % 360;
+            if (angle < 0)
+            {
+                angle += 360;
+            }
+            return angle - 180;
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return Text;
+        }
+    }
+}

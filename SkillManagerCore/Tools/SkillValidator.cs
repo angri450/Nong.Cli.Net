@@ -29,10 +29,23 @@ public class SkillValidator
         var skillMdPath = Path.Combine(_skillDir, "SKILL.md");
         if (!File.Exists(skillMdPath))
         {
+            var pluginJsonPath = Path.Combine(_skillDir, ".claude-plugin", "plugin.json");
+            var skillsJsonPath = Path.Combine(_skillDir, "skills.sh.json");
+            var isPluginRoot = File.Exists(pluginJsonPath) || File.Exists(skillsJsonPath);
+            var subSkillCount = 0;
+            var subSkillHint = "";
+            if (isPluginRoot)
+            {
+                var subDirs = Directory.GetDirectories(_skillDir)
+                    .Where(d => File.Exists(Path.Combine(d, "SKILL.md"))).ToList();
+                subSkillCount = subDirs.Count;
+                if (subSkillCount > 0)
+                    subSkillHint = $" This appears to be a plugin root with {subSkillCount} skill(s). Validate individual skill directories instead, e.g. 'nong skill validate .\\word --json'.";
+            }
             result.Issues.Add(new ValidationIssue
             {
                 File = "SKILL.md",
-                Message = "SKILL.md not found in skill directory"
+                Message = "SKILL.md not found in skill directory." + subSkillHint
             });
             result.IsValid = false;
             return result;
@@ -279,7 +292,12 @@ public class SkillValidator
             if (content.Contains(dir + "/") || content.Contains(dir + "\\"))
             {
                 var fullDir = Path.Combine(baseDir, dir);
-                if (!Directory.Exists(fullDir))
+                var parentDir = Path.GetFullPath(Path.Combine(baseDir, "..", dir));
+                var referencesParentResource =
+                    (content.Contains("../" + dir + "/") || content.Contains("..\\" + dir + "\\")) &&
+                    Directory.Exists(parentDir);
+
+                if (!Directory.Exists(fullDir) && !referencesParentResource)
                 {
                     result.MissingResourceDirs.Add(dir);
                     result.Issues.Add(new ValidationIssue

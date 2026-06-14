@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-05 Word real-case contract matrix repair - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>2026-06-05 Word real-case contract matrix repair</h1>
+<p class="subtitle">2026-06-05 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>2026-06-05 Word real-case contract matrix repair</h1>
+<br>
+<h2>Context</h2>
+<br>
+<p>Real-case file:</p>
+<br>
+<p><code>C:\Users\Administrator\Documents\Github\改-技术服务合同---内蒙古沸石土传病害研制项目.doc</code></p>
+<br>
+<p>The document is a legacy <code>.doc</code> technical service contract. Word COM conversion to <code>.docx</code> produced a heavily table-wrapped document with legacy Word/WPS compatibility XML.</p>
+<br>
+<h2>Consumer Feedback That Triggered This Repair</h2>
+<br>
+<p>The user feedback from the earlier Word-formatting session was direct and accurate:</p>
+<br>
+<ul>
+<li>In that session, <code>nong</code> effectively had zero participation. The work fell back to raw Word COM automation.</li>
+<li>The root mismatch was scenario-level: <code>Angri450.Nong.Docx</code> had been strongest at generating new OpenXML documents, while the actual job was modifying the layout of an existing legacy <code>.doc</code> contract.</li>
+<li>Raw Word COM was painful in exactly the places a stable toolchain should avoid:</li>
+<li>Word process startup and cleanup.</li>
+<li>Opaque HRESULT errors.</li>
+<li>File locks from leftover <code>WINWORD</code> processes.</li>
+<li>Fragile merged-cell traversal.</li>
+<li><code>.doc</code> binary dependence on installed Word.</li>
+<li>Poor idempotence and poor CI testability.</li>
+<li>The ideal <code>nong</code> experience should be a deterministic pipeline:</li>
+<li>convert or read existing document</li>
+<li>inspect structure and formatting</li>
+<li>apply paragraph/table/style rules</li>
+<li>repair OOXML compatibility artifacts</li>
+<li>write schema-valid <code>.docx</code></li>
+<li>The biggest product gap remains a first-class existing-document editing surface. A future <code>DocumentReader</code> plus existing writer/edit operations should make this path explicit: read -&gt; traverse -&gt; match rules -&gt; modify fonts/spacing/borders -&gt; write.</li>
+</ul>
+<br>
+<p>This repair does not pretend that the whole gap is closed. It closes the practical blockers exposed by the real contract sample and records the remaining product gap below.</p>
+<br>
+<h2>What Was Run</h2>
+<br>
+<p>Created case workspace:</p>
+<br>
+<p><code>C:\Users\Administrator\Documents\Github\word-realcase-20260605-083042</code></p>
+<br>
+<p>The matrix script now exercises 46 Word/Inspect/library steps:</p>
+<br>
+<ul>
+<li><code>.doc</code> to <code>.docx</code> conversion artifact</li>
+<li><code>word read/preview/stats/fonts/styles/validate/outline/images/comments/revisions/extract/dissect</code></li>
+<li><code>word fix-order/rebuild/protect/embed-font/merge/fill</code></li>
+<li><code>word add-*</code> paragraph/table/footnote/endnote/image/toc/bookmark/xref/link/comment/math</li>
+<li>contract template extraction and fill</li>
+<li>contract-to-paper draft generation</li>
+<li>contract-to-gongwen formatting via <code>GongWenFormatter</code></li>
+<li>official letter generation via <code>OfficialDocWriter</code></li>
+<li>inspect classify/structure/diagnose/refs/varplan/evidence/data-req/gap/semantics on extracted text</li>
+</ul>
+<br>
+<p>Final real-case result:</p>
+<br>
+<ul>
+<li><code>46/46</code> matrix steps passed.</li>
+<li><code>word fix-order</code> repaired the converted contract from invalid OOXML to schema-valid DOCX.</li>
+<li>Generated contract template, filled template, paper draft, formatted-gongwen contract, and official-letter rewrite all validate cleanly.</li>
+</ul>
+<br>
+<h2>Repairs</h2>
+<br>
+<ul>
+<li>Fixed <code>ImageLister.ExtractFileName</code> so <code>word images</code> handles relative OpenXML part URIs instead of throwing <code>This operation is not supported for a relative URI</code>.</li>
+<li>Reworked font embedding to attach <code>FontPart</code> to <code>FontTablePart</code> using <code>FontPartType.FontOdttf</code>, write <code>EmbedRegularFont</code>, and use proper OOXML font obfuscation key handling.</li>
+<li>Expanded <code>ElementOrder</code> for real legacy Word/WPS artifacts:</li>
+<li><code>sectPr</code> now uses <code>cols</code>, not <code>col</code>.</li>
+<li><code>tr</code> ordering includes <code>tblPrEx</code> before <code>trPr</code> and table cells.</li>
+<li><code>pPr</code> ordering includes <code>framePr</code>.</li>
+<li><code>style</code> ordering uses <code>next</code>.</li>
+<li>Added compatibility sanitization:</li>
+<li>Removes false <code>w:noWrap w:val=&quot;0&quot;</code> from table cell properties.</li>
+<li>Removes invalid <code>w:tblStyle</code> inside table-style <code>w:tblPr</code>.</li>
+<li>Wired sanitizer into <code>word fix-order</code> and <code>GongWenFormatter</code>.</li>
+<li>Fixed <code>OfficialDocWriter</code> run property ordering so generated official documents validate.</li>
+<li>Relaxed <code>WordPreview</code> style-reference diagnosis so legacy documents whose <code>styleId</code> is numeric but whose style name is <code>Normal</code> do not produce a false undefined-style error.</li>
+<li>Added regression tests for legacy compatibility cleanup, image listing after add-image, and font embedding.</li>
+</ul>
+<br>
+<h2>Validation</h2>
+<br>
+<ul>
+<li><code>dotnet build .\Nong.Cli.Net\Cli\NongCli.csproj -c Release --nologo</code>: PASS, 18 existing warnings.</li>
+<li><code>dotnet test .\Nong.Cli.Net\Cli.Tests\Cli.Tests.csproj -c Release --nologo</code>: PASS, 62/62.</li>
+<li><code>pwsh -NoProfile -ExecutionPolicy Bypass -File .\word-realcase-20260605-083042\run-realcase-matrix.ps1</code>: PASS, 46/46.</li>
+<li>Real-case <code>word preview</code> diagnostics now report <code>0 errors</code> on both rebuilt and gongwen-formatted outputs.</li>
+</ul>
+<br>
+<h2>Remaining Product Gap</h2>
+<br>
+<p>The source has <code>GongWenFormatter</code> and <code>OfficialDocWriter</code>, but the CLI still lacks a first-class command such as <code>nong inspect write-official</code> or <code>nong word format-gongwen</code>. The real-case matrix uses library calls for that part.</p>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

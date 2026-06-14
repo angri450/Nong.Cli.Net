@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using PandocCore;
 
 namespace DocxCore;
 
@@ -292,6 +293,9 @@ public sealed record NongBorderInfo
 /// <summary>Image/media block. ID prefix: img0001+</summary>
 public sealed record ImageBlock : NongBlock
 {
+    [JsonPropertyName("source")]
+    public string Source { get; set; } = "drawingml";
+
     [JsonPropertyName("imageId")]
     public string? ImageId { get; set; }
 
@@ -639,26 +643,32 @@ public sealed record NongManifest
 public sealed record NongStreamPaths
 {
     [JsonPropertyName("document")]
-    public string Document { get; set; } = "document.json";
+    public string Document { get; set; } = NongPandocArtifactNames.Document;
 
     [JsonPropertyName("content")]
-    public string Content { get; set; } = "content.md";
+    public string Content { get; set; } = NongPandocArtifactNames.ContentNongMark;
 
     /// <summary>Backward-compatible alias for Content. Not serialized.</summary>
     [JsonIgnore]
     public string ContentMd { get => Content; set => Content = value; }
 
+    [JsonPropertyName("textPreview")]
+    public string TextPreview { get; set; } = NongPandocArtifactNames.TextPreview;
+
     [JsonPropertyName("contentJsonl")]
-    public string ContentJsonl { get; set; } = "content.jsonl";
+    public string ContentJsonl { get; set; } = NongPandocArtifactNames.ContentJsonl;
 
     [JsonPropertyName("structure")]
-    public string Structure { get; set; } = "structure.json";
+    public string Structure { get; set; } = NongPandocArtifactNames.Structure;
 
     [JsonPropertyName("format")]
-    public string Format { get; set; } = "format.json";
+    public string Format { get; set; } = NongPandocArtifactNames.Format;
+
+    [JsonPropertyName("diagnostics")]
+    public string Diagnostics { get; set; } = NongPandocArtifactNames.Diagnostics;
 
     [JsonPropertyName("assets")]
-    public string Assets { get; set; } = "assets/manifest.json";
+    public string Assets { get; set; } = NongPandocArtifactNames.AssetsManifest;
 }
 
 /// <summary>Slicing metrics (counts per block kind).</summary>
@@ -812,6 +822,9 @@ public sealed record NongBlockEntry
 
     [JsonPropertyName("styleId")]
     public string? StyleId { get; set; }
+
+    [JsonPropertyName("provenance")]
+    public NongPandocBlockProvenance? Provenance { get; set; }
 }
 
 /// <summary>Table cross-reference.</summary>
@@ -957,6 +970,9 @@ public sealed record NongFormat
 
     [JsonPropertyName("warnings")]
     public List<string> Warnings { get; set; } = new();
+
+    [JsonPropertyName("visualEvidence")]
+    public NongPandocVisualEvidence VisualEvidence { get; set; } = new();
 }
 
 /// <summary>A style definition (paragraph or character).</summary>

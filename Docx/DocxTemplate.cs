@@ -2,6 +2,8 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.ComponentModel;
+using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace DocxCore;
@@ -56,17 +58,184 @@ public static class DocxTemplate
 
     static void FillParts(WordprocessingDocument doc, Dictionary<string, object?> data)
     {
+        var normalized = (Dictionary<string, object?>)NormalizeJsonValue(data)!;
+
         var main = doc.MainDocumentPart!;
         if (main.Document.Body != null)
-            ProcessElement(main.Document.Body, data, main);
+        {
+            // 0. cellReplace — key=template cell text, value=replacement
+            //    If the matched cell has a cell to its RIGHT, fills the right cell (label-value tables).
+            //    Otherwise fills THIS cell (description tables, single-cell tables).
+            if (normalized.TryGetValue("cellReplace", out var cellRepVal)
+                && cellRepVal is Dictionary<string, object?> cellRep)
+            {
+                ReplaceCellsByText(main, cellRep);
+                normalized.Remove("cellReplace");
+            }
+
+            // 1. tableRows — add data rows to tables with headers.
+            //    JSON: { "tableRows": { "match": [ ["col0","col1"], ... ] } }
+            if (normalized.TryGetValue("tableRows", out var tblVal)
+                && tblVal is Dictionary<string, object?> tblRows)
+            {
+                AppendTableDataRows(main, tblRows);
+                normalized.Remove("tableRows");
+            }
+
+            ProcessElement(main.Document.Body, normalized, main);
+        }
 
         foreach (var hp in main.HeaderParts)
             if (hp.Header != null)
-                ProcessElement(hp.Header, data, main);
+                ProcessElement(hp.Header, normalized, main);
 
         foreach (var fp in main.FooterParts)
             if (fp.Footer != null)
-                ProcessElement(fp.Footer, data, main);
+                ProcessElement(fp.Footer, normalized, main);
+    }
+
+    /// <summary>
+    /// Walk every table cell, match its trimmed text against the keys in
+    /// cellReplace, and replace content. If the matched cell has a cell to its
+    /// right, the RIGHT cell is filled (label-value tables). Otherwise THIS cell
+    /// is filled (single-cell description tables).
+    /// Also removes fixed row heights so text reflow doesn't clip.
+    /// </summary>
+    static void ReplaceCellsByText(MainDocumentPart main, Dictionary<string, object?> cellRep)
+    {
+        foreach (var table in main.Document.Body!.Elements<Table>())
+        {
+            // Remove fixed row heights so content can reflow
+            foreach (var tr in table.Elements<TableRow>())
+            {
+                var trPr = tr.GetFirstChild<TableRowProperties>();
+                var trHeight = trPr?.GetFirstChild<TableRowHeight>();
+                if (trHeight != null)
+                    trHeight.Remove();
+            }
+
+            var rows = table.Elements<TableRow>().ToList();
+            for (int ri = 0; ri < rows.Count; ri++)
+            {
+                var cells = rows[ri].Elements<TableCell>().ToList();
+                for (int ci = 0; ci < cells.Count; ci++)
+                {
+                    var cellText = cells[ci].InnerText.Trim();
+                    if (cellText.Length == 0) continue;
+
+                    foreach (var kv in cellRep)
+                    {
+                        if (cellText.StartsWith(kv.Key, StringComparison.Ordinal))
+                        {
+                            var newText = kv.Value?.ToString() ?? "";
+                            if (newText.Length == 0) break;
+
+                            // Label-value table: cell to the right exists → fill that
+                            if (ci + 1 < cells.Count)
+                                FillCellContent(cells[ci + 1], newText);
+                            else
+                                FillCellContent(cells[ci], newText);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>Fill a table cell with text, preserving original font and size.</summary>
+    static void FillCellContent(TableCell cell, string text)
+    {
+        // Extract font/size from first run BEFORE removing paragraphs
+        var allParas = cell.Elements<Paragraph>().ToList();
+        string? asciiFont = null, eaFont = null, sizeVal = null;
+        var firstRun = allParas.SelectMany(p => p.Elements<Run>()).FirstOrDefault();
+        if (firstRun?.RunProperties?.RunFonts is {} rf)
+        {
+            asciiFont = rf.Ascii?.Value ?? rf.HighAnsi?.Value;
+            eaFont = rf.EastAsia?.Value;
+        }
+        sizeVal = firstRun?.RunProperties?.FontSize?.Val?.Value;
+
+        // Remove all existing paragraphs
+        foreach (var p in allParas)
+            p.Remove();
+
+        // Build replacement paragraph(s) — split on \n for Word line breaks
+        var lines = text.Split('\n');
+        var para = new Paragraph();
+        for (int i = 0; i < lines.Length; i++)
+        {
+            if (i > 0)
+                para.Append(new Run(new Break()));
+
+            if (lines[i].Length > 0)
+            {
+                var rp = new RunProperties();
+                if (asciiFont != null || eaFont != null)
+                    rp.Append(new RunFonts { Ascii = asciiFont, HighAnsi = asciiFont, EastAsia = eaFont });
+                if (sizeVal != null)
+                    rp.Append(new FontSize { Val = sizeVal });
+                para.Append(new Run(rp, new Text(lines[i]) { Space = SpaceProcessingModeValues.Preserve }));
+            }
+        }
+        cell.Append(para);
+    }
+
+    /// <summary>
+    /// Append data rows to tables identified by header text.
+    /// JSON: { "tableRows": { "授权（登记": [ ["type","name","patent","date"] ] } }
+    /// Matches first table whose InnerText contains the key. Preserves header row.
+    /// </summary>
+    static void AppendTableDataRows(MainDocumentPart main, Dictionary<string, object?> spec)
+    {
+        foreach (var table in main.Document.Body!.Elements<Table>())
+        {
+            string tableText = table.InnerText;
+            foreach (var kv in spec)
+            {
+                if (!tableText.Contains(kv.Key, StringComparison.Ordinal)) continue;
+                if (kv.Value is not System.Collections.IEnumerable rowList) continue;
+
+                var rows = table.Elements<TableRow>().ToList();
+                if (rows.Count < 2) continue; // need at least header + 1 data row
+
+                var headerRow = rows[0];
+                var headerCells = headerRow.Elements<TableCell>().ToList();
+
+                // Remove existing data rows
+                for (int i = rows.Count - 1; i >= 1; i--)
+                    rows[i].Remove();
+
+                foreach (var rowData in rowList)
+                {
+                    var cells = (rowData as System.Collections.IEnumerable)?.Cast<object>().ToList()
+                                ?? new List<object>();
+                    var newRow = new TableRow();
+                    if (headerRow.GetFirstChild<TableRowProperties>() is {} hPr)
+                        newRow.Append((TableRowProperties)hPr.CloneNode(true));
+
+                    for (int c = 0; c < headerCells.Count; c++)
+                    {
+                        var newCell = (TableCell)headerCells[c].CloneNode(true);
+                        var text = c < cells.Count ? cells[c]?.ToString() ?? "" : "";
+                        foreach (var p in newCell.Elements<Paragraph>().ToList())
+                            p.Remove();
+                        var para = new Paragraph();
+                        if (text.Length > 0)
+                        {
+                            var hRun = headerCells[c].Elements<Run>().FirstOrDefault();
+                            var rp = hRun?.RunProperties?.CloneNode(true) as RunProperties ?? new RunProperties();
+                            para.Append(new Run(rp, new Text(text) { Space = SpaceProcessingModeValues.Preserve }));
+                        }
+                        newCell.Append(para);
+                        newRow.Append(newCell);
+                    }
+                    table.Append(newRow);
+                }
+                return; // one match = done
+            }
+        }
     }
 
     static void ProcessElement(OpenXmlElement root, Dictionary<string, object?> data, MainDocumentPart main)
@@ -467,6 +636,70 @@ public static class DocxTemplate
         foreach (PropertyDescriptor prop in TypeDescriptor.GetProperties(data))
             result[prop.Name] = prop.GetValue(data);
         return result;
+    }
+
+    // === JsonElement normalization ===
+    // System.Text.Json deserializes nested objects/arrays/numbers as JsonElement,
+    // which doesn't implement IEnumerable and breaks TypeDescriptor-based ToDictionary.
+    // NormalizeJsonValue recursively converts the JsonElement tree to native .NET types.
+
+    static object? NormalizeJsonValue(object? value)
+    {
+        if (value is JsonElement je)
+        {
+            return je.ValueKind switch
+            {
+                JsonValueKind.Object => NormalizeJsonObject(je),
+                JsonValueKind.Array  => NormalizeJsonArray(je),
+                JsonValueKind.String => je.GetString(),
+                JsonValueKind.Number => NormalizeJsonNumber(je),
+                JsonValueKind.True   => true,
+                JsonValueKind.False  => false,
+                JsonValueKind.Null   => null,
+                _ => null,
+            };
+        }
+
+        if (value is Dictionary<string, object?> dict)
+        {
+            var result = new Dictionary<string, object?>();
+            foreach (var kv in dict)
+                result[kv.Key] = NormalizeJsonValue(kv.Value);
+            return result;
+        }
+
+        if (value is System.Collections.IList list)
+        {
+            var result = new List<object?>();
+            foreach (var item in list)
+                result.Add(NormalizeJsonValue(item));
+            return result;
+        }
+
+        return value;  // string, bool, int, etc. already native — pass through
+    }
+
+    static Dictionary<string, object?> NormalizeJsonObject(JsonElement je)
+    {
+        var result = new Dictionary<string, object?>();
+        foreach (var prop in je.EnumerateObject())
+            result[prop.Name] = NormalizeJsonValue(prop.Value);
+        return result;
+    }
+
+    static List<object?> NormalizeJsonArray(JsonElement je)
+    {
+        var result = new List<object?>();
+        foreach (var item in je.EnumerateArray())
+            result.Add(NormalizeJsonValue(item));
+        return result;
+    }
+
+    static object NormalizeJsonNumber(JsonElement je)
+    {
+        if (je.TryGetInt32(out var i)) return i;
+        if (je.TryGetInt64(out var l)) return l;
+        return je.GetDouble();
     }
 }
 

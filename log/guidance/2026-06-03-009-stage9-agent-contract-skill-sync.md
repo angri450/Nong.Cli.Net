@@ -49,7 +49,7 @@ nong schema command "chart bar" --json
 - `name`
 - `message`
 
-## P1：GroundPA-Toolkit 同步
+## P1：Nong.Toolkit.Net 同步
 
 阶段 9 再动 skill 层。
 
@@ -73,7 +73,7 @@ Excel 转分组数据：优先 nong excel to-groups
 2. commands --json 增加 args/options/examples/artifacts 字段。
 3. 给每个已实现命令补 1-2 条机器可读 examples。
 4. 新增 docs/agent-contract.md 或 Cli/AGENT.md。
-5. 暂时不要改 GroundPA-Toolkit；只生成同步建议文档。
+5. 暂时不要改 Nong.Toolkit.Net；只生成同步建议文档。
 6. Release build 0 错误。
 ```
 

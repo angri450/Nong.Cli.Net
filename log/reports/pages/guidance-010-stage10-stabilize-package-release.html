@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-03 阶段 10 指导：稳定、打包、发布 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../guidance.html" class="back-link">&larr; 开发指导</a>
+<h1>2026-06-03 阶段 10 指导：稳定、打包、发布</h1>
+<p class="subtitle">2026-06-03 | <span style="color: #7c3aed">开发指导</span></p></header>
+<article class="content">
+<h1>2026-06-03 阶段 10 指导：稳定、打包、发布</h1>
+<br>
+<h2>目标</h2>
+<br>
+<p>阶段 10 才开始认真做工程稳定和发布。</p>
+<br>
+<p>前面阶段可以快，阶段 10 必须慢。</p>
+<br>
+<h2>P0：测试</h2>
+<br>
+<p>至少补这些 CLI 级测试：</p>
+<br>
+<pre><code class="language-text">
+word read
+word preview
+inspect diagnose
+inspect refs
+chart analyze
+chart bar
+excel to-groups
+missing file error
+unsupported format error
+commands --json
+</code></pre>
+<br>
+<p>测试重点不是覆盖率，而是命令契约不漂移。</p>
+<br>
+<h2>P0：打包</h2>
+<br>
+<p>先做 framework-dependent dotnet tool：</p>
+<br>
+<pre><code class="language-powershell">
+dotnet pack Cli/NongCli.csproj -c Release
+dotnet tool install --global --add-source Cli/bin/Release Angri450.Nong.Cli
+nong --version
+</code></pre>
+<br>
+<p>暂不做多平台自包含。</p>
+<br>
+<h2>P1：体积控制</h2>
+<br>
+<p>建议配置：</p>
+<br>
+<pre><code class="language-xml">
+&lt;DebugType&gt;none&lt;/DebugType&gt;
+&lt;DebugSymbols&gt;false&lt;/DebugSymbols&gt;
+</code></pre>
+<br>
+<p>不要把 PDB、测试文件、样例大文件打进 tool 包。</p>
+<br>
+<h2>P1：版本策略</h2>
+<br>
+<p>建议：</p>
+<br>
+<ul>
+<li>阶段 1-10 内部版本：<code>3.1.x</code></li>
+<li>首个可用 CLI：<code>3.2.0</code></li>
+<li>skill 同步后：<code>3.3.0</code></li>
+</ul>
+<br>
+<h2>P2：许可证</h2>
+<br>
+<p>之前可以暂缓，但发布前必须回头处理：</p>
+<br>
+<ul>
+<li>ThirdParty 来源清单</li>
+<li>NOTICE</li>
+<li>license compatibility</li>
+<li>README 声明</li>
+</ul>
+<br>
+<h2>建议 ClaudeCode 任务</h2>
+<br>
+<pre><code class="language-text">
+目标：阶段 10 稳定、打包、发布准备。
+
+要求：
+1. 新增 CLI 契约测试，覆盖已实现命令。
+2. dotnet build Cli/NongCli.csproj -c Release 通过。
+3. dotnet pack Cli/NongCli.csproj -c Release 通过。
+4. 本地 dotnet tool install 测试通过。
+5. 检查 nupkg 内容，不打入无关样例、PDB、大型临时文件。
+6. 生成 release-checklist.md。
+7. 不处理复杂许可证合规，只列出待处理清单。
+</code></pre>
+<br>
+<h2>验收标准</h2>
+<br>
+<p>阶段 10 完成后，<code>nong</code> 应该可以作为本机稳定工具使用：</p>
+<br>
+<pre><code class="language-powershell">
+nong word read a.docx
+nong inspect diagnose paper.txt --json
+nong excel to-groups data.xlsx --sheet Sheet1 --group A --value B --json
+nong chart bar groups.json -o fig.png --json
+</code></pre>
+<br>
+<p>如果这些命令在新终端里通过全局 <code>nong</code> 可调用，阶段 10 就合格。</p>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

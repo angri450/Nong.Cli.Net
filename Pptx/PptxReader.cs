@@ -44,21 +44,76 @@ public static class PptxReader
                 title = string.Join(" ", titleShape.Descendants<D.Text>().Select(t => t.Text));
             }
 
-            // Extract all text from all elements
-            foreach (var text in slidePart.Slide.Descendants<D.Text>())
+            // Extract all text with run-level formatting
+            var textRuns = new List<PptxTextRun>();
+            var allParas = slidePart.Slide.Descendants<D.Paragraph>();
+            foreach (var para in allParas)
             {
-                if (!string.IsNullOrWhiteSpace(text.Text))
+                foreach (var run in para.Elements<D.Run>())
                 {
+                    var text = run.Elements<D.Text>().FirstOrDefault();
+                    if (text == null || string.IsNullOrWhiteSpace(text.Text)) continue;
                     slideTexts.Add(text.Text);
                     allText.AppendLine(text.Text);
+
+                    var rPr = run.RunProperties;
+                    var tr = new PptxTextRun { Text = text.Text };
+                    if (rPr != null)
+                    {
+                        var latFont = rPr.GetFirstChild<D.LatinFont>();
+                        var eaFont = rPr.GetFirstChild<D.EastAsianFont>();
+                        if (latFont != null) tr.FontName = latFont.Typeface?.Value ?? "";
+                        if (eaFont != null && string.IsNullOrEmpty(tr.FontName))
+                            tr.FontName = eaFont.Typeface?.Value ?? "";
+                        if (rPr.FontSize != null) tr.FontSizePoints = rPr.FontSize.Value / 100.0;
+                        tr.Bold = rPr.Bold != null;
+                        tr.Italic = rPr.Italic != null;
+                        if (rPr.Underline != null) tr.Underline = true;
+                        if (rPr.Strike != null) tr.Strikethrough = true;
+                        var sf = rPr.GetFirstChild<D.SolidFill>();
+                        if (sf != null)
+                        {
+                            var srgb = sf.Descendants<D.RgbColorModelHex>().FirstOrDefault();
+                            var sch = sf.Descendants<D.SchemeColor>().FirstOrDefault();
+                            if (srgb != null) tr.Color = srgb.Val?.Value ?? "";
+                            else if (sch != null) tr.Color = "scheme:" + (sch.Val != null ? sch.Val.Value.ToString() : "");
+                        }
+                    }
+                    textRuns.Add(tr);
                 }
+
+                foreach (var ft in para.Elements<D.Field>())
+                {
+                    var ftText = ft.Descendants<D.Text>().FirstOrDefault();
+                    if (ftText != null && !string.IsNullOrWhiteSpace(ftText.Text))
+                    { slideTexts.Add(ftText.Text); allText.AppendLine(ftText.Text); }
+                }
+            }
+
+            // === Background detection ===
+            string bgType = "default", bgColor = "";
+            var slideBg = slidePart.Slide.CommonSlideData?.Background;
+            if (slideBg != null)
+            {
+                var sf = slideBg.Descendants<D.SolidFill>().FirstOrDefault();
+                if (sf != null)
+                {
+                    var srgb = sf.Descendants<D.RgbColorModelHex>().FirstOrDefault();
+                    var sch = sf.Descendants<D.SchemeColor>().FirstOrDefault();
+                    if (srgb != null) { bgType = "solid"; bgColor = srgb.Val?.Value ?? ""; }
+                    else if (sch != null) { bgType = "solid"; bgColor = "scheme:" + (sch.Val?.ToString() ?? ""); }
+                }
+                else if (slideBg.Descendants<D.GradientFill>().Any()) bgType = "gradient";
+                else if (slideBg.Descendants<D.BlipFill>().Any()) bgType = "image";
             }
 
             slides.Add(new PptxSlideText
             {
                 Index = idx,
                 Title = title,
-                Texts = slideTexts
+                Texts = slideTexts,
+                Runs = textRuns.Count > 0 ? textRuns : null,
+                Background = new { type = bgType, color = bgColor }
             });
         }
 
@@ -178,6 +233,20 @@ public class PptxSlideText
     public int Index { get; set; }
     public string Title { get; set; } = "";
     public List<string> Texts { get; set; } = new();
+    public List<PptxTextRun>? Runs { get; set; }
+    public object? Background { get; set; }
+}
+
+public class PptxTextRun
+{
+    public string Text { get; set; } = "";
+    public string? FontName { get; set; }
+    public double? FontSizePoints { get; set; }
+    public bool Bold { get; set; }
+    public bool Italic { get; set; }
+    public bool Underline { get; set; }
+    public bool Strikethrough { get; set; }
+    public string? Color { get; set; }
 }
 
 public class PptxSlidesResult

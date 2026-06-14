@@ -1,0 +1,230 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nong.Toolkit.Net vs Angri450.Nong 完整对比分析 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../debug.html" class="back-link">&larr; 用户反馈</a>
+<h1>Nong.Toolkit.Net vs Angri450.Nong 完整对比分析</h1>
+<p class="subtitle">2026-06-09 | <span style="color: #dc2626">用户反馈</span></p></header>
+<article class="content">
+<h1>Nong.Toolkit.Net vs Angri450.Nong 完整对比分析</h1>
+<br>
+<h2>时间</h2>
+<p>2026-06-09</p>
+<br>
+<h2>概述</h2>
+<br>
+<p>两个仓库是<strong>上层 / 下层</strong>关系，共同构成 Nong.NET 生态。但二者在版本对齐、职责边界、目录结构和开发流程上存在多处置未对齐。</p>
+<br>
+<hr>
+<br>
+<h2>一、身份与定位</h2>
+<br>
+<table>
+<tr><th>维度</th><th>Nong.Toolkit.Net</th><th>Angri450.Nong</th></tr>
+<tr><td>本质</td><td>Claude Code 多 skill 插件</td><td>纯 .NET CLI 工具集</td></tr>
+<tr><td>代码量</td><td>0 行 C#（纯文档 + PowerShell 脚本）</td><td>15 个第三方源码目录 + 10+ 个项目</td></tr>
+<tr><td>二进制</td><td>无</td><td>一个 <code>nong.dll</code>（93 个命令）</td></tr>
+<tr><td>文件数 (depth 2)</td><td>127</td><td>3209</td></tr>
+<tr><td>版本</td><td>2.3.1（plugin.json）</td><td>4.0.0（NuGet / csproj）</td></tr>
+<tr><td>安装方式</td><td><code>claude plugin install nong-toolkit@angri450</code></td><td><code>dotnet tool install --global Angri450.Nong.Cli</code></td></tr>
+<tr><td>Git tags</td><td>9 个 (v1.0.0 ~ v2.2.0)，<strong>v2.3.1 无 tag</strong></td><td>大量</td></tr>
+<tr><td>主分支</td><td>main</td><td>master</td></tr>
+</table>
+<br>
+<h2>二、架构关系</h2>
+<br>
+<pre><code>
+Nong.Toolkit.Net (上层 — 教学层)
+  │ 告诉 Claude Code &quot;怎么调用 nong&quot;
+  │ 11 个 SKILL.md → 每个包装一组 nong 命令
+  │ 包含: formats/ recipes, references/ 详细指导, scripts/ PowerShell 辅助
+  │
+  └──→ 调用 Angri450.Nong.Cli (底层 — 执行层)
+         │ 93 个命令, 一个 nong.dll
+         │ 实际做: Word 读写、PDF 切片、图表渲染、OCR 推理
+         │ SkillManagerCore 提供: nong skill validate/scan/inventory/package
+</code></pre>
+<br>
+<p><strong>关键设计</strong>: Nong.Toolkit.Net 不包含任何可执行代码（0 个 .csproj）。它是一个纯文档分发包。这就是为什么 README 说&quot;零 JavaScript、纯 .NET CLI&quot;——确定性工作全在 nong 二进制里，skill 只做路由和教学。</p>
+<br>
+<h2>三、版本不对齐</h2>
+<br>
+<table>
+<tr><th>文件</th><th>Nong.Toolkit.Net</th><th>Angri450.Nong</th><th>问题</th></tr>
+<tr><td>plugin.json version</td><td>2.3.1</td><td>-</td><td>无 git tag</td></tr>
+<tr><td>skills.sh.json target</td><td>Nong 3.2.5+</td><td><strong>4.0.0</strong></td><td>声明的目标版本落后两个大版本</td></tr>
+<tr><td>命令数</td><td>82 commands</td><td><strong>93 commands</strong></td><td>对不上了</td></tr>
+<tr><td>OCR runtime</td><td>3.2.5</td><td>4.0.0</td><td>版本引用过期</td></tr>
+<tr><td>README install</td><td><code>--version 3.2.5</code></td><td>4.0.0</td><td>安装命令指向旧版</td></tr>
+</table>
+<br>
+<p><strong>Nong.Toolkit.Net 需要更新到 2.4.0 以对齐 Nong 4.0.0</strong>。上次 sync changelog（2026-06-07）只做了 2.3.0 → 2.3.1 对应 Nong 3.2.5，此后 Nong 发布 4.0.0 后 Nong.Toolkit.Net 没有联动。</p>
+<br>
+<h2>四、skill 目录结构对比</h2>
+<br>
+<h3>Nong.Toolkit.Net 的 11 个 skill</h3>
+<br>
+<pre><code>
+word/       ← 最完整的 skill: SKILL.md (195 行) + 7 references + 4 formats + 3 scripts
+pdf/        ← 简化: 只有 SKILL.md
+literature/ ← 简化: 只有 SKILL.md
+inspect/    ← 简化: 只有 SKILL.md
+excel/      ← 中等: SKILL.md + 3 references + 6 formats + 2 scripts
+chart/      ← 中等: SKILL.md + 2 references + 2 scripts
+diagram/    ← 中等: SKILL.md + 2 references + 3 examples + 1 script
+pptx/       ← 中等: SKILL.md + 3 references + 6 formats + 2 scripts
+multimodal/ ← 中等: SKILL.md + 3 references + README
+genre/      ← 中等: SKILL.md + 3 references + 1 script
+icons/      ← 最简: 只有 SKILL.md
+</code></pre>
+<br>
+<p>每个 skill 的 SKILL.md 都包含相同的 &quot;Nong CLI Preflight&quot; 代码块（安装/更新 nong），内容高度重复。</p>
+<br>
+<h3>Angri450.Nong 的 .claude/skills/（不应存在）</h3>
+<br>
+<pre><code>
+.claude/skills/progress-report/  ← 位置错误！应该在 Nong.Toolkit.Net
+</code></pre>
+<br>
+<h2>五、skill-manager 的尴尬位置</h2>
+<br>
+<h3>三个 skill-manager 相关实体</h3>
+<br>
+<table>
+<tr><th>实体</th><th>位置</th><th>版本</th><th>功能</th></tr>
+<tr><td>skill-manager (meta-skill)</td><td><code>~/.claude/plugins/cache/angri450/nong-toolkit/2.2.1/skill-manager/</code></td><td>2.2.1</td><td>创建/维护 skill 的指导文档</td></tr>
+<tr><td>SkillManagerCore (库)</td><td><code>Angri450.Nong/SkillManagerCore/</code></td><td>4.0.0</td><td><code>nong skill validate/scan/inventory/package</code></td></tr>
+<tr><td>skill-manager SKILL.md</td><td>plugin cache 中</td><td>2.2.1</td><td>教 Claude Code 如何创建 skill</td></tr>
+</table>
+<br>
+<p><strong>问题</strong>:</p>
+<ul>
+<li>skill-manager 是 2.2.1 版本，不在 Nong.Toolkit.Net 的 11 个 skill 列表中</li>
+<li>skill-manager 不知道 Nong.Toolkit.Net 的结构（它被装在 plugin cache，和 Nong.Toolkit.Net 是分离的）</li>
+<li>skill-manager 说&quot;Deterministic work goes into .NET tools&quot;，但没说是走 nong CLI 还是独立项目</li>
+<li>这次 progress-report 的创建就栽在这个模糊点上</li>
+</ul>
+<br>
+<h2>六、log 目录结构对比</h2>
+<br>
+<table>
+<tr><th>维度</th><th>Nong.Toolkit.Net/log/</th><th>Nong.Cli.Net/log/</th></tr>
+<tr><td>文件数</td><td>15 个 .md（扁平）</td><td>plans/ changelog/ debug/ guidance/ reports/（结构化）</td></tr>
+<tr><td>索引</td><td>无</td><td>所有子目录有 index.md</td></tr>
+<tr><td>分类</td><td>发现问题、解决问题、审查通过（code-review 格式）</td><td>按功能分类</td></tr>
+<tr><td>记录粒度</td><td>每轮开发一个文件</td><td>每次变更一个文件（60+ changelog）</td></tr>
+</table>
+<br>
+<p><strong>Nong.Toolkit.Net 缺少</strong>: plans/、debug/、guidance/ 目录，无 index.md，日志格式不统一。</p>
+<br>
+<h2>七、.claude/ 目录对比</h2>
+<br>
+<table>
+<tr><th>维度</th><th>Nong.Toolkit.Net</th><th>Angri450.Nong</th></tr>
+<tr><td>.claude/ 目录</td><td>无（被 .gitignore 排除）</td><td>有，包含 references/（5 个文件） + skills/</td></tr>
+<tr><td>CLAUDE.md</td><td>无（被 .gitignore 排除）</td><td>有（71 行内核）</td></tr>
+<tr><td>AGENTS.md</td><td>无</td><td>有（Codex 专用）</td></tr>
+</table>
+<br>
+<p><strong>Nong.Toolkit.Net 不需要 .claude/</strong>（它是插件，不含开发配置）。但开发 Nong.Toolkit.Net 本身的 Agent 需要一个 CLAUDE.md 或 AGENTS.md 来指导开发。</p>
+<br>
+<h2>八、skill 与 nong 命令的映射</h2>
+<br>
+<table>
+<tr><th>GroundPA 11 skills</th><th>映射的 nong 命令</th></tr>
+<tr><td>word</td><td>word check/convert/create/read/preview/fill/rebuild/stats/fonts/styles/validate/extract/merge/outline/images/comments/revisions/infer-format/fix-order/academic-format/format-audit/repair-plan/table-reflow/protect/embed-font/add paragraph/table/footnote/image/toc/xref/link/bookmark/comment/math</td></tr>
+<tr><td>pdf</td><td>pdf dissect/extract</td></tr>
+<tr><td>literature</td><td>lit parse/validate/plan/search/export</td></tr>
+<tr><td>inspect</td><td>inspect diagnose/refs/classify/structure/evidence/data-req/gap/varplan/semantics/write-paper</td></tr>
+<tr><td>excel</td><td>excel sheets/read/to-groups/create/dissect</td></tr>
+<tr><td>chart</td><td>chart analyze/anova/duncan/bar/line/scatter/pie</td></tr>
+<tr><td>diagram</td><td>diagram flowchart/network/tree</td></tr>
+<tr><td>pptx</td><td>pptx read/slides/dissect</td></tr>
+<tr><td>multimodal</td><td>ocr cloud/local/check-env/analyze-image/models/install-model/to-word</td></tr>
+<tr><td>genre</td><td>genre list/show</td></tr>
+<tr><td>icons</td><td>icons list/search</td></tr>
+</table>
+<br>
+<p>另外还有 <code>slice inspect/blocks/block/assets</code> 和 <code>skill validate/scan/inventory/package</code> 没有对应的 GroundPA skill。</p>
+<br>
+<h2>九、开发流程不对齐</h2>
+<br>
+<h3>正确流程（应该的）</h3>
+<br>
+<pre><code>
+用户提出需求
+  → 如果需求是&quot;教 Claude 怎么用 nong&quot;（skill） → 改 Nong.Toolkit.Net
+  → 如果需求是&quot;nong 能做新的事情&quot;（命令） → 改 Angri450.Nong
+  → 改完 nong 后 → 联动更新 Nong.Toolkit.Net（版本号 + README）
+</code></pre>
+<br>
+<h3>实际发生（progress-report 案例）</h3>
+<br>
+<pre><code>
+用户要求创建 progress-report skill
+  → skill-manager 指导创建了独立的 .NET 工具（tools/ProgressReport/）
+  → 这个工具放在 Angri450.Nong 但不在 nong CLI 里
+  → SKILL.md 放在 .claude/skills/progress-report/（应该在 Nong.Toolkit.Net）
+  → 结果：孤立的功能，既不是 nong 命令也不是 GroundPA skill
+</code></pre>
+<br>
+<h2>十、具体问题清单</h2>
+<br>
+<h3>P0 — 版本不对齐</h3>
+<br>
+<p>Nong.Toolkit.Net 声明的 Nong CLI 版本是 3.2.5，实际是 4.0.0。</p>
+<br>
+<p><strong>修复</strong>: 更新所有 SKILL.md 的 Preflight 块、plugin.json、skills.sh.json、README.md、README.zh-CN.md 中的版本引用。同步到 4.0.0。</p>
+<br>
+<h3>P1 — progress-report 放错位置</h3>
+<br>
+<ul>
+<li><code>Angri450.Nong/tools/ProgressReport/</code> 应该撤回</li>
+<li><code>Angri450.Nong/.claude/skills/progress-report/</code> 应该移到 Nong.Toolkit.Net</li>
+<li>如果 progress-report 需要 nong 命令支持，应该在 <code>Angri450.Nong/Cli/Commands/</code> 里加 <code>ProgressCommands.cs</code></li>
+</ul>
+<br>
+<h3>P2 — Nong.Toolkit.Net 缺少日志结构</h3>
+<br>
+<p>应该加上与 Angri450.Nong 对齐的 <code>log/</code> 目录结构：</p>
+<ul>
+<li><code>log/plans/</code> + index.md</li>
+<li><code>log/changelog/</code> + index.md</li>
+<li><code>log/debug/</code> + index.md</li>
+</ul>
+<br>
+<h3>P3 — skill SKILL.md 重复代码</h3>
+<br>
+<p>11 个 SKILL.md 文件都有相同的 &quot;Nong CLI Preflight&quot; 块，如果需要统一更新安装命令或版本号，要改 11 个文件。建议用一个共享 reference。</p>
+<br>
+<h3>P4 — skill-manager 版本孤立</h3>
+<br>
+<p>skill-manager 2.2.1 在 plugin cache，Nong.Toolkit.Net 是 2.3.1。skill-manager 不知道 Nong.Toolkit.Net 的结构和约束。</p>
+<br>
+<h3>P5 — Nong.Toolkit.Net 缺少开发指导</h3>
+<br>
+<p>没有 CLAUDE.md 或 AGENTS.md，Agent 开发 Nong.Toolkit.Net 技能时只能靠 skill-manager 的通用规则，不了解项目特定的架构约束。</p>
+<br>
+<h3>P6 — 两个 skill 的归属模糊</h3>
+<br>
+<ul>
+<li><code>slice inspect/blocks/block/assets</code>：nong 有这些命令，但没有对应的 GroundPA skill</li>
+<li><code>skill validate/scan/inventory/package</code>：nong 有，但 GroundPA 没有 skill。skill-manager 本身 SKILL.md 里提到了这些命令，但它不在 11 skill 列表里</li>
+</ul>
+<br>
+<h2>十一、建议修复顺序</h2>
+<br>
+<p>1. <strong>Nong.Toolkit.Net 版本对齐</strong>（P0）：更新所有版本引用到 Nong 4.0.0</p>
+<p>2. <strong>撤回 progress-report 错误产物</strong>（P1）：删除 tools/ProgressReport/，SKILL.md 移到 Nong.Toolkit.Net</p>
+<p>3. <strong>在 Cli/Commands/ 实现 progress 命令</strong>（P1）：ProgressCommands.cs，挂到 nong progress report</p>
+<p>4. <strong>Nong.Toolkit.Net 日志结构化</strong>（P2）：加 plans/changelog/debug 目录和索引</p>
+<p>5. <strong>Nong.Toolkit.Net 加 CLAUDE.md</strong>（P5）：写开发指导，讲清楚&quot;两层&quot;关系</p>
+<p>6. <strong>减少重复代码</strong>（P3）：创建共享 preflight.md reference</p>
+<p>7. <strong>skill-manager 同步 Nong.Toolkit.Net 结构</strong>（P4）：更新 skill-manager 让它知道 GroundPA 的约束</p>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

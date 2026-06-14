@@ -1,0 +1,1071 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-07 Stage19 Guidance: Unified Literature Retrieval DSL - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../guidance.html" class="back-link">&larr; 开发指导</a>
+<h1>2026-06-07 Stage19 Guidance: Unified Literature Retrieval DSL</h1>
+<p class="subtitle">2026-06-07 | <span style="color: #7c3aed">开发指导</span></p></header>
+<article class="content">
+<h1>2026-06-07 Stage19 Guidance: Unified Literature Retrieval DSL</h1>
+<br>
+<h2>Mission</h2>
+<br>
+<p>Build a first-class Nong literature retrieval module:</p>
+<br>
+<pre><code class="language-text">
+nong lit
+</code></pre>
+<br>
+<p>This is a major construction task, not a small patch. Claude Code should run at full capacity: use deep reasoning, split work across multiple agents with disjoint write scopes, implement the module end to end, run verification, perform self-audit, and write the final changelog.</p>
+<br>
+<p>The strategic product goal:</p>
+<br>
+<pre><code class="language-text">
+CNKI-like professional search expression
+    -&gt; deterministic DSL parser
+    -&gt; provider-specific rough queries
+    -&gt; legal metadata/OA data sources
+    -&gt; local strict filtering
+    -&gt; merge/dedupe
+    -&gt; ranking
+    -&gt; JSON/Markdown/BibTeX export
+</code></pre>
+<br>
+<p>The core rule:</p>
+<br>
+<pre><code class="language-text">
+CNKI-like DSL is the stable Nong contract.
+External literature databases are providers, not the product contract.
+</code></pre>
+<br>
+<h2>Read First</h2>
+<br>
+<p>Claude Code must read these files before editing:</p>
+<br>
+<pre><code class="language-text">
+CLAUDE.md
+Cli/AGENT.md
+Cli/Program.cs
+Cli/NongCli.csproj
+Cli/Common/Manifest.cs
+Cli/Common/JsonOutput.cs
+Cli/Common/ErrorCodes.cs
+Cli/Commands/PdfCommands.cs
+Cli.Tests/CliContractTests.cs
+Tests/Tests.csproj
+Cli.Tests/Cli.Tests.csproj
+log/guidance/README.md
+log/guidance/review-checklist.md
+</code></pre>
+<br>
+<p>Also inspect current dirty state before editing:</p>
+<br>
+<pre><code class="language-powershell">
+git status --short
+</code></pre>
+<br>
+<p>Known dirty-state warning at handoff time:</p>
+<br>
+<pre><code class="language-text">
+PDF/OCR/MultiModal changes exist.
+ThirdParty/ZXing/package-lock related changes may exist.
+changelog/ deletions may exist.
+Do not clean, revert, move, or reformat unrelated dirty changes.
+</code></pre>
+<br>
+<h2>P1 Current Facts And Goal</h2>
+<br>
+<h3>Current Facts</h3>
+<br>
+<ul>
+<li><code>Angri450.Nong</code> is a pure .NET 8 repository.</li>
+<li>CLI tool name is <code>nong</code>.</li>
+<li>CLI commands are registered in <code>Cli/Program.cs</code>.</li>
+<li><code>nong commands --json</code> is backed by <code>Cli/Common/Manifest.cs</code>.</li>
+<li>JSON output contract is <code>JsonOutput</code>: <code>status</code>, <code>command</code>, <code>summary</code>, <code>data</code>, <code>issues</code>, <code>artifacts</code>, <code>metrics</code>, <code>errors</code>, <code>meta</code>.</li>
+<li>Error codes are centralized in <code>Cli/Common/ErrorCodes.cs</code>.</li>
+<li>Current public CLI surface is around Nong 3.2.4 with Word, Inspect, Chart, Excel, Diagram, PPTX, Skill, OCR, and PDF commands.</li>
+<li>Repository policy forbids JavaScript dependencies and Python implementation for core Nong features.</li>
+</ul>
+<br>
+<h3>User Goal</h3>
+<br>
+<p>Implement a new <code>nong lit</code> module for unified literature retrieval:</p>
+<br>
+<pre><code class="language-text">
+nong lit parse
+nong lit validate
+nong lit plan
+nong lit search
+nong lit export
+</code></pre>
+<br>
+<p>The module must support:</p>
+<br>
+<ul>
+<li>CNKI-like DSL parsing and validation.</li>
+<li>Provider-based metadata search.</li>
+<li>OpenAlex/Crossref/Unpaywall first-version provider implementation.</li>
+<li>Local boolean filtering.</li>
+<li>DOI/title-based merge and dedupe.</li>
+<li>Deterministic ranking.</li>
+<li>JSON/Markdown/BibTeX export.</li>
+<li>Stable JSON output for agent calls.</li>
+<li>Focused tests and actual CLI smoke verification.</li>
+</ul>
+<br>
+<h3>Non-Goals For Stage19</h3>
+<br>
+<p>Do not implement these as working default providers in Stage19:</p>
+<br>
+<pre><code class="language-text">
+SemanticScholarProvider
+PubMedProvider
+PmcProvider
+ArxivProvider
+WanfangProvider
+SciverseProvider
+MetasoProvider
+TavilyProvider
+IFlowProvider
+AMinerProvider
+LewenProvider
+DblpProvider
+QinyanProvider
+LocalPdfProvider
+</code></pre>
+<br>
+<p>It is acceptable to reserve provider registry names and capability structures for them. Do not advertise them as implemented in <code>nong commands --json</code>, <code>README</code>, or final changelog.</p>
+<br>
+<p>Do not implement web scraping, browser automation, CAPTCHA bypass, institutional login automation, paywall bypass, or commercial database scraping.</p>
+<br>
+<p>Do not publish NuGet packages, push git remotes, change branches, or expose secrets.</p>
+<br>
+<h2>P2 Design And Boundaries</h2>
+<br>
+<h3>Project Layout</h3>
+<br>
+<p>Create:</p>
+<br>
+<pre><code class="language-text">
+Literature/
+  LiteratureCore.csproj
+  README.md
+  Dsl/
+    CnkiToken.cs
+    CnkiLexer.cs
+    CnkiParser.cs
+    CnkiAst.cs
+    CnkiDslValidator.cs
+    CnkiQueryNormalizer.cs
+  Models/
+    PaperRecord.cs
+    LiteratureSearchRequest.cs
+    LiteratureSearchResult.cs
+    ProviderSearchResult.cs
+    LiteratureProviderCapabilities.cs
+    LiteratureSource.cs
+    RankProfile.cs
+    CitationFormat.cs
+  Providers/
+    ILiteratureProvider.cs
+    ProviderHttpClientFactory.cs
+    ProviderRegistry.cs
+    OpenAlexProvider.cs
+    CrossrefProvider.cs
+    UnpaywallProvider.cs
+  Pipeline/
+    LiteratureSearchPipeline.cs
+    QueryPlanner.cs
+    LocalBooleanFilter.cs
+    PaperRecordMerger.cs
+    LiteratureRanker.cs
+    CitationFormatter.cs
+  Export/
+    JsonLiteratureExporter.cs
+    MarkdownLiteratureExporter.cs
+    BibTeXExporter.cs
+</code></pre>
+<br>
+<p>Create:</p>
+<br>
+<pre><code class="language-text">
+Cli/Commands/LitCommands.cs
+</code></pre>
+<br>
+<p>Modify:</p>
+<br>
+<pre><code class="language-text">
+Cli/NongCli.csproj
+Cli/Program.cs
+Cli/Common/Manifest.cs
+Tests/Tests.csproj
+Cli.Tests/Cli.Tests.csproj
+README.md
+README.zh-CN.md
+</code></pre>
+<br>
+<p>Only update docs after the command behavior is real.</p>
+<br>
+<h3>Project File Contract</h3>
+<br>
+<p><code>Literature/LiteratureCore.csproj</code>:</p>
+<br>
+<pre><code class="language-text">
+TargetFramework: net8.0
+Nullable: enable
+ImplicitUsings: enable
+PackageId: Angri450.Nong.Literature
+AssemblyName: Angri450.Nong.Literature
+PackageReadmeFile: README.md
+RepositoryUrl: https://github.com/angri450/Nong.NET
+README.md packed to package root
+</code></pre>
+<br>
+<p>Use only .NET runtime libraries unless a dependency is clearly needed. For Stage19, <code>HttpClient</code>, <code>System.Text.Json</code>, and <code>System.Xml.Linq</code> are enough. Avoid adding new NuGet packages.</p>
+<br>
+<h3>CLI Command Surface</h3>
+<br>
+<p>Implement:</p>
+<br>
+<pre><code class="language-powershell">
+nong lit parse --query &quot;&lt;expr&gt;&quot; --json
+nong lit validate --query &quot;&lt;expr&gt;&quot; --json
+nong lit plan --query &quot;&lt;expr&gt;&quot; --sources openalex,crossref,unpaywall --json
+nong lit search --query &quot;&lt;expr&gt;&quot; --sources openalex,crossref,unpaywall --limit 50 --profile balanced --out refs.json --json
+nong lit export --input refs.json --format json --out refs.normalized.json --json
+nong lit export --input refs.json --format markdown --style gbt7714 --out refs.md --json
+nong lit export --input refs.json --format bibtex --out refs.bib --json
+</code></pre>
+<br>
+<p>Do not add <code>lit enrich</code> or <code>lit rank</code> as implemented commands in Stage19 unless they are fully tested and useful as standalone commands. Ranking and enrichment may exist as internal pipeline steps.</p>
+<br>
+<h3>JSON Contract</h3>
+<br>
+<p>All <code>--json</code> commands must use existing <code>JsonOutput</code> and <code>ErrorEntry</code>.</p>
+<br>
+<p>Success:</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;command&quot;: &quot;lit parse&quot;,
+  &quot;summary&quot;: &quot;...&quot;,
+  &quot;data&quot;: {},
+  &quot;issues&quot;: [],
+  &quot;artifacts&quot;: {},
+  &quot;metrics&quot;: {},
+  &quot;errors&quot;: [],
+  &quot;meta&quot;: { &quot;durationMs&quot;: 0, &quot;version&quot;: &quot;...&quot; }
+}
+</code></pre>
+<br>
+<p>Failure:</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;status&quot;: &quot;error&quot;,
+  &quot;command&quot;: &quot;lit validate&quot;,
+  &quot;summary&quot;: &quot;...&quot;,
+  &quot;errors&quot;: [
+    { &quot;code&quot;: &quot;E006&quot;, &quot;name&quot;: &quot;validation_failed&quot;, &quot;message&quot;: &quot;...&quot; }
+  ]
+}
+</code></pre>
+<br>
+<p>Set <code>Environment.ExitCode = 1</code> for command failure.</p>
+<br>
+<h3>DSL Stage19 Support</h3>
+<br>
+<p>Supported fields:</p>
+<br>
+<pre><code class="language-text">
+SU  subject, mapped locally to title + keywords + abstract + concepts/topics
+TI  title
+KY  keywords
+AB  abstract
+FT  full text; Stage19 remote providers usually cannot satisfy strict FT
+AU  author
+FI  first author / first responsible person
+F   alias of FI
+AF  affiliation
+JN  journal/source
+RF  references/cited references
+YE  year
+FU  fund
+CLC classification
+SN  ISSN
+CN  Chinese serial number
+IB  ISBN
+CF  citation count
+DOI DOI
+</code></pre>
+<br>
+<p>Supported syntax:</p>
+<br>
+<pre><code class="language-text">
+FIELD=...
+&#39;phrase&#39;
+unquoted terms
++
+*
+-
+AND
+OR
+NOT
+()
+YE BETWEEN (&#39;2000&#39;,&#39;2013&#39;)
+</code></pre>
+<br>
+<p>Operator meaning:</p>
+<br>
+<pre><code class="language-text">
++    OR
+*    AND
+-    NOT
+AND  AND
+OR   OR
+NOT  NOT
+</code></pre>
+<br>
+<p>Keep extension slots, but do not implement:</p>
+<br>
+<pre><code class="language-text">
+%
+/SEN N
+/NEAR N
+/PREV N
+/AFT N
+/PRG N
+$N
+</code></pre>
+<br>
+<p>If users use unsupported operators, return <code>E006 validation_failed</code> with a clear message and location if possible.</p>
+<br>
+<p>Required examples:</p>
+<br>
+<pre><code class="language-text">
+SU=(&#39;腐植酸&#39;+&#39;腐殖酸&#39;)*(&#39;稀土&#39;+&#39;微肥&#39;)
+SU=(&#39;腐植酸&#39;+&#39;腐殖酸&#39;)*(&#39;稀土&#39;+&#39;微肥&#39;)*(&#39;络合&#39;+&#39;配合&#39;+&#39;螯合&#39;+&#39;复合物&#39;)
+AU=钱伟长 AND (AF=清华大学 OR AF=上海大学)
+YE BETWEEN (&#39;2000&#39;,&#39;2013&#39;)
+DOI=&#39;10.1016/j.chemgeo.2007.05.018&#39;
+</code></pre>
+<br>
+<p>Do not silently perform model-based Chinese-English translation in Stage19. If English synonyms are needed, they must be present in the user query or in an explicit deterministic synonym dictionary added later.</p>
+<br>
+<h3>Provider Interface</h3>
+<br>
+<p>Use capability-based interface:</p>
+<br>
+<pre><code class="language-csharp">
+public interface ILiteratureProvider
+{
+    string Name { get; }
+    LiteratureProviderCapabilities Capabilities { get; }
+
+    Task&lt;ProviderSearchResult&gt; SearchAsync(
+        LiteratureSearchRequest request,
+        CancellationToken cancellationToken);
+
+    Task&lt;PaperRecord?&gt; GetByDoiAsync(
+        string doi,
+        CancellationToken cancellationToken);
+
+    Task&lt;PaperRecord?&gt; EnrichAsync(
+        PaperRecord record,
+        CancellationToken cancellationToken);
+}
+</code></pre>
+<br>
+<p>Capabilities:</p>
+<br>
+<pre><code class="language-csharp">
+public sealed class LiteratureProviderCapabilities
+{
+    public bool Search { get; init; }
+    public bool DoiLookup { get; init; }
+    public bool OpenAccessLookup { get; init; }
+    public bool FullTextLookup { get; init; }
+    public bool CitationLookup { get; init; }
+    public bool ReferenceLookup { get; init; }
+    public bool WebSearch { get; init; }
+    public bool RequiresApiKey { get; init; }
+    public bool SupportsCnkiDslNative { get; init; }
+    public bool SupportsLocalStrictFilter { get; init; }
+}
+</code></pre>
+<br>
+<h3>Stage19 Providers</h3>
+<br>
+<p>Implement only:</p>
+<br>
+<pre><code class="language-text">
+OpenAlexProvider
+CrossrefProvider
+UnpaywallProvider
+</code></pre>
+<br>
+<p>Provider requirements:</p>
+<br>
+<ul>
+<li>Use <code>HttpClient</code>.</li>
+<li>Use <code>System.Text.Json</code>.</li>
+<li>Use deterministic timeout.</li>
+<li>Add simple retry/backoff for transient failures.</li>
+<li>Do not log or print API keys.</li>
+<li>Do not print user email in normal JSON output.</li>
+<li>Return provider diagnostics without secrets.</li>
+<li>Provider unit tests must use fake <code>HttpMessageHandler</code> and fixture JSON.</li>
+<li>Live tests run only when <code>NONG_LIT_ENABLE_LIVE_TESTS=1</code>.</li>
+</ul>
+<br>
+<p>Environment variables:</p>
+<br>
+<pre><code class="language-text">
+NONG_LIT_OPENALEX_KEY
+NONG_LIT_OPENALEX_API_KEY     # accepted alias
+NONG_LIT_MAILTO
+NONG_LIT_UNPAYWALL_EMAIL
+NONG_LIT_ENABLE_LIVE_TESTS
+</code></pre>
+<br>
+<p>Rules:</p>
+<br>
+<ul>
+<li>OpenAlex must support API key. <code>NONG_LIT_OPENALEX_API_KEY</code> and <code>NONG_LIT_OPENALEX_KEY</code> are aliases.</li>
+<li>Crossref may use <code>NONG_LIT_MAILTO</code> for polite contact / User-Agent.</li>
+<li>Unpaywall requires an email parameter. Use <code>NONG_LIT_UNPAYWALL_EMAIL</code>, fallback to <code>NONG_LIT_MAILTO</code>. If neither exists and Unpaywall is selected, return provider unavailable or validation issue, not a secret prompt.</li>
+</ul>
+<br>
+<h3>Provider Boundary</h3>
+<br>
+<p>OpenAlex:</p>
+<br>
+<ul>
+<li>Main search source.</li>
+<li>Map title, authors, year, venue, DOI, abstract inverted index, citation count, OA fields.</li>
+<li>Do not claim full text support.</li>
+</ul>
+<br>
+<p>Crossref:</p>
+<br>
+<ul>
+<li>DOI and publication metadata enrichment.</li>
+<li>Map title, authors, journal/container-title, publisher, license, funder, volume, issue, page.</li>
+<li>Search support may be rough only; DOI lookup and enrichment are primary.</li>
+</ul>
+<br>
+<p>Unpaywall:</p>
+<br>
+<ul>
+<li>DOI to legal OA location, PDF URL, landing page, OA status, license.</li>
+<li>No general search.</li>
+</ul>
+<br>
+<h3>Query Planning</h3>
+<br>
+<p>Do not require every provider to support CNKI DSL natively.</p>
+<br>
+<p>Pipeline:</p>
+<br>
+<pre><code class="language-text">
+DSL text
+  -&gt; CnkiLexer
+  -&gt; CnkiParser
+  -&gt; CnkiDslValidator
+  -&gt; QueryPlanner
+  -&gt; provider rough query/query set
+  -&gt; provider search
+  -&gt; normalize PaperRecord
+  -&gt; local filter
+  -&gt; merge/dedupe
+  -&gt; rank
+  -&gt; export
+</code></pre>
+<br>
+<p>Prevent OR-combination explosion:</p>
+<br>
+<pre><code class="language-text">
+Max generated rough queries per provider: 20 by default.
+If exceeded, truncate deterministically and add a Warning issue.
+</code></pre>
+<br>
+<p><code>lit plan</code> must expose:</p>
+<br>
+<pre><code class="language-text">
+parsed fields
+normalized concepts
+provider list
+rough queries per provider
+known provider limitations
+credential availability as boolean flags only
+</code></pre>
+<br>
+<p>Do not print actual API key or email.</p>
+<br>
+<h3>Local Boolean Filtering</h3>
+<br>
+<p>Field mapping:</p>
+<br>
+<pre><code class="language-text">
+SU = title + keywords + abstract + concepts/topics
+TI = title
+KY = keywords
+AB = abstract
+AU = authors
+JN = venue
+YE = year
+DOI = doi
+CF = citationCount
+FT = full text
+</code></pre>
+<br>
+<p>Filtering modes:</p>
+<br>
+<pre><code class="language-text">
+strict
+recall
+</code></pre>
+<br>
+<p>Default: <code>strict</code>.</p>
+<br>
+<p>If query uses <code>FT</code> but no full text is available:</p>
+<br>
+<ul>
+<li>strict mode: record does not satisfy the FT clause.</li>
+<li>recall mode: keep candidate but add match reason / issue explaining full text unavailable.</li>
+</ul>
+<br>
+<h3>Merge And Dedupe</h3>
+<br>
+<p>Rules:</p>
+<br>
+<p>1. DOI normalized equal -&gt; same record.</p>
+<p>2. If DOI missing -&gt; normalized title + year + first author approximate match.</p>
+<p>3. Do not merge Chinese title and English title unless DOI matches.</p>
+<p>4. Preserve <code>RetrievedFrom</code> and <code>SourceIds</code>.</p>
+<p>5. Prefer richer values when merging:</p>
+<ul>
+<li>DOI present beats missing.</li>
+<li>Non-empty abstract beats empty.</li>
+<li>OA PDF from Unpaywall beats missing.</li>
+<li>Higher citation count preserved.</li>
+</ul>
+<br>
+<h3>Ranking</h3>
+<br>
+<p>Implement profiles:</p>
+<br>
+<pre><code class="language-text">
+balanced
+classic
+recent
+</code></pre>
+<br>
+<p>Scores:</p>
+<br>
+<pre><code class="language-text">
+balanced = 0.45 conceptCoverage + 0.20 fieldMatch + 0.15 citationScore + 0.15 recencyScore + 0.05 sourceQuality
+classic  = 0.35 conceptCoverage + 0.20 fieldMatch + 0.35 citationScore + 0.05 recencyScore + 0.05 sourceQuality
+recent   = 0.45 conceptCoverage + 0.20 fieldMatch + 0.05 citationScore + 0.25 recencyScore + 0.05 sourceQuality
+</code></pre>
+<br>
+<p>Clamp all feature scores to <code>[0, 1]</code>. Do not emit <code>NaN</code>, <code>Infinity</code>, or negative relevance scores.</p>
+<br>
+<h3>Export</h3>
+<br>
+<p>Formats:</p>
+<br>
+<pre><code class="language-text">
+json
+markdown
+bibtex
+</code></pre>
+<br>
+<p>Markdown:</p>
+<br>
+<ul>
+<li>Basic GB/T 7714-like reference list.</li>
+<li>Stage19 does not need exhaustive GB/T 7714 edge coverage.</li>
+</ul>
+<br>
+<p>BibTeX:</p>
+<br>
+<ul>
+<li>Generate stable keys.</li>
+<li>Escape braces, quotes, and backslashes conservatively.</li>
+<li>Use <code>@article</code> where venue/year exists; fallback to <code>@misc</code>.</li>
+</ul>
+<br>
+<p>JSON:</p>
+<br>
+<ul>
+<li>Full normalized <code>PaperRecord</code> array or <code>LiteratureSearchResult</code>.</li>
+</ul>
+<br>
+<p>Generated artifact commands must verify output file exists and is non-zero before returning success.</p>
+<br>
+<h2>P3 Execution Steps</h2>
+<br>
+<p>Claude Code should run multiple agents in parallel where write scopes do not conflict. The orchestrator must merge carefully and run final integration tests.</p>
+<br>
+<h3>Agent 0: Orchestrator And Architecture</h3>
+<br>
+<p>Scope:</p>
+<br>
+<pre><code class="language-text">
+Overall plan coordination
+Read files
+Track dirty state
+Assign disjoint write scopes
+Resolve integration conflicts
+Run final audit
+Write final changelog
+</code></pre>
+<br>
+<p>Acceptance:</p>
+<br>
+<ul>
+<li>No unrelated dirty file reverted.</li>
+<li>Final command surface matches manifest and docs.</li>
+<li>Final audit report exists in the result changelog.</li>
+</ul>
+<br>
+<h3>Agent A: DSL Core</h3>
+<br>
+<p>Scope:</p>
+<br>
+<pre><code class="language-text">
+Literature/Dsl/*
+Tests/CnkiLexerTests.cs
+Tests/CnkiParserTests.cs
+Tests/CnkiDslValidatorTests.cs
+</code></pre>
+<br>
+<p>Tasks:</p>
+<br>
+<ul>
+<li>Implement tokenization.</li>
+<li>Implement AST.</li>
+<li>Implement parser.</li>
+<li>Implement validation.</li>
+<li>Implement query normalization.</li>
+</ul>
+<br>
+<p>Acceptance:</p>
+<br>
+<ul>
+<li>Required DSL examples parse.</li>
+<li>Unsupported operators return validation errors.</li>
+<li>Error messages include useful location/context.</li>
+<li>Tests pass.</li>
+</ul>
+<br>
+<h3>Agent B: Models, Provider Interface, Registry</h3>
+<br>
+<p>Scope:</p>
+<br>
+<pre><code class="language-text">
+Literature/Models/*
+Literature/Providers/ILiteratureProvider.cs
+Literature/Providers/ProviderRegistry.cs
+Literature/LiteratureCore.csproj
+Literature/README.md
+</code></pre>
+<br>
+<p>Tasks:</p>
+<br>
+<ul>
+<li>Create core project.</li>
+<li>Define stable models.</li>
+<li>Define capabilities.</li>
+<li>Define provider registry.</li>
+<li>Make model JSON serialization predictable.</li>
+</ul>
+<br>
+<p>Acceptance:</p>
+<br>
+<ul>
+<li>Core project builds.</li>
+<li>Models are nullable-safe.</li>
+<li>No provider secrets appear in model output.</li>
+</ul>
+<br>
+<h3>Agent C: Provider HTTP Layer And Fixtures</h3>
+<br>
+<p>Scope:</p>
+<br>
+<pre><code class="language-text">
+Literature/Providers/ProviderHttpClientFactory.cs
+Literature/Providers/OpenAlexProvider.cs
+Literature/Providers/CrossrefProvider.cs
+Literature/Providers/UnpaywallProvider.cs
+Tests/ProviderFixtureTests.cs
+Tests/Fixtures/Literature/*
+</code></pre>
+<br>
+<p>Tasks:</p>
+<br>
+<ul>
+<li>Implement fake-handler testable providers.</li>
+<li>Map provider JSON to <code>PaperRecord</code>.</li>
+<li>Restore OpenAlex inverted index abstract.</li>
+<li>Normalize DOI.</li>
+<li>Handle unavailable credentials cleanly.</li>
+</ul>
+<br>
+<p>Acceptance:</p>
+<br>
+<ul>
+<li>Provider tests use fixture JSON only.</li>
+<li>No live network in default tests.</li>
+<li>OpenAlex API key alias support exists.</li>
+<li>Unpaywall email fallback behavior is tested.</li>
+</ul>
+<br>
+<h3>Agent D: Planner, Filter, Merge, Rank</h3>
+<br>
+<p>Scope:</p>
+<br>
+<pre><code class="language-text">
+Literature/Pipeline/*
+Tests/QueryPlannerTests.cs
+Tests/LocalBooleanFilterTests.cs
+Tests/PaperRecordMergerTests.cs
+Tests/LiteratureRankerTests.cs
+</code></pre>
+<br>
+<p>Tasks:</p>
+<br>
+<ul>
+<li>Implement provider-specific rough query planning.</li>
+<li>Cap generated rough query combinations.</li>
+<li>Implement strict/recall filtering.</li>
+<li>Implement merge/dedupe.</li>
+<li>Implement ranking.</li>
+</ul>
+<br>
+<p>Acceptance:</p>
+<br>
+<ul>
+<li>Concept-group query planning works for CNKI-like expressions.</li>
+<li>OR explosion warning is emitted.</li>
+<li>DOI dedupe works.</li>
+<li>Chinese/English title records do not merge without DOI.</li>
+<li>Scores are deterministic and finite.</li>
+</ul>
+<br>
+<h3>Agent E: Exporters</h3>
+<br>
+<p>Scope:</p>
+<br>
+<pre><code class="language-text">
+Literature/Export/*
+Literature/Pipeline/CitationFormatter.cs
+Tests/LiteratureExportTests.cs
+</code></pre>
+<br>
+<p>Tasks:</p>
+<br>
+<ul>
+<li>Implement JSON exporter.</li>
+<li>Implement Markdown exporter.</li>
+<li>Implement BibTeX exporter.</li>
+<li>Implement artifact validation helpers if needed.</li>
+</ul>
+<br>
+<p>Acceptance:</p>
+<br>
+<ul>
+<li>Markdown file is non-empty.</li>
+<li>BibTeX file is non-empty and parseable enough for common BibTeX readers.</li>
+<li>JSON export round trips through <code>System.Text.Json</code>.</li>
+</ul>
+<br>
+<h3>Agent F: CLI Integration And Contract Tests</h3>
+<br>
+<p>Scope:</p>
+<br>
+<pre><code class="language-text">
+Cli/Commands/LitCommands.cs
+Cli/NongCli.csproj
+Cli/Program.cs
+Cli/Common/Manifest.cs
+Cli.Tests/LitCommandsJsonTests.cs
+Cli.Tests/CliContractTests.cs
+</code></pre>
+<br>
+<p>Tasks:</p>
+<br>
+<ul>
+<li>Add project reference.</li>
+<li>Register command group.</li>
+<li>Add manifest entries only for commands actually implemented.</li>
+<li>Implement <code>lit parse</code>, <code>lit validate</code>, <code>lit plan</code>, <code>lit search</code>, <code>lit export</code>.</li>
+<li>Use <code>JsonOutput</code>, <code>ErrorCodes</code>, and existing CLI patterns.</li>
+<li>Add CLI JSON contract tests.</li>
+</ul>
+<br>
+<p>Acceptance:</p>
+<br>
+<ul>
+<li><code>nong commands --json</code> includes implemented <code>lit</code> commands.</li>
+<li>Parse/validate/plan work without network.</li>
+<li>Search can run against fake provider path in tests.</li>
+<li>JSON shape includes required top-level fields.</li>
+<li>Exit codes are correct.</li>
+</ul>
+<br>
+<h3>Agent G: Docs, Self-Audit, Changelog</h3>
+<br>
+<p>Scope:</p>
+<br>
+<pre><code class="language-text">
+README.md
+README.zh-CN.md
+log/changelog/2026-06-07-stage19-lit-unified-literature-dsl-result.md
+</code></pre>
+<br>
+<p>Tasks:</p>
+<br>
+<ul>
+<li>Update README only after real CLI behavior exists.</li>
+<li>Document command examples and limitations.</li>
+<li>Run self-audit using <code>log/guidance/review-checklist.md</code>.</li>
+<li>Write final changelog with commands, tests, problems, fixes, known limits, and audit result.</li>
+</ul>
+<br>
+<p>Acceptance:</p>
+<br>
+<ul>
+<li>Changelog includes actual commands and results.</li>
+<li>Self-audit findings are included.</li>
+<li>Known limitations are honest.</li>
+<li>No unverified provider is documented as implemented.</li>
+</ul>
+<br>
+<h2>P4 Verification Matrix</h2>
+<br>
+<p>Run these before claiming done.</p>
+<br>
+<h3>Build</h3>
+<br>
+<pre><code class="language-powershell">
+dotnet build .\Literature\LiteratureCore.csproj -c Release --nologo
+dotnet build .\Cli\NongCli.csproj -c Release --nologo
+</code></pre>
+<br>
+<h3>Tests</h3>
+<br>
+<pre><code class="language-powershell">
+dotnet test .\Tests\Tests.csproj -c Release --nologo
+dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release --nologo
+</code></pre>
+<br>
+<p>If existing unrelated dirty-state failures block full tests, document the exact failure and run the most specific affected tests. Do not hide failures.</p>
+<br>
+<h3>CLI Smoke</h3>
+<br>
+<p>Use the built CLI:</p>
+<br>
+<pre><code class="language-powershell">
+.\Cli\bin\Release\net8.0\nong.exe lit parse --query &quot;SU=(&#39;腐植酸&#39;+&#39;腐殖酸&#39;)*(&#39;稀土&#39;+&#39;微肥&#39;)&quot; --json
+.\Cli\bin\Release\net8.0\nong.exe lit validate --query &quot;AU=钱伟长 AND (AF=清华大学 OR AF=上海大学)&quot; --json
+.\Cli\bin\Release\net8.0\nong.exe lit plan --query &quot;SU=(&#39;腐植酸&#39;+&#39;腐殖酸&#39;)*(&#39;稀土&#39;+&#39;微肥&#39;)&quot; --sources openalex,crossref,unpaywall --json
+.\Cli\bin\Release\net8.0\nong.exe commands --json
+</code></pre>
+<br>
+<h3>Export Artifact Verification</h3>
+<br>
+<p>Create or reuse a deterministic fixture result JSON, then run:</p>
+<br>
+<pre><code class="language-powershell">
+.\Cli\bin\Release\net8.0\nong.exe lit export --input tests-output\lit\refs.fixture.json --format markdown --style gbt7714 --out tests-output\lit\refs.md --json
+.\Cli\bin\Release\net8.0\nong.exe lit export --input tests-output\lit\refs.fixture.json --format bibtex --out tests-output\lit\refs.bib --json
+Test-Path tests-output\lit\refs.md
+Test-Path tests-output\lit\refs.bib
+(Get-Item tests-output\lit\refs.md).Length
+(Get-Item tests-output\lit\refs.bib).Length
+</code></pre>
+<br>
+<p>JSON success is invalid if the artifact is missing or zero bytes.</p>
+<br>
+<h3>Optional Live Tests</h3>
+<br>
+<p>Default tests must not use live network.</p>
+<br>
+<p>Run live tests only if explicitly enabled:</p>
+<br>
+<pre><code class="language-powershell">
+$env:NONG_LIT_ENABLE_LIVE_TESTS=&quot;1&quot;
+$env:NONG_LIT_OPENALEX_KEY=&quot;&lt;set outside logs&gt;&quot;
+$env:NONG_LIT_MAILTO=&quot;&lt;set outside logs&gt;&quot;
+$env:NONG_LIT_UNPAYWALL_EMAIL=&quot;&lt;set outside logs&gt;&quot;
+dotnet test .\Tests\Tests.csproj -c Release --filter &quot;Category=Live&quot; --nologo
+</code></pre>
+<br>
+<p>Do not print env var values.</p>
+<br>
+<h2>P5 Risks And Follow-Up</h2>
+<br>
+<h3>Risks</h3>
+<br>
+<p>1. OpenAlex, Crossref, and Unpaywall schemas may drift. Use tolerant JSON parsing and fixture tests.</p>
+<p>2. API credentials may be absent. Commands must fail or degrade honestly.</p>
+<p>3. CNKI-like DSL can generate too many query combinations. Enforce deterministic caps.</p>
+<p>4. Chinese/English synonym expansion is not implemented. Do not imply it exists.</p>
+<p>5. Full-text filtering is limited with remote metadata providers. <code>FT</code> must be honest.</p>
+<p>6. Existing dirty state can affect build/test. Work with it; do not revert unrelated changes.</p>
+<p>7. Provider rate limits can break live tests. Live tests must be opt-in.</p>
+<br>
+<h3>Rollback Points</h3>
+<br>
+<p>If integration becomes unstable:</p>
+<br>
+<pre><code class="language-text">
+Keep LiteratureCore DSL/parser/tests.
+Keep lit parse/validate/plan.
+Defer lit search/export.
+Do not leave manifest entries for non-working commands.
+</code></pre>
+<br>
+<p>If provider implementation is blocked:</p>
+<br>
+<pre><code class="language-text">
+Keep provider interfaces and fixture-based skeletons.
+Return E005 dependency_missing or E006 validation_failed with clear credential/provider issue.
+Do not advertise live provider support.
+</code></pre>
+<br>
+<h3>Follow-Up Stages</h3>
+<br>
+<p>Stage20:</p>
+<br>
+<pre><code class="language-text">
+lit enrich
+lit rank
+SemanticScholarProvider
+PubMedProvider
+PmcProvider
+ArxivProvider
+LocalPdfProvider
+</code></pre>
+<br>
+<p>Stage21:</p>
+<br>
+<pre><code class="language-text">
+WanfangProvider
+SciverseProvider
+MetasoProvider or TavilyProvider
+WebEvidenceRecord
+DOI verification pipeline
+</code></pre>
+<br>
+<p>Stage22:</p>
+<br>
+<pre><code class="language-text">
+Nong.Toolkit.Net lit skill sync
+skill scan
+plugin validate
+</code></pre>
+<br>
+<p>GroundPA skill sync is not part of Stage19 unless Stage19 CLI behavior is complete and verified.</p>
+<br>
+<h2>Self-Audit Requirement</h2>
+<br>
+<p>After implementation, Claude Code must audit its own work before final answer.</p>
+<br>
+<p>Audit format:</p>
+<br>
+<pre><code class="language-text">
+Findings
+HIGH / MEDIUM / LOW, with file and line reference, evidence, impact, and fix status.
+
+Verification
+Commands actually run and results.
+
+Contract Check
+JSON output shape, exit codes, artifacts, manifest, README, and tests.
+
+Conclusion
+PASS / PARTIAL / FAIL for Stage19 readiness.
+</code></pre>
+<br>
+<p>Audit must check:</p>
+<br>
+<ul>
+<li>No unrelated dirty changes reverted.</li>
+<li>No secrets printed.</li>
+<li>No API key/email in JSON output or changelog.</li>
+<li><code>nong commands --json</code> lists only implemented commands.</li>
+<li><code>lit parse/validate/plan</code> work offline.</li>
+<li>Provider tests do not hit network.</li>
+<li>Live tests are opt-in.</li>
+<li>Generated artifacts are non-zero.</li>
+<li>Unsupported DSL operators fail with <code>E006</code>.</li>
+<li>No unimplemented provider is advertised as implemented.</li>
+</ul>
+<br>
+<h2>Changelog Requirement</h2>
+<br>
+<p>Claude Code must create:</p>
+<br>
+<pre><code class="language-text">
+log/changelog/2026-06-07-stage19-lit-unified-literature-dsl-result.md
+</code></pre>
+<br>
+<p>The changelog must include:</p>
+<br>
+<pre><code class="language-text">
+Goal
+Implemented commands
+Files changed
+Provider behavior
+DSL support
+Problems encountered
+Fixes applied
+Verification commands and exact pass/fail result
+Self-audit findings
+Known limitations
+Next steps
+</code></pre>
+<br>
+<p>If Stage19 is only partially completed, the changelog must say <code>PARTIAL</code> and explain exactly what remains.</p>
+<br>
+<p>Do not write a success changelog unless build/test/CLI/artifact verification actually ran.</p>
+<br>
+<h2>Final Done Criteria</h2>
+<br>
+<p>Stage19 is done only when:</p>
+<br>
+<ul>
+<li><code>LiteratureCore</code> builds.</li>
+<li><code>NongCli</code> builds.</li>
+<li>Focused unit tests pass.</li>
+<li>CLI contract tests for <code>lit</code> pass.</li>
+<li><code>lit parse</code>, <code>lit validate</code>, and <code>lit plan</code> work offline.</li>
+<li><code>lit export</code> writes non-zero Markdown and BibTeX artifacts.</li>
+<li><code>lit search</code> either works with implemented providers or fails honestly with machine-readable credential/provider errors.</li>
+<li>Manifest and docs match real implemented behavior.</li>
+<li>Self-audit is written.</li>
+<li>Changelog is written.</li>
+</ul>
+<br>
+<p>Do not declare Stage19 complete if:</p>
+<br>
+<ul>
+<li>provider code hits the network in normal unit tests;</li>
+<li><code>lit search --json</code> returns <code>ok</code> with missing output file;</li>
+<li>secrets are printed;</li>
+<li>unsupported provider names silently succeed;</li>
+<li>README claims unimplemented providers;</li>
+<li>manifest lists commands that are not real.</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

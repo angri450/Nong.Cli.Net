@@ -139,7 +139,7 @@ nong inspect write-paper spec.json -o paper.docx
 ## 阶段 11 ClaudeCode 任务
 
 ```text
-你在 C:\Users\Administrator\Documents\Github\Angri450.Nong 工作。
+你在 C:\Users\Administrator\Documents\Github\Nong.Cli.Net 工作。
 
 目标：阶段 11，只做完成后审计与修补，不新增功能。
 
@@ -170,7 +170,7 @@ nong inspect write-paper spec.json -o paper.docx
 禁止：
    - 不要新增新命令
    - 不要重构 ThirdParty
-   - 不要动 GroundPA-Toolkit
+   - 不要动 Nong.Toolkit.Net
    - 不要处理 OCR/PPTX 复杂能力
 
 输出：
@@ -184,7 +184,7 @@ nong inspect write-paper spec.json -o paper.docx
 
 后面再考虑：
 
-- GroundPA-Toolkit skill 同步
+- Nong.Toolkit.Net skill 同步
 - PPTX 真实实现
 - OCR 接入
 - 许可证与 NOTICE

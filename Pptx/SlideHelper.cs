@@ -32,12 +32,12 @@ public sealed class SlideHelper
         var shape = _slide.Shapes[_slide.Shapes.Count - 1];
         if (shape.TextBox is { Paragraphs.Count: > 0 } tb && tb.Paragraphs[0].Portions.Count > 0)
         {
-            try { tb.LeftMargin = 8; tb.RightMargin = 8; tb.TopMargin = 4; tb.BottomMargin = 4; } catch { }
-            try { tb.Paragraphs[0].HorizontalAlignment = align switch { "Center" => ShapeCrawler.TextHorizontalAlignment.Center, "Right" => ShapeCrawler.TextHorizontalAlignment.Right, _ => ShapeCrawler.TextHorizontalAlignment.Left }; } catch { }
+            try { tb.LeftMargin = 8; tb.RightMargin = 8; tb.TopMargin = 4; tb.BottomMargin = 4; } catch (Exception ex) { Console.Error.WriteLine($"[SlideHelper] margin: {ex.GetType().Name}"); }
+            try { tb.Paragraphs[0].HorizontalAlignment = align switch { "Center" => ShapeCrawler.TextHorizontalAlignment.Center, "Right" => ShapeCrawler.TextHorizontalAlignment.Right, _ => ShapeCrawler.TextHorizontalAlignment.Left }; } catch (Exception ex) { Console.Error.WriteLine($"[SlideHelper] align: {ex.GetType().Name}"); }
             var font = tb.Paragraphs[0].Portions[0].Font;
             if (Theme != null) { font.LatinName = fontName.Length > 0 ? fontName : Theme.BodyFont; font.EastAsianName = Theme.BodyCJK; font.Size = fontSize; font.IsBold = bold; font.Color.Set(colorHex.Length > 0 ? colorHex : Theme.Dark1); }
             else { font.Size = fontSize; font.IsBold = bold; if (fontName.Length > 0) font.LatinName = fontName; }
-            try { var sp = tb.Paragraphs[0].Spacing; sp.BeforeSpacing = 4; sp.AfterSpacing = 4; } catch { }
+            try { var sp = tb.Paragraphs[0].Spacing; sp.BeforeSpacing = 4; sp.AfterSpacing = 4; } catch (Exception ex) { Console.Error.WriteLine($"[SlideHelper] spacing: {ex.GetType().Name}"); }
         }
         return this;
     }
@@ -49,15 +49,15 @@ public sealed class SlideHelper
         if (!string.IsNullOrEmpty(text)) _slide.Shapes.AddShape(x, y, w, h, scGeom, text);
         else _slide.Shapes.AddShape(x, y, w, h, scGeom);
         var shape = _slide.Shapes[_slide.Shapes.Count - 1];
-        if (!string.IsNullOrEmpty(fillHex)) { try { shape.Fill.SetColor(fillHex); } catch { } }
-        else if (Theme != null) { try { shape.Fill.SetColor(Theme.Accent1); } catch { } }
-        if (!string.IsNullOrEmpty(text) && Theme != null) { try { Theme.StyleBody(shape, 14m); } catch { } }
-        if (borderColor != null) { try { shape.Outline.SetHexColor(borderColor); shape.Outline.Weight = 1; } catch { } }
+        if (!string.IsNullOrEmpty(fillHex)) { try { shape.Fill.SetColor(fillHex); } catch (Exception ex) { Console.Error.WriteLine($"[SlideHelper] fill: {ex.GetType().Name}"); } }
+        else if (Theme != null) { try { shape.Fill.SetColor(Theme.Accent1); } catch (Exception ex) { Console.Error.WriteLine($"[SlideHelper] theme-fill: {ex.GetType().Name}"); } }
+        if (!string.IsNullOrEmpty(text) && Theme != null) { try { Theme.StyleBody(shape, 14m); } catch (Exception ex) { Console.Error.WriteLine($"[SlideHelper] style-body: {ex.GetType().Name}"); } }
+        if (borderColor != null) { try { shape.Outline.SetHexColor(borderColor); shape.Outline.Weight = 1; } catch (Exception ex) { Console.Error.WriteLine($"[SlideHelper] border: {ex.GetType().Name}"); } }
         if (rotation != null) { _builder?.TrackShape(_slide.Number - 1, shape.Id, rotation); }
         return this;
     }
 
-    public SlideHelper Background(string colorHex) { try { _slide.Fill.SetColor(colorHex); } catch { } return this; }
+    public SlideHelper Background(string colorHex) { try { _slide.Fill.SetColor(colorHex); } catch (Exception ex) { Console.Error.WriteLine($"[SlideHelper] background: {ex.GetType().Name}"); } return this; }
 
     // ── Decoration helpers ──
 

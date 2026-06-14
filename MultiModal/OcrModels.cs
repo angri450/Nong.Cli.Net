@@ -137,8 +137,13 @@ public record MarkdownData
 
 public record LocalOcrBlock
 {
+    [JsonPropertyName("bbox")]
     public float[] Bbox { get; init; } = [];
+
+    [JsonPropertyName("text")]
     public string Text { get; init; } = "";
+
+    [JsonPropertyName("confidence")]
     public float Confidence { get; init; }
 }
 

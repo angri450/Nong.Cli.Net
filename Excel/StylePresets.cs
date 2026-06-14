@@ -4,12 +4,18 @@ namespace ExcelCore;
 
 public static class StylePresets
 {
+    /// <summary>Default currency symbol used in built-in presets. Override before use:
+    ///   StylePresets.DefaultCurrency = "\"$\"";
+    ///   StylePresets.DefaultCurrency = "\"€\"";
+    /// </summary>
+    public static string DefaultCurrency = "\"¥\"";
+
     public static Preset Mono => new()
     {
         Name = "mono",
         HeaderBg = "#333333", HeaderFg = "#FFFFFF",
         RowAlt = "#F5F5F5", Accent = "#0066CC", Border = "#D0D0D0",
-        Integer = "#,##0", Decimal = "#,##0.00", Currency = "\"¥\"#,##0.00",
+        Integer = "#,##0", Decimal = "#,##0.00", Currency = $"{DefaultCurrency}#,##0.00",
         Percent = "0.0%", Date = "yyyy-mm-dd"
     };
 
@@ -18,7 +24,7 @@ public static class StylePresets
         Name = "finance",
         HeaderBg = "#1F4E79", HeaderFg = "#FFFFFF",
         RowAlt = "#FFF3E0", Accent = "#1F4E79", Border = "#B0B0B0",
-        Integer = "#,##0", Decimal = "#,##0.00", Currency = "\"¥\"#,##0.00",
+        Integer = "#,##0", Decimal = "#,##0.00", Currency = $"{DefaultCurrency}#,##0.00",
         Percent = "0.00%", Date = "yyyy-mm-dd"
     };
 

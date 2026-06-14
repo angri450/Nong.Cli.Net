@@ -75,6 +75,26 @@ if (result.HasErrors)
     Console.WriteLine(string.Join("\n", result.Errors));
 ```
 
+### NongPandoc Slice
+
+`nong excel dissect input.xlsx -o input.slice --json` writes the shared
+`nong-pandoc/package/v1` slice package:
+
+```text
+manifest.json
+document.json
+content.jsonl
+content.nongmark
+structure.json
+format.json
+diagnostics.json
+assets/manifest.json
+preview/content.txt
+```
+
+`content.nongmark` is the primary AI-readable stream. `preview/content.txt` is
+only a lossy plain-text preview.
+
 ## Dependencies
 
 - `Angri450.Nong.ThirdParty` — 合并基础库（ClosedXML + OpenXml + 全部传递依赖）
@@ -91,7 +111,7 @@ if (result.HasErrors)
 
 ## Author
 
-Built by [angri450](https://github.com/angri450). Source: [Nong.NET](https://github.com/angri450/Nong.NET).
+Built by [angri450](https://github.com/angri450). Source: [Nong.Cli.Net](https://github.com/angri450/Nong.Cli.Net).
 
 ## License
 

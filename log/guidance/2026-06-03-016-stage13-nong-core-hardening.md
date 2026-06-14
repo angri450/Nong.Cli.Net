@@ -5,10 +5,10 @@
 This stage only works on:
 
 ```text
-C:\Users\Administrator\Documents\Github\Angri450.Nong
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net
 ```
 
-Do not edit `GroundPA-Toolkit` in this stage.
+Do not edit `Nong.Toolkit.Net` in this stage.
 
 The product direction is fixed:
 
@@ -38,7 +38,7 @@ changelog/
 Not allowed:
 
 ```text
-Do not edit GroundPA-Toolkit.
+Do not edit Nong.Toolkit.Net.
 Do not merge external repositories.
 Do not refactor unrelated third-party source.
 Do not publish NuGet packages.
@@ -54,7 +54,7 @@ Do not mark completion based only on changelog claims.
 Observed command:
 
 ```powershell
-dotnet .\Cli\bin\Release\net8.0\nong.dll skill package C:\Users\Administrator\Documents\Github\GroundPA-Toolkit --json
+dotnet .\Cli\bin\Release\net8.0\nong.dll skill package C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
 ```
 
 Current behavior:
@@ -407,7 +407,7 @@ Tasks:
 Use this invocation pattern:
 
 ```powershell
-dotnet C:\Users\Administrator\Documents\Github\Angri450.Nong\Cli\bin\Release\net8.0\nong.dll <args>
+dotnet C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Cli\bin\Release\net8.0\nong.dll <args>
 Write-Output "EXIT:$LASTEXITCODE"
 ```
 
@@ -451,7 +451,7 @@ Next recommended stage
 Run from:
 
 ```powershell
-C:\Users\Administrator\Documents\Github\Angri450.Nong
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net
 ```
 
 Build:
@@ -627,7 +627,7 @@ nong skill run-loop
 Do not touch:
 
 ```text
-GroundPA-Toolkit
+Nong.Toolkit.Net
 PPTX/OCR implementation
 Word/Inspect/Chart expansion
 ```

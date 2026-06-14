@@ -1,0 +1,43 @@
+{
+  "status": "ok",
+  "message-type": "work",
+  "message": {
+    "DOI": "10.1016/j.chemgeo.2007.05.018",
+    "title": ["Rare earth element complexation by humic acid"],
+    "container-title": ["Chemical Geology"],
+    "publisher": "Elsevier BV",
+    "author": [
+      {
+        "given": "Alice",
+        "family": "Chen",
+        "affiliation": [
+          {
+            "name": "Nong Research Institute"
+          }
+        ]
+      },
+      {
+        "given": "Bo",
+        "family": "Wang"
+      }
+    ],
+    "issued": {
+      "date-parts": [
+        [2007, 6, 1]
+      ]
+    },
+    "license": [
+      {
+        "URL": "https://creativecommons.org/licenses/by/4.0/"
+      }
+    ],
+    "funder": [
+      {
+        "name": "National Natural Science Foundation"
+      }
+    ],
+    "volume": "245",
+    "issue": "1",
+    "page": "1-12"
+  }
+}

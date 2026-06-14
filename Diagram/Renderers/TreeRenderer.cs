@@ -29,7 +29,7 @@ public class TreeRenderer : IRenderer
 
     public SKBitmap RenderToBitmap(int width = 800, int height = 600)
     {
-        var cjkFont = SKTypeface.FromFamilyName(FontHelper.GetCjkFamilyName());
+        using var cjkFont = SKTypeface.FromFamilyName(FontHelper.GetCjkFamilyName());
 
         if (_radial)
         {
@@ -72,7 +72,7 @@ public class TreeRenderer : IRenderer
         using var branchPaint = new SKPaint
         {
             Style = SKPaintStyle.Stroke,
-            Color = SKColor.Parse("#333333"),
+            Color = ParseColor("#333333", SKColors.DarkGray),
             StrokeWidth = 2,
             IsAntialias = true
         };
@@ -139,5 +139,11 @@ public class TreeRenderer : IRenderer
 
         foreach (var child in node.Children)
             CollectBounds(child, paint, ref minX, ref minY, ref maxX, ref maxY);
+    }
+
+    private static SKColor ParseColor(string hex, SKColor fallback)
+    {
+        if (SKColor.TryParse(hex, out var c)) return c;
+        return fallback;
     }
 }

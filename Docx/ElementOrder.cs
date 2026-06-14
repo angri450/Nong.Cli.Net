@@ -9,6 +9,22 @@ namespace DocxCore;
 /// </summary>
 public static class ElementOrder
 {
+    private const string WordprocessingNamespace = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+    private const string MathNamespace = "http://schemas.openxmlformats.org/officeDocument/2006/math";
+    private const string Word2010Namespace = "http://schemas.microsoft.com/office/word/2010/wordml";
+    private const string Word2012Namespace = "http://schemas.microsoft.com/office/word/2012/wordml";
+    private const string SchemaLibraryNamespace = "http://schemas.openxmlformats.org/schemaLibrary/2006/main";
+
+    private static readonly HashSet<string> LegacyTableLookAttributes = new(StringComparer.Ordinal)
+    {
+        "firstRow",
+        "lastRow",
+        "firstColumn",
+        "lastColumn",
+        "noHBand",
+        "noVBand",
+    };
+
     // ECMA-376 规范子元素顺位表（按 ISO/IEC 29500 定义）
     private static readonly Dictionary<string, string[]> Sequences = new()
     {
@@ -83,20 +99,49 @@ public static class ElementOrder
         ["style"] = new[] { "name", "aliases", "basedOn", "next",
             "link", "autoRedefine", "hidden", "uiPriority", "semiHidden",
             "unhideWhenUsed", "qFormat", "locked", "personal", "personalCompose",
-            "personalReply", "rsid", "pPr", "rPr", "tblPr", "tblStylePr", "tcPr" },
+            "personalReply", "rsid", "pPr", "rPr", "tblPr", "tblStylePr" },
 
         // Table
         ["tbl"] = new[] { "tblPr", "tblGrid", "tr" },
 
-        // Body
-        ["body"] = new[] { "p", "tbl", "sdt", "customXml", "bookmarkStart",
-            "bookmarkEnd", "permStart", "permEnd", "proofErr", "ins", "del",
-            "moveFrom", "moveTo", "commentRangeStart", "commentRangeEnd",
-            "sectPr" },
-
         // Fonts
         ["rFonts"] = new[] { "ascii", "hAnsi", "eastAsia", "cs", "asciiTheme",
             "hAnsiTheme", "eastAsiaTheme", "cstheme" },
+
+        // Document settings. Keep the common compatibility/update-fields
+        // elements in schema order for Word/WPS-generated files.
+        ["settings"] = new[] { "writeProtection", "view", "zoom", "removePersonalInformation",
+            "removeDateAndTime", "doNotDisplayPageBoundaries", "displayBackgroundShape",
+            "printPostScriptOverText", "printFractionalCharacterWidth", "printFormsData",
+            "embedTrueTypeFonts", "embedSystemFonts", "saveSubsetFonts", "saveFormsData",
+            "mirrorMargins", "alignBordersAndEdges", "bordersDoNotSurroundHeader",
+            "bordersDoNotSurroundFooter", "gutterAtTop", "hideSpellingErrors",
+            "hideGrammaticalErrors", "activeWritingStyle", "proofState", "formsDesign",
+            "attachedTemplate", "linkStyles", "stylePaneFormatFilter",
+            "stylePaneSortMethod", "documentType", "mailMerge", "revisionView",
+            "trackRevisions", "doNotTrackMoves", "doNotTrackFormatting",
+            "documentProtection", "autoFormatOverride", "styleLockTheme",
+            "styleLockQFSet", "defaultTabStop", "autoHyphenation",
+            "consecutiveHyphenLimit", "hyphenationZone", "doNotHyphenateCaps",
+            "showEnvelope", "summaryLength", "clickAndTypeStyle", "defaultTableStyle",
+            "evenAndOddHeaders", "bookFoldRevPrinting", "bookFoldPrinting",
+            "bookFoldPrintingSheets", "drawingGridHorizontalSpacing",
+            "drawingGridVerticalSpacing", "displayHorizontalDrawingGridEvery",
+            "displayVerticalDrawingGridEvery", "doNotUseMarginsForDrawingGridOrigin",
+            "drawingGridHorizontalOrigin", "drawingGridVerticalOrigin",
+            "doNotShadeFormData", "noPunctuationKerning", "characterSpacingControl",
+            "printTwoOnOne", "strictFirstAndLastChars", "noLineBreaksAfter",
+            "noLineBreaksBefore", "savePreviewPicture", "doNotValidateAgainstSchema",
+            "saveInvalidXml", "ignoreMixedContent", "alwaysShowPlaceholderText",
+            "doNotDemarcateInvalidXml", "saveXmlDataOnly", "useXSLTWhenSaving",
+            "saveThroughXslt", "showXMLTags", "alwaysMergeEmptyNamespace",
+            "updateFields", "hdrShapeDefaults", "footnotePr", "endnotePr", "compat",
+            "docVars", "rsids", "m:mathPr", "uiCompat97To2003", "attachedSchema", "themeFontLang",
+            "clrSchemeMapping", "doNotIncludeSubdocsInStats", "doNotAutoCompressPictures",
+            "forceUpgrade", "captions", "readModeInkLockDown", "smartTagType",
+            "sl:schemaLibrary", "shapeDefaults", "doNotEmbedSmartTags",
+            "decimalSymbol", "listSeparator", "w14:docId", "w14:discardImageEditingData",
+            "w14:defaultImageDpi", "w14:conflictMode", "w15:chartTrackingRefBased", "w15:docId" },
 
         // Run
         ["r"] = new[] { "rPr", "br", "t", "delText", "instrText", "tab",
@@ -121,9 +166,18 @@ public static class ElementOrder
         for (int i = 0; i < order.Length; i++)
             rank[order[i]] = i;
 
+        int Rank(OpenXmlElement child)
+        {
+            var qualified = GetQualifiedToken(child);
+            if (qualified != null && rank.TryGetValue(qualified, out var qualifiedRank))
+                return qualifiedRank;
+
+            return rank.TryGetValue(child.LocalName, out var localRank) ? localRank : int.MaxValue;
+        }
+
         // 按规范顺序排序（未知标签放到后面）
         var sorted = children
-            .OrderBy(c => rank.TryGetValue(c.LocalName, out var r) ? r : int.MaxValue)
+            .OrderBy(Rank)
             .ThenBy(c => c.LocalName) // 同顺位的按标签名字典序稳定
             .ToList();
 
@@ -213,6 +267,25 @@ public static class ElementOrder
 
         foreach (var el in root.Descendants().ToList())
         {
+            if (el.LocalName == "tcPr" && el.Parent?.LocalName == "style")
+            {
+                el.Remove();
+                fixed_++;
+                continue;
+            }
+
+            if (el.LocalName == "tblLook")
+            {
+                foreach (var attr in el.GetAttributes()
+                    .Where(a => a.NamespaceUri == WordprocessingNamespace
+                        && LegacyTableLookAttributes.Contains(a.LocalName))
+                    .ToList())
+                {
+                    el.RemoveAttribute(attr.LocalName, attr.NamespaceUri);
+                    fixed_++;
+                }
+            }
+
             if (el.LocalName == "noWrap" && IsFalseOnOff(el))
             {
                 el.Remove();
@@ -229,7 +302,56 @@ public static class ElementOrder
             }
         }
 
+        fixed_ += NormalizeTableCellProperties(root);
+
         return fixed_;
+    }
+
+    private static int NormalizeTableCellProperties(OpenXmlElement root)
+    {
+        int fixed_ = 0;
+
+        foreach (var cell in root.Descendants().Where(e => e.LocalName == "tc").ToList())
+        {
+            var props = cell.ChildElements.Where(e => e.LocalName == "tcPr").ToList();
+            if (props.Count == 0)
+                continue;
+
+            var primary = props[0];
+            foreach (var extra in props.Skip(1).ToList())
+            {
+                MergeProperties(primary, extra);
+                extra.Remove();
+                fixed_++;
+            }
+
+            if (!ReferenceEquals(cell.FirstChild, primary))
+            {
+                primary.Remove();
+                cell.PrependChild(primary);
+                fixed_++;
+            }
+        }
+
+        return fixed_;
+    }
+
+    private static void MergeProperties(OpenXmlElement primary, OpenXmlElement extra)
+    {
+        foreach (var attr in extra.GetAttributes())
+            primary.SetAttribute(attr);
+
+        foreach (var child in extra.ChildElements)
+        {
+            foreach (var existing in primary.ChildElements
+                .Where(e => e.LocalName == child.LocalName && e.NamespaceUri == child.NamespaceUri)
+                .ToList())
+            {
+                existing.Remove();
+            }
+
+            primary.AppendChild(child.CloneNode(true));
+        }
     }
 
     private static bool IsFalseOnOff(OpenXmlElement element)
@@ -249,5 +371,20 @@ public static class ElementOrder
         }
 
         return false;
+    }
+
+    private static string? GetQualifiedToken(OpenXmlElement element)
+    {
+        var prefix = element.NamespaceUri switch
+        {
+            WordprocessingNamespace => "w",
+            MathNamespace => "m",
+            Word2010Namespace => "w14",
+            Word2012Namespace => "w15",
+            SchemaLibraryNamespace => "sl",
+            _ => null,
+        };
+
+        return prefix == null ? null : $"{prefix}:{element.LocalName}";
     }
 }

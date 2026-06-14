@@ -24,7 +24,11 @@ public static class ReferenceManager
         return CitePattern.Replace(bodyText, m =>
         {
             var keys = ParseKeys(m.Groups[1].Value);
-            var nums = keys.Select(k => (order.IndexOf(k) + 1).ToString());
+            var nums = keys.Select(k =>
+            {
+                var idx = order.IndexOf(k);
+                return idx >= 0 ? (idx + 1).ToString() : "??";
+            });
             return "[" + string.Join(",", nums) + "]";
         });
     }

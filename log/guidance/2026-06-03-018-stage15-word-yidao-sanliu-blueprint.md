@@ -9,7 +9,7 @@
 开工前必须先跑：
 
 ```powershell
-cd C:\Users\Administrator\Documents\Github\Angri450.Nong
+cd C:\Users\Administrator\Documents\Github\Nong.Cli.Net
 dotnet build .\Cli\NongCli.csproj -c Release
 dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release
 dotnet .\Cli\bin\Release\net8.0\nong.dll commands --json
@@ -570,7 +570,7 @@ MultiModal/ImageAnalyzer.cs
 不要忽略 run-level 格式。
 不要在日志或 JSON 中打印任何 OCR token/API key。
 不要为了通过 build 把命令登记成 implemented 但实际返回 E009。
-不要修改 GroundPA-Toolkit。本阶段只做 Angri450.Nong。
+不要修改 Nong.Toolkit.Net。本阶段只做 Angri450.Nong。
 不要新增 net10/net11 依赖。目标仍是 net8.0。
 不要在没有 artifact 检查的情况下返回 ok。
 ```
@@ -915,7 +915,7 @@ canonical 标记层是 nongmark/v1 JSON，不是 Markdown。
 ClaudeCode 完成后必须在结果日志粘贴这些命令的结果摘要。
 
 ```powershell
-cd C:\Users\Administrator\Documents\Github\Angri450.Nong
+cd C:\Users\Administrator\Documents\Github\Nong.Cli.Net
 dotnet build .\Cli\NongCli.csproj -c Release
 dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release
 

@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Third-party Source Snapshot Policy - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>Third-party Source Snapshot Policy</h1>
+<p class="subtitle">2026-06-09 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>Third-party Source Snapshot Policy</h1>
+<br>
+<h2>What Changed</h2>
+<br>
+<ul>
+<li>Expanded <code>docs/DEPENDENCY_CONTROL.md</code> with a third-party source snapshot policy.</li>
+<li>Added an inventory of source snapshot directories compiled by <code>ThirdParty/ThirdParty.csproj</code>.</li>
+<li>Marked fork URLs and locked commits as the checklist for the fork pass.</li>
+<li>Documented that third-party source is committed as source snapshots only, never as nested Git repositories.</li>
+<li>Clarified that local fork clones and temporary upstream checkouts belong under ignored <code>_archive/</code>.</li>
+<li>Added ignore guardrails for nested <code>.git/</code> directories and <code>.gitmodules</code>.</li>
+<li>Updated <code>README.md</code>, <code>README.zh-CN.md</code>, <code>docs/README.md</code>, and <code>CLAUDE.md</code> with the policy.</li>
+</ul>
+<br>
+<h2>Why</h2>
+<br>
+<p>The repository directly compiles vendored source through <code>ThirdParty/ThirdParty.csproj</code>. These directories need a clear ownership model: fork upstream, pin a commit, copy the necessary source into this repository, delete upstream <code>.git/</code>, and keep licenses/notices.</p>
+<br>
+<h2>Files Touched</h2>
+<br>
+<ul>
+<li><code>docs/DEPENDENCY_CONTROL.md</code></li>
+<li><code>README.md</code></li>
+<li><code>README.zh-CN.md</code></li>
+<li><code>docs/README.md</code></li>
+<li><code>CLAUDE.md</code></li>
+<li><code>.gitignore</code></li>
+<li><code>.claude/references/third-party-notes.md</code></li>
+</ul>
+<br>
+<h2>Tests Run</h2>
+<br>
+<ul>
+<li><code>git diff --check</code></li>
+<li><code>dotnet build .\Cli\NongCli.csproj -c Release --nologo</code></li>
+</ul>
+<br>
+<h2>Remaining Risk</h2>
+<br>
+<ul>
+<li>Most source snapshots still need exact fork commits filled in after the fork pass.</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

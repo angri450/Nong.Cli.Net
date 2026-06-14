@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nong Toolkit / CLI 命令命名与功能充分性审计</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", sans-serif; line-height: 1.62; color: #172033; background: #f6f7f9; }
+.container { max-width: 1440px; margin: 0 auto; padding: 28px 18px 48px; }
+header { margin-bottom: 24px; }
+h1 { font-size: 30px; line-height: 1.25; color: #0f172a; margin-bottom: 8px; }
+.subtitle { color: #64748b; font-size: 14px; }
+h2 { font-size: 21px; margin: 34px 0 14px; padding-bottom: 8px; border-bottom: 2px solid #d9dee7; color: #111827; }
+h3 { font-size: 17px; margin: 24px 0 10px; color: #263248; }
+p { margin: 8px 0; }
+code { background: #edf0f5; border: 1px solid #dde3ee; padding: 1px 5px; border-radius: 4px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.88em; }
+.dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 20px 0 26px; }
+.card { background: #fff; border: 1px solid #e4e8f0; border-radius: 8px; padding: 18px; box-shadow: 0 1px 3px rgba(15,23,42,0.06); }
+.card-num { font-size: 30px; font-weight: 800; color: #0f172a; }
+.card-label { color: #64748b; font-size: 13px; margin-top: 4px; }
+.note { background: #fff; border: 1px solid #dbe3ef; border-left: 5px solid #2563eb; border-radius: 8px; padding: 15px 18px; margin: 14px 0 18px; }
+.warn { border-left-color: #d97706; background: #fffaf0; }
+.bad { border-left-color: #dc2626; background: #fff7f7; }
+.good { border-left-color: #16a34a; background: #f4fbf6; }
+table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e4e8f0; border-radius: 8px; overflow: hidden; margin: 12px 0 22px; font-size: 14px; box-shadow: 0 1px 3px rgba(15,23,42,0.05); }
+th { background: #eef2f7; color: #334155; font-size: 12px; text-transform: uppercase; letter-spacing: 0.02em; text-align: left; padding: 10px 12px; border-bottom: 1px solid #dce3ed; }
+td { padding: 10px 12px; border-bottom: 1px solid #edf0f5; vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fbfcfe; }
+.tag { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.ok { background: #dcfce7; color: #166534; }
+.watch { background: #fef3c7; color: #92400e; }
+.gap { background: #fee2e2; color: #991b1b; }
+.info { background: #dbeafe; color: #1d4ed8; }
+.todo { background: #ede9fe; color: #6d28d9; }
+.grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.rule { background: #fff; border: 1px solid #e4e8f0; border-radius: 8px; padding: 14px 16px; }
+.rule strong { color: #0f172a; }
+ul { margin: 8px 0 8px 22px; }
+li { margin: 4px 0; }
+footer { margin-top: 36px; padding-top: 18px; border-top: 1px solid #dce3ed; color: #64748b; font-size: 13px; }
+@media (max-width: 820px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  table { font-size: 13px; }
+  th, td { padding: 8px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+<h1>Nong Toolkit / CLI 命令命名与功能充分性审计</h1>
+<p class="subtitle">2026-06-10 | 基线：Nong.Cli.Net 4.0.0，<code>nong commands --json</code> 返回 96 个已实现命令；审计对象：Nong.Toolkit.Net 技能路由与 CLI 命令语义。</p>
+<p class="subtitle">配套蓝图：<a href="nong-final-blueprint.html">nong-final-blueprint.html</a>，适合先看全貌再回来看这一页的细项审计。</p>
+</header>
+
+<div class="dashboard">
+<div class="card"><div class="card-num">96</div><div class="card-label">已实现 CLI 命令</div></div>
+<div class="card"><div class="card-num">15</div><div class="card-label">命令组 / 技能入口</div></div>
+<div class="card"><div class="card-num">1 组</div><div class="card-label">真实功能重叠</div></div>
+<div class="card"><div class="card-num">11 个</div><div class="card-label">兼容 alias，不算重复</div></div>
+<div class="card"><div class="card-num">6 类</div><div class="card-label">功能缺少</div></div>
+<div class="card"><div class="card-num">8 项</div><div class="card-label">命名/描述不准</div></div>
+</div>
+
+<h2>一句话结论</h2>
+<div class="note good">
+<p><strong>现在可以继续用这套命令面。</strong> 96 个命令已经能覆盖 Toolkit 的主要路由，命令分组也基本符合“Word 处理文档、Inspect 处理论文/公文语义、Chart/Excel 处理实验数据、Slice 读统一切片、Skill 管技能生命周期”的边界。</p>
+<p>需要处理的是命令的“可理解性债务”：有些名字短、省 token，但新人看不出完整含义，例如 <code>inspect refs</code>、<code>inspect varplan</code>、<code>inspect data-req</code>；有些名字容易被误认为能力更大，例如 <code>word preview</code>、<code>word rebuild</code>、<code>chart analyze</code>。这些不需要马上破坏性改名，优先补文档和 alias。</p>
+</div>
+
+<h2>三分法总判定</h2>
+<div class="note">
+<p><strong>这次问题不是单一类型。</strong> 当前命令面里，“重复”很少，“缺少”是真正的后续功能路线图，“不对”主要是名字或描述不够准。处理顺序应该是：先治理名字不准，再规划缺少功能，最后只对真重叠命令做兼容收口。</p>
+</div>
+
+<table>
+<thead><tr><th>类别</th><th>结论</th><th>代表项</th><th>处理方式</th></tr></thead>
+<tbody>
+<tr><td><span class="tag watch">命令重复</span></td><td>只有 1 组是真功能重叠；11 个 <code>word add-*</code> 是兼容 alias，不算坏重复。</td><td><code>word extract</code> 与 <code>word images --output</code> 有重叠；<code>word add paragraph</code> 与 <code>word add-paragraph</code> 是兼容入口。</td><td>定 canonical 命令，保留 alias；不要马上删命令。</td></tr>
+<tr><td><span class="tag gap">命令缺少</span></td><td>缺的是新能力，不是名字问题。</td><td><code>pptx create/edit</code>、Excel 样式/公式/透视、Chart 箱线图/热力图/直方图、PDF 合并/拆分/OCR PDF、<code>inspect write-letter</code>、Word compare/视觉预览。</td><td>另开功能 plan，审底层库，再补 CLI、Manifest、测试、Toolkit。</td></tr>
+<tr><td><span class="tag todo">命令不对</span></td><td>没有阻断级错误，但有一批名字或描述会误导。</td><td><code>word preview</code>、<code>word rebuild</code>、<code>inspect refs</code>、<code>inspect varplan</code>、<code>inspect data-req</code>、<code>chart analyze</code>、<code>ocr analyze-image</code>、<code>progress report</code>。</td><td>优先补更准确 alias 和描述；Toolkit 教新名字，旧名字兼容。</td></tr>
+</tbody>
+</table>
+
+<h3>1. 命令重复：哪些是真的，哪些不是</h3>
+<table>
+<thead><tr><th>命令关系</th><th>判定</th><th>原因</th><th>建议</th></tr></thead>
+<tbody>
+<tr><td><code>word extract</code> vs <code>word images --output</code></td><td><span class="tag watch">真重叠</span></td><td>两者都能处理 DOCX 内嵌图片；<code>images</code> 还承担“列出图片”的语义，所以覆盖面更自然。</td><td>把 <code>word images</code> 定为 canonical；<code>word extract</code> 保留兼容，后续可标注 legacy。</td></tr>
+<tr><td><code>word add paragraph</code> vs <code>word add-paragraph</code> 等 11 个</td><td><span class="tag info">兼容 alias</span></td><td>扁平命令是老脚本兼容入口，嵌套命令才是现在教学的 canonical form。</td><td>不删。Toolkit 只教 <code>word add paragraph</code> 这类嵌套命令。</td></tr>
+<tr><td><code>inspect diagnose</code> vs <code>inspect classify/structure/evidence/data-req/gap/semantics</code></td><td><span class="tag ok">不是重复</span></td><td><code>diagnose</code> 是总诊断，其他是低 token 分步诊断。</td><td>保留。文档说明“总命令 vs 分步命令”。</td></tr>
+<tr><td><code>chart analyze</code> vs <code>chart anova</code> / <code>chart duncan</code></td><td><span class="tag ok">不是重复</span></td><td><code>analyze</code> 是一站式处理组分析，<code>anova</code>/<code>duncan</code> 是单项统计。</td><td>保留，但把 description 写窄。</td></tr>
+<tr><td><code>word preview</code> vs <code>word dissect</code> / <code>word outline</code> / <code>word stats</code></td><td><span class="tag ok">不是重复</span></td><td>它们输出层级不同：诊断概览、完整切片、目录、计数。</td><td>保留，但 <code>preview</code> 需要 alias 或说明。</td></tr>
+<tr><td><code>slice inspect</code> vs <code>inspect diagnose</code></td><td><span class="tag ok">不是重复</span></td><td>一级命令不同：前者检查 NongPandoc 包契约，后者诊断论文内容。</td><td>保留。</td></tr>
+</tbody>
+</table>
+
+<h3>2. 命令缺少：这些是新能力，不是文档没写清</h3>
+<table>
+<thead><tr><th>缺少领域</th><th>建议命令名</th><th>是否影响当前 Toolkit 主流程</th><th>判断</th></tr></thead>
+<tbody>
+<tr><td>PPTX 生成/编辑</td><td><code>pptx create</code>、<code>pptx edit</code></td><td>中高。当前 PPTX 技能只能读，不能做交付型 PPT。</td><td><span class="tag gap">真缺少</span></td></tr>
+<tr><td>Excel 高级编辑</td><td><code>excel style</code>、<code>excel formula</code>、<code>excel pivot</code>、<code>excel edit</code></td><td>中。当前能创建简单表，但不能做复杂 workbook。</td><td><span class="tag gap">真缺少</span></td></tr>
+<tr><td>科研图表类型</td><td><code>chart boxplot</code>、<code>chart histogram</code>、<code>chart heatmap</code>、<code>chart radar</code></td><td>中高。农业数据常见图种还不全。</td><td><span class="tag gap">真缺少</span></td></tr>
+<tr><td>PDF 编辑/可搜索 OCR PDF</td><td><code>pdf merge</code>、<code>pdf split</code>、<code>pdf ocr</code>、<code>pdf watermark</code></td><td>中。当前 PDF 是读、切片、渲染、提图。</td><td><span class="tag gap">真缺少</span></td></tr>
+<tr><td>Inspect 扩展写作/审核</td><td><code>inspect write-letter</code>、<code>inspect official-check</code>、<code>lit format-refs</code></td><td>中。论文/公文已有，信函和正式审核还没暴露。</td><td><span class="tag gap">真缺少</span></td></tr>
+<tr><td>Word 高级审阅</td><td><code>word compare</code>、<code>word render-preview</code>、<code>word apply-style</code></td><td>中。当前格式证据强，但不是视觉渲染或文档 diff。</td><td><span class="tag gap">真缺少</span></td></tr>
+</tbody>
+</table>
+
+<h3>3. 命令不对：不是不能用，是词没完全达意</h3>
+<table>
+<thead><tr><th>现有命令</th><th>哪里不对</th><th>更准确的词</th><th>处理建议</th></tr></thead>
+<tbody>
+<tr><td><code>word preview</code></td><td>会让人以为是视觉预览或页面截图，实际是结构诊断。</td><td><code>word diagnose</code></td><td>加 alias；description 写“structure diagnostic, not visual render”。</td></tr>
+<tr><td><code>word rebuild</code></td><td>“rebuild”太大，实际是清理 OOXML 样式污染。</td><td><code>word clean-styles</code></td><td>加 alias；Toolkit 教 <code>clean-styles</code>，保留 <code>rebuild</code>。</td></tr>
+<tr><td><code>inspect refs</code></td><td>容易误会成外部文献检索或引用格式生成。</td><td><code>inspect refs-check</code> / <code>inspect references</code></td><td>加 alias；明确外部检索走 <code>lit search</code>。</td></tr>
+<tr><td><code>inspect varplan</code></td><td>缩写太内部，用户不知道是变量操作化。</td><td><code>inspect variables</code></td><td>加 alias。</td></tr>
+<tr><td><code>inspect data-req</code></td><td>缩写可猜，但不适合教学。</td><td><code>inspect data-requirements</code></td><td>加 alias。</td></tr>
+<tr><td><code>chart analyze</code></td><td>范围太大，像任意统计分析。</td><td><code>chart treatment-analyze</code> 或更窄 description</td><td>先改描述；等统计命令变多再决定 alias。</td></tr>
+<tr><td><code>ocr analyze-image</code></td><td>放在 <code>ocr</code> 组下但不做 OCR；当前靠描述兜住。</td><td><code>image analyze</code> 或 <code>multimodal analyze-image</code></td><td>短期保留；文档必须写“no OCR”。长期看是否新增一级组。</td></tr>
+<tr><td><code>progress report</code></td><td>可能被理解成实时进度，实际是读取 <code>log/</code> 生成报告。</td><td><code>progress log-report</code></td><td>低优先级；当前不改也能接受。</td></tr>
+</tbody>
+</table>
+
+<h2>命名原则</h2>
+<div class="grid-2">
+<div class="rule"><p><strong>1. 动词必须说明副作用。</strong> <code>read</code>、<code>inspect</code>、<code>validate</code> 应该只读；<code>create</code>、<code>write</code>、<code>format</code>、<code>reflow</code> 应该明确会生成新文件。</p></div>
+<div class="rule"><p><strong>2. 名字不能承诺不存在的能力。</strong> <code>preview</code> 如果不是视觉渲染，就必须在描述里写清是结构诊断；<code>analyze</code> 如果只做 ANOVA/Duncan/描述统计，就不要暗示任意统计分析。</p></div>
+<div class="rule"><p><strong>3. 领域边界比短名字重要。</strong> 公文“生成草稿”属于 <code>inspect write-official</code>，既有 DOCX 的公文排版属于 <code>word format-gongwen</code>，这个分工是对的。</p></div>
+<div class="rule"><p><strong>4. 兼容脚本靠 alias，不靠改老命令。</strong> 已暴露命令是契约，除非有明显误导和迁移方案，不要直接删改；推荐先加长名 alias，再把 Toolkit 教学改到更清楚的叫法。</p></div>
+</div>
+
+<h2>优先级判断</h2>
+<table>
+<thead><tr><th>级别</th><th>含义</th><th>本轮结论</th><th>建议动作</th></tr></thead>
+<tbody>
+<tr><td><span class="tag ok">P0</span></td><td>会导致错误调用、数据丢失、技能无法工作。</td><td>未发现。</td><td>不做破坏性改名。</td></tr>
+<tr><td><span class="tag watch">P1</span></td><td>名字会让人误解能力边界，但现有命令可用。</td><td><code>word preview</code>、<code>word rebuild</code>、<code>inspect refs</code>、<code>inspect varplan</code>、<code>inspect data-req</code>、<code>chart analyze</code>。</td><td>补 alias 或强化 description / Toolkit 文档。</td></tr>
+<tr><td><span class="tag todo">P2</span></td><td>名字还行，但领域里常见能力没覆盖。</td><td>PPTX 写入、Excel 样式/公式/透视、图表箱线图/热力图/直方图、PDF 合并/拆分/OCR PDF、Inspect 信函写作等。</td><td>作为功能路线图，不要用现有名字硬包。</td></tr>
+<tr><td><span class="tag info">P3</span></td><td>只是可读性或教学顺序问题。</td><td>多数命令组属于此类。</td><td>保持命令稳定，调整技能说明。</td></tr>
+</tbody>
+</table>
+
+<h2>逐模块审计</h2>
+<table>
+<thead><tr><th>模块</th><th>命名评价</th><th>功能是否够用</th><th>风险点</th><th>建议</th></tr></thead>
+<tbody>
+<tr>
+<td><strong><code>word</code></strong><br>39 个命令</td>
+<td><span class="tag ok">主体清楚</span><br>读、查、切片、生成、编辑、格式化的命令面完整。<code>format-gongwen</code> 比“official-format”更贴中文公文语境，适合保留。</td>
+<td>对 Toolkit 当前 Word 工作流足够：NongMark 生成、既有 DOCX 检查、切片、格式审计、学术格式、公文格式、表格重排、追加内容都有入口。</td>
+<td><code>preview</code> 容易被理解成视觉预览；<code>rebuild</code> 听起来像重建全文，实际是清理 OOXML style 污染；<code>fix-order</code> 是内部结构修复，不是可见排版修复。</td>
+<td>保留现有名字。给 <code>word preview</code> 补 <code>word diagnose</code> alias；给 <code>word rebuild</code> 补 <code>word clean-styles</code> alias；Toolkit 继续强调 <code>format-audit</code> 才是可见格式证据。</td>
+</tr>
+<tr>
+<td><strong><code>inspect</code></strong><br>11 个命令</td>
+<td><span class="tag watch">短名偏多</span><br><code>diagnose</code>、<code>classify</code>、<code>structure</code>、<code>evidence</code>、<code>semantics</code> 清楚；<code>refs</code>、<code>varplan</code>、<code>data-req</code> 省 token 但不够自解释。</td>
+<td>论文诊断和公文/论文生成够用。<code>write-official</code> 解决了之前底层能力没暴露的问题。</td>
+<td><code>refs</code> 会被误会成外部文献检索；<code>semantics</code> 会被误会成 AI 深度语义评审；<code>write-paper</code> 和 <code>write-official</code> 不负责后续 Word 排版校验。</td>
+<td>补 alias：<code>inspect references</code> 或 <code>inspect refs-check</code>，<code>inspect variables</code>，<code>inspect data-requirements</code>。文档继续写清 <code>inspect refs</code> 不是数据库检索，外部检索走 <code>lit</code>。</td>
+</tr>
+<tr>
+<td><strong><code>chart</code></strong><br>7 个命令</td>
+<td><span class="tag ok">图形名清楚</span><br><code>bar</code>、<code>line</code>、<code>scatter</code>、<code>pie</code> 都是直观名；<code>anova</code>、<code>duncan</code> 与农业实验统计语境匹配。</td>
+<td>够支撑当前农业处理组数据：分组统计、ANOVA、Duncan、多数基础图。</td>
+<td><code>analyze</code> 范围听起来太大，实际是 ANOVA + Duncan + 描述统计。缺箱线图、直方图、热力图、雷达图、组合图、后期编辑。</td>
+<td>保留 <code>chart analyze</code>，描述统一写成“分组实验一站式分析”。未来按真实需求新增 <code>boxplot</code>、<code>histogram</code>、<code>heatmap</code>，不要把它们塞进 <code>analyze</code>。</td>
+</tr>
+<tr>
+<td><strong><code>excel</code></strong><br>5 个命令</td>
+<td><span class="tag ok">读取链路清楚</span><br><code>sheets</code>、<code>read</code>、<code>create</code>、<code>dissect</code> 清楚。<code>to-groups</code> 是面向统计管线的好名字。</td>
+<td>对“读表、转处理组、创建简单 workbook、切片”够用。</td>
+<td><code>create</code> 容易被用户理解为任意复杂 Excel 生成，但当前只是简单 sheets/rows。没有样式、公式、透视表、宏、工作簿内图表。</td>
+<td>文档保持限制说明。未来如需要，新增 <code>excel style</code>、<code>excel formula</code>、<code>excel pivot</code> 或 <code>excel edit</code>，不要扩大 <code>create</code> 的口径。</td>
+</tr>
+<tr>
+<td><strong><code>diagram</code></strong><br>3 个命令</td>
+<td><span class="tag ok">清楚</span><br><code>flowchart</code>、<code>network</code>、<code>tree</code> 都能让人立刻知道图类型。</td>
+<td>科研流程图、关系图、系统发育树够用。</td>
+<td>没有 sequence、ER、UML、Gantt、机制图专用布局，也没有图后编辑。</td>
+<td>保持现名。未来按图类型增命令，不建议加一个笼统的 <code>diagram draw</code>。</td>
+</tr>
+<tr>
+<td><strong><code>pdf</code></strong><br>4 个命令</td>
+<td><span class="tag ok">边界清楚</span><br><code>check</code>、<code>dissect</code>、<code>render</code>、<code>images</code> 都是读/切/渲染/提取动作。</td>
+<td>够做 PDF 预检、切片、页面转图、图片提取。</td>
+<td>没有 PDF 合并、拆分、加水印、写注释、生成 searchable PDF。<code>dissect --mode ocr</code> 也不是完整版式重建。</td>
+<td>保持现状。未来如果要生产 PDF，新增 <code>pdf merge</code>、<code>pdf split</code>、<code>pdf ocr</code>，不要让 <code>render</code>/<code>dissect</code> 承担写入语义。</td>
+</tr>
+<tr>
+<td><strong><code>pptx</code></strong><br>3 个命令</td>
+<td><span class="tag ok">读侧清楚</span><br><code>read</code>、<code>slides</code>、<code>dissect</code> 都准确指向读取和切片。</td>
+<td>只够读取、结构清单、切片，不够做 PPT 生成或编辑。</td>
+<td>Toolkit 有 <code>write-pptx.md</code> 参考名，但当前 CLI 没有 <code>pptx create</code> / <code>pptx edit</code>，容易让人误以为能写 PPT。</td>
+<td>把文档口径定死：PPTX 当前只读。若要写，新增 <code>pptx create</code>，不要复用 <code>pptx read</code> 或在 Toolkit 里绕开 CLI。</td>
+</tr>
+<tr>
+<td><strong><code>ocr</code></strong><br>7 个命令</td>
+<td><span class="tag ok">大体清楚</span><br><code>local</code>、<code>cloud</code>、<code>check-env</code>、<code>models</code>、<code>install-model</code>、<code>to-word</code> 都贴合动作。</td>
+<td>够做本地文字识别、云 OCR、环境检查、模型安装、OCR 转 Word。</td>
+<td><code>analyze-image</code> 不做 OCR，只做图像结构分析；这个名字可以，但必须一直写清“no OCR”。<code>to-word</code> 当前是云 OCR 路径，离线用户会误会。</td>
+<td>保留命令。给 <code>to-word</code> 文档写清云依赖；必要时未来新增 <code>ocr local-to-word</code>。</td>
+</tr>
+<tr>
+<td><strong><code>lit</code></strong><br>5 个命令</td>
+<td><span class="tag ok">短但可接受</span><br><code>lit</code> 比 <code>literature</code> 短，适合 CLI；<code>parse</code>、<code>validate</code>、<code>plan</code>、<code>search</code>、<code>export</code> 是标准检索管线。</td>
+<td>够做 DSL 校验、检索计划、合法元数据/OA 检索、导出。</td>
+<td>不做全文下载、不绕数据库授权、不等于 CNKI 内部检索。引用格式样式能力也要看 export 现有格式。</td>
+<td>保持现名。Toolkit 里继续把 <code>inspect refs</code> 和 <code>lit search</code> 分开讲。</td>
+</tr>
+<tr>
+<td><strong><code>slice</code></strong><br>4 个命令</td>
+<td><span class="tag ok">契约强</span><br><code>inspect</code>、<code>blocks</code>、<code>block</code>、<code>assets</code> 与统一切片包结构吻合。</td>
+<td>够做 Word/PDF/Excel/PPTX 切片后的低 token 读取。</td>
+<td><code>inspect</code> 在这里是“检查 package contract”，不是论文 inspect。上下文靠一级命令 <code>slice</code> 区分，问题不大。</td>
+<td>保持现状。Toolkit 教学应坚持“有 slice 就先用 slice 读证据”。</td>
+</tr>
+<tr>
+<td><strong><code>skill</code></strong><br>4 个命令</td>
+<td><span class="tag ok">非常清楚</span><br><code>validate</code>、<code>scan</code>、<code>inventory</code>、<code>package</code> 是完整生命周期。</td>
+<td>够做 Toolkit 发布前门禁。</td>
+<td><code>scan</code> 是安全/质量扫描，不等于运行时测试；<code>inventory</code> 是目录清单，不等于依赖解析。</td>
+<td>保持现状。旧 <code>skill-manager</code> 只作为策略说明，真正 gate 继续走 <code>nong skill ...</code>。</td>
+</tr>
+<tr>
+<td><strong><code>genre</code> / <code>icons</code> / <code>progress</code></strong></td>
+<td><span class="tag ok">清楚</span><br><code>list</code>、<code>show</code>、<code>search</code>、<code>report</code> 都是常规动作。</td>
+<td>够做模板发现、图标发现、进度报告生成。</td>
+<td><code>genre</code> 不是写作器，模板发现后要交给 <code>inspect write-paper</code> / <code>inspect write-official</code>。<code>progress report</code> 是项目日志报告，不是任务实时进度条。</td>
+<td>保持现状。文档里继续把“发现模板”和“生成文档”分开。</td>
+</tr>
+</tbody>
+</table>
+
+<h2>建议补 alias 的命令</h2>
+<table>
+<thead><tr><th>现有命令</th><th>建议 alias</th><th>原因</th><th>优先级</th></tr></thead>
+<tbody>
+<tr><td><code>word preview</code></td><td><code>word diagnose</code></td><td>当前不是视觉预览，而是 7 步结构诊断。保留 preview 兼容旧脚本，新增 diagnose 降低误解。</td><td><span class="tag watch">P1</span></td></tr>
+<tr><td><code>word rebuild</code></td><td><code>word clean-styles</code></td><td>实际含义是清理 OOXML 样式污染，rebuild 容易被认为会重写/修复所有内容。</td><td><span class="tag watch">P1</span></td></tr>
+<tr><td><code>inspect refs</code></td><td><code>inspect references</code> 或 <code>inspect refs-check</code></td><td>避免被理解成外部文献检索。外部检索属于 <code>lit search</code>。</td><td><span class="tag watch">P1</span></td></tr>
+<tr><td><code>inspect varplan</code></td><td><code>inspect variables</code></td><td>varplan 是内部缩写，用户不一定知道是变量操作化与数据采集计划。</td><td><span class="tag watch">P1</span></td></tr>
+<tr><td><code>inspect data-req</code></td><td><code>inspect data-requirements</code></td><td>缩写可用，但长名更适合教学和 discoverability。</td><td><span class="tag watch">P1</span></td></tr>
+<tr><td><code>ocr to-word</code></td><td><code>ocr cloud-to-word</code></td><td>当前是云 OCR 转 Word，长名能让离线/本地用户更快理解依赖边界。</td><td><span class="tag todo">P2</span></td></tr>
+<tr><td><code>chart analyze</code></td><td><code>chart treatment-analyze</code></td><td>如果后续统计能力扩大，当前 analyze 太泛。可先不加，等新统计命令增多时再处理。</td><td><span class="tag todo">P2</span></td></tr>
+<tr><td><code>progress report</code></td><td><code>progress log-report</code></td><td>可选。当前名字能用，但 log-report 更能说明它读的是 log/ 目录。</td><td><span class="tag info">P3</span></td></tr>
+</tbody>
+</table>
+
+<h2>不能靠改名掩盖的功能缺口</h2>
+<table>
+<thead><tr><th>领域</th><th>缺口</th><th>为什么是功能缺口</th><th>下一步</th></tr></thead>
+<tbody>
+<tr><td>PPTX</td><td><code>pptx create</code> / <code>pptx edit</code></td><td>当前 CLI 只有读、slides 清单、切片。写 PPT 是新能力，不是 <code>read</code> 换个名字能解决。</td><td>如果 Toolkit 要做 PPT 生成，优先规划 <code>pptx create</code>。</td></tr>
+<tr><td>Excel</td><td>样式、公式、透视表、工作簿内图表、通用编辑</td><td><code>excel create</code> 当前是简单 JSON rows 到 xlsx。复杂工作簿需要明确 spec 与底层实现。</td><td>按真实场景拆成 <code>excel style</code>、<code>excel formula</code>、<code>excel edit</code>。</td></tr>
+<tr><td>Chart</td><td>箱线图、直方图、热力图、雷达图、组合图</td><td>这些是不同图种，不应塞进 <code>chart analyze</code> 或 <code>chart bar</code>。</td><td>农业实验最常用的先补：建议 <code>boxplot</code>、<code>histogram</code>、<code>heatmap</code>。</td></tr>
+<tr><td>PDF</td><td>合并、拆分、OCR 后可搜索 PDF、水印、注释</td><td>当前 PDF 是读取/切片/渲染/提图，不是 PDF 编辑器。</td><td>需要时新增 <code>pdf merge</code>、<code>pdf split</code>、<code>pdf ocr</code>。</td></tr>
+<tr><td>Inspect</td><td>信函写作、正式公文审核、引用格式自动修复</td><td>底层历史规范提到 LetterWriter/ReferenceManager，但当前 96 命令面没有暴露对应命令。</td><td>先审底层 API，再决定是否补 <code>inspect write-letter</code>、<code>inspect official-check</code>、<code>lit format-refs</code>。</td></tr>
+<tr><td>Word</td><td>真实视觉预览、文档 diff/compare、任意样式应用</td><td>当前证据来自 OOXML/切片/格式审计，不是 Word 排版引擎截图。比较和任意样式应用也是独立能力。</td><td>需要时新增 <code>word compare</code>、<code>word render-preview</code>、<code>word apply-style</code>。</td></tr>
+</tbody>
+</table>
+
+<h2>Toolkit 教学口径</h2>
+<table>
+<thead><tr><th>用户想做的事</th><th>应该教的命令</th><th>不要教成</th></tr></thead>
+<tbody>
+<tr><td>新建 Word 文档、论文、报告</td><td><code>nong word create</code>，然后 <code>word validate</code> + <code>word dissect</code></td><td>Markdown 转 DOCX、python-docx、临时 COM 脚本</td></tr>
+<tr><td>已有 DOCX 公文排版</td><td><code>nong word format-gongwen</code></td><td><code>inspect write-official</code>，后者是从 spec 生成新公文草稿</td></tr>
+<tr><td>从 JSON 生成公文草稿</td><td><code>nong inspect write-official</code>，再交给 Word 校验/切片</td><td>直接调用底层 <code>OfficialDocWriter</code></td></tr>
+<tr><td>论文引用风险检查</td><td><code>nong inspect refs</code></td><td><code>lit search</code>；它是外部文献检索，不是内部引用风险检查</td></tr>
+<tr><td>外部文献检索和导出</td><td><code>nong lit validate</code> → <code>lit plan</code> → <code>lit search</code> → <code>lit export</code></td><td><code>inspect refs</code></td></tr>
+<tr><td>读取切片包证据</td><td><code>nong slice inspect</code>、<code>slice blocks</code>、<code>slice block</code>、<code>slice assets</code></td><td>手写脚本翻包内 JSON</td></tr>
+<tr><td>技能发布前检查</td><td><code>nong skill validate</code>、<code>skill scan</code>、<code>skill inventory</code>、<code>skill package</code></td><td>旧 <code>skill-manager</code> 当打包 gate</td></tr>
+</tbody>
+</table>
+
+<h2>建议执行顺序</h2>
+<table>
+<thead><tr><th>顺序</th><th>动作</th><th>理由</th><th>改动范围</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>先不重命名任何现有命令。</td><td>现有 96 命令已被 Toolkit 和测试引用，直接改名会制造新不对齐。</td><td>无代码改动</td></tr>
+<tr><td>2</td><td>把 P1 命令的 description 和 Toolkit 说明补得更直白。</td><td>这是最低风险修复，能马上减少误用。</td><td>CLI Manifest / SKILL.md / references</td></tr>
+<tr><td>3</td><td>给 P1 项补 alias，并在 <code>nong commands --json</code> 暴露。</td><td>既保留老脚本，又给新用户更好理解的入口。</td><td>System.CommandLine + Manifest + contract tests</td></tr>
+<tr><td>4</td><td>把真实功能缺口单独立计划。</td><td>PPTX 写入、Excel 编辑、Chart 新图种不是文案问题，需要底层实现和测试。</td><td>按模块拆 plan</td></tr>
+<tr><td>5</td><td>每次 CLI 命令面变化后同步 Toolkit，再跑双向审计。</td><td>防止再次出现“CLI 有但 skill 没写”或“skill 教了 CLI 没有”的问题。</td><td>Nong.Cli.Net + Nong.Toolkit.Net</td></tr>
+</tbody>
+</table>
+
+<h2>最终判断</h2>
+<div class="note">
+<p><strong>当前命令面是可工作的，不需要大改。</strong> 最稳妥的路线是：命令契约保持稳定，先用 alias 和文档把语义补清楚；真正缺的能力另开功能任务。</p>
+<p>下一轮如果要动代码，建议从 5 个 P1 alias 开始：<code>word diagnose</code>、<code>word clean-styles</code>、<code>inspect references</code>、<code>inspect variables</code>、<code>inspect data-requirements</code>。这批改动小、收益高、风险可控。</p>
+</div>
+
+<footer>
+<p>来源：<code>nong commands --json</code>、<code>Cli/Commands/*</code>、<code>Cli/Common/Manifest.cs</code>、Nong.Toolkit.Net 各 <code>SKILL.md</code> 与 references。命令名、包名和路径保持英文原文；审计判断使用中文。</p>
+</footer>
+
+</div>
+</body>
+</html>

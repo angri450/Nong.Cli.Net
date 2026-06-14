@@ -88,7 +88,7 @@ nong excel read data.xlsx --sheet Sheet1 --range A1:D20 --json
 ## 建议 ClaudeCode 任务
 
 ```text
-你在 C:\Users\Administrator\Documents\Github\Angri450.Nong 工作。
+你在 C:\Users\Administrator\Documents\Github\Nong.Cli.Net 工作。
 
 目标：实现阶段 4 的生成核心，只做 chart analyze 和 chart bar。
 

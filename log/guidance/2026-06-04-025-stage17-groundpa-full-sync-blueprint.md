@@ -1,8 +1,8 @@
 # 阶段 17 指导：GroundPA 全面同步 Nong 真实命令面
 
 日期：2026-06-04
-目标仓库：`C:\Users\Administrator\Documents\Github\GroundPA-Toolkit`
-源头仓库：`C:\Users\Administrator\Documents\Github\Angri450.Nong`
+目标仓库：`C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net`
+源头仓库：`C:\Users\Administrator\Documents\Github\Nong.Cli.Net`
 
 本阶段不是最小修复。目标是把 GroundPA skill 层一次性同步到 Nong 当前真实 CLI 能力，清掉 2.0.0 时代的旧口径，避免 agent 再因为 stale skill 文档绕开 Nong、误报未实现、调用旧 token、或暴露半成品 OCR。
 
@@ -45,7 +45,7 @@ dotnet build .\Cli\NongCli.csproj -c Release
 
 ## 1. 阶段 17 定义
 
-阶段 17 = GroundPA Toolkit 2.1.0 级别的 Nong command-surface full sync。
+阶段 17 = Nong.Toolkit.Net 2.1.0 级别的 Nong command-surface full sync。
 
 完成后的 GroundPA 必须满足：
 
@@ -67,7 +67,7 @@ dotnet build .\Cli\NongCli.csproj -c Release
 
 ### 2.1 Word skill 严重落后
 
-当前 `GroundPA-Toolkit\word\SKILL.md` 只暴露：
+当前 `Nong.Toolkit.Net\word\SKILL.md` 只暴露：
 
 ```text
 word read
@@ -241,7 +241,7 @@ pptx slides
 必须创建或恢复：
 
 ```text
-GroundPA-Toolkit\pptx\SKILL.md
+Nong.Toolkit.Net\pptx\SKILL.md
 ```
 
 只暴露读取能力：
@@ -272,7 +272,7 @@ ocr to-word
 必须创建或恢复：
 
 ```text
-GroundPA-Toolkit\multimodal\SKILL.md
+Nong.Toolkit.Net\multimodal\SKILL.md
 ```
 
 推荐暴露方式：
@@ -324,7 +324,7 @@ PPTX and OCR are not exposed because current nong CLI marks those commands as st
 阶段 17 建议版本：
 
 ```text
-GroundPA Toolkit 2.1.0
+Nong.Toolkit.Net 2.1.0
 ```
 
 如果维护者决定发 3.0.0，必须在 changelog 中解释破坏性变化。单纯同步 Nong implemented 命令面，优先用 2.1.0。
@@ -345,9 +345,9 @@ skill package
 GroundPA 自身发布/验收路径必须优先写：
 
 ```powershell
-nong skill inventory C:\Users\Administrator\Documents\Github\GroundPA-Toolkit --json
-nong skill scan C:\Users\Administrator\Documents\Github\GroundPA-Toolkit --json
-nong skill package C:\Users\Administrator\Documents\Github\GroundPA-Toolkit --json
+nong skill inventory C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
+nong skill scan C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
+nong skill package C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
 ```
 
 注意：`nong skill validate <plugin-root>` 当前会按单个 skill 目录处理，并因为根目录没有 `SKILL.md` 而失败。这不是 GroundPA 插件失败，而是 validate 子命令的使用边界。
@@ -363,8 +363,8 @@ nong skill package C:\Users\Administrator\Documents\Github\GroundPA-Toolkit --js
 阶段 17 必须使用下面的验证策略：
 
 ```powershell
-$nong = 'C:\Users\Administrator\Documents\Github\Angri450.Nong\Cli\bin\Release\net8.0\nong.dll'
-$repo = 'C:\Users\Administrator\Documents\Github\GroundPA-Toolkit'
+$nong = 'C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Cli\bin\Release\net8.0\nong.dll'
+$repo = 'C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net'
 
 $inventory = dotnet $nong skill inventory $repo --json | ConvertFrom-Json
 foreach ($skill in $inventory.data.skills) {
@@ -375,33 +375,33 @@ dotnet $nong skill scan $repo --json
 dotnet $nong skill package $repo --json
 ```
 
-`skill package` 会在插件根目录生成 `GroundPA-Toolkit.zip`。如果不是发布本次 zip，记录结果后删除或移动到明确的 release artifacts 目录，不得把临时 zip 混入提交。
+`skill package` 会在插件根目录生成 `Nong.Toolkit.Net.zip`。如果不是发布本次 zip，记录结果后删除或移动到明确的 release artifacts 目录，不得把临时 zip 混入提交。
 
 ## 3. 修复范围
 
 允许并要求修改：
 
 ```text
-GroundPA-Toolkit\word\SKILL.md
-GroundPA-Toolkit\word\references\*.md
-GroundPA-Toolkit\inspect\SKILL.md
-GroundPA-Toolkit\excel\SKILL.md
-GroundPA-Toolkit\chart\SKILL.md
-GroundPA-Toolkit\diagram\SKILL.md
-GroundPA-Toolkit\pptx\SKILL.md
-GroundPA-Toolkit\pptx\README.md
-GroundPA-Toolkit\pptx\references\*.md
-GroundPA-Toolkit\multimodal\SKILL.md
-GroundPA-Toolkit\multimodal\README.md
-GroundPA-Toolkit\multimodal\references\*.md
-GroundPA-Toolkit\skill-manager\SKILL.md
-GroundPA-Toolkit\README.md
-GroundPA-Toolkit\README.zh-CN.md
-GroundPA-Toolkit\DEVELOP.md
-GroundPA-Toolkit\skills.sh.json
-GroundPA-Toolkit\.claude-plugin\plugin.json
-GroundPA-Toolkit\.claude-plugin\marketplace.json
-GroundPA-Toolkit\changelog\*.md
+Nong.Toolkit.Net\word\SKILL.md
+Nong.Toolkit.Net\word\references\*.md
+Nong.Toolkit.Net\inspect\SKILL.md
+Nong.Toolkit.Net\excel\SKILL.md
+Nong.Toolkit.Net\chart\SKILL.md
+Nong.Toolkit.Net\diagram\SKILL.md
+Nong.Toolkit.Net\pptx\SKILL.md
+Nong.Toolkit.Net\pptx\README.md
+Nong.Toolkit.Net\pptx\references\*.md
+Nong.Toolkit.Net\multimodal\SKILL.md
+Nong.Toolkit.Net\multimodal\README.md
+Nong.Toolkit.Net\multimodal\references\*.md
+Nong.Toolkit.Net\skill-manager\SKILL.md
+Nong.Toolkit.Net\README.md
+Nong.Toolkit.Net\README.zh-CN.md
+Nong.Toolkit.Net\DEVELOP.md
+Nong.Toolkit.Net\skills.sh.json
+Nong.Toolkit.Net\.claude-plugin\plugin.json
+Nong.Toolkit.Net\.claude-plugin\marketplace.json
+Nong.Toolkit.Net\changelog\*.md
 ```
 
 只在必要时修改脚本：
@@ -447,12 +447,12 @@ pptx\scripts\*.ps1
 Coordinator 先执行：
 
 ```powershell
-cd C:\Users\Administrator\Documents\Github\Angri450.Nong
+cd C:\Users\Administrator\Documents\Github\Nong.Cli.Net
 dotnet build .\Cli\NongCli.csproj -c Release
 dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release
 dotnet .\Cli\bin\Release\net8.0\nong.dll commands --json
 
-cd C:\Users\Administrator\Documents\Github\GroundPA-Toolkit
+cd C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net
 git status --short
 ```
 
@@ -747,10 +747,10 @@ Boundary text that must appear in multimodal docs:
 ### Skill lifecycle
 
 ```powershell
-nong skill inventory C:\Users\Administrator\Documents\Github\GroundPA-Toolkit --json
-nong skill scan C:\Users\Administrator\Documents\Github\GroundPA-Toolkit --json
-nong skill package C:\Users\Administrator\Documents\Github\GroundPA-Toolkit --json
-nong skill validate C:\Users\Administrator\Documents\Github\GroundPA-Toolkit\word --json
+nong skill inventory C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
+nong skill scan C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
+nong skill package C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
+nong skill validate C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net\word --json
 ```
 
 ## 6. Stale string gates
@@ -758,7 +758,7 @@ nong skill validate C:\Users\Administrator\Documents\Github\GroundPA-Toolkit\wor
 完成修改后，在 GroundPA 根目录跑：
 
 ```powershell
-cd C:\Users\Administrator\Documents\Github\GroundPA-Toolkit
+cd C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net
 
 rg -n "not implemented in the current `nong` CLI|not implemented in the current nong CLI|not exposed in 2\.0\.0|commands as stubs|still.*stub|仍是 stub|暂不暴露|PPTX and OCR are not exposed|PPTX 和 OCR|PADDLEOCR_TOKEN|--token|pip install paddlepaddle|pip install paddleocr|paddleocr\.PaddleOCR|pythonExe|Python script calls|PowerShell fallback|Regex parsing of raw XML|word add-[a-z]" .
 ```
@@ -787,7 +787,7 @@ rg -n "sk-[A-Za-z0-9_-]{20,}|github_pat_|ghp_|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]
 在 Angri450.Nong：
 
 ```powershell
-cd C:\Users\Administrator\Documents\Github\Angri450.Nong
+cd C:\Users\Administrator\Documents\Github\Nong.Cli.Net
 dotnet build .\Cli\NongCli.csproj -c Release
 dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release
 dotnet .\Cli\bin\Release\net8.0\nong.dll commands --json
@@ -809,11 +809,11 @@ commands: 71 implemented
 在 GroundPA：
 
 ```powershell
-cd C:\Users\Administrator\Documents\Github\GroundPA-Toolkit
+cd C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net
 git status --short
 
-$nong = 'C:\Users\Administrator\Documents\Github\Angri450.Nong\Cli\bin\Release\net8.0\nong.dll'
-$repo = 'C:\Users\Administrator\Documents\Github\GroundPA-Toolkit'
+$nong = 'C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Cli\bin\Release\net8.0\nong.dll'
+$repo = 'C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net'
 $inventory = dotnet $nong skill inventory $repo --json | ConvertFrom-Json
 $inventory.data.skillCount
 foreach ($skill in $inventory.data.skills) {
@@ -896,7 +896,7 @@ nong pptx slides <sample.pptx> --json
 在 GroundPA 写：
 
 ```text
-GroundPA-Toolkit\changelog\2026-06-04-stage17-groundpa-sync-nong-command-surface.md
+Nong.Toolkit.Net\changelog\2026-06-04-stage17-groundpa-sync-nong-command-surface.md
 ```
 
 必须包含：

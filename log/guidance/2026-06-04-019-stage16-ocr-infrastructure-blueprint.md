@@ -4,7 +4,7 @@
 
 ```text
 C:\Users\Administrator\Documents\Github\测试文件夹\office-skill-research\PaddleOCR-main\PADDLEOCR_NET_INTEGRATION.md
-Angri450.Nong\log\guidance\2026-06-03-018-stage15-word-yidao-sanliu-blueprint.md
+Nong.Cli.Net\log\guidance\2026-06-03-018-stage15-word-yidao-sanliu-blueprint.md
 Angri450.Nong\changelog\2026-06-02-cli-ocr-spec.md
 Angri450.Nong\MultiModal\
 Angri450.Nong\Cli\Commands\OcrCommands.cs
@@ -709,7 +709,7 @@ PP-OCRv5 推理代码不存在才是 E009。
 设计阶段至少跑：
 
 ```powershell
-cd C:\Users\Administrator\Documents\Github\Angri450.Nong
+cd C:\Users\Administrator\Documents\Github\Nong.Cli.Net
 dotnet build .\Cli\NongCli.csproj -c Release
 dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release
 

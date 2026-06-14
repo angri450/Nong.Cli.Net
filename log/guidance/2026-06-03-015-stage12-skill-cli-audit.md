@@ -29,8 +29,8 @@
 | 1 | 空路径 | E003 + EXIT:1 | PASS |
 | 2 | 不存在的目录 | E001 + 含路径 + EXIT:1 | PASS |
 | 3 | `skill validate` word skill | status:ok, valid:true, lines:50 | PASS |
-| 4 | `skill scan` GroundPA-Toolkit | 0 High+, 15 findings (14M+1L) | PASS |
-| 5 | `skill inventory` GroundPA-Toolkit | 17 skills found | PASS |
+| 4 | `skill scan` Nong.Toolkit.Net | 0 High+, 15 findings (14M+1L) | PASS |
+| 5 | `skill inventory` Nong.Toolkit.Net | 17 skills found | PASS |
 | 6 | `skill package` word skill | zip 生成, CheckArtifact 通过 | PASS |
 | 7 | scan 含 HIGH 发现 (EMAIL_EXPOSED) | status:error, errors[] populated, EXIT:1 | PASS |
 | 8 | validate 无效 SKILL.md (无 frontmatter) | status:error, valid:false, EXIT:1 | PASS |
@@ -61,7 +61,7 @@
 
 ## 已知未修复（不在本阶段范围）
 
-1. `data.hasPluginManifest` 和 `data.hasMarketplaceManifest` 都检查 `marketplace.json`，应区分 `plugin.json` 和 `marketplace.json`。当前 GroundPA-Toolkit 无这两个文件，不影响使用
+1. `data.hasPluginManifest` 和 `data.hasMarketplaceManifest` 都检查 `marketplace.json`，应区分 `plugin.json` 和 `marketplace.json`。当前 Nong.Toolkit.Net 无这两个文件，不影响使用
 2. SkillValidator 中 broken references 在非 JSON 文本输出中同时出现在 WARNING 列表和 "Broken references" 区域，属上游 SkillValidator 展示重复。JSON 输出无此问题
 
 ---

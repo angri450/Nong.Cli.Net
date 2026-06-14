@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-08 NongPandoc Unified Slice Evidence - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>2026-06-08 NongPandoc Unified Slice Evidence</h1>
+<p class="subtitle">2026-06-08 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>2026-06-08 NongPandoc Unified Slice Evidence</h1>
+<br>
+<h2>Impacted packages</h2>
+<br>
+<ul>
+<li><code>Angri450.Nong.Pandoc</code></li>
+<li><code>Angri450.Nong.Docx</code></li>
+<li><code>Angri450.Nong.Pdf</code></li>
+<li><code>Angri450.Nong.Excel</code></li>
+<li><code>Angri450.Nong.Pptx</code></li>
+<li><code>Angri450.Nong.Cli.Tests</code></li>
+</ul>
+<br>
+<h2>What changed</h2>
+<br>
+<ul>
+<li>Added shared <code>NongPandocBlockProvenance</code> and <code>NongPandocLayoutEvidence</code> models in <code>Pandoc</code>.</li>
+<li>Added <code>structure.json -&gt; blockIndex[*].provenance</code> for Word, PDF, Excel, and PPTX slices.</li>
+<li>Word provenance now records <code>format=docx</code>, block position, source kind, image relationship IDs, and EMU layout where available.</li>
+<li>PDF provenance now records <code>format=pdf</code>, page, bbox, source, asset ID, confidence, and block warnings.</li>
+<li>Excel provenance now records <code>format=xlsx</code>, sheet, cell address, position, and formula/merge/table notes.</li>
+<li>PPTX provenance now records <code>format=pptx</code>, slide, source shape kind, layout, asset ID, relationship ID, and confidence.</li>
+<li>Added cross-format CLI contract coverage that asserts all four formats expose the same block-level provenance field shape.</li>
+</ul>
+<br>
+<h2>Why</h2>
+<br>
+<p>The package contract was already unified at the stream level (<code>nong-pandoc/package/v1</code>), but detailed block evidence still risked drifting per package. This change gives AI callers one stable place to read source evidence for a block regardless of whether it came from Word, PDF, Excel, or PPT.</p>
+<br>
+<h2>Files touched</h2>
+<br>
+<ul>
+<li><code>Pandoc/NongPandocEvidence.cs</code></li>
+<li><code>Docx/NongMarkModels.cs</code></li>
+<li><code>Docx/WordSlice.cs</code></li>
+<li><code>Pdf/PdfModels.cs</code></li>
+<li><code>Pdf/PdfSlice.cs</code></li>
+<li><code>Excel/ExcelSlice.cs</code></li>
+<li><code>Pptx/PptxSlice.cs</code></li>
+<li><code>Cli.Tests/CliContractTests.cs</code></li>
+<li><code>Cli.Tests/WordCommandTests.cs</code></li>
+<li><code>Cli.Tests/PdfCommandTests.cs</code></li>
+</ul>
+<br>
+<h2>Verification</h2>
+<br>
+<ul>
+<li><code>dotnet build .\Pandoc\PandocCore.csproj -c Release</code></li>
+<li><code>dotnet build .\Docx\DocxCore.csproj -c Release</code></li>
+<li><code>dotnet build .\Pdf\PdfCore.csproj -c Release</code></li>
+<li><code>dotnet build .\Excel\ExcelCore.csproj -c Release</code></li>
+<li><code>dotnet build .\Pptx\PptxCore.csproj -c Release</code></li>
+<li><code>dotnet build .\Cli\NongCli.csproj -c Release</code></li>
+<li><code>dotnet build .\Cli.Tests\Cli.Tests.csproj -c Release</code></li>
+<li><code>dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release --filter &quot;FullyQualifiedName~CliContractTests.SliceStructure_BlockIndexUsesUnifiedProvenanceContract|FullyQualifiedName~CliContractTests.SliceInspect|FullyQualifiedName~CliContractTests.ExcelDissect_IncludesFormulaMergeAndTableEvidence|FullyQualifiedName~CliContractTests.PptxDissect&quot;</code></li>
+<li><code>dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release --filter &quot;FullyQualifiedName~WordCommandTests.WordDissect|FullyQualifiedName~PdfCommandTests.PdfDissect&quot;</code></li>
+<li><code>dotnet test .\Tests\Tests.csproj -c Release --filter NongPandocTests</code></li>
+<li><code>dotnet test .\Cli.Tests\Cli.Tests.csproj -c Release --filter &quot;FullyQualifiedName~CliContractTests&quot;</code></li>
+</ul>
+<br>
+<h2>Remaining risks</h2>
+<br>
+<ul>
+<li>Word layout evidence is still limited to extracted image EMU sizing and block order; paragraph/table visual layout evidence still lives in <code>format.json</code> and content block format fields.</li>
+<li>PPTX text-to-shape matching is text-preview based, so duplicate text on the same slide may need stronger shape IDs later.</li>
+<li>Excel chart/pivot evidence is not yet modeled at the same depth as formulas, merged ranges, and tables.</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

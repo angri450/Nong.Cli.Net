@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Angri450.Nong.OcrModels</AssemblyName>
+    <PackageId>Angri450.Nong.OcrModels</PackageId>
+    <Version>4.1.2</Version>
+    <Authors>angri450</Authors>
+    <Description>PP-OCRv6 model assets — dictionaries for medium/small/tiny tiers. Consumed by Nong CLI OCR commands. No native binaries.</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
+    <PackageTags>nong ocr ppocrv6 dictionary model</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ppocrv6_dict.txt" />
+    <EmbeddedResource Include="ppocrv6_tiny_dict.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

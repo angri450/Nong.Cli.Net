@@ -6,8 +6,9 @@ public static class ChartCombine
 {
     /// <summary>水平合并多张图表，可选标注 A/B/C</summary>
     public static void MergeHorizontal(string[] paths, string[]? labels, string outPath,
-        int panelHeight = 0, int gap = 10, float labelFontSize = 18, string labelFont = "Arial")
+        int panelHeight = 0, int gap = 10, float labelFontSize = 18, string? labelFont = null)
     {
+        labelFont ??= FontHelper.GetCjkFamilyName();
         if (paths.Length == 0)
             throw new ArgumentException("At least one image path required.");
 
@@ -36,7 +37,8 @@ public static class ChartCombine
             // 标注
             if (hasLabels && labels![i] != null)
             {
-                using var font = new SKFont(SKTypeface.FromFamilyName(labelFont), labelFontSize);
+                using var labelTypeface = SKTypeface.FromFamilyName(labelFont);
+                using var font = new SKFont(labelTypeface ?? SKTypeface.Default, labelFontSize);
                 using var paint = new SKPaint { Color = SKColors.Black, IsAntialias = true };
                 float textWidth = font.MeasureText(labels[i]);
                 canvas.DrawText(labels[i], x + (labelW - textWidth) / 2, height / 2 + labelFontSize / 3, font, paint);

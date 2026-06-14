@@ -1,6 +1,6 @@
 # Angri450.Nong.ThirdParty
 
-15 个开源库合一的 .NET 基础 DLL。angri450 手工合并、适配、裁剪，编译为单一程序集 —— 零外部托管依赖，一个 DLL 替代一整张 NuGet 依赖图。
+17 个开源库合一的 .NET 基础 DLL。angri450 手工合并、适配、裁剪，编译为单一程序集，尽量减少外部托管依赖，一个 DLL 替代一整张 NuGet 依赖图。
 
 [![NuGet](https://img.shields.io/nuget/v/Angri450.Nong.ThirdParty)](https://www.nuget.org/packages/Angri450.Nong.ThirdParty)
 [![.NET](https://img.shields.io/badge/.NET-8.0%2B-512BD4)](https://dotnet.microsoft.com)
@@ -17,7 +17,7 @@ dotnet add package Angri450.Nong.ThirdParty
 
 ## Merged Libraries
 
-angri450 将以下 15 个开源库的源码合入单一项目，解决了版本冲突、类型重复和依赖膨胀问题：
+angri450 将以下 17 个开源库的源码合入单一项目，解决了版本冲突、类型重复和依赖膨胀问题：
 
 | Library | License | Purpose |
 |---------|---------|---------|
@@ -31,6 +31,8 @@ angri450 将以下 15 个开源库的源码合入单一项目，解决了版本�
 | ExcelNumberFormat | MIT | Excel number format parsing |
 | RBush | MIT | R-tree spatial indexing |
 | SkiaSharp.HarfBuzz | MIT | SkiaSharp + HarfBuzz integration |
+| ZXing.Net | Apache-2.0 | QR/barcode decoding |
+| PdfPig | Apache-2.0 | PDF parsing, text/image extraction, and PDF writer utilities |
 
 ## Usage
 
@@ -41,13 +43,15 @@ using ClosedXML.Excel;
 using ScottPlot;
 using SkiaSharp;
 using Microsoft.Msagl.Drawing;
+using ZXing;
+using UglyToad.PdfPig;
 ```
 
-引用 ThirdParty 一个包，即可获得全部 15 个库的能力。
+引用 ThirdParty 一个包，即可获得全部 17 个库的能力。
 
 ## Runtime Dependencies
 
-SkiaSharp 和 HarfBuzzSharp 的本地二进制文件（约 65 MB）由 NuGet 在运行时自动按平台下载。无需额外安装步骤。
+SkiaSharp 和 HarfBuzzSharp 的本地二进制文件（约 65 MB）由 NuGet 在运行时自动按平台下载。ZXing.Net 和 PdfPig 以源码形式合入，不需要单独安装 `ZXing.Net` 或 `PdfPig` NuGet 包。
 
 ## When to Use
 
@@ -55,8 +59,8 @@ SkiaSharp 和 HarfBuzzSharp 的本地二进制文件（约 65 MB）由 NuGet 在
 
 ## Author
 
-Built by [angri450](https://github.com/angri450). Source: [Nong.NET](https://github.com/angri450/Nong.NET).
+Built by [angri450](https://github.com/angri450). Source: [Nong.Cli.Net](https://github.com/angri450/Nong.Cli.Net).
 
 ## License
 
-MIT（合入的库保留原始许可证 —— 参见源码中各 LICENSE 文件）
+Apache-2.0（合入的库保留原始许可证 —— 参见源码中各 LICENSE/COPYING 文件）

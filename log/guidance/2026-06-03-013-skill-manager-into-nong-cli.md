@@ -31,7 +31,7 @@ skill-manager scan .
 skill-manager package .
 ```
 
-不再作为推广路径，不再写入 GroundPA-Toolkit 2.0.0 的安装说明。
+不再作为推广路径，不再写入 Nong.Toolkit.Net 2.0.0 的安装说明。
 
 ## 原则
 
@@ -73,7 +73,7 @@ skill-manager package .
    ```
 
 4. **先做 P0，不扩 eval 体系。**
-   本阶段只迁移稳定、确定性、对 GroundPA-Toolkit 2.0.0 立即有用的命令。
+   本阶段只迁移稳定、确定性、对 Nong.Toolkit.Net 2.0.0 立即有用的命令。
 
 5. **旧 global tool 只保留源码，不作为产品入口。**
    可以暂时保留 `SkillManager/` 项目，方便复用代码；但 README、skill、agent contract 不再推荐安装 `Angri450.Nong.Skill.Manager`。
@@ -243,7 +243,7 @@ SkillManager.Cli -> SkillManagerCore   # 仅兼容/本地调试用
   "command": "skill package",
   "summary": "Package created.",
   "artifacts": {
-    "zip": "C:/.../groundpa-toolkit-2.0.0.zip"
+    "zip": "C:/.../nong-toolkit-2.0.0.zip"
   }
 }
 ```
@@ -261,7 +261,7 @@ nong skill run-loop
 nong skill compare
 ```
 
-这些等 P0 稳定、GroundPA-Toolkit 2.0.0 能打包发布后再迁移。
+这些等 P0 稳定、Nong.Toolkit.Net 2.0.0 能打包发布后再迁移。
 
 ## 代码修改建议
 
@@ -347,9 +347,9 @@ Do not use the old skill-manager global tool. Use nong skill instead.
 
 ```powershell
 dotnet build .\Cli\NongCli.csproj -c Release
-nong skill validate C:\Users\Administrator\Documents\Github\GroundPA-Toolkit\word --json
-nong skill scan C:\Users\Administrator\Documents\Github\GroundPA-Toolkit --json
-nong skill inventory C:\Users\Administrator\Documents\Github\GroundPA-Toolkit --json
+nong skill validate C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net\word --json
+nong skill scan C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
+nong skill inventory C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
 nong commands --json
 ```
 
@@ -357,7 +357,7 @@ nong commands --json
 
 1. Release build 0 错误。
 2. `skill validate` 对 `word` 返回 `status: ok`。
-3. `skill scan` 对 GroundPA-Toolkit 当前状态返回 `status: ok`，因为无 High/Critical。
+3. `skill scan` 对 Nong.Toolkit.Net 当前状态返回 `status: ok`，因为无 High/Critical。
 4. `skill inventory` 能识别 17 个 skill。
 5. `nong commands --json` 包含 24 个 implemented 命令：
    - 原 20 个
@@ -369,7 +369,7 @@ nong commands --json
 2. 不要继续推广 `dotnet tool install --global Angri450.Nong.Skill.Manager`。
 3. 不要把旧 `skill-manager.exe` 的行为当成验收标准。
 4. 不要在本阶段迁移 eval viewer / optimizer / loop runner。
-5. 不要把 PPTX/OCR skill 重新加回 GroundPA-Toolkit，除非 `nong pptx` / `nong ocr` 已经真实 implemented。
+5. 不要把 PPTX/OCR skill 重新加回 Nong.Toolkit.Net，除非 `nong pptx` / `nong ocr` 已经真实 implemented。
 
 ## 给 ClaudeCode 的任务描述
 
@@ -387,6 +387,6 @@ nong commands --json
    - `nong skill package <dir> --json`
 5. 更新 Manifest 和 AGENT.md。
 6. Release build。
-7. 用 GroundPA-Toolkit 当前目录跑 validate/scan/inventory 验收。
+7. 用 Nong.Toolkit.Net 当前目录跑 validate/scan/inventory 验收。
 
 只做 P0，不做 eval/scaffold/serve/optimizer。

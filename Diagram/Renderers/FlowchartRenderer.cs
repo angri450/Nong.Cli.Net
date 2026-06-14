@@ -53,13 +53,13 @@ public class FlowchartRenderer : IRenderer
         canvas.Clear(SKColors.White);
         canvas.Translate((float)ox, (float)oy);
 
-        var cjkFont = SKTypeface.FromFamilyName(FontHelper.GetCjkFamilyName());
+        using var cjkFont = SKTypeface.FromFamilyName(FontHelper.GetCjkFamilyName());
 
         // 边
         using var edgePaint = new SKPaint
         {
             Style = SKPaintStyle.Stroke,
-            Color = SKColor.Parse("#666666"),
+            Color = ParseColor("#666666", SKColors.Gray),
             StrokeWidth = 2,
             IsAntialias = true
         };
@@ -101,19 +101,19 @@ public class FlowchartRenderer : IRenderer
             }
             else
             {
-                nodePaint.Color = SKColor.Parse(node.FillColor);
+                nodePaint.Color = ParseColor(node.FillColor, _defaultNodeFill);
                 var rect = new SKRect((float)node.X, (float)node.Y,
                     (float)(node.X + node.Width), (float)(node.Y + node.Height));
                 canvas.DrawRoundRect(rect, 8, 8, nodePaint);
 
                 nodePaint.Style = SKPaintStyle.Stroke;
-                nodePaint.Color = SKColor.Parse(node.StrokeColor);
+                nodePaint.Color = ParseColor(node.StrokeColor, _defaultNodeStroke);
                 nodePaint.StrokeWidth = 2;
                 canvas.DrawRoundRect(rect, 8, 8, nodePaint);
                 nodePaint.Style = SKPaintStyle.Fill;
             }
 
-            textPaint.Color = SKColor.Parse(node.TextColor);
+            textPaint.Color = ParseColor(node.TextColor, SKColors.Black);
             var textBounds = new SKRect();
             textPaint.MeasureText(node.Label, ref textBounds);
             canvas.DrawShapedText(node.Label,
@@ -170,5 +170,14 @@ public class FlowchartRenderer : IRenderer
         category = null;
         name = null;
         return false;
+    }
+
+    private static readonly SKColor _defaultNodeFill = new(74, 144, 217);
+    private static readonly SKColor _defaultNodeStroke = new(44, 95, 125);
+
+    private static SKColor ParseColor(string hex, SKColor fallback)
+    {
+        if (SKColor.TryParse(hex, out var c)) return c;
+        return fallback;
     }
 }

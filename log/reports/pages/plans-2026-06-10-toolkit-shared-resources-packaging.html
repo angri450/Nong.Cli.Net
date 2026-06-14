@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-10 Toolkit shared resources packaging - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../plans.html" class="back-link">&larr; 施工方案</a>
+<h1>2026-06-10 Toolkit shared resources packaging</h1>
+<p class="subtitle">2026-06-10 | <span style="color: #2563eb">施工方案</span></p></header>
+<article class="content">
+<h1>2026-06-10 Toolkit shared resources packaging</h1>
+<br>
+<h2>Goal</h2>
+<br>
+<p>Support Nong.Toolkit.Net 2.4.0 shared plugin-level resources, especially <code>references/shared/nong-cli-preflight.md</code>, so duplicated SKILL.md preflight blocks can be replaced safely.</p>
+<br>
+<h2>Work</h2>
+<br>
+<p>1. Update <code>SkillValidator</code> so a skill can reference plugin-level shared resource directories through <code>../references/...</code> without false missing-directory warnings.</p>
+<p>2. Update <code>Packager</code> so plugin-level shared resource directories such as <code>references/</code> are included in plugin zip output.</p>
+<p>3. Keep single-skill packaging behavior unchanged.</p>
+<p>4. Validate against Nong.Toolkit.Net with local <code>Cli/bin/Release/net8.0/nong.exe</code>.</p>
+<br>
+<h2>Risk</h2>
+<br>
+<p>Packaging more root directories can accidentally include development-only files if the allowlist is too broad. Only known resource directories should be included, and existing exclude rules must still apply.</p>
+<br>
+<h2>Status</h2>
+<br>
+<p>Done.</p>
+<br>
+<h2>Verification</h2>
+<br>
+<ul>
+<li><code>dotnet build SkillManagerCore\SkillManagerCore.csproj -c Release --no-restore -maxcpucount:1</code></li>
+<li><code>nong skill package . --json</code></li>
+<li>Verified the generated plugin zip contains <code>references/shared/nong-cli-preflight.md</code>.</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

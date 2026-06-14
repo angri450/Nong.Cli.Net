@@ -5,13 +5,13 @@
     <RootNamespace>ThirdParty</RootNamespace>
     <AssemblyName>Angri450.Nong.ThirdParty</AssemblyName>
     <PackageId>Angri450.Nong.ThirdParty</PackageId>
-    <Version>3.0.2</Version>
+    <Version>4.1.2</Version>
     <Authors>angri450</Authors>
-    <Description>Merged source of ClosedXML, DocumentFormat.OpenXml, ScottPlot, MSAGL, SkiaSharp, HarfBuzzSharp, SixLabors.Fonts and all sub-dependencies — compiled into a single assembly. Zero-external-dependency foundation for the Angri450.Nong document generation toolkit.</Description>
+    <Description>Merged source of ClosedXML, DocumentFormat.OpenXml, ScottPlot, MSAGL, SkiaSharp, HarfBuzzSharp, SixLabors.Fonts, ZXing.Net, PdfPig and sub-dependencies — compiled into a single assembly. Low-external-dependency foundation for the Angri450.Nong document toolkit.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/angri450/Nong.NET</RepositoryUrl>
+    <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>closedxml openxml scottplot msagl skiasharp harfbuzz excel chart diagram document-generation</PackageTags>
+    <PackageTags>closedxml openxml scottplot msagl skiasharp harfbuzz zxing pdfpig barcode qr pdf excel chart diagram document-generation</PackageTags>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>12</LangVersion>
@@ -72,6 +72,56 @@
     <Compile Include="..\ShapeCrawler\**\*.cs" Exclude="..\ShapeCrawler\bin\**\*;..\ShapeCrawler\obj\**\*;..\ShapeCrawler\Slides\XmlPicture.cs" />
   </ItemGroup>
 
+  <!-- ZXing.Net QR decode source subset: no platform bindings, writers, renderers, demos or tests -->
+  <ItemGroup>
+    <Compile Include="..\ZXing.Net\BarcodeFormat.cs" />
+    <Compile Include="..\ZXing.Net\BaseLuminanceSource.cs" />
+    <Compile Include="..\ZXing.Net\Binarizer.cs" />
+    <Compile Include="..\ZXing.Net\BinaryBitmap.cs" />
+    <Compile Include="..\ZXing.Net\DecodeHintType.cs" />
+    <Compile Include="..\ZXing.Net\FormatException.cs" />
+    <Compile Include="..\ZXing.Net\InvertedLuminanceSource.cs" />
+    <Compile Include="..\ZXing.Net\LuminanceSource.cs" />
+    <Compile Include="..\ZXing.Net\Reader.cs" />
+    <Compile Include="..\ZXing.Net\ReaderException.cs" />
+    <Compile Include="..\ZXing.Net\Result.cs" />
+    <Compile Include="..\ZXing.Net\ResultMetadataType.cs" />
+    <Compile Include="..\ZXing.Net\ResultPoint.cs" />
+    <Compile Include="..\ZXing.Net\ResultPointCallback.cs" />
+    <Compile Include="..\ZXing.Net\RGBLuminanceSource.cs" />
+    <Compile Include="..\ZXing.Net\SupportClass.cs" />
+    <Compile Include="..\ZXing.Net\common\BitArray.cs" />
+    <Compile Include="..\ZXing.Net\common\BitMatrix.cs" />
+    <Compile Include="..\ZXing.Net\common\BitSource.cs" />
+    <Compile Include="..\ZXing.Net\common\CharacterSetECI.cs" />
+    <Compile Include="..\ZXing.Net\common\DecoderResult.cs" />
+    <Compile Include="..\ZXing.Net\common\DefaultGridSampler.cs" />
+    <Compile Include="..\ZXing.Net\common\DetectorResult.cs" />
+    <Compile Include="..\ZXing.Net\common\ECI.cs" />
+    <Compile Include="..\ZXing.Net\common\GridSampler.cs" />
+    <Compile Include="..\ZXing.Net\common\HybridBinarizer.cs" />
+    <Compile Include="..\ZXing.Net\common\GlobalHistogramBinarizer.cs" />
+    <Compile Include="..\ZXing.Net\common\PerspectiveTransform.cs" />
+    <Compile Include="..\ZXing.Net\common\StringUtils.cs" />
+    <Compile Include="..\ZXing.Net\common\detector\MathUtils.cs" />
+    <Compile Include="..\ZXing.Net\common\detector\WhiteRectangleDetector.cs" />
+    <Compile Include="..\ZXing.Net\common\reedsolomon\GenericGF.cs" />
+    <Compile Include="..\ZXing.Net\common\reedsolomon\GenericGFPoly.cs" />
+    <Compile Include="..\ZXing.Net\common\reedsolomon\ReedSolomonDecoder.cs" />
+    <Compile Include="..\ZXing.Net\qrcode\QRCodeReader.cs" />
+    <Compile Include="..\ZXing.Net\qrcode\decoder\**\*.cs" />
+    <Compile Include="..\ZXing.Net\qrcode\detector\**\*.cs" />
+  </ItemGroup>
+
+  <!-- PdfPig source: pure .NET PDF parser/writer without tests, examples or tools -->
+  <ItemGroup>
+    <Compile Include="..\PdfPig\src\UglyToad.PdfPig\**\*.cs" Exclude="..\PdfPig\src\UglyToad.PdfPig\bin\**\*;..\PdfPig\src\UglyToad.PdfPig\obj\**\*" />
+    <Compile Include="..\PdfPig\src\UglyToad.PdfPig.Core\**\*.cs" Exclude="..\PdfPig\src\UglyToad.PdfPig.Core\bin\**\*;..\PdfPig\src\UglyToad.PdfPig.Core\obj\**\*" />
+    <Compile Include="..\PdfPig\src\UglyToad.PdfPig.Fonts\**\*.cs" Exclude="..\PdfPig\src\UglyToad.PdfPig.Fonts\bin\**\*;..\PdfPig\src\UglyToad.PdfPig.Fonts\obj\**\*" />
+    <Compile Include="..\PdfPig\src\UglyToad.PdfPig.Tokenization\**\*.cs" Exclude="..\PdfPig\src\UglyToad.PdfPig.Tokenization\bin\**\*;..\PdfPig\src\UglyToad.PdfPig.Tokenization\obj\**\*" />
+    <Compile Include="..\PdfPig\src\UglyToad.PdfPig.Tokens\**\*.cs" Exclude="..\PdfPig\src\UglyToad.PdfPig.Tokens\bin\**\*;..\PdfPig\src\UglyToad.PdfPig.Tokens\obj\**\*" />
+  </ItemGroup>
+
   <!-- Remove conflicting files (assembly attributes, type forwards, polyfills) -->
   <ItemGroup>
     <Compile Remove="..\**\AssemblyInfo.cs" />
@@ -86,6 +136,7 @@
     <Compile Remove="..\HarfBuzzSharp\DelegateProxies.cs" />
     <Compile Remove="..\ClippitPowerTools\Properties\**\*" />
     <Compile Remove="..\ShapeCrawler\Properties\**\*" />
+    <Compile Remove="..\PdfPig\src\UglyToad.PdfPig.Fonts\Util\StringExtensions.cs" />
   </ItemGroup>
 
   <!-- OpenXml Source Generator infrastructure (borrowed from OpenXmlSourceGenerator.targets) -->
@@ -145,21 +196,33 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <!-- PdfPig resources: logical names match upstream resource lookup strings -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\PdfPig\src\UglyToad.PdfPig\Resources\CMap\*">
+      <LogicalName>UglyToad.PdfPig.Resources.CMap.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\PdfPig\src\UglyToad.PdfPig\Resources\ICC\*">
+      <LogicalName>UglyToad.PdfPig.Resources.ICC.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\PdfPig\src\UglyToad.PdfPig.Fonts\Resources\AdobeFontMetrics\*">
+      <LogicalName>UglyToad.PdfPig.Fonts.Resources.AdobeFontMetrics.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\PdfPig\src\UglyToad.PdfPig.Fonts\Resources\GlyphList\*">
+      <LogicalName>UglyToad.PdfPig.Fonts.Resources.GlyphList.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
   <!-- NuGet dependencies -->
   <ItemGroup>
     <PackageReference Include="System.IO.Packaging" Version="10.0.2" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.0" />
-    <PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="3.119.0" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.0" />
-    <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" Version="8.3.1.1" />
-    <PackageReference Include="HarfBuzzSharp.NativeAssets.macOS" Version="8.3.1.1" />
-    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="8.3.1.1" />
     <PackageReference Include="System.IO.Hashing" Version="9.0.0" />
     <PackageReference Include="System.Resources.Extensions" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="/" />
+    <None Include="..\PdfPig\LICENSE" Pack="true" PackagePath="third-party/pdfpig/" />
+    <None Include="..\PdfPig\NOTICES.txt" Pack="true" PackagePath="third-party/pdfpig/" />
   </ItemGroup>
 
 </Project>

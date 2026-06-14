@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>阶段 5-10：完整执行记录 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>阶段 5-10：完整执行记录</h1>
+<p class="subtitle">2026-06-03 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>阶段 5-10：完整执行记录</h1>
+<br>
+<p>日期：2026-06-03</p>
+<p>状态：阶段 5-8 完成，阶段 9-10 完成</p>
+<br>
+<hr>
+<br>
+<h2>阶段 5：Excel 数据入口</h2>
+<br>
+<p>新建 <code>Cli/Commands/ExcelCommands.cs</code></p>
+<p>实现 <code>nong excel sheets/read/to-groups</code></p>
+<p>使用 ClosedXML (ThirdParty) 读取 .xlsx</p>
+<p>to-groups 输出与 chart analyze/bar 兼容的分组 JSON</p>
+<br>
+<h2>阶段 6：Word/Inspect 生成</h2>
+<br>
+<p>WordCommands 新增 <code>fill</code> + <code>rebuild</code></p>
+<p>InspectCommands 新增 <code>write-paper</code></p>
+<p>使用 DocxTemplate.Fill / StyleRebuilder.RebuildAllParagraphs / PaperWriter</p>
+<br>
+<h2>阶段 7：Diagram + PPTX</h2>
+<br>
+<p>新建 <code>Cli/Commands/DiagramCommands.cs</code> — flowchart/network</p>
+<p>新建 <code>Cli/Commands/PptxCommands.cs</code> — pptx read (暂桩，PptxCore 需进一步适配)</p>
+<br>
+<h2>阶段 8：Genre + Icons</h2>
+<br>
+<p>新建 <code>Cli/Commands/GenreCommands.cs</code> — list/show</p>
+<p>新建 <code>Cli/Commands/IconsCommands.cs</code> — list/search</p>
+<p>使用 GenreTemplate / IconProvider (ThirdParty)</p>
+<br>
+<h2>阶段 9：Agent Contract</h2>
+<br>
+<p>新增 <code>Cli/AGENT.md</code> — 命令发现、输入格式、JSON schema、错误码、工作流示例</p>
+<br>
+<h2>阶段 10：稳定发布</h2>
+<br>
+<ul>
+<li>pack: Angri450.Nong.Cli.3.1.0.nupkg 创建成功</li>
+<li>release-checklist.md 已生成</li>
+<li>20 个真实命令、8 个命令组</li>
+</ul>
+<br>
+<hr>
+<br>
+<h2>编译状态</h2>
+<br>
+<table>
+<tr><th>项目</th><th>状态</th></tr>
+<tr><td>ThirdParty</td><td>0 错误</td></tr>
+<tr><td>Docx</td><td>0 错误</td></tr>
+<tr><td>Inspect</td><td>0 错误</td></tr>
+<tr><td>Chart</td><td>0 错误 (via ThirdParty)</td></tr>
+<tr><td>CLI</td><td>0 错误</td></tr>
+</table>
+<br>
+<hr>
+<br>
+<h2>全部 20 个真实命令</h2>
+<br>
+<table>
+<tr><th>#</th><th>命令</th><th>阶段</th></tr>
+<tr><td>1</td><td>nong word read</td><td>2</td></tr>
+<tr><td>2</td><td>nong word preview</td><td>2</td></tr>
+<tr><td>3</td><td>nong word fill</td><td>6</td></tr>
+<tr><td>4</td><td>nong word rebuild</td><td>6</td></tr>
+<tr><td>5</td><td>nong inspect diagnose</td><td>3</td></tr>
+<tr><td>6</td><td>nong inspect refs</td><td>3</td></tr>
+<tr><td>7</td><td>nong inspect write-paper</td><td>6</td></tr>
+<tr><td>8</td><td>nong chart analyze</td><td>4</td></tr>
+<tr><td>9</td><td>nong chart anova</td><td>3</td></tr>
+<tr><td>10</td><td>nong chart duncan</td><td>3</td></tr>
+<tr><td>11</td><td>nong chart bar</td><td>4</td></tr>
+<tr><td>12</td><td>nong excel sheets</td><td>5</td></tr>
+<tr><td>13</td><td>nong excel read</td><td>5</td></tr>
+<tr><td>14</td><td>nong excel to-groups</td><td>5</td></tr>
+<tr><td>15</td><td>nong diagram flowchart</td><td>7</td></tr>
+<tr><td>16</td><td>nong diagram network</td><td>7</td></tr>
+<tr><td>17</td><td>nong genre list</td><td>8</td></tr>
+<tr><td>18</td><td>nong genre show</td><td>8</td></tr>
+<tr><td>19</td><td>nong icons list</td><td>8</td></tr>
+<tr><td>20</td><td>nong icons search</td><td>8</td></tr>
+</table>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

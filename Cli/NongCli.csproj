@@ -9,31 +9,47 @@
     <PackageId>Angri450.Nong.Cli</PackageId>
     <ToolCommandName>nong</ToolCommandName>
     <PackAsTool>true</PackAsTool>
-    <Version>3.2.1</Version>
+    <Version>4.2.2</Version>
+    <RollForward>LatestMajor</RollForward>
     <Authors>angri450</Authors>
-    <Description>CLI toolkit for Nong.NET document generation and inspection. One binary for Word/Excel/PPT/Chart/Diagram/OCR operations.</Description>
+    <Description>CLI toolkit for Nong.NET document generation and inspection. Light nong router plus pure .NET built-ins and external Angri450.Nong.Tool.* command groups.</Description>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/angri450/Nong.NET</RepositoryUrl>
-    <PackageTags>nong cli word excel ppt chart diagram ocr document-generation</PackageTags>
+    <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
+    <PackageTags>nong cli word excel ppt pdf chart diagram ocr document-generation</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Lightweight pure-.NET modules (stay in CLI) -->
     <ProjectReference Include="..\Docx\DocxCore.csproj" />
     <ProjectReference Include="..\Inspect\Inspect.csproj" />
-    <ProjectReference Include="..\Chart\ChartCore.csproj" />
-    <ProjectReference Include="..\Diagram\DiagramCore.csproj" />
+    <ProjectReference Include="..\Excel\ExcelCore.csproj" />
     <ProjectReference Include="..\Genre\Genre.csproj" />
     <ProjectReference Include="..\Bioicons\Bioicons.csproj" />
     <ProjectReference Include="..\SkillManagerCore\SkillManagerCore.csproj" />
-    <ProjectReference Include="..\Pptx\PptxCore.csproj" />
-    <ProjectReference Include="..\MultiModal\MultiModalCore.csproj" />
+    <ProjectReference Include="..\Literature\LiteratureCore.csproj" />
+    <ProjectReference Include="..\Pandoc\PandocCore.csproj" />
+    <ProjectReference Include="..\OcrModels\OcrModels.csproj" />
+    <!-- Heavy modules (Chart/Diagram/Pdf/Pptx/MultiModal/Imaging) are separate dotnet tools -->
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+  <!-- Exclude command files for external modules -->
+  <ItemGroup>
+    <Compile Remove="Commands\ChartCommands.cs" />
+    <Compile Remove="Commands\DiagramCommands.cs" />
+    <Compile Remove="Commands\PdfCommands.cs" />
+    <Compile Remove="Commands\PptxCommands.cs" />
+    <Compile Remove="Commands\OcrCommands.cs" />
+    <Compile Remove="Commands\RenderWorkerCommands.cs" />
+    <Compile Remove="Adapters\PdfOcrRecognizerAdapter.cs" />
+    <Compile Remove="Adapters\PdfOcrRecognizerStub.cs" />
+    <Compile Remove="Adapters\WordImageAnalyzerAdapter.cs" />
   </ItemGroup>
 </Project>

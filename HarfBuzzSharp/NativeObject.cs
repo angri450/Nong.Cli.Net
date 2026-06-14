@@ -40,6 +40,10 @@ namespace HarfBuzzSharp
 			isDisposed = true;
 
 			if (!disposing) {
+				// Finalizer path - release native handle even when user
+				// forgot to call Dispose(). Without this, native HarfBuzz
+				// objects are leaked forever (cf. SKNativeObject).
+				DisposeHandler ();
 				return;
 			}
 

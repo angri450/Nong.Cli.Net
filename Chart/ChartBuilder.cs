@@ -52,6 +52,7 @@ public static class ChartBuilder
     public static void BarChart(BarChartConfig config)
     {
         var plt = new Plot();
+        plt.Font.Set(FontHelper.GetCjkFamilyName());
         plt.Title(config.Title, config.TitleFontSize);
         plt.YLabel(config.YLabel, config.AxisFontSize);
 

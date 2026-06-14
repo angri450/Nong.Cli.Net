@@ -8,6 +8,10 @@
     <RootNamespace>Nong.Cli.Tests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Cli\NongCli.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Pdf\PdfCore.csproj" />
+    <ProjectReference Include="..\Pandoc\PandocCore.csproj" />
+    <ProjectReference Include="..\Pptx\PptxCore.csproj" />
     <ProjectReference Include="..\ThirdParty\ThirdParty.csproj" />
     <PackageReference Include="xunit" Version="2.9.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />

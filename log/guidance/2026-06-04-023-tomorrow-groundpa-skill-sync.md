@@ -57,17 +57,17 @@ OCR 新命令清单
 允许更新：
 
 ```text
-GroundPA-Toolkit\word\SKILL.md
-GroundPA-Toolkit\word\references\*.md
-GroundPA-Toolkit\multimodal\README.md
-GroundPA-Toolkit\multimodal\SKILL.md   # 只有 OCR 命令真实 implemented 且适合暴露时
-GroundPA-Toolkit\chart\SKILL.md        # 若接入 ImageAnalyzer 作为生成后验收
-GroundPA-Toolkit\diagram\SKILL.md      # 若接入 ImageAnalyzer 作为生成后验收
-GroundPA-Toolkit\README.md
-GroundPA-Toolkit\README.zh-CN.md
-GroundPA-Toolkit\DEVELOP.md
-GroundPA-Toolkit\skills.sh.json
-GroundPA-Toolkit\.claude-plugin\plugin.json
+Nong.Toolkit.Net\word\SKILL.md
+Nong.Toolkit.Net\word\references\*.md
+Nong.Toolkit.Net\multimodal\README.md
+Nong.Toolkit.Net\multimodal\SKILL.md   # 只有 OCR 命令真实 implemented 且适合暴露时
+Nong.Toolkit.Net\chart\SKILL.md        # 若接入 ImageAnalyzer 作为生成后验收
+Nong.Toolkit.Net\diagram\SKILL.md      # 若接入 ImageAnalyzer 作为生成后验收
+Nong.Toolkit.Net\README.md
+Nong.Toolkit.Net\README.zh-CN.md
+Nong.Toolkit.Net\DEVELOP.md
+Nong.Toolkit.Net\skills.sh.json
+Nong.Toolkit.Net\.claude-plugin\plugin.json
 ```
 
 禁止：
@@ -168,7 +168,7 @@ plugin manifest 声明必须和目录一致。
 GroundPA 更新后跑：
 
 ```powershell
-cd C:\Users\Administrator\Documents\Github\GroundPA-Toolkit
+cd C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net
 claude plugin validate .
 nong skill validate . --json
 nong skill inventory . --json
@@ -186,7 +186,7 @@ rg -n "stub|not implemented|PP-OCRv5.*可用|PADDLEOCR_TOKEN|--token|PowerShell.
 写：
 
 ```text
-GroundPA-Toolkit\changelog\2026-06-05-groundpa-sync-nong-3.2.0.md
+Nong.Toolkit.Net\changelog\2026-06-05-groundpa-sync-nong-3.2.0.md
 ```
 
 必须包含：

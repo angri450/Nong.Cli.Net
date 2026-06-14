@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagram 布局优化：自适应节点 + 自动裁剪画布 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>Diagram 布局优化：自适应节点 + 自动裁剪画布</h1>
+<p class="subtitle">2026-06-01 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>Diagram 布局优化：自适应节点 + 自动裁剪画布</h1>
+<br>
+<p><strong>时间</strong>: 2026-06-01</p>
+<p><strong>影响包</strong>: Angri450.Nong.Diagram (3.0.4)</p>
+<p><strong>类型</strong>: Enhancement</p>
+<br>
+<h2>变更</h2>
+<br>
+<p>三个渲染器全部从固定画布改为自动裁剪到内容边界：</p>
+<br>
+<table>
+<tr><th>渲染器</th><th>修复前</th><th>修复后</th></tr>
+<tr><td>NetworkGraphRenderer</td><td>固定画布，20px 硬编码节点半径</td><td>文本驱动半径 + 力导向 + 自动裁剪</td></tr>
+<tr><td>FlowchartRenderer</td><td>固定 800x600</td><td>Sugiyama 布局后自动裁剪</td></tr>
+<tr><td>TreeRenderer</td><td>固定 800x600</td><td>布局后自动裁剪</td></tr>
+</table>
+<br>
+<h2>NetworkGraphRenderer 详细变更</h2>
+<br>
+<p>1. 节点半径根据文本内容自适应计算（14px 字体 &#215; 字符数 + 内边距）</p>
+<p>2. 支持多行文本（<code>\n</code> 分隔）</p>
+<p>3. 自动裁剪画布：布局后计算节点边界框，输出精确匹配内容</p>
+<br>
+<h2>ForceDirectedLayout 重写</h2>
+<br>
+<ul>
+<li>节点尺寸感知（最小间距 = 半径之和 + 边距）</li>
+<li>环形初始化代替随机散布</li>
+<li>中心引力防止漂移</li>
+<li>斥力自适应：距离越近力度越大</li>
+</ul>
+<br>
+<h2>技能须知</h2>
+<br>
+<ul>
+<li><code>DiagramBuilder.NetworkGraph()</code> / <code>Flowchart()</code> / <code>PhylogeneticTree()</code> 的 <code>width</code>/<code>height</code> 参数<strong>不再决定最终输出尺寸</strong>——仅用于布局计算空间。输出会自动裁剪。</li>
+<li>可以为所有调用传入 900x600 之类的安全默认值。</li>
+<li>节点标签支持 <code>\n</code> 多行文本。</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

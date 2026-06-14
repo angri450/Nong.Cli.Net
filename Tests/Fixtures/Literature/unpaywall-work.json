@@ -1,0 +1,21 @@
+{
+  "doi": "10.1016/j.chemgeo.2007.05.018",
+  "title": "Rare earth element complexation by humic acid",
+  "year": 2007,
+  "is_oa": true,
+  "oa_status": "gold",
+  "best_oa_location": {
+    "url_for_pdf": "https://example.org/legal.pdf",
+    "url": "https://example.org/legal",
+    "license": "cc-by",
+    "host_type": "publisher"
+  },
+  "oa_locations": [
+    {
+      "url_for_pdf": "https://example.org/legal.pdf",
+      "url": "https://example.org/legal",
+      "license": "cc-by",
+      "host_type": "publisher"
+    }
+  ]
+}

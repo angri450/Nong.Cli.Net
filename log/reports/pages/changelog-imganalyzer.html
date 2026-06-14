@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MultiModal 新能力：ImageAnalyzer 纯 .NET 图像结构分析 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>MultiModal 新能力：ImageAnalyzer 纯 .NET 图像结构分析</h1>
+<p class="subtitle">2026-06-01 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>MultiModal 新能力：ImageAnalyzer 纯 .NET 图像结构分析</h1>
+<br>
+<p><strong>时间</strong>: 2026-06-01</p>
+<p><strong>影响包</strong>: Angri450.Nong.MultiModal (3.0.2 → 3.0.6)</p>
+<p><strong>类型</strong>: New Feature</p>
+<br>
+<h2>新增类</h2>
+<br>
+<p><code>MultiModalCore.ImageAnalyzer</code> — 纯 .NET 图像结构分析器。</p>
+<br>
+<h2>API</h2>
+<br>
+<pre><code class="language-csharp">
+var analyzer = new ImageAnalyzer();
+
+// 从文件/字节/SKBitmap 分析
+var layout = analyzer.Analyze(&quot;image.png&quot;, targetWidth: 50);
+
+// 输出
+Console.WriteLine(layout.AsciiMap);          // 像素→字符文本地图
+Console.WriteLine(layout.WhitespaceRatio);   // 空白比例 0-1
+foreach (var r in layout.Regions)            // 连通内容区块
+    Console.WriteLine($&quot;[{r.Type}] {r.X},{r.Y} {r.Width}x{r.Height}&quot;);
+</code></pre>
+<br>
+<h2>ImageLayout 属性</h2>
+<br>
+<table>
+<tr><th>属性</th><th>类型</th><th>说明</th></tr>
+<tr><td>AsciiMap</td><td>string</td><td>可直接打印的字符布局</td></tr>
+<tr><td>WhitespaceRatio</td><td>double</td><td>空白比例</td></tr>
+<tr><td>Regions</td><td>List&lt;ContentRegion&gt;</td><td>连通内容区块</td></tr>
+<tr><td>ContentWidth/Height</td><td>int</td><td>内容区尺寸</td></tr>
+<tr><td>ContentMinX/Y</td><td>int</td><td>内容区起点</td></tr>
+<tr><td>BlackPixelCount</td><td>int</td><td>暗色文字像素数</td></tr>
+<tr><td>GraphicPixelCount</td><td>int</td><td>彩色图形像素数</td></tr>
+<tr><td>EdgePixelCount</td><td>int</td><td>边缘/边框像素数</td></tr>
+</table>
+<br>
+<h2>实现原理</h2>
+<br>
+<p>1. SkiaSharp 解码图像</p>
+<p>2. 降采样到 targetWidth</p>
+<p>3. 像素分类：白(&gt;240)、黑(&lt;40)、彩色(RGB 差&gt;30)、边缘(&lt;100)</p>
+<p>4. 泛洪填充检测连通区域</p>
+<p>5. 返回结构化结果</p>
+<br>
+<h2>依赖</h2>
+<br>
+<p>零额外依赖。SkiaSharp 已在 ThirdParty 中合并。</p>
+<br>
+<h2>三能力架构</h2>
+<br>
+<table>
+<tr><th>能力</th><th>类</th><th>用途</th></tr>
+<tr><td>Cloud OCR</td><td>PaddleOcrVlClient</td><td>文字识别、表格解析</td></tr>
+<tr><td>Image Analysis</td><td>ImageAnalyzer</td><td>布局分析、质量验证</td></tr>
+<tr><td>Local OCR</td><td>LocalOcrClient</td><td>离线文字识别</td></tr>
+</table>
+<br>
+<h2>技能须知</h2>
+<br>
+<ul>
+<li>MultiModal skill 应新增 ImageAnalyzer 完整文档</li>
+<li>适用于：作图质量验证、OCR 预处理空白页过滤、布局调试</li>
+<li>不适用于：精确文字提取（请用 Cloud OCR）</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

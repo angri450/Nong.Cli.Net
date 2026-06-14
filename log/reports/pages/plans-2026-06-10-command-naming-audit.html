@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>command naming audit plan - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../plans.html" class="back-link">&larr; 施工方案</a>
+<h1>command naming audit plan</h1>
+<p class="subtitle">2026-06-10 | <span style="color: #2563eb">施工方案</span></p></header>
+<article class="content">
+<h1>command naming audit plan</h1>
+<br>
+<h2>Goal</h2>
+<br>
+<p>Write a second Chinese HTML audit for Toolkit/CLI alignment that focuses on command naming, semantic clarity, workflow boundaries, and whether each command group is functionally sufficient for current Nong.Toolkit.Net routing.</p>
+<br>
+<h2>Work</h2>
+<br>
+<p>1. Use <code>nong commands --json</code> as the current command surface baseline.</p>
+<p>2. Compare command names and descriptions against Toolkit SKILL routing.</p>
+<p>3. Classify findings into three buckets:</p>
+<ul>
+<li>names that are clear enough and should stay stable;</li>
+<li>names that are usable but need stronger docs or aliases;</li>
+<li>real feature gaps that should not be solved by wording alone.</li>
+</ul>
+<p>4. Produce a standalone Chinese report under <code>log/reports/</code>.</p>
+<p>5. Add a changelog entry.</p>
+<br>
+<h2>Status</h2>
+<br>
+<p>Done.</p>
+<br>
+<h2>Verification</h2>
+<br>
+<ul>
+<li><code>nong commands --json</code></li>
+<li>Targeted reads of <code>Cli/Commands/*</code>, <code>Cli/Common/Manifest.cs</code>, and Nong.Toolkit.Net SKILL files.</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

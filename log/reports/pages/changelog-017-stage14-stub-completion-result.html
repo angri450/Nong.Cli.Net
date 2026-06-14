@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>阶段 14：全量 stub 补全 —— 多 agent 并行执行 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>阶段 14：全量 stub 补全 —— 多 agent 并行执行</h1>
+<p class="subtitle">2026-06-03 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>阶段 14：全量 stub 补全 —— 多 agent 并行执行</h1>
+<br>
+<p>日期：2026-06-03</p>
+<p>状态：COMPLETE — 46 implemented, 24/24 tests PASS</p>
+<br>
+<hr>
+<br>
+<h2>目标</h2>
+<br>
+<p>按 <code>2026-06-03-014-full-stub-completion-blueprint.md</code> 蓝图，将 <code>nong</code> CLI 从 24 个 implemented 命令扩展到 46-47 个。</p>
+<br>
+<h2>执行方式</h2>
+<br>
+<p>Phase 1 建立 contract test 防线后，启动 4 个并行 agent：</p>
+<br>
+<table>
+<tr><th>Agent</th><th>负责领域</th><th>交付</th></tr>
+<tr><td>A</td><td>Word</td><td>stats, fonts, styles, validate, extract, dissect, merge (7)</td></tr>
+<tr><td>B</td><td>Inspect</td><td>classify, structure, varplan, evidence, data-req, gap, semantics (7)</td></tr>
+<tr><td>C</td><td>Chart + Excel</td><td>chart line/scatter/pie, excel create (4)</td></tr>
+<tr><td>D</td><td>Diagram + PPTX + OCR</td><td>diagram tree, pptx read/slides, ocr cloud/local (5)</td></tr>
+</table>
+<br>
+<h2>Phase 1：Contract test harness</h2>
+<br>
+<ul>
+<li>新建 <code>Cli.Tests/Cli.Tests.csproj</code> — xUnit net8.0</li>
+<li>新建 <code>Cli.Tests/CliContractTests.cs</code> — 24 个 contract 测试</li>
+<li>覆盖：manifest 一致性、stub E009、错误路径 E001/E003/E006、JSON schema 完整性、skill 命令边界</li>
+</ul>
+<br>
+<h2>Agent A：Word（7 个命令）</h2>
+<br>
+<table>
+<tr><th>命令</th><th>功能</th><th>新增文件</th></tr>
+<tr><td><code>word stats</code></td><td>段落/表格/图片/脚注/尾注/字符/节统计</td><td><code>Docx/DocxAnalysis.cs</code></td></tr>
+<tr><td><code>word fonts</code></td><td>列出所有字体（run + style 来源）</td><td></td></tr>
+<tr><td><code>word styles</code></td><td>列出所有样式定义（id/name/type/basedOn）</td><td></td></tr>
+<tr><td><code>word validate</code></td><td>OpenXmlValidator 校验</td><td></td></tr>
+<tr><td><code>word extract</code></td><td>提取嵌入图片到目录</td><td></td></tr>
+<tr><td><code>word dissect</code></td><td>格式指纹聚合（stats+fonts+styles+tables+numbering+sections）</td><td></td></tr>
+<tr><td><code>word merge</code></td><td>合并多个 docx 文件</td><td></td></tr>
+</table>
+<br>
+<h2>Agent B：Inspect（7 个命令）</h2>
+<br>
+<p>拆分 <code>inspect diagnose</code> 管线为独立命令：</p>
+<br>
+<table>
+<tr><th>命令</th><th>来源 API</th></tr>
+<tr><td><code>inspect classify</code></td><td>PaperTypeClassifier.Classify</td></tr>
+<tr><td><code>inspect structure</code></td><td>PaperStructureExtractor.BuildPaperStructure</td></tr>
+<tr><td><code>inspect evidence</code></td><td>PaperDiagnostics.DiagnoseEvidenceChain</td></tr>
+<tr><td><code>inspect data-req</code></td><td>PaperDiagnostics.DiagnoseDataRequirements</td></tr>
+<tr><td><code>inspect gap</code></td><td>classify→structure→evidence→data-req→gap grade</td></tr>
+<tr><td><code>inspect varplan</code></td><td>VariablePlanGenerator（best-effort）</td></tr>
+<tr><td><code>inspect semantics</code></td><td>PaperDiagnostics.DiagnosePaperQuality</td></tr>
+</table>
+<br>
+<h2>Agent C：Chart + Excel（4 个命令）</h2>
+<br>
+<table>
+<tr><th>命令</th><th>功能</th></tr>
+<tr><td><code>chart line</code></td><td>多系列折线图（JSON spec，每系列独立 x/y）</td></tr>
+<tr><td><code>chart scatter</code></td><td>散点图（可选分组着色 + trendline）</td></tr>
+<tr><td><code>chart pie</code></td><td>饼图（label/value，百分比标注）</td></tr>
+<tr><td><code>excel create</code></td><td>从 JSON spec 创建 xlsx（ClosedXML）</td></tr>
+</table>
+<br>
+<h2>Agent D：Diagram + PPTX + OCR（5 个命令）</h2>
+<br>
+<table>
+<tr><th>命令</th><th>功能</th><th>新增文件</th></tr>
+<tr><td><code>diagram tree</code></td><td>系统发育树（Newick 文本 + JSON）</td><td></td></tr>
+<tr><td><code>pptx read</code></td><td>抽取全部 slide 文本</td><td><code>Pptx/PptxReader.cs</code></td></tr>
+<tr><td><code>pptx slides</code></td><td>按 slide 统计形状/文本/图片/表格/图表</td><td></td></tr>
+<tr><td><code>ocr cloud</code></td><td>PaddleOCR-VL 云端 OCR（需 token → E005）</td><td><code>Cli/Commands/OcrCommands.cs</code></td></tr>
+<tr><td><code>ocr local</code></td><td>诚实 E005（本地 PaddleOCR 运行时不可用）</td><td></td></tr>
+</table>
+<br>
+<h2>改动文件汇总</h2>
+<br>
+<h3>新建（5 个）</h3>
+<ul>
+<li><code>Cli.Tests/Cli.Tests.csproj</code></li>
+<li><code>Cli.Tests/CliContractTests.cs</code></li>
+<li><code>Cli/Commands/OcrCommands.cs</code></li>
+<li><code>Docx/DocxAnalysis.cs</code></li>
+<li><code>Pptx/PptxReader.cs</code></li>
+</ul>
+<br>
+<h3>修改（15 个）</h3>
+<ul>
+<li><code>Cli/Commands/WordCommands.cs</code> — 7 个 stub → 真实实现</li>
+<li><code>Cli/Commands/InspectCommands.cs</code> — 7 个 stub → 真实实现</li>
+<li><code>Cli/Commands/ChartCommands.cs</code> — 3 个 stub → 真实实现</li>
+<li><code>Cli/Commands/ExcelCommands.cs</code> — 1 个 stub → 真实实现</li>
+<li><code>Cli/Commands/DiagramCommands.cs</code> — 1 个 stub → 真实实现</li>
+<li><code>Cli/Commands/PptxCommands.cs</code> — 2 个 stub → 真实实现</li>
+<li><code>Cli/Program.cs</code> — 注册 OcrCommands，移除 stub ocr group</li>
+<li><code>Cli/NongCli.csproj</code> — 添加 PptxCore + MultiModalCore 引用</li>
+<li><code>Cli/Common/Manifest.cs</code> — 22 个命令状态从 stub→implemented</li>
+<li><code>Chart/ChartBuilder.cs</code> — 添加 GetCjkFontFamily</li>
+<li><code>Docx/DocumentWriter.cs</code> — 添加 Title/Heading/Body 方法</li>
+<li><code>Docx/StyleBuilder.cs</code> — 添加 BuildAll 方法</li>
+<li><code>Pptx/PptxCore.csproj</code> — 添加 ThirdParty 引用</li>
+<li><code>MultiModal/LayoutToWordConverter.cs</code> — 修复预存编译错误</li>
+</ul>
+<br>
+<h2>验收结果</h2>
+<br>
+<ul>
+<li><strong>构建</strong>: Release 0 错误, 0 警告</li>
+<li><strong>命令数</strong>: 46 implemented, 1 ocr local (E005 honest stub)</li>
+<li><strong>Contract tests</strong>: 24/24 PASS (1m32s)</li>
+<li><strong>回归</strong>: inspect diagnose/refs/write-paper, chart analyze/anova/duncan/bar, word read/preview/fill/rebuild — 全部正常</li>
+</ul>
+<br>
+<h2>命令清单（46 个）</h2>
+<br>
+<pre><code class="language-text">
+word:    read, preview, fill, rebuild, extract, dissect, stats, fonts, styles, validate, merge (11)
+inspect: diagnose, refs, write-paper, classify, structure, varplan, evidence, data-req, gap, semantics (10)
+chart:   analyze, bar, anova, duncan, line, scatter, pie (7)
+excel:   sheets, read, to-groups, create (4)
+diagram: flowchart, network, tree (3)
+genre:   list, show (2)
+icons:   list, search (2)
+skill:   validate, scan, inventory, package (4)
+pptx:    read, slides (2)
+ocr:     cloud (1)
+</code></pre>
+<br>
+<h2>已知未完成</h2>
+<br>
+<ul>
+<li><code>ocr local</code> — 诚实 E005（本地 PaddleOCR 运行时不可用）</li>
+<li>Phase 8（GroundPA skill sync）— 待执行</li>
+<li>Phase 9（release audit）— 待执行</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

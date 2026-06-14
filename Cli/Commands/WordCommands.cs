@@ -1,13 +1,19 @@
 using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text.Json;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
 using DocxCore;
 using Nong.Cli.Common;
+using Nong.Inspect;
+using A = DocumentFormat.OpenXml.Drawing;
 
 namespace Nong.Cli.Commands;
 
 /// <summary>
-/// Word command group: read, preview, fill, rebuild, extract, dissect, stats,
-/// fonts, styles, validate, merge.
+/// Word command group: preflight, conversion, reading, slicing, validation, and editing.
 /// </summary>
 public static class WordCommands
 {
@@ -16,6 +22,9 @@ public static class WordCommands
         var cmd = new Command("word", "Word document operations");
 
         // === Phase 2: read + preview ===
+        cmd.AddCommand(CreateCheck(jsonOpt));
+        cmd.AddCommand(CreateConvert(jsonOpt));
+        cmd.AddCommand(CreateCreate(jsonOpt));
         cmd.AddCommand(CreateRead(jsonOpt));
         cmd.AddCommand(CreatePreview(jsonOpt));
 
@@ -35,12 +44,28 @@ public static class WordCommands
         // === Stage 15: read commands ===
         cmd.AddCommand(CreateOutline(jsonOpt));
         cmd.AddCommand(CreateImages(jsonOpt));
+        cmd.AddCommand(CreateCrop(jsonOpt));
+        cmd.AddCommand(CreateFitImages(jsonOpt));
+        cmd.AddCommand(CreateCompactTables(jsonOpt));
+        cmd.AddCommand(CreateRegroupImages(jsonOpt));
+        cmd.AddCommand(CreateEstimate(jsonOpt));
+        cmd.AddCommand(CreatePageSetup(jsonOpt));
+        cmd.AddCommand(CreateIndent(jsonOpt));
+        cmd.AddCommand(CreateParagraphControl(jsonOpt));
+        cmd.AddCommand(CreateImageWrap(jsonOpt));
+        cmd.AddCommand(CreateCellFormat(jsonOpt));
+        cmd.AddCommand(CreateRunFormat(jsonOpt));
         cmd.AddCommand(CreateComments(jsonOpt));
         cmd.AddCommand(CreateRevisions(jsonOpt));
         cmd.AddCommand(CreateInferFormat(jsonOpt));
 
         // === Stage 15: modify commands ===
         cmd.AddCommand(CreateFixOrder(jsonOpt));
+        cmd.AddCommand(CreateAcademicFormat(jsonOpt));
+        cmd.AddCommand(CreateFormatGongwen(jsonOpt));
+        cmd.AddCommand(CreateFormatAudit(jsonOpt));
+        cmd.AddCommand(CreateRepairPlan(jsonOpt));
+        cmd.AddCommand(CreateTableReflow(jsonOpt));
         cmd.AddCommand(CreateProtect(jsonOpt));
         cmd.AddCommand(CreateEmbedFont(jsonOpt));
 
@@ -57,8 +82,528 @@ public static class WordCommands
         cmd.AddCommand(CreateAddBookmark(jsonOpt));
         cmd.AddCommand(CreateAddComment(jsonOpt));
         cmd.AddCommand(CreateAddMath(jsonOpt));
+        cmd.AddCommand(CreateCompare(jsonOpt));
+        cmd.AddCommand(CreateRenderPreview(jsonOpt));
 
         return cmd;
+    }
+
+    // ===== word check =====
+
+    static Command CreateCheck(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .doc or .docx file");
+        var cmd = new Command("check", "Preflight a Word document before editing") { fileArg };
+
+        cmd.SetHandler((string file, bool json) =>
+        {
+            if (string.IsNullOrWhiteSpace(file))
+            {
+                CliHelpers.WriteError("word check", ErrorCodes.MissingArgument with { Message = "File path is required." }, json);
+                return;
+            }
+            if (!File.Exists(file))
+            {
+                CliHelpers.WriteError("word check", ErrorCodes.FileNotFound with { Message = $"File not found: {file}" }, json);
+                return;
+            }
+
+            var ext = Path.GetExtension(file).ToLowerInvariant();
+            if (ext == ".doc")
+            {
+                var data = new WordCheckResult(
+                    InputFormat: "doc",
+                    CanProcessDirectly: false,
+                    Paragraphs: null,
+                    Tables: null,
+                    DrawingImages: null,
+                    VmlImages: null,
+                    ImageParts: null,
+                    BlockIdStatus: "unavailable_until_conversion",
+                    NextSteps:
+                    [
+                        "Run: nong word convert <file.doc> -o <file.docx> --json",
+                        "Then run: nong word check <file.docx> --json",
+                        "Then use dissect/fix-order/validate on the converted .docx"
+                    ],
+                    Warnings: ["Legacy binary .doc is outside OpenXML and must be converted before nong word inspection or editing."]
+                );
+                WriteCheckOutput(data, json);
+                return;
+            }
+
+            if (ext != ".docx")
+            {
+                CliHelpers.WriteError("word check",
+                    ErrorCodes.UnsupportedFormat with { Message = $"Expected .doc or .docx file, got: {ext}" }, json);
+                return;
+            }
+
+            try
+            {
+                var (data, elapsed) = CliHelpers.Time(() => CheckDocx(file));
+                WriteCheckOutput(data, json, elapsed);
+            }
+            catch (Exception ex)
+            {
+                CliHelpers.WriteError("word check",
+                    ErrorCodes.ReadFailed with { Message = $"Cannot inspect DOCX: {ex.Message}" }, json);
+            }
+        }, fileArg, jsonOpt);
+
+        return cmd;
+    }
+
+    static void WriteCheckOutput(WordCheckResult data, bool json, long elapsed = 0)
+    {
+        if (json)
+        {
+            var output = JsonOutput.Ok("word check",
+                data.CanProcessDirectly
+                    ? $"DOCX preflight: {data.Warnings.Count} warning(s)"
+                    : "Word preflight: conversion required",
+                data);
+            output.Meta.DurationMs = elapsed;
+            output.Metrics["warnings"] = data.Warnings.Count;
+            output.Metrics["canProcessDirectly"] = data.CanProcessDirectly ? 1 : 0;
+            foreach (var warning in data.Warnings)
+            {
+                output.Issues.Add(new Issue
+                {
+                    Id = warning.Contains("VML", StringComparison.OrdinalIgnoreCase)
+                        ? "vml_picture"
+                        : "word_preflight",
+                    Severity = "warning",
+                    Message = warning
+                });
+            }
+            Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
+        }
+        else
+        {
+            Console.WriteLine($"Format: {data.InputFormat}");
+            Console.WriteLine($"Direct OpenXML processing: {data.CanProcessDirectly}");
+            Console.WriteLine($"Block IDs: {data.BlockIdStatus}");
+            foreach (var warning in data.Warnings)
+                Console.Error.WriteLine($"[WARN] {warning}");
+            foreach (var step in data.NextSteps)
+                Console.WriteLine($"- {step}");
+        }
+    }
+
+    static WordCheckResult CheckDocx(string file)
+    {
+        using var doc = WordprocessingDocument.Open(file, false);
+        var body = doc.MainDocumentPart?.Document?.Body;
+        var paragraphs = body?.Elements<Paragraph>().Count() ?? 0;
+        var tables = body?.Elements<Table>().Count() ?? 0;
+        var drawingImages = body?.Descendants<A.Blip>().Count() ?? 0;
+        var vmlImages = body?.Descendants()
+            .Count(e => e.LocalName.Equals("imagedata", StringComparison.OrdinalIgnoreCase)) ?? 0;
+        var imageParts = doc.MainDocumentPart?.ImageParts.Count() ?? 0;
+
+        var warnings = new List<string>();
+        var next = new List<string>
+        {
+            "Run: nong word dissect <file.docx> --output <slice-dir> --json",
+            "Review content.jsonl, structure.json, format.json, and assets/manifest.json"
+        };
+
+        if (vmlImages > 0)
+        {
+            warnings.Add($"{vmlImages} VML image reference(s) found. These are legacy picture/formula images; Nong surfaces them as image blocks/assets, not editable text.");
+            next.Add("If formulas must become editable equations, extract the image assets and OCR/retype them separately.");
+        }
+
+        if (paragraphs == 0 && tables == 0)
+            warnings.Add("No body paragraphs or tables were found.");
+
+        next.Add("Use --after with block IDs from content.jsonl or structure.json only after slicing.");
+
+        return new WordCheckResult(
+            InputFormat: "docx",
+            CanProcessDirectly: true,
+            Paragraphs: paragraphs,
+            Tables: tables,
+            DrawingImages: drawingImages,
+            VmlImages: vmlImages,
+            ImageParts: imageParts,
+            BlockIdStatus: "generated_by_dissect",
+            NextSteps: next,
+            Warnings: warnings
+        );
+    }
+
+    sealed record WordCheckResult(
+        string InputFormat,
+        bool CanProcessDirectly,
+        int? Paragraphs,
+        int? Tables,
+        int? DrawingImages,
+        int? VmlImages,
+        int? ImageParts,
+        string BlockIdStatus,
+        List<string> NextSteps,
+        List<string> Warnings
+    );
+
+    // ===== word convert =====
+
+    static Command CreateConvert(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .doc or .docx file");
+        var outOpt = new Option<string>("-o", "Output .docx path") { IsRequired = true };
+        var engineOpt = new Option<string>("--engine", () => "auto", "Conversion engine: auto, libreoffice, word");
+        var cmd = new Command("convert", "Convert legacy .doc to .docx as a boundary step") { fileArg, outOpt, engineOpt };
+
+        cmd.SetHandler((string file, string output, string engine, bool json) =>
+        {
+            if (string.IsNullOrWhiteSpace(file))
+            {
+                CliHelpers.WriteError("word convert", ErrorCodes.MissingArgument with { Message = "File path is required." }, json);
+                return;
+            }
+            if (!File.Exists(file))
+            {
+                CliHelpers.WriteError("word convert", ErrorCodes.FileNotFound with { Message = $"File not found: {file}" }, json);
+                return;
+            }
+            if (!string.Equals(Path.GetExtension(output), ".docx", StringComparison.OrdinalIgnoreCase))
+            {
+                CliHelpers.WriteError("word convert", ErrorCodes.ValidationFailed with { Message = "Output path must end with .docx." }, json);
+                return;
+            }
+
+            var ext = Path.GetExtension(file).ToLowerInvariant();
+            if (ext is not ".doc" and not ".docx")
+            {
+                CliHelpers.WriteError("word convert",
+                    ErrorCodes.UnsupportedFormat with { Message = $"Expected .doc or .docx file, got: {ext}" }, json);
+                return;
+            }
+
+            try
+            {
+                CliHelpers.EnsureParentDir(output);
+                var (result, elapsed) = CliHelpers.Time(() => ConvertWord(file, output, engine));
+                var aerr = CliHelpers.CheckArtifact(output, "DOCX");
+                if (aerr != null) { CliHelpers.WriteError("word convert", aerr, json); return; }
+
+                if (json)
+                {
+                    var outputJson = JsonOutput.Ok("word convert", $"Converted with {result.Engine}: {output}", result);
+                    outputJson.Artifacts["docx"] = Path.GetFullPath(output);
+                    outputJson.Meta.DurationMs = elapsed;
+                    Console.WriteLine(JsonSerializer.Serialize(outputJson, CliHelpers.JsonOpts));
+                }
+                else
+                {
+                    Console.WriteLine($"OK: {Path.GetFullPath(output)} ({result.Engine})");
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                CliHelpers.WriteError("word convert", ErrorCodes.DependencyMissing with { Message = ex.Message }, json);
+            }
+            catch (Exception ex)
+            {
+                CliHelpers.WriteError("word convert", ErrorCodes.InternalError with { Message = $"Conversion failed: {ex.Message}" }, json);
+            }
+        }, fileArg, outOpt, engineOpt, jsonOpt);
+
+        return cmd;
+    }
+
+    static WordConvertResult ConvertWord(string file, string output, string engine)
+    {
+        var inputFull = Path.GetFullPath(file);
+        var outputFull = Path.GetFullPath(output);
+        if (string.Equals(inputFull, outputFull, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Input and output paths must be different.");
+
+        var ext = Path.GetExtension(file).ToLowerInvariant();
+        if (ext == ".docx")
+        {
+            File.Copy(inputFull, outputFull, true);
+            return new WordConvertResult(inputFull, outputFull, "copy", []);
+        }
+
+        engine = engine.ToLowerInvariant();
+        if (engine is not "auto" and not "libreoffice" and not "word")
+            throw new InvalidOperationException("Unknown --engine. Supported: auto, libreoffice, word.");
+
+        var errors = new List<string>();
+        if (engine is "auto" or "libreoffice")
+        {
+            try
+            {
+                if (TryConvertWithLibreOffice(inputFull, outputFull, out var detail))
+                    return new WordConvertResult(inputFull, outputFull, "libreoffice", detail);
+                errors.Add("LibreOffice was not found on PATH or common install paths.");
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"LibreOffice failed: {ex.Message}");
+                if (engine == "libreoffice") throw new InvalidOperationException(errors[^1]);
+            }
+        }
+
+        if (engine is "auto" or "word")
+        {
+            try
+            {
+                if (TryConvertWithWordCom(inputFull, outputFull, out var detail))
+                    return new WordConvertResult(inputFull, outputFull, "word-com", detail);
+                errors.Add("Microsoft Word COM automation is unavailable.");
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Word COM failed: {ex.Message}");
+                if (engine == "word") throw new InvalidOperationException(errors[^1]);
+            }
+        }
+
+        throw new InvalidOperationException("No .doc converter is available. Install LibreOffice or Microsoft Word, then rerun word convert. Details: " + string.Join(" | ", errors));
+    }
+
+    static bool TryConvertWithLibreOffice(string inputFull, string outputFull, out List<string> detail)
+    {
+        detail = new List<string>();
+        var soffice = FindExecutable("soffice") ?? FindLibreOfficeOnWindows();
+        if (soffice == null) return false;
+
+        var tempDir = Path.Combine(Path.GetTempPath(), "nong-word-convert-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempDir);
+        try
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = soffice,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            };
+            foreach (var arg in new[] { "--headless", "--convert-to", "docx", "--outdir", tempDir, inputFull })
+                psi.ArgumentList.Add(arg);
+
+            using var proc = Process.Start(psi) ?? throw new InvalidOperationException("Cannot start LibreOffice.");
+            var stdout = proc.StandardOutput.ReadToEnd();
+            var stderr = proc.StandardError.ReadToEnd();
+            if (!proc.WaitForExit(120000))
+            {
+                try { proc.Kill(entireProcessTree: true); } catch { }
+                throw new TimeoutException("LibreOffice conversion timed out.");
+            }
+            if (proc.ExitCode != 0)
+                throw new InvalidOperationException($"LibreOffice exit code {proc.ExitCode}: {stderr}");
+
+            var converted = Directory.GetFiles(tempDir, "*.docx").FirstOrDefault();
+            if (converted == null)
+                throw new InvalidOperationException($"LibreOffice did not produce a .docx file. stdout: {stdout} stderr: {stderr}");
+
+            File.Copy(converted, outputFull, true);
+            detail.Add($"soffice={soffice}");
+            return true;
+        }
+        finally
+        {
+            try { Directory.Delete(tempDir, true); } catch { }
+        }
+    }
+
+    static string? FindExecutable(string name)
+    {
+        var paths = (Environment.GetEnvironmentVariable("PATH") ?? "")
+            .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries);
+        var extensions = OperatingSystem.IsWindows()
+            ? new[] { ".exe", ".cmd", ".bat", "" }
+            : new[] { "" };
+        foreach (var dir in paths)
+        foreach (var ext in extensions)
+        {
+            var candidate = Path.Combine(dir, name + ext);
+            if (File.Exists(candidate)) return candidate;
+        }
+        return null;
+    }
+
+    static string? FindLibreOfficeOnWindows()
+    {
+        if (!OperatingSystem.IsWindows()) return null;
+        var candidates = new[]
+        {
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "LibreOffice", "program", "soffice.exe"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "LibreOffice", "program", "soffice.exe"),
+        };
+        return candidates.FirstOrDefault(File.Exists);
+    }
+
+    static bool TryConvertWithWordCom(string inputFull, string outputFull, out List<string> detail)
+    {
+        detail = new List<string>();
+        if (!OperatingSystem.IsWindows()) return false;
+
+        var wordType = Type.GetTypeFromProgID("Word.Application");
+        if (wordType == null) return false;
+
+        object? word = null;
+        object? documents = null;
+        object? document = null;
+        try
+        {
+            word = Activator.CreateInstance(wordType);
+            if (word == null) return false;
+            dynamic dword = word;
+            dword.Visible = false;
+            dword.DisplayAlerts = 0;
+            documents = dword.Documents;
+            dynamic ddocs = documents;
+            document = ddocs.Open(inputFull, false, true, false);
+            dynamic ddoc = document;
+            ddoc.SaveAs2(outputFull, 16);
+            ddoc.Close(false);
+            document = null;
+            dword.Quit(false);
+            word = null;
+            detail.Add("Word COM SaveAs2 format=16");
+            return true;
+        }
+        finally
+        {
+            ReleaseWordComObject(document, closeDocument: true);
+            if (word != null)
+            {
+                try { ((dynamic)word).Quit(false); } catch { }
+            }
+            ReleaseWordComObject(documents);
+            ReleaseWordComObject(word);
+        }
+    }
+
+    static void ReleaseWordComObject(object? value, bool closeDocument = false)
+    {
+        if (value == null) return;
+        try
+        {
+            if (closeDocument) ((dynamic)value).Close(false);
+        }
+        catch { }
+        try
+        {
+            if (Marshal.IsComObject(value))
+                Marshal.FinalReleaseComObject(value);
+        }
+        catch { }
+    }
+
+    sealed record WordConvertResult(
+        string Input,
+        string Output,
+        string Engine,
+        List<string> Details
+    );
+
+    // ===== word create =====
+
+    static Command CreateCreate(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to authored .nongmark or .nmk source");
+        var outOpt = new Option<string>("-o", "Output .docx path") { IsRequired = true };
+        var cmd = new Command("create", "Create a DOCX directly from NongMark") { fileArg, outOpt };
+
+        cmd.SetHandler((string file, string output, bool json) =>
+        {
+            const string command = "word create";
+            var err = ValidateNongMarkFile(file);
+            if (err != null) { CliHelpers.WriteError(command, err, json); return; }
+
+            if (!string.Equals(Path.GetExtension(output), ".docx", StringComparison.OrdinalIgnoreCase))
+            {
+                CliHelpers.WriteError(command,
+                    ErrorCodes.ValidationFailed with { Message = "Output path must end with .docx." }, json);
+                return;
+            }
+
+            if (string.Equals(Path.GetFullPath(file), Path.GetFullPath(output), StringComparison.OrdinalIgnoreCase))
+            {
+                CliHelpers.WriteError(command,
+                    ErrorCodes.ValidationFailed with { Message = "Input and output paths must be different." }, json);
+                return;
+            }
+
+            try
+            {
+                CliHelpers.EnsureParentDir(output);
+                var (result, elapsed) = CliHelpers.Time(() =>
+                {
+                    var built = NongMarkDocumentBuilder.Build(file, output);
+                    FixOrderInPlace(output);
+                    return built;
+                });
+                var aerr = CliHelpers.CheckArtifact(output, "DOCX");
+                if (aerr != null) { CliHelpers.WriteError(command, aerr, json); return; }
+
+                var o = JsonOutput.Ok(command,
+                    $"Created DOCX from NongMark: {result.Blocks} blocks",
+                    result);
+                o.Artifacts["docx"] = Path.GetFullPath(output);
+                o.Metrics["blocks"] = result.Blocks;
+                o.Metrics["paragraphs"] = result.Paragraphs;
+                o.Metrics["headings"] = result.Headings;
+                o.Metrics["tables"] = result.Tables;
+                o.Metrics["images"] = result.Images;
+                o.Metrics["references"] = result.References;
+                o.Meta.DurationMs = elapsed;
+                Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+            }
+            catch (FileNotFoundException ex)
+            {
+                CliHelpers.WriteError(command, ErrorCodes.FileNotFound with { Message = ex.Message }, json);
+            }
+            catch (InvalidDataException ex)
+            {
+                CliHelpers.WriteError(command, ErrorCodes.ValidationFailed with { Message = ex.Message }, json);
+            }
+            catch (ArgumentException ex)
+            {
+                CliHelpers.WriteError(command, ErrorCodes.ValidationFailed with { Message = ex.Message }, json);
+            }
+            catch (Exception ex)
+            {
+                CliHelpers.WriteError(command, ErrorCodes.InternalError with { Message = ex.Message }, json);
+            }
+        }, fileArg, outOpt, jsonOpt);
+
+        return cmd;
+    }
+
+    static ErrorEntry? ValidateNongMarkFile(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return ErrorCodes.MissingArgument with { Message = "File path is required." };
+        if (!File.Exists(path))
+            return ErrorCodes.FileNotFound with { Message = $"File not found: {path}" };
+        var ext = Path.GetExtension(path).ToLowerInvariant();
+        if (ext is not ".nongmark" and not ".nmk")
+            return ErrorCodes.UnsupportedFormat with { Message = $"Expected .nongmark or .nmk file, got: {ext}" };
+        return null;
+    }
+
+    static void FixOrderInPlace(string output)
+    {
+        var fixedTmp = Path.Combine(
+            Path.GetDirectoryName(Path.GetFullPath(output)) ?? Directory.GetCurrentDirectory(),
+            Path.GetFileNameWithoutExtension(output) + ".fixed-" + Guid.NewGuid().ToString("N")[..8] + ".docx");
+        try
+        {
+            WordEditOperations.FixOrder(output, fixedTmp);
+            File.Copy(fixedTmp, output, true);
+        }
+        finally
+        {
+            try { File.Delete(fixedTmp); } catch { }
+        }
     }
 
     // ===== word read =====
@@ -119,6 +664,7 @@ public static class WordCommands
     {
         var fileArg = new Argument<string>("file", "Path to .docx file");
         var cmd = new Command("preview", "7-step document structure diagnostic") { fileArg };
+        cmd.AddAlias("diagnose");
 
         cmd.SetHandler((string file, bool json) =>
         {
@@ -243,6 +789,7 @@ public static class WordCommands
         var fileArg = new Argument<string>("file", "Path to .docx file");
         var outOpt = new Option<string>("-o", "Output path") { IsRequired = true };
         var cmd = new Command("rebuild", "Clean OOXML style pollution") { fileArg, outOpt };
+        cmd.AddAlias("clean-styles");
 
         cmd.SetHandler((string file, string output, bool json) =>
         {
@@ -538,7 +1085,7 @@ public static class WordCommands
                                     Message = $"{result.Errors.Count} OOXML validation errors found"
                                 }
                             },
-                            Meta = new MetaInfo { Version = "3.1.0", DurationMs = elapsed }
+                            Meta = new MetaInfo { Version = CliVersion.Current, DurationMs = elapsed }
                         };
                         Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
                     }
@@ -667,7 +1214,7 @@ public static class WordCommands
                 {
                     // Full one-cut three-stream mode
                     CliHelpers.EnsureParentDir(Path.Combine(output, ".keep"));
-                    var analyzer = new Nong.Cli.Adapters.WordImageAnalyzerAdapter();
+                    IImageAnalyzer? analyzer = null;
                     var (result, elapsed) = CliHelpers.Time(() => WordSlice.Slice(file, output, analyzer));
                     if (json)
                     {
@@ -878,35 +1425,535 @@ public static class WordCommands
     static Command CreateImages(Option<bool> jsonOpt)
     {
         var fileArg = new Argument<string>("file", "Path to .docx file");
-        var outOpt = new Option<string>("-o", "Output directory for extracted images");
-        var cmd = new Command("images", "List and optionally extract images") { fileArg, outOpt };
-        cmd.SetHandler((string file, string? output, bool json) =>
+        var outOpt = new Option<string>("-o", "Output directory for extracted images, or output DOCX path for --crop");
+        var analyzeOpt = new Option<bool>("--analyze", "Analyze images for content-aware crop margins without modifying the file");
+        var cropOpt = new Option<bool>("--crop", "Auto-crop blank margins from all images and write a new DOCX");
+        var cmd = new Command("images", "List, extract, analyze, and auto-crop images") { fileArg, outOpt, analyzeOpt, cropOpt };
+        cmd.SetHandler((string file, string? output, bool analyze, bool crop, bool json) =>
         {
             var err = CliHelpers.ValidateDocxFile(file);
             if (err != null) { CliHelpers.WriteError("word images", err, json); return; }
             try
             {
-                var (result, elapsed) = CliHelpers.Time(() =>
+                if (analyze)
                 {
-                    if (output != null) { CliHelpers.EnsureParentDir(Path.Combine(output, ".keep")); }
-                    return ImageLister.ListImages(file, output);
-                });
+                    Environment.ExitCode = RunImagingImages(file, analyze: true, crop: false, output: null, json);
+                }
+                else if (crop)
+                {
+                    Environment.ExitCode = RunImagingImages(file, analyze: false, crop: true, output, json);
+                }
+                else
+                {
+                    RunImageList(file, output, json);
+                }
+            }
+            catch (Exception ex) { CliHelpers.WriteError("word images", ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        }, fileArg, outOpt, analyzeOpt, cropOpt, jsonOpt);
+        return cmd;
+    }
+
+    static void RunImageList(string file, string? output, bool json)
+    {
+        var (result, elapsed) = CliHelpers.Time(() =>
+        {
+            if (output != null) { CliHelpers.EnsureParentDir(Path.Combine(output, ".keep")); }
+            return ImageLister.ListImages(file, output);
+        });
+        if (json)
+        {
+            var outputJson = JsonOutput.Ok("word images", result.Summary, result);
+            outputJson.Meta.DurationMs = elapsed;
+            if (output != null) outputJson.Artifacts["dir"] = Path.GetFullPath(output);
+            foreach (var warning in result.Warnings)
+                outputJson.Issues.Add(new Issue { Id = "vml_image_reference", Severity = "warning", Message = warning });
+            Console.WriteLine(JsonSerializer.Serialize(outputJson, CliHelpers.JsonOpts));
+        }
+        else
+        {
+            Console.WriteLine(result.Summary);
+            foreach (var img in result.Images)
+                Console.WriteLine($"  {img.Id} {img.ContentType} {img.Width}x{img.Height} usedBy={string.Join(",", img.UsedBy ?? new())}");
+            foreach (var warning in result.Warnings)
+                Console.Error.WriteLine($"[WARN] {warning}");
+        }
+    }
+
+    static int RunImagingImages(string file, bool analyze, bool crop, string? output, bool json)
+    {
+        var args = new List<string> { "images", file };
+        if (analyze) args.Add("--analyze");
+        if (crop) args.Add("--crop");
+        if (crop && output != null)
+        {
+            args.Add("-o");
+            args.Add(output);
+        }
+        if (json) args.Add("--json");
+        return CliHelpers.RunTool("nong-imaging", ToolPackages.Imaging, args.ToArray());
+    }
+
+    // ===== word crop (external imaging tool) =====
+
+    static Command CreateCrop(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .docx file");
+        var outOpt = new Option<string>("-o", "Output DOCX path (default: <input>.cropped.docx)");
+        var cmd = new Command("crop", "Auto-crop blank margins from all images using content-aware border detection") { fileArg, outOpt };
+        cmd.AddAlias("images-crop");
+        cmd.SetHandler((string file, string? output, bool json) =>
+        {
+            var err = CliHelpers.ValidateDocxFile(file);
+            if (err != null) { CliHelpers.WriteError("word crop", err, json); return; }
+            Environment.ExitCode = RunImagingImages(file, analyze: false, crop: true, output, json);
+        }, fileArg, outOpt, jsonOpt);
+        return cmd;
+    }
+
+    // ===== word fit-images (scale inline multi-image paragraphs to side-by-side) =====
+
+    static Command CreateFitImages(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .docx file");
+        var outOpt = new Option<string>("-o", "Output DOCX path (default: <input>.fit.docx)");
+        var gapOpt = new Option<double>("--gap", () => 2.0, "Gap between images in mm (default: 2)");
+        var cmd = new Command("fit-images", "Scale multi-image paragraphs so inline images fit side-by-side within page width") { fileArg, outOpt, gapOpt };
+        cmd.AddAlias("compact-images");
+        cmd.SetHandler((string file, string? output, double gap, bool json) =>
+        {
+            var err = CliHelpers.ValidateDocxFile(file);
+            if (err != null) { CliHelpers.WriteError("word fit-images", err, json); return; }
+            try
+            {
+                string outPath = output ?? Path.Combine(
+                    Path.GetDirectoryName(Path.GetFullPath(file)) ?? ".",
+                    Path.GetFileNameWithoutExtension(file) + ".fit.docx");
+
+                var result = DocxImageFitter.FitImages(file, outPath, gap);
+
+                string summary = (result.ParagraphsModified, result.ImagesScaled) switch
+                {
+                    (0, _) => "No multi-image paragraphs found that need scaling",
+                    var (p, i) => $"Scaled {i} images across {p} paragraphs → {outPath}"
+                };
+
                 if (json)
                 {
-                    var outputJson = JsonOutput.Ok("word images", result.Summary, result);
-                    outputJson.Meta.DurationMs = elapsed;
-                    if (output != null) outputJson.Artifacts["dir"] = Path.GetFullPath(output);
+                    var outputJson = JsonOutput.Ok("word fit-images", summary, new
+                    {
+                        output = Path.GetFullPath(outPath),
+                        paragraphsModified = result.ParagraphsModified,
+                        imagesScaled = result.ImagesScaled,
+                        details = result.Modified.Select(m => new
+                        {
+                            paragraphIndex = m.ParagraphIndex,
+                            imageCount = m.ImageCount,
+                            originalTotalEmu = m.OriginalTotalEmu,
+                            pageTextEmu = m.PageTextEmu,
+                            scaleFactor = m.ScaleFactor,
+                            dimensions = m.Dimensions.Select(d => new
+                            {
+                                oldWidth = d.OldWidth, oldHeight = d.OldHeight,
+                                newWidth = d.NewWidth, newHeight = d.NewHeight
+                            })
+                        })
+                    });
+                    outputJson.Artifacts["docx"] = Path.GetFullPath(outPath);
                     Console.WriteLine(JsonSerializer.Serialize(outputJson, CliHelpers.JsonOpts));
                 }
                 else
                 {
-                    Console.WriteLine(result.Summary);
-                    foreach (var img in result.Images)
-                        Console.WriteLine($"  {img.Id} {img.ContentType} {img.Width}x{img.Height} usedBy={string.Join(",", img.UsedBy ?? new())}");
+                    Console.WriteLine(summary);
+                    foreach (var m in result.Modified)
+                    {
+                        Console.WriteLine($"  para[{m.ParagraphIndex}]: {m.ImageCount} images, scale={m.ScaleFactor:P1}, {m.OriginalTotalEmu}→{m.PageTextEmu} EMU");
+                    }
                 }
             }
-            catch (Exception ex) { CliHelpers.WriteError("word images", ErrorCodes.InternalError with { Message = ex.Message }, json); }
+            catch (Exception ex) { CliHelpers.WriteError("word fit-images", ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        }, fileArg, outOpt, gapOpt, jsonOpt);
+        return cmd;
+    }
+
+    // ===== word compact-tables (remove fixed row heights, equalize columns, center) =====
+
+    static Command CreateCompactTables(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .docx file");
+        var outOpt = new Option<string>("-o", "Output DOCX path (default: <input>.compact.docx)");
+        var autoHOpt = new Option<bool>("--auto-height", "Remove all row height constraints (auto: let content dictate)");
+        var cmd = new Command("compact-tables", "Compact tables: remove fixed row heights, equalize column widths, center on page") { fileArg, outOpt, autoHOpt };
+        cmd.AddAlias("tables");
+        cmd.SetHandler((string file, string? output, bool autoHeight, bool json) =>
+        {
+            var err = CliHelpers.ValidateDocxFile(file);
+            if (err != null) { CliHelpers.WriteError("word compact-tables", err, json); return; }
+            try
+            {
+                string outPath = output ?? Path.Combine(
+                    Path.GetDirectoryName(Path.GetFullPath(file)) ?? ".",
+                    Path.GetFileNameWithoutExtension(file) + ".compact.docx");
+
+                var result = DocxTableCompactor.Compact(file, outPath, autoHeight);
+                string summary = $"{result.TablesModified} tables compacted (fixed rows freed: {result.FixedRowsTotal}){(autoHeight ? " → auto-height" : "")}";
+
+                if (json)
+                {
+                    var outputJson = JsonOutput.Ok("word compact-tables", summary, new
+                    {
+                        output = Path.GetFullPath(outPath),
+                        tablesModified = result.TablesModified,
+                        fixedRowsTotal = result.FixedRowsTotal,
+                        tables = result.Tables.Select(t => new
+                        {
+                            index = t.TableIndex,
+                            rows = t.RowsBefore,
+                            changes = t.Changes
+                        })
+                    });
+                    outputJson.Artifacts["docx"] = Path.GetFullPath(outPath);
+                    Console.WriteLine(JsonSerializer.Serialize(outputJson, CliHelpers.JsonOpts));
+                }
+                else
+                {
+                    Console.WriteLine($"{summary} → {outPath}");
+                    foreach (var t in result.Tables.Where(t => t.Changes.Count > 0))
+                        Console.WriteLine($"  table[{t.TableIndex}]: {string.Join(", ", t.Changes)}");
+                }
+            }
+            catch (Exception ex) { CliHelpers.WriteError("word compact-tables", ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        }, fileArg, outOpt, autoHOpt, jsonOpt);
+        return cmd;
+    }
+
+    // ===== word regroup-images (cross-paragraph image pairing) =====
+
+    static Command CreateRegroupImages(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .docx file");
+        var outOpt = new Option<string>("-o", "Output DOCX path (default: <input>.regroup.docx)");
+        var cmd = new Command("regroup-images", "Merge orphan images across paragraphs for side-by-side layout, then scale to fit") { fileArg, outOpt };
+        cmd.AddAlias("pair-images");
+        cmd.SetHandler((string file, string? output, bool json) =>
+        {
+            var err = CliHelpers.ValidateDocxFile(file);
+            if (err != null) { CliHelpers.WriteError("word regroup-images", err, json); return; }
+            try
+            {
+                string outPath = output ?? Path.Combine(
+                    Path.GetDirectoryName(Path.GetFullPath(file)) ?? ".",
+                    Path.GetFileNameWithoutExtension(file) + ".regroup.docx");
+
+                // Use FitImages with a wider scan window (10 paragraphs instead of 3)
+                var result = DocxImageFitter.FitImagesWide(file, outPath, 2.0, maxGap: 10);
+
+                string summary = result.ParagraphsModified switch
+                {
+                    0 => "No orphan images found for regrouping",
+                    var p => $"Regrouped {result.ImagesScaled} images across {p} paragraphs → {outPath}"
+                };
+
+                if (json)
+                {
+                    var outputJson = JsonOutput.Ok("word regroup-images", summary, new
+                    {
+                        output = Path.GetFullPath(outPath),
+                        paragraphsModified = result.ParagraphsModified,
+                        imagesScaled = result.ImagesScaled
+                    });
+                    outputJson.Artifacts["docx"] = Path.GetFullPath(outPath);
+                    Console.WriteLine(JsonSerializer.Serialize(outputJson, CliHelpers.JsonOpts));
+                }
+                else
+                {
+                    Console.WriteLine(summary);
+                }
+            }
+            catch (Exception ex) { CliHelpers.WriteError("word regroup-images", ErrorCodes.InternalError with { Message = ex.Message }, json); }
         }, fileArg, outOpt, jsonOpt);
+        return cmd;
+    }
+
+    // ===== word estimate (page-break estimation + blank-space detection) =====
+
+    static Command CreateEstimate(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .docx file");
+        var cmd = new Command("estimate", "Estimate page breaks and measure blank space on each page") { fileArg };
+        cmd.AddAlias("pages");
+        cmd.SetHandler((string file, bool json) =>
+        {
+            var err = CliHelpers.ValidateDocxFile(file);
+            if (err != null) { CliHelpers.WriteError("word estimate", err, json); return; }
+            try
+            {
+                var result = DocxPageEstimator.Estimate(file);
+                string summary = $"{result.PageCount} pages, {result.ProblemPages} with >30% blank (waste total {result.WasteTotalMm}mm)";
+
+                if (json)
+                {
+                    var outputJson = JsonOutput.Ok("word estimate", summary, new
+                    {
+                        pageCount = result.PageCount,
+                        textAreaMm = result.TextAreaMm,
+                        problemPages = result.ProblemPages,
+                        wasteTotalMm = result.WasteTotalMm,
+                        pages = result.Pages.Select(p => new
+                        {
+                            page = p.PageNumber,
+                            items = p.ItemCount,
+                            contentMm = p.ContentMm,
+                            wasteMm = p.WasteMm,
+                            wastePct = p.WastePercent,
+                            hasImage = p.HasImage,
+                            hasTable = p.HasTable,
+                            isProblem = p.IsProblem
+                        })
+                    });
+                    Console.WriteLine(JsonSerializer.Serialize(outputJson, CliHelpers.JsonOpts));
+                }
+                else
+                {
+                    Console.WriteLine(summary);
+                    Console.WriteLine($"  Text area: {result.TextAreaMm}mm, estimated {result.PageCount} pages");
+                    Console.WriteLine();
+                    foreach (var p in result.Pages)
+                    {
+                        var flag = p.IsProblem ? " ** WASTE **" : "";
+                        var kind = (p.HasImage, p.HasTable) switch
+                        {
+                            (true, true) => "[img+tbl]",
+                            (true, false) => "[img]",
+                            (false, true) => "[tbl]",
+                            _ => ""
+                        };
+                        Console.WriteLine($"  p{p.PageNumber:D2} {kind}: content={p.ContentMm}mm, waste={p.WasteMm}mm ({p.WastePercent}%){flag}");
+                    }
+                }
+            }
+            catch (Exception ex) { CliHelpers.WriteError("word estimate", ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        }, fileArg, jsonOpt);
+        return cmd;
+    }
+
+    // ===== Stage 15: word comments =====
+
+    // ===== word page-setup =====
+
+    static Command CreatePageSetup(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .docx file");
+        var sizeOpt = new Option<string>("--size", "Page size: A4, A3, B5, Letter, or WxH mm");
+        var orientOpt = new Option<string>("--orient", "Orientation: portrait or landscape");
+        var marginTopOpt = new Option<double?>("--margin-top", "Top margin in mm");
+        var marginBottomOpt = new Option<double?>("--margin-bottom", "Bottom margin in mm");
+        var marginLeftOpt = new Option<double?>("--margin-left", "Left margin in mm");
+        var marginRightOpt = new Option<double?>("--margin-right", "Right margin in mm");
+        var columnsOpt = new Option<int?>("--columns", "Number of columns (>1 for multi-column)");
+        var columnGapOpt = new Option<double?>("--column-gap", "Gap between columns in mm");
+        var firstPageOpt = new Option<bool?>("--first-page-different", "Different first page header/footer");
+        var pageNumOpt = new Option<string>("--page-number", "Page number format: decimal, roman, romanUpper");
+        var sectionOpt = new Option<int?>("--section", "Target section index (default: all)");
+        var outOpt = new Option<string>("-o", "Output DOCX path");
+        var cmd = new Command("page-setup", "Set page size, orientation, margins, columns, different first page") {
+            fileArg, sizeOpt, orientOpt, marginTopOpt, marginBottomOpt, marginLeftOpt, marginRightOpt,
+            columnsOpt, columnGapOpt, firstPageOpt, pageNumOpt, sectionOpt, outOpt };
+        cmd.AddAlias("layout");
+        cmd.SetHandler((InvocationContext ctx) =>
+        {
+            var parseResult = ctx.ParseResult;
+            var file = parseResult.GetValueForArgument(fileArg);
+            var size = parseResult.GetValueForOption(sizeOpt);
+            var orient = parseResult.GetValueForOption(orientOpt);
+            var marginTop = parseResult.GetValueForOption(marginTopOpt);
+            var marginBottom = parseResult.GetValueForOption(marginBottomOpt);
+            var marginLeft = parseResult.GetValueForOption(marginLeftOpt);
+            var marginRight = parseResult.GetValueForOption(marginRightOpt);
+            var columns = parseResult.GetValueForOption(columnsOpt);
+            var columnGap = parseResult.GetValueForOption(columnGapOpt);
+            var firstPageDiff = parseResult.GetValueForOption(firstPageOpt);
+            var pageNum = parseResult.GetValueForOption(pageNumOpt);
+            var section = parseResult.GetValueForOption(sectionOpt);
+            var output = parseResult.GetValueForOption(outOpt);
+            var json = parseResult.GetValueForOption(jsonOpt);
+            var err = CliHelpers.ValidateDocxFile(file);
+            if (err != null) { CliHelpers.WriteError("word page-setup", err, json); return; }
+            try
+            {
+                string outPath = output ?? Path.Combine(
+                    Path.GetDirectoryName(Path.GetFullPath(file)) ?? ".",
+                    Path.GetFileNameWithoutExtension(file) + ".layout.docx");
+                var opts = new DocxPageSetup.PageSetupOptions { PageSize = size, Orient = orient, MarginTopMm = marginTop, MarginBottomMm = marginBottom, MarginLeftMm = marginLeft, MarginRightMm = marginRight, Columns = columns, ColumnGapMm = columnGap, DifferentFirstPage = firstPageDiff, PageNumberFormat = pageNum, SectionIndex = section };
+                var result = DocxPageSetup.Apply(file, outPath, opts);
+                var summary = $"{result.SectionsApplied} section(s) updated: {string.Join("; ", result.Changes)}";
+                if (json) { var o = JsonOutput.Ok("word page-setup", summary, new { output = Path.GetFullPath(outPath), sections = result.SectionsApplied, changes = result.Changes }); o.Artifacts["docx"] = Path.GetFullPath(outPath); Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts)); }
+                else Console.WriteLine($"{summary} → {outPath}");
+            }
+            catch (Exception ex) { CliHelpers.WriteError("word page-setup", ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        });
+        return cmd;
+    }
+
+    // ===== word indent =====
+
+    static Command CreateIndent(Option<bool> jsonOpt)
+    {
+        var fa = new Argument<string>("file", "Path to .docx file");
+        var fl = new Option<double?>("--first-line", "First-line indent in mm");
+        var hg = new Option<double?>("--hanging", "Hanging indent in mm");
+        var lf = new Option<double?>("--left", "Left indent in mm");
+        var rt = new Option<double?>("--right", "Right indent in mm");
+        var ol = new Option<int?>("--outline-level", "Outline level (0-9)");
+        var rl = new Option<string>("--role", "Target role: heading, body, or all (default)");
+        var ot = new Option<string>("-o", "Output DOCX path");
+        var cmd = new Command("indent", "Set paragraph indentation: first-line, hanging, left, right, outline level") {
+            fa, fl, hg, lf, rt, ol, rl, ot };
+        cmd.SetHandler((InvocationContext ctx) =>
+        {
+            var r = ctx.ParseResult; var f = r.GetValueForArgument(fa); var j = r.GetValueForOption(jsonOpt);
+            var er = CliHelpers.ValidateDocxFile(f);
+            if (er != null) { CliHelpers.WriteError("word indent", er, j); return; }
+            try {
+                var o = r.GetValueForOption(ot) ?? Path.Combine(Path.GetDirectoryName(Path.GetFullPath(f))??".",Path.GetFileNameWithoutExtension(f)+".indent.docx");
+                var opt = new DocxIndenter.IndentOptions{FirstLineMm=r.GetValueForOption(fl),HangingMm=r.GetValueForOption(hg),LeftMm=r.GetValueForOption(lf),RightMm=r.GetValueForOption(rt),OutlineLevel=r.GetValueForOption(ol),Role=r.GetValueForOption(rl)??"all"};
+                var res = DocxIndenter.Apply(f,o,opt);
+                var s = $"{res.ParagraphsChanged} paragraphs: {string.Join("; ",res.Changes)}";
+                if (j) { var x=JsonOutput.Ok("word indent",s,new{output=Path.GetFullPath(o),pc=res.ParagraphsChanged,changes=res.Changes}); x.Artifacts["docx"]=Path.GetFullPath(o); Console.WriteLine(JsonSerializer.Serialize(x,CliHelpers.JsonOpts)); }
+                else Console.WriteLine($"{s} → {o}");
+            } catch (Exception ex) { CliHelpers.WriteError("word indent", ErrorCodes.InternalError with{Message=ex.Message}, j); }
+        });
+        return cmd;
+    }
+
+    // ===== word paragraph-control =====
+
+    static Command CreateParagraphControl(Option<bool> jsonOpt)
+    {
+        var fa = new Argument<string>("file", "Path to .docx file");
+        var kn = new Option<bool?>("--keep-next", "Keep with next paragraph");
+        var kl = new Option<bool?>("--keeplines", "Keep lines together");
+        var pb = new Option<bool?>("--page-break-before", "Force page break before");
+        var wc = new Option<bool?>("--widow-control", "Widow/orphan control");
+        var rl = new Option<string>("--role", "Target role: heading, body, or all");
+        var ot = new Option<string>("-o", "Output DOCX path");
+        var cmd = new Command("paragraph-control", "Set pagination controls: keepNext, keepLines, pageBreakBefore, widowControl") {
+            fa, kn, kl, pb, wc, rl, ot };
+        cmd.SetHandler((InvocationContext ctx) =>
+        {
+            var r = ctx.ParseResult; var f = r.GetValueForArgument(fa); var j = r.GetValueForOption(jsonOpt);
+            var er = CliHelpers.ValidateDocxFile(f);
+            if (er != null) { CliHelpers.WriteError("word paragraph-control", er, j); return; }
+            try {
+                var o = r.GetValueForOption(ot) ?? Path.Combine(Path.GetDirectoryName(Path.GetFullPath(f))??".",Path.GetFileNameWithoutExtension(f)+".paginate.docx");
+                var opt = new DocxParagraphControl.PaginationOptions{KeepNext=r.GetValueForOption(kn),KeepLines=r.GetValueForOption(kl),PageBreakBefore=r.GetValueForOption(pb),WidowControl=r.GetValueForOption(wc),Role=r.GetValueForOption(rl)??"all"};
+                var res = DocxParagraphControl.Apply(f,o,opt);
+                var s = $"{res.ParagraphsChanged} paragraphs: {string.Join("; ",res.Changes)}";
+                if (j) { var x=JsonOutput.Ok("word paragraph-control",s,new{output=Path.GetFullPath(o),pc=res.ParagraphsChanged,changes=res.Changes}); x.Artifacts["docx"]=Path.GetFullPath(o); Console.WriteLine(JsonSerializer.Serialize(x,CliHelpers.JsonOpts)); }
+                else Console.WriteLine($"{s} → {o}");
+            } catch (Exception ex) { CliHelpers.WriteError("word paragraph-control", ErrorCodes.InternalError with{Message=ex.Message}, j); }
+        });
+        return cmd;
+    }
+
+    // ===== word image-wrap (inline→floating anchor + wrap modes) =====
+
+    static Command CreateImageWrap(Option<bool> jsonOpt)
+    {
+        var fa = new Argument<string>("file", "Path to .docx file");
+        var md = new Option<string>("--mode", "Wrap mode: square, topAndBottom, tight, through, behind, inFront, inline");
+        var off = new Option<double?>("--offset", "Distance from text in mm (default 3)");
+        var ah = new Option<string>("--align-h", "Horizontal alignment: left, center, right");
+        var av = new Option<string>("--align-v", "Vertical alignment: top, center, bottom");
+        var ot = new Option<string>("-o", "Output DOCX path");
+        var cmd = new Command("image-wrap", "Convert inline images to floating with configurable text wrap modes") { fa, md, off, ah, av, ot };
+        cmd.AddAlias("wrap");
+        cmd.SetHandler((InvocationContext ctx) =>
+        {
+            var r = ctx.ParseResult; var f = r.GetValueForArgument(fa); var j = r.GetValueForOption(jsonOpt);
+            var er = CliHelpers.ValidateDocxFile(f);
+            if (er != null) { CliHelpers.WriteError("word image-wrap", er, j); return; }
+            try {
+                var o = r.GetValueForOption(ot) ?? Path.Combine(Path.GetDirectoryName(Path.GetFullPath(f))??".",Path.GetFileNameWithoutExtension(f)+".wrap.docx");
+                var opt = new DocxImageWrap.WrapOptions{Mode=r.GetValueForOption(md),OffsetMm=r.GetValueForOption(off),AlignH=r.GetValueForOption(ah),AlignV=r.GetValueForOption(av)};
+                var res = DocxImageWrap.Apply(f,o,opt);
+                var s = string.Join("; ",res.Changes);
+                if (j) { var x=JsonOutput.Ok("word image-wrap",s,new{output=Path.GetFullPath(o),converted=res.ImagesConverted,total=res.ImagesTotal,changes=res.Changes}); x.Artifacts["docx"]=Path.GetFullPath(o); Console.WriteLine(JsonSerializer.Serialize(x,CliHelpers.JsonOpts)); }
+                else Console.WriteLine($"{s} → {o}");
+            } catch (Exception ex) { CliHelpers.WriteError("word image-wrap", ErrorCodes.InternalError with{Message=ex.Message}, j); }
+        });
+        return cmd;
+    }
+
+    // ===== word cell-format (table cell borders/shading/alignment) =====
+
+    static Command CreateCellFormat(Option<bool> jsonOpt)
+    {
+        var fa = new Argument<string>("file", "Path to .docx file");
+        var ti = new Option<int?>("--table", "Table index (0-based, default all tables)");
+        var ri = new Option<int?>("--row", "Row index (0-based)");
+        var ci = new Option<int?>("--col", "Column index (0-based)");
+        var sh = new Option<string>("--shading", "Cell background color hex or 'none' to remove");
+        var bt = new Option<double?>("--border-top", "Top border width in mm");
+        var bb = new Option<double?>("--border-bottom", "Bottom border width in mm");
+        var bl = new Option<double?>("--border-left", "Left border width in mm");
+        var br = new Option<double?>("--border-right", "Right border width in mm");
+        var bc = new Option<string>("--border-color", "Border color hex (default 2A7A65)");
+        var va = new Option<string>("--valign", "Vertical alignment: top, center, bottom");
+        var pt = new Option<double?>("--pad-top", "Top padding in mm");
+        var pl = new Option<double?>("--pad-left", "Left padding in mm");
+        var pb = new Option<double?>("--pad-bottom", "Bottom padding in mm");
+        var pr = new Option<double?>("--pad-right", "Right padding in mm");
+        var ot = new Option<string>("-o", "Output DOCX path");
+        var cmd = new Command("cell-format", "Format table cells: borders, shading, alignment, padding") { fa, ti, ri, ci, sh, bt, bb, bl, br, bc, va, pt, pl, pb, pr, ot };
+        cmd.SetHandler((InvocationContext ctx) =>
+        {
+            var r = ctx.ParseResult; var f = r.GetValueForArgument(fa); var j = r.GetValueForOption(jsonOpt);
+            var er = CliHelpers.ValidateDocxFile(f);
+            if (er != null) { CliHelpers.WriteError("word cell-format", er, j); return; }
+            try {
+                var o = r.GetValueForOption(ot) ?? Path.Combine(Path.GetDirectoryName(Path.GetFullPath(f))??".",Path.GetFileNameWithoutExtension(f)+".cells.docx");
+                var opt = new DocxCellFormatter.CellFormatOptions{TableIndex=r.GetValueForOption(ti),RowIndex=r.GetValueForOption(ri),ColIndex=r.GetValueForOption(ci),Shading=r.GetValueForOption(sh),BorderTopMm=r.GetValueForOption(bt),BorderBottomMm=r.GetValueForOption(bb),BorderLeftMm=r.GetValueForOption(bl),BorderRightMm=r.GetValueForOption(br),BorderColor=r.GetValueForOption(bc),VAlign=r.GetValueForOption(va),PaddingTopMm=r.GetValueForOption(pt),PaddingLeftMm=r.GetValueForOption(pl),PaddingBottomMm=r.GetValueForOption(pb),PaddingRightMm=r.GetValueForOption(pr)};
+                var res = DocxCellFormatter.Apply(f,o,opt);
+                var s = $"{res.CellsChanged} cells: {string.Join("; ",res.Changes)}";
+                if (j) { var x=JsonOutput.Ok("word cell-format",s,new{output=Path.GetFullPath(o),cellsChanged=res.CellsChanged,changes=res.Changes}); x.Artifacts["docx"]=Path.GetFullPath(o); Console.WriteLine(JsonSerializer.Serialize(x,CliHelpers.JsonOpts)); }
+                else Console.WriteLine($"{s} → {o}");
+            } catch (Exception ex) { CliHelpers.WriteError("word cell-format", ErrorCodes.InternalError with{Message=ex.Message}, j); }
+        });
+        return cmd;
+    }
+
+    // ===== word run-format (character-level formatting) =====
+
+    static Command CreateRunFormat(Option<bool> jsonOpt)
+    {
+        var fa = new Argument<string>("file", "Path to .docx file");
+        var ul = new Option<string>("--underline", "Underline: single, double, or none");
+        var uc = new Option<string>("--underline-color", "Underline color hex");
+        var sk = new Option<bool?>("--strikethrough", "Strikethrough text");
+        var cl = new Option<string>("--color", "Font color hex or 'none'");
+        var hl = new Option<string>("--highlight", "Highlight color: yellow, cyan, none, etc.");
+        var sp = new Option<double?>("--spacing", "Character spacing in mm");
+        var su = new Option<bool?>("--superscript", "Superscript");
+        var sb = new Option<bool?>("--subscript", "Subscript");
+        var pt = new Option<string>("--pattern", "Regex pattern to match text content");
+        var rl = new Option<string>("--role", "Target role: heading, body, or all");
+        var ot = new Option<string>("-o", "Output DOCX path");
+        var cmd = new Command("run-format", "Character-level formatting: underline, strikethrough, color, highlight, spacing, superscript") { fa, ul, uc, sk, cl, hl, sp, su, sb, pt, rl, ot };
+        cmd.AddAlias("char-format");
+        cmd.SetHandler((InvocationContext ctx) =>
+        {
+            var r = ctx.ParseResult; var f = r.GetValueForArgument(fa); var j = r.GetValueForOption(jsonOpt);
+            var er = CliHelpers.ValidateDocxFile(f);
+            if (er != null) { CliHelpers.WriteError("word run-format", er, j); return; }
+            try {
+                var o = r.GetValueForOption(ot) ?? Path.Combine(Path.GetDirectoryName(Path.GetFullPath(f))??".",Path.GetFileNameWithoutExtension(f)+".runs.docx");
+                var opt = new DocxRunFormatter.RunFormatOptions{Underline=r.GetValueForOption(ul),UnderlineColor=r.GetValueForOption(uc),Strikethrough=r.GetValueForOption(sk),Color=r.GetValueForOption(cl),Highlight=r.GetValueForOption(hl),SpacingMm=r.GetValueForOption(sp),Superscript=r.GetValueForOption(su),Subscript=r.GetValueForOption(sb),Pattern=r.GetValueForOption(pt),Role=r.GetValueForOption(rl)??"all"};
+                var res = DocxRunFormatter.Apply(f,o,opt);
+                var s = $"{res.RunsChanged} runs: {string.Join("; ",res.Changes)}";
+                if (j) { var x=JsonOutput.Ok("word run-format",s,new{output=Path.GetFullPath(o),runsChanged=res.RunsChanged,changes=res.Changes}); x.Artifacts["docx"]=Path.GetFullPath(o); Console.WriteLine(JsonSerializer.Serialize(x,CliHelpers.JsonOpts)); }
+                else Console.WriteLine($"{s} → {o}");
+            } catch (Exception ex) { CliHelpers.WriteError("word run-format", ErrorCodes.InternalError with{Message=ex.Message}, j); }
+        });
         return cmd;
     }
 
@@ -991,7 +2038,7 @@ public static class WordCommands
                 {
                     if (string.IsNullOrEmpty(result.FontFamily) && string.IsNullOrEmpty(result.FontSize) && result.Warnings.Count > 0)
                     {
-                        var errOut = new JsonOutput { Status = "error", Command = "word infer-format", Summary = "Could not parse format", Meta = new MetaInfo { Version = "3.1.0" } };
+                        var errOut = new JsonOutput { Status = "error", Command = "word infer-format", Summary = "Could not parse format", Meta = new MetaInfo { Version = CliVersion.Current } };
                         errOut.Errors.Add(ErrorCodes.ValidationFailed with { Message = "No known format patterns detected." });
                         foreach (var w in result.Warnings) errOut.Issues.Add(new Issue { Id = "parse_warning", Severity = "Warning", Message = w });
                         Console.WriteLine(JsonSerializer.Serialize(errOut, CliHelpers.JsonOpts));
@@ -1022,7 +2069,7 @@ public static class WordCommands
     {
         var fileArg = new Argument<string>("file", "Path to .docx file");
         var outOpt = new Option<string>("-o", "Output .docx path") { IsRequired = true };
-        var cmd = new Command("fix-order", "Fix OOXML element ordering") { fileArg, outOpt };
+        var cmd = new Command("fix-order", "Internal OOXML/structure repair only; does not promise visible Word formatting improvements") { fileArg, outOpt };
         cmd.SetHandler((string file, string output, bool json) =>
         {
             var err = CliHelpers.ValidateDocxFile(file);
@@ -1031,10 +2078,423 @@ public static class WordCommands
             { CliHelpers.WriteError("word fix-order", ErrorCodes.ValidationFailed with { Message = "Input and output paths must be different." }, json); return; }
             try { CliHelpers.EnsureParentDir(output); var (r, e) = CliHelpers.Time(() => WordEditOperations.FixOrder(file, output));
                 var a = CliHelpers.CheckArtifact(output, "DOCX"); if (a != null) { CliHelpers.WriteError("word fix-order", a, json); return; }
-                var o = JsonOutput.Ok("word fix-order", $"Fixed {r.FixedElements} elements", r); o.Artifacts["docx"] = Path.GetFullPath(output); o.Meta.DurationMs = e;
+                var data = new
+                {
+                    Input = Path.GetFullPath(file),
+                    Output = Path.GetFullPath(output),
+                    r.FixedElements,
+                    repairKind = "internal-ooxml-structure",
+                    visibleFormattingChanged = false,
+                    nextForVisibleFormatting = "word academic-format",
+                };
+                var o = JsonOutput.Ok("word fix-order", $"Fixed {r.FixedElements} internal OOXML element(s); visible formatting was not the goal", data); o.Artifacts["docx"] = Path.GetFullPath(output); o.Meta.DurationMs = e;
                 Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts)); }
             catch (Exception ex) { CliHelpers.WriteError("word fix-order", ErrorCodes.InternalError with { Message = ex.Message }, json); }
         }, fileArg, outOpt, jsonOpt);
+        return cmd;
+    }
+
+    static Command CreateAcademicFormat(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .docx file");
+        var outOpt = new Option<string>("-o", "Output .docx path") { IsRequired = true };
+        var cmd = new Command("academic-format", "Visible academic Word formatting repair for headings, body text, tables, fonts, and spacing") { fileArg, outOpt };
+        cmd.SetHandler((string file, string output, bool json) =>
+        {
+            const string command = "word academic-format";
+            var err = CliHelpers.ValidateDocxFile(file);
+            if (err != null) { CliHelpers.WriteError(command, err, json); return; }
+            if (!string.Equals(Path.GetExtension(output), ".docx", StringComparison.OrdinalIgnoreCase))
+            {
+                CliHelpers.WriteError(command,
+                    ErrorCodes.ValidationFailed with { Message = "Output path must end with .docx." }, json);
+                return;
+            }
+            if (string.Equals(Path.GetFullPath(file), Path.GetFullPath(output), StringComparison.OrdinalIgnoreCase))
+            {
+                CliHelpers.WriteError(command,
+                    ErrorCodes.ValidationFailed with { Message = "Input and output paths must be different." }, json);
+                return;
+            }
+
+            try
+            {
+                CliHelpers.EnsureParentDir(output);
+                var (r, e) = CliHelpers.Time(() =>
+                {
+                    var formatted = WordAcademicFormatter.Apply(file, output);
+                    FixOrderInPlace(output);
+                    return formatted;
+                });
+                var a = CliHelpers.CheckArtifact(output, "DOCX");
+                if (a != null) { CliHelpers.WriteError(command, a, json); return; }
+                var o = JsonOutput.Ok(command,
+                    $"Applied academic formatting: {r.ParagraphsFormatted} paragraphs, {r.TablesFormatted} tables",
+                    r);
+                o.Artifacts["docx"] = Path.GetFullPath(output);
+                o.Metrics["paragraphs"] = r.ParagraphsFormatted;
+                o.Metrics["runs"] = r.RunsFormatted;
+                o.Metrics["tables"] = r.TablesFormatted;
+                o.Metrics["latinParenthesesItalicized"] = r.LatinParentheticalRunsItalicized;
+                o.Meta.DurationMs = e;
+                Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+            }
+            catch (ArgumentException ex)
+            {
+                CliHelpers.WriteError(command, ErrorCodes.ValidationFailed with { Message = ex.Message }, json);
+            }
+            catch (Exception ex)
+            {
+                CliHelpers.WriteError(command, ErrorCodes.InternalError with { Message = ex.Message }, json);
+            }
+        }, fileArg, outOpt, jsonOpt);
+        return cmd;
+    }
+
+    static Command CreateFormatAudit(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .docx file");
+        var profileOpt = new Option<string>("--profile", () => "academic", "Audit profile: academic");
+        var failOnWarningOpt = new Option<bool>("--fail-on-warning", () => false, "Return E006 when the audit reports warning or fail status.");
+        var minScoreOpt = new Option<int?>("--min-score", "Return E006 when the audit score is lower than this threshold.");
+        var cmd = new Command("format-audit", "Audit visible Word formatting evidence for headings, body text, tables, fonts, and spacing")
+        {
+            fileArg,
+            profileOpt,
+            failOnWarningOpt,
+            minScoreOpt,
+        };
+        cmd.SetHandler((string file, string profile, bool failOnWarning, int? minScore, bool json) =>
+        {
+            const string command = "word format-audit";
+            var err = CliHelpers.ValidateDocxFile(file);
+            if (err != null) { CliHelpers.WriteError(command, err, json); return; }
+            if (!string.Equals(profile, "academic", StringComparison.OrdinalIgnoreCase))
+            {
+                CliHelpers.WriteError(command,
+                    ErrorCodes.ValidationFailed with { Message = "Unsupported --profile. Supported: academic." }, json);
+                return;
+            }
+            if (minScore is < 0 or > 100)
+            {
+                CliHelpers.WriteError(command,
+                    ErrorCodes.ValidationFailed with { Message = "--min-score must be between 0 and 100." }, json);
+                return;
+            }
+
+            try
+            {
+                var (result, elapsed) = CliHelpers.Time(() => WordFormatAuditor.Audit(file, profile));
+                var gateFailures = GetFormatAuditGateFailures(result, failOnWarning, minScore);
+                var gateFailed = gateFailures.Count > 0;
+                if (json)
+                {
+                    var output = gateFailed
+                        ? new JsonOutput
+                        {
+                            Status = "error",
+                            Command = command,
+                            Summary = $"Format audit gate failed: {string.Join("; ", gateFailures)}",
+                            Data = result,
+                            Errors = new List<ErrorEntry>
+                            {
+                                ErrorCodes.ValidationFailed with
+                                {
+                                    Message = $"Format audit gate failed: {string.Join("; ", gateFailures)}",
+                                },
+                            },
+                            Meta = new MetaInfo { Version = CliVersion.Current },
+                        }
+                        : JsonOutput.Ok(command,
+                            $"Format audit {result.StatusLevel}: {result.Summary.Issues} issue(s), score {result.Score}",
+                            result);
+                    output.Metrics["score"] = result.Score;
+                    output.Metrics["issues"] = result.Summary.Issues;
+                    output.Metrics["headings"] = result.Summary.Headings;
+                    output.Metrics["bodyParagraphs"] = result.Summary.BodyParagraphs;
+                    output.Metrics["tables"] = result.Summary.Tables;
+                    output.Metrics["threeLineTables"] = result.Tables.ThreeLineLike;
+                    output.Metrics["gateFailed"] = gateFailed;
+                    output.Meta.DurationMs = elapsed;
+                    foreach (var issue in result.Issues)
+                    {
+                        output.Issues.Add(new Issue
+                        {
+                            Id = issue.Id,
+                            Severity = issue.Severity,
+                            Message = issue.BlockId == null
+                                ? issue.Message
+                                : $"{issue.BlockId}: {issue.Message}",
+                        });
+                    }
+                    foreach (var failure in gateFailures)
+                    {
+                        output.Issues.Add(new Issue
+                        {
+                            Id = "format_audit_gate",
+                            Severity = "error",
+                            Message = failure,
+                        });
+                    }
+                    Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
+                }
+                else
+                {
+                    Console.WriteLine($"Status: {result.StatusLevel}");
+                    Console.WriteLine($"Score: {result.Score}");
+                    Console.WriteLine($"Headings: {result.Summary.Headings}");
+                    Console.WriteLine($"Body paragraphs: {result.Summary.BodyParagraphs}");
+                    Console.WriteLine($"Tables: {result.Tables.ThreeLineLike}/{result.Tables.Total} three-line-like");
+                    foreach (var issue in result.Issues.Take(20))
+                        Console.WriteLine($"[{issue.Severity}] {issue.BlockId ?? "-"} {issue.Id}: {issue.Message}");
+                    foreach (var failure in gateFailures)
+                        Console.Error.WriteLine($"[error] format_audit_gate: {failure}");
+                }
+
+                if (gateFailed)
+                    Environment.ExitCode = 1;
+            }
+            catch (Exception ex)
+            {
+                CliHelpers.WriteError(command, ErrorCodes.InternalError with { Message = ex.Message }, json);
+            }
+        }, fileArg, profileOpt, failOnWarningOpt, minScoreOpt, jsonOpt);
+        return cmd;
+    }
+
+    static List<string> GetFormatAuditGateFailures(WordFormatAuditResult result, bool failOnWarning, int? minScore)
+    {
+        var failures = new List<string>();
+        if (result.StatusLevel.Equals("fail", StringComparison.OrdinalIgnoreCase))
+            failures.Add("statusLevel is fail");
+        if (failOnWarning && result.StatusLevel.Equals("warn", StringComparison.OrdinalIgnoreCase))
+            failures.Add("statusLevel is warn and --fail-on-warning was set");
+        if (minScore.HasValue && result.Score < minScore.Value)
+            failures.Add($"score {result.Score} is lower than --min-score {minScore.Value}");
+        return failures;
+    }
+
+    static Command CreateFormatGongwen(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .docx file");
+        var outOpt = new Option<string>("-o", "Output .docx path") { IsRequired = true };
+        var configOpt = new Option<string?>("--config", "Optional gongwen style JSON config");
+        var cmd = new Command("format-gongwen", "Apply Chinese official-document formatting to an existing DOCX")
+        {
+            fileArg,
+            outOpt,
+            configOpt,
+        };
+
+        cmd.SetHandler((string file, string output, string? config, bool json) =>
+        {
+            const string command = "word format-gongwen";
+            var err = CliHelpers.ValidateDocxFile(file);
+            if (err != null) { CliHelpers.WriteError(command, err, json); return; }
+            if (!string.Equals(Path.GetExtension(output), ".docx", StringComparison.OrdinalIgnoreCase))
+            {
+                CliHelpers.WriteError(command,
+                    ErrorCodes.ValidationFailed with { Message = "Output path must end with .docx." }, json);
+                return;
+            }
+            if (string.Equals(Path.GetFullPath(file), Path.GetFullPath(output), StringComparison.OrdinalIgnoreCase))
+            {
+                CliHelpers.WriteError(command,
+                    ErrorCodes.ValidationFailed with { Message = "Input and output paths must be different." }, json);
+                return;
+            }
+            if (!string.IsNullOrWhiteSpace(config) && !File.Exists(config))
+            {
+                CliHelpers.WriteError(command,
+                    ErrorCodes.FileNotFound with { Message = $"Config file not found: {config}" }, json);
+                return;
+            }
+
+            try
+            {
+                CliHelpers.EnsureParentDir(output);
+                var (data, elapsed) = CliHelpers.Time(() =>
+                {
+                    var fullInput = Path.GetFullPath(file);
+                    var fullOutput = Path.GetFullPath(output);
+                    var options = string.IsNullOrWhiteSpace(config)
+                        ? new FormatOptions()
+                        : FormatOptions.FromJsonFile(config);
+
+                    File.Copy(fullInput, fullOutput, overwrite: true);
+                    using var doc = WordprocessingDocument.Open(fullOutput, true);
+                    new GongWenFormatter().FormatDocument(doc, options);
+
+                    return new
+                    {
+                        input = fullInput,
+                        output = fullOutput,
+                        config = string.IsNullOrWhiteSpace(config) ? null : Path.GetFullPath(config),
+                        formatProfile = "gongwen",
+                        source = options.Source,
+                    };
+                });
+                var a = CliHelpers.CheckArtifact(output, "DOCX");
+                if (a != null) { CliHelpers.WriteError(command, a, json); return; }
+
+                var o = JsonOutput.Ok(command, $"Applied gongwen formatting: {output}", data);
+                o.Artifacts["docx"] = Path.GetFullPath(output);
+                o.Meta.DurationMs = elapsed;
+                Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+            }
+            catch (JsonException ex)
+            {
+                CliHelpers.WriteError(command,
+                    ErrorCodes.ValidationFailed with { Message = $"Config is not valid JSON: {ex.Message}" }, json);
+            }
+            catch (Exception ex)
+            {
+                try { if (File.Exists(output)) File.Delete(output); } catch { }
+                CliHelpers.WriteError(command, ErrorCodes.InternalError with { Message = ex.Message }, json);
+            }
+        }, fileArg, outOpt, configOpt, jsonOpt);
+        return cmd;
+    }
+
+    static Command CreateRepairPlan(Option<bool> jsonOpt)
+    {
+        var cmd = new Command("repair-plan", "Explain which Word repair command to use; prevents confusing internal OOXML repair with visible formatting repair");
+        cmd.SetHandler((bool json) =>
+        {
+            var plan = new
+            {
+                schemaVersion = "nong-word/repair-plan/v1",
+                rules = new[]
+                {
+                    new
+                    {
+                        userGoal = "Open Word and make the document visibly better.",
+                        command = "word academic-format",
+                        outputNameHint = "*.academic-fixed.docx",
+                        completionEvidence = new[] { "word validate", "word format-audit", "word dissect", "slice inspect --strict", "format.json.visualEvidence" },
+                        note = "This is the current visible formatting path for academic-style documents."
+                    },
+                    new
+                    {
+                        userGoal = "Prove whether a Word document is visibly formatted well enough.",
+                        command = "word format-audit",
+                        outputNameHint = "*.format-audit.json",
+                        completionEvidence = new[] { "data.statusLevel", "data.headings", "data.body", "data.tables", "issues" },
+                        note = "This is a read-only visible-format evidence audit. It does not modify the document."
+                    },
+                    new
+                    {
+                        userGoal = "Fix invalid OOXML element order or table compatibility warnings.",
+                        command = "word fix-order",
+                        outputNameHint = "*.ooxml-fixed.docx",
+                        completionEvidence = new[] { "word validate", "word preview" },
+                        note = "This is an internal structure repair. Do not call the user-facing document visually fixed just because this passes."
+                    },
+                    new
+                    {
+                        userGoal = "Split long or wide tables into continuation tables.",
+                        command = "word table-reflow",
+                        outputNameHint = "*.table-reflowed.docx",
+                        completionEvidence = new[] { "word validate", "word dissect", "format.json.visualEvidence.tables" },
+                        note = "Use after academic-format when table layout still needs explicit reflow."
+                    },
+                },
+                plannedCommands = new[]
+                {
+                    "word repair",
+                    "word compare-format"
+                },
+                forbiddenCompletionClaim = "Do not claim visible Word repair is complete from word validate, word preview, word outline, word dissect, or word fix-order alone. Use word format-audit for visible formatting evidence.",
+            };
+
+            if (json)
+            {
+                var output = JsonOutput.Ok("word repair-plan", "Word repair command routing", plan);
+                Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
+            }
+            else
+            {
+                Console.WriteLine(JsonSerializer.Serialize(plan, CliHelpers.JsonOpts));
+            }
+        }, jsonOpt);
+        return cmd;
+    }
+
+    static Command CreateTableReflow(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .docx file");
+        var outOpt = new Option<string>("-o", "Output .docx path") { IsRequired = true };
+        var maxRowsOpt = new Option<int>("--max-rows", () => 0, "Split table body rows into continuation tables after this many rows. 0 disables row splitting.");
+        var maxColsOpt = new Option<int>("--max-cols", () => 0, "Split wide tables into column groups after this many columns. 0 disables column splitting.");
+        var repeatLeftColsOpt = new Option<int>("--repeat-left-cols", () => 0, "Repeat this many left-most columns in later wide-table parts.");
+        var continuationLabelOpt = new Option<string>("--continuation-label", () => "续表", "Continuation table label prefix.");
+        var cmd = new Command("table-reflow", "Explicitly split long or wide tables into continuation tables") { fileArg, outOpt, maxRowsOpt, maxColsOpt, repeatLeftColsOpt, continuationLabelOpt };
+        cmd.SetHandler((string file, string output, int maxRows, int maxCols, int repeatLeftCols, string continuationLabel, bool json) =>
+        {
+            const string command = "word table-reflow";
+            var err = CliHelpers.ValidateDocxFile(file);
+            if (err != null) { CliHelpers.WriteError(command, err, json); return; }
+            if (!string.Equals(Path.GetExtension(output), ".docx", StringComparison.OrdinalIgnoreCase))
+            {
+                CliHelpers.WriteError(command,
+                    ErrorCodes.ValidationFailed with { Message = "Output path must end with .docx." }, json);
+                return;
+            }
+            if (maxRows < 0 || maxCols < 0 || repeatLeftCols < 0)
+            {
+                CliHelpers.WriteError(command,
+                    ErrorCodes.ValidationFailed with { Message = "--max-rows, --max-cols, and --repeat-left-cols must be non-negative." }, json);
+                return;
+            }
+            if (string.Equals(Path.GetFullPath(file), Path.GetFullPath(output), StringComparison.OrdinalIgnoreCase))
+            {
+                CliHelpers.WriteError(command,
+                    ErrorCodes.ValidationFailed with { Message = "Input and output paths must be different." }, json);
+                return;
+            }
+
+            try
+            {
+                CliHelpers.EnsureParentDir(output);
+                var options = new WordTableReflow.TableReflowOptions(maxRows, maxCols, repeatLeftCols, continuationLabel);
+                var (r, e) = CliHelpers.Time(() =>
+                {
+                    var reflowed = WordTableReflow.Apply(file, output, options);
+                    FixOrderInPlace(output);
+                    return reflowed;
+                });
+                var a = CliHelpers.CheckArtifact(output, "DOCX");
+                if (a != null) { CliHelpers.WriteError(command, a, json); return; }
+                var o = JsonOutput.Ok(command,
+                    $"Reflowed {r.TablesReflowed} table(s), produced {r.OutputTables} table part(s)",
+                    r);
+                o.Artifacts["docx"] = Path.GetFullPath(output);
+                o.Metrics["tablesVisited"] = r.TablesVisited;
+                o.Metrics["tablesReflowed"] = r.TablesReflowed;
+                o.Metrics["longTablesSplit"] = r.LongTablesSplit;
+                o.Metrics["wideTablesSplit"] = r.WideTablesSplit;
+                o.Metrics["outputTables"] = r.OutputTables;
+                o.Meta.DurationMs = e;
+                foreach (var warning in r.Warnings)
+                {
+                    o.Issues.Add(new Issue
+                    {
+                        Id = "table_reflow",
+                        Severity = "warning",
+                        Message = warning,
+                    });
+                }
+                Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+            }
+            catch (ArgumentException ex)
+            {
+                CliHelpers.WriteError(command, ErrorCodes.ValidationFailed with { Message = ex.Message }, json);
+            }
+            catch (Exception ex)
+            {
+                CliHelpers.WriteError(command, ErrorCodes.InternalError with { Message = ex.Message }, json);
+            }
+        }, fileArg, outOpt, maxRowsOpt, maxColsOpt, repeatLeftColsOpt, continuationLabelOpt, jsonOpt);
         return cmd;
     }
 
@@ -1085,6 +2545,228 @@ public static class WordCommands
             catch (ArgumentException ex) { CliHelpers.WriteError("word embed-font", ErrorCodes.ValidationFailed with { Message = ex.Message }, json); }
             catch (Exception ex) { CliHelpers.WriteError("word embed-font", ErrorCodes.InternalError with { Message = ex.Message }, json); }
         }, fileArg, fontArg, outOpt, nameOpt, jsonOpt);
+        return cmd;
+    }
+
+    // ===== word compare =====
+
+    static Command CreateCompare(Option<bool> jsonOpt)
+    {
+        var file1Arg = new Argument<string>("file1", "First .docx file");
+        var file2Arg = new Argument<string>("file2", "Second .docx file");
+        var cmd = new Command("compare", "Compare two DOCX files and report differences") { file1Arg, file2Arg };
+
+        cmd.SetHandler((string file1, string file2, bool json) =>
+        {
+            const string command = "word compare";
+            var e1 = CliHelpers.ValidateDocxFile(file1);
+            if (e1 != null) { CliHelpers.WriteError(command, e1, json); return; }
+            var e2 = CliHelpers.ValidateDocxFile(file2);
+            if (e2 != null) { CliHelpers.WriteError(command, e2, json); return; }
+
+            try
+            {
+                var (result, elapsed) = CliHelpers.Time(() =>
+                {
+                    var ps1 = ExtractParagraphs(file1);
+                    var ps2 = ExtractParagraphs(file2);
+                    var diffs = DiffParagraphs(ps1, ps2);
+                    return new { file1, file2, changes = diffs, paragraphCount1 = ps1.Count, paragraphCount2 = ps2.Count };
+                });
+
+                var output = JsonOutput.Ok(command,
+                    $"Compared: {result.paragraphCount1} vs {result.paragraphCount2} paragraphs, {result.changes.Count} change(s)",
+                    result);
+                output.Metrics["paragraphsA"] = result.paragraphCount1;
+                output.Metrics["paragraphsB"] = result.paragraphCount2;
+                output.Metrics["changes"] = result.changes.Count;
+                output.Metrics["added"] = result.changes.Count(c => c.Kind == "added");
+                output.Metrics["removed"] = result.changes.Count(c => c.Kind == "removed");
+                output.Metrics["modified"] = result.changes.Count(c => c.Kind == "modified");
+                output.Meta.DurationMs = elapsed;
+                Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
+            }
+            catch (Exception ex) { CliHelpers.WriteError(command, ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        }, file1Arg, file2Arg, jsonOpt);
+        return cmd;
+    }
+
+    static List<ParagraphSnapshot> ExtractParagraphs(string docxPath)
+    {
+        var paragraphs = new List<ParagraphSnapshot>();
+        using var doc = WordprocessingDocument.Open(docxPath, false);
+        var body = doc.MainDocumentPart?.Document?.Body;
+        if (body == null) return paragraphs;
+
+        int idx = 0;
+        foreach (var p in body.Elements<Paragraph>())
+        {
+            var text = p.InnerText;
+            var styleId = p.ParagraphProperties?.ParagraphStyleId?.Val?.Value;
+            paragraphs.Add(new ParagraphSnapshot(idx, text, styleId));
+            idx++;
+        }
+        return paragraphs;
+    }
+
+    static List<CompareChange> DiffParagraphs(List<ParagraphSnapshot> a, List<ParagraphSnapshot> b)
+    {
+        var changes = new List<CompareChange>();
+        int maxLen = Math.Max(a.Count, b.Count);
+        // Simple line-by-line comparison with text normalization
+        for (int i = 0; i < maxLen; i++)
+        {
+            var ta = i < a.Count ? NormalizeText(a[i].Text) : null;
+            var tb = i < b.Count ? NormalizeText(b[i].Text) : null;
+
+            if (i >= a.Count)
+            {
+                changes.Add(new CompareChange(i, "added", b[i].Text, b[i].StyleId));
+            }
+            else if (i >= b.Count)
+            {
+                changes.Add(new CompareChange(i, "removed", a[i].Text, a[i].StyleId));
+            }
+            else if (ta != tb)
+            {
+                // Try to find if this paragraph moved by searching in the other doc
+                changes.Add(new CompareChange(i, "modified", b[i].Text, b[i].StyleId,
+                    previousText: a[i].Text, previousStyleId: a[i].StyleId));
+            }
+        }
+        return changes;
+    }
+
+    static string NormalizeText(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return "";
+        // Collapse whitespace to single spaces
+        var result = System.Text.RegularExpressions.Regex.Replace(text.Trim(), @"\s+", " ");
+        return result;
+    }
+
+    sealed record ParagraphSnapshot(int Index, string Text, string? StyleId);
+    sealed record CompareChange(int Index, string Kind, string Text, string? StyleId,
+        string? previousText = null, string? previousStyleId = null);
+
+    // ===== word render-preview =====
+
+    static Command CreateRenderPreview(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .docx file");
+        var outOpt = new Option<string>("-o", "Output directory for rendered page PNGs") { IsRequired = true };
+        var dpiOpt = new Option<int>("--dpi", () => 150, "Render DPI");
+        var cmd = new Command("render-preview", "Render DOCX pages as PNGs via LibreOffice headless PDF conversion") { fileArg, outOpt, dpiOpt };
+
+        cmd.SetHandler((string file, string output, int dpi, bool json) =>
+        {
+            const string command = "word render-preview";
+            try
+            {
+                if (!File.Exists(file))
+                { CliHelpers.WriteError(command, ErrorCodes.FileNotFound with { Message = $"File not found: {file}" }, json); return; }
+
+                // Step 1: DOCX → PDF via LibreOffice
+                var soffice = FindExecutable("soffice") ?? FindLibreOfficeOnWindows();
+                if (soffice == null)
+                {
+                    CliHelpers.WriteError(command,
+                        ErrorCodes.DependencyMissing with { Message = "LibreOffice is required for render-preview. Install LibreOffice (libreoffice.org) and ensure soffice is on PATH." }, json);
+                    return;
+                }
+
+                var tempDir = Path.Combine(Path.GetTempPath(), "nong-render-preview-" + Guid.NewGuid().ToString("N"));
+                Directory.CreateDirectory(tempDir);
+                var pdfPath = Path.Combine(tempDir, "preview.pdf");
+
+                try
+                {
+                    var psi = new ProcessStartInfo
+                    {
+                        FileName = soffice,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+                    foreach (var arg in new[] { "--headless", "--convert-to", "pdf", "--outdir", tempDir, file })
+                        psi.ArgumentList.Add(arg);
+
+                    using var proc = Process.Start(psi)!;
+                    var soStdout = proc.StandardOutput.ReadToEnd();
+                    var soStderr = proc.StandardError.ReadToEnd();
+                    if (!proc.WaitForExit(120000))
+                    {
+                        try { proc.Kill(entireProcessTree: true); } catch { }
+                        throw new TimeoutException("LibreOffice conversion timed out (120s).");
+                    }
+                    if (proc.ExitCode != 0)
+                        throw new InvalidOperationException($"LibreOffice exit code {proc.ExitCode}: {soStderr}");
+
+                    // LibreOffice names output by replacing extension: paper.docx → paper.pdf
+                    var expectedName = Path.GetFileNameWithoutExtension(file) + ".pdf";
+                    var produced = Directory.GetFiles(tempDir, "*.pdf").FirstOrDefault();
+                    if (produced == null)
+                        throw new InvalidOperationException($"LibreOffice did not produce PDF. stdout: {soStdout}");
+
+                    // Step 2: PDF → PNG via nong-pdf render subprocess
+                    Directory.CreateDirectory(output);
+                    var (renderExit, renderOut, renderErr) = CliHelpers.RunToolCapture(
+                        "nong-pdf", ToolPackages.Pdf,
+                        new[] { "pdf", "render", produced, "-o", output, "--dpi", dpi.ToString(), "--json" });
+
+                    if (renderExit != 0)
+                        throw new InvalidOperationException($"nong-pdf render failed (exit {renderExit}): {renderErr}");
+
+                    // Parse render output for page count
+                    int pageCount = 0;
+                    var pageFiles = new List<string>();
+                    try
+                    {
+                        using var renderDoc = JsonDocument.Parse(renderOut);
+                        var rd = renderDoc.RootElement;
+                        if (rd.TryGetProperty("data", out var rdata))
+                        {
+                            if (rdata.TryGetProperty("pages", out var p) && p.TryGetInt32(out var pc))
+                                pageCount = pc;
+                        }
+                        // Enumerate produced PNGs
+                        pageFiles = Directory.GetFiles(output, "*.png").OrderBy(f => f).Select(Path.GetFullPath).ToList();
+                        if (pageFiles.Count == 0)
+                            pageFiles = Directory.GetFiles(output, "*.jpg").OrderBy(f => f).Select(Path.GetFullPath).ToList();
+                    }
+                    catch { /* best-effort parse */ }
+
+                    if (json)
+                    {
+                        var o = JsonOutput.Ok(command,
+                            $"Rendered {pageCount} page(s) at {dpi} DPI",
+                            new { pages = pageCount, dpi, pageFiles });
+                        o.Artifacts["dir"] = Path.GetFullPath(output);
+                        o.Metrics["pages"] = pageCount;
+                        o.Metrics["dpi"] = dpi;
+                        o.Issues.Add(new Issue { Id = "render_engine", Severity = "Info", Message = $"Rendered via LibreOffice (soffice) at {dpi} DPI. Layout fidelity depends on LibreOffice's DOCX import." });
+                        Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Rendered {pageCount} page(s) to {Path.GetFullPath(output)}");
+                        foreach (var pf in pageFiles)
+                            Console.WriteLine($"  {pf}");
+                    }
+                }
+                finally
+                {
+                    try { Directory.Delete(tempDir, true); } catch { }
+                }
+            }
+            catch (TimeoutException ex)
+            { CliHelpers.WriteError(command, ErrorCodes.InternalError with { Message = ex.Message }, json); }
+            catch (InvalidOperationException ex)
+            { CliHelpers.WriteError(command, ErrorCodes.DependencyMissing with { Message = ex.Message }, json); }
+            catch (Exception ex)
+            { CliHelpers.WriteError(command, ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        }, fileArg, outOpt, dpiOpt, jsonOpt);
         return cmd;
     }
 

@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word format slice read enhancement - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>Word format slice read enhancement</h1>
+<p class="subtitle">2026-06-05 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>Word format slice read enhancement</h1>
+<br>
+<p>Date: 2026-06-05</p>
+<br>
+<h2>Problem</h2>
+<br>
+<p><code>nong word read</code> is text-only, and GroundPA could mistakenly use that output to answer DOCX formatting questions. <code>word dissect --output</code> was the correct path, but the slice model still exposed only part of the formatting surface.</p>
+<br>
+<p>Before this change, <code>content.jsonl</code> preserved run-level formatting such as fonts and font sizes, while paragraph layout and table borders were not directly exposed in block JSON.</p>
+<br>
+<h2>Change</h2>
+<br>
+<p>Enhanced the NongMark Word slice model:</p>
+<br>
+<ul>
+<li><code>ParagraphBlock.format</code></li>
+<li><code>HeadingBlock.format</code></li>
+<li><code>TableBlock.format</code></li>
+<li><code>TableCellBlock.format</code></li>
+<li><code>NongFormat.tables[].format</code></li>
+</ul>
+<br>
+<p>New extracted fields include:</p>
+<br>
+<ul>
+<li>paragraph alignment</li>
+<li>first-line, left, and right indentation</li>
+<li>line spacing and line rule</li>
+<li>paragraph spacing before/after</li>
+<li>keep-next flag</li>
+<li>table justification and width</li>
+<li>table top/bottom/left/right/insideH/insideV borders</li>
+<li>cell width</li>
+<li>cell vertical alignment</li>
+<li>cell shading fill</li>
+<li>cell borders</li>
+</ul>
+<br>
+<h2>Validation</h2>
+<br>
+<p>Added <code>WordDissect_Output_IncludesParagraphAndTableFormatting</code>.</p>
+<br>
+<p>Validation run:</p>
+<br>
+<pre><code class="language-powershell">
+dotnet build .\Nong.Cli.Net\Cli\NongCli.csproj -c Release --nologo
+dotnet test .\Nong.Cli.Net\Cli.Tests\Cli.Tests.csproj -c Release --nologo
+</code></pre>
+<br>
+<p>Result:</p>
+<br>
+<ul>
+<li>Build: PASS, 0 errors.</li>
+<li>Tests: PASS, 59/59.</li>
+</ul>
+<br>
+<h2>Remaining Work</h2>
+<br>
+<p>Resolved style inheritance and exact Word visual rendering are still not complete. Stage 18 should continue with <code>word format-audit</code> and <code>word apply-format</code>.</p>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

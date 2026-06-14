@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NuGet 传递依赖修复 - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>NuGet 传递依赖修复</h1>
+<p class="subtitle">2026-06-01 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>NuGet 传递依赖修复</h1>
+<br>
+<p><strong>时间</strong>: 2026-06-01</p>
+<p><strong>影响包</strong>: Angri450.Nong.Chart (3.0.3), Angri450.Nong.Excel (3.0.3)</p>
+<p><strong>类型</strong>: Bug Fix</p>
+<br>
+<h2>问题</h2>
+<br>
+<p>Chart 和 Excel 的 csproj 中 <code>PrivateAssets=&quot;all&quot;</code> 阻止 ThirdParty 作为 NuGet 传递依赖流向消费者。但这两个包的公开 API 暴露了 ThirdParty 中的类型（如 ScottPlot.Color）。消费者只安装 Chart/Excel 时编译报 CS0012 &quot;类型在未引用的程序集中定义&quot;。</p>
+<br>
+<h2>修复</h2>
+<br>
+<p>移除 Chart 和 Excel 的 <code>PrivateAssets=&quot;all&quot;</code>，与 Diagram/Docx 保持一致。ThirdParty 作为正常传递依赖被拉取。</p>
+<br>
+<h2>技能须知</h2>
+<br>
+<ul>
+<li>消费者<strong>不要额外安装</strong> <code>ClosedXML</code> 或 <code>ScottPlot</code> NuGet 包——这些类型已合并到 <code>Angri450.Nong.ThirdParty</code> 中，重复安装会导致 CS0433 类型冲突。</li>
+<li>Excel skill 的 Quick Start 中应加入此警告。</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-03 阶段 8 指导：Icons / Genre / OCR - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../guidance.html" class="back-link">&larr; 开发指导</a>
+<h1>2026-06-03 阶段 8 指导：Icons / Genre / OCR</h1>
+<p class="subtitle">2026-06-03 | <span style="color: #7c3aed">开发指导</span></p></header>
+<article class="content">
+<h1>2026-06-03 阶段 8 指导：Icons / Genre / OCR</h1>
+<br>
+<h2>目标</h2>
+<br>
+<p>阶段 8 做辅助资产能力，不碰主链路大重构。</p>
+<br>
+<p>优先顺序：</p>
+<br>
+<p>1. <code>genre list/show</code></p>
+<p>2. <code>icons list/search</code></p>
+<p>3. <code>ocr local/cloud</code></p>
+<br>
+<p>OCR 放最后，能晚就晚。</p>
+<br>
+<h2>P0：genre</h2>
+<br>
+<pre><code class="language-powershell">
+nong genre list --json
+nong genre show journal-paper --json
+</code></pre>
+<br>
+<p>用途：让模型知道有哪些格式模板、文体模板、JSON spec 模板。</p>
+<br>
+<p><code>genre show</code> 应输出：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;name&quot;: &quot;journal-paper&quot;,
+  &quot;description&quot;: &quot;&quot;,
+  &quot;schema&quot;: {},
+  &quot;example&quot;: {}
+}
+</code></pre>
+<br>
+<h2>P1：icons</h2>
+<br>
+<pre><code class="language-powershell">
+nong icons list --json
+nong icons search &quot;rice&quot; --json
+</code></pre>
+<br>
+<p>用途：生命科学/农学图示素材检索。</p>
+<br>
+<p>只做查询和路径返回，不做复杂绘图。</p>
+<br>
+<h2>P2：ocr</h2>
+<br>
+<pre><code class="language-powershell">
+nong ocr local image.png --json
+nong ocr cloud image.png --json
+</code></pre>
+<br>
+<p>OCR 依赖重、失败面大。阶段 8 只允许做 wrapper，不允许为 OCR 重写大系统。</p>
+<br>
+<p>如果本地依赖不可用，必须返回：</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;status&quot;: &quot;error&quot;,
+  &quot;errors&quot;: [
+    {
+      &quot;code&quot;: &quot;E005&quot;,
+      &quot;name&quot;: &quot;dependency_missing&quot;
+    }
+  ]
+}
+</code></pre>
+<br>
+<h2>建议 ClaudeCode 任务</h2>
+<br>
+<pre><code class="language-text">
+目标：实现阶段 8 辅助资产能力。
+
+优先只做：
+1. nong genre list
+2. nong genre show &lt;name&gt;
+3. nong icons list
+4. nong icons search &lt;query&gt;
+
+OCR 只做依赖探测和错误返回；如果现有 MultiModal/OCR API 不稳定，就保留 not implemented，不要硬接。
+
+要求：
+- 新建 GenreCommands.cs / IconsCommands.cs。
+- 返回结构要省 token，避免输出整份大模板。
+- 对大内容提供 --full 选项；默认摘要。
+- Release build 0 错误。
+</code></pre>
+<br>
+<h2>验收标准</h2>
+<br>
+<p>阶段 8 的重点不是“功能多”，而是让 skill 层能查：</p>
+<br>
+<ul>
+<li>有哪些模板？</li>
+<li>模板怎么用？</li>
+<li>有哪些图标素材？</li>
+<li>OCR 依赖是否可用？</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

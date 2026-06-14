@@ -65,14 +65,13 @@ public static class SlidePreview
                                 if (font.Color is { } c && !string.IsNullOrEmpty(c.Hex))
                                     parts.Add($"#{c.Hex}");
                             }
-                            catch { }
+                            catch (Exception ex) { warnings.Add($"font-color: {ex.GetType().Name}"); }
                             if (parts.Count > 0)
                                 sb.AppendLine($"    Font: {string.Join(" ", parts)}");
                         }
                     }
                 }
-                catch { /* best effort */ }
-
+                catch (Exception ex) { warnings.Add($"font-info: {ex.GetType().Name}"); }
                 if (!string.IsNullOrEmpty(extra))
                     sb.AppendLine($"    {extra}");
 
@@ -124,8 +123,7 @@ public static class SlidePreview
                         }
                     }
                 }
-                catch { /* best effort */ }
-
+                catch (Exception ex) { Console.Error.WriteLine($"[SlidePreview] shape-map: {ex.GetType().Name}"); }
                 // ShapeCrawler 0.79.2 doesn't expose X/Y directly — use SDK element as fallback
                 shapes.Add(new ShapeMapShape(
                     Name: shape.Name,

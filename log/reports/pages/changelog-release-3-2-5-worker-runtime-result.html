@@ -1,0 +1,212 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-07 Release Result: Nong CLI 3.2.5 Worker Isolation - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../changelog.html" class="back-link">&larr; 变更记录</a>
+<h1>2026-06-07 Release Result: Nong CLI 3.2.5 Worker Isolation</h1>
+<p class="subtitle">2026-06-07 | <span style="color: #16a34a">变更记录</span></p></header>
+<article class="content">
+<h1>2026-06-07 Release Result: Nong CLI 3.2.5 Worker Isolation</h1>
+<br>
+<h2>Goal</h2>
+<br>
+<p>Ship Nong CLI <code>3.2.5</code> with:</p>
+<br>
+<ul>
+<li>Repository cleanup and mainline-only commit.</li>
+<li>Vendored dependency control for PDF/QR/PdfPig/Docnet work.</li>
+<li>Literature DSL package and <code>nong lit ...</code> commands.</li>
+<li>Native image rendering isolation for Chart/Diagram.</li>
+<li>Safer default test suite without native image render crash risk.</li>
+<li>GitHub, Gitee, GitCode, and NuGet release.</li>
+</ul>
+<br>
+<p>Status: PASS with follow-up notes.</p>
+<br>
+<h2>Release Commit</h2>
+<br>
+<ul>
+<li>Release commit: <code>73730c6e7c976fb333a54a35a37ee25edd0118c5</code></li>
+<li>Documentation progress commit: <code>d52c041de35fe4d4a050e2e83de450255f114730</code></li>
+<li>Branch: <code>master</code></li>
+<li>Remotes updated:</li>
+<li>GitHub: <code>https://github.com/angri450/Nong.NET</code></li>
+<li>Gitee: <code>https://gitee.com/angri450/Nong.NET</code></li>
+<li>GitCode: <code>git@gitcode.com:angri450/Nong.NET.git</code></li>
+</ul>
+<br>
+<h2>NuGet Published</h2>
+<br>
+<p>Published and available:</p>
+<br>
+<ul>
+<li><code>Angri450.Nong.ThirdParty 3.2.5</code></li>
+<li><code>Angri450.Nong.Pdf 3.2.5</code></li>
+<li><code>Angri450.Nong.MultiModal 3.2.5</code></li>
+<li><code>Angri450.Nong.Literature 3.2.5</code></li>
+<li><code>Angri450.Nong.OcrRuntime.WinX64 3.2.5</code></li>
+<li><code>Angri450.Nong.Cli 3.2.5</code></li>
+</ul>
+<br>
+<p>The final public CLI install command is:</p>
+<br>
+<pre><code class="language-powershell">
+dotnet tool install --global Angri450.Nong.Cli --version 3.2.5
+</code></pre>
+<br>
+<p>Confirmed live install output:</p>
+<br>
+<pre><code class="language-text">
+3.2.5+73730c6e7c976fb333a54a35a37ee25edd0118c5
+</code></pre>
+<br>
+<h2>NuGet Follow-Up</h2>
+<br>
+<p>The following non-Windows OCR runtime packages were pushed during the release, but the current product boundary is now Windows-first:</p>
+<br>
+<ul>
+<li><code>Angri450.Nong.OcrRuntime.LinuxX64 3.2.5</code></li>
+<li><code>Angri450.Nong.OcrRuntime.LinuxArm64 3.2.5</code></li>
+<li><code>Angri450.Nong.OcrRuntime.OsxX64 3.2.5</code></li>
+<li><code>Angri450.Nong.OcrRuntime.OsxArm64 3.2.5</code></li>
+</ul>
+<br>
+<p>Attempted NuGet unlist/delete returned HTTP 403 because the current <code>NUGET_API_KEY</code> can push but does not have unlist/delete permission for these package IDs.</p>
+<br>
+<p>Next release rule:</p>
+<br>
+<ul>
+<li>Publish only <code>Angri450.Nong.OcrRuntime.WinX64</code>.</li>
+<li>Move non-Windows OCR runtime nupkgs to local <code>_archive/</code>.</li>
+<li>Do not publish Linux/macOS OCR runtime packages until cross-platform support is deliberately scheduled and tested.</li>
+</ul>
+<br>
+<h2>Worker Isolation</h2>
+<br>
+<p>Problem:</p>
+<br>
+<ul>
+<li>Windows reported <code>Exception Processing Message 0xc0000005 - Unexpected parameters</code>.</li>
+<li>Event logs showed <code>testhost.exe</code> crashing with <code>System.AccessViolationException</code>.</li>
+<li>Native stack involved <code>SkiaSharp.SkiaApi.sk_path_delete</code> and <code>SKPath.DisposeNative</code>.</li>
+<li>Root cause area: native image rendering chain used by SkiaSharp/ScottPlot during tests.</li>
+</ul>
+<br>
+<p>Fix:</p>
+<br>
+<ul>
+<li>Added hidden CLI worker command: <code>nong __render-worker ...</code>.</li>
+<li>Added <code>NativeRenderWorkerHost</code>.</li>
+<li><code>nong chart ...</code> and <code>nong diagram ...</code> now validate inputs in the main CLI process, then spawn a worker subprocess for native PNG rendering.</li>
+<li>Main CLI no longer directly calls <code>new Plot()</code>, <code>SavePng()</code>, or <code>DiagramBuilder.*</code> inside normal command handlers.</li>
+<li>If native rendering crashes, only the worker process exits; the main CLI can return structured JSON error instead of being killed.</li>
+</ul>
+<br>
+<p>Affected files:</p>
+<br>
+<ul>
+<li><code>Cli/Common/NativeRenderWorkerHost.cs</code></li>
+<li><code>Cli/Commands/RenderWorkerCommands.cs</code></li>
+<li><code>Cli/Commands/ChartCommands.cs</code></li>
+<li><code>Cli/Commands/DiagramCommands.cs</code></li>
+<li><code>Cli/Program.cs</code></li>
+</ul>
+<br>
+<h2>Default Test Boundary</h2>
+<br>
+<p>Default test suite no longer runs native image rendering paths:</p>
+<br>
+<ul>
+<li>Removed Chart/Diagram PNG render unit tests from default <code>Tests</code>.</li>
+<li>Removed direct SkiaSharp usage from <code>Cli.Tests</code>.</li>
+<li>Removed default <code>ocr local</code> real-image tests.</li>
+<li>Removed PDF render/crop pixel decode tests from default <code>Cli.Tests</code>.</li>
+</ul>
+<br>
+<p>Native image rendering is now validated by explicit smoke tests, not by default xUnit runs.</p>
+<br>
+<p>Rationale:</p>
+<br>
+<ul>
+<li>Native access violations cannot be caught reliably by ordinary C# exception handling.</li>
+<li>xUnit <code>testhost.exe</code> should not load and finalize unstable native image objects during every default test run.</li>
+<li>Worker smoke gives enough release confidence without destabilizing CI/local test loops.</li>
+</ul>
+<br>
+<h2>Dependency Control</h2>
+<br>
+<p>This release continues the dependency-control direction:</p>
+<br>
+<ul>
+<li><code>PdfPig</code> source vendored under <code>PdfPig/</code> and compiled through <code>ThirdParty</code>.</li>
+<li><code>ZXing.Net</code> QR decode subset vendored under <code>ZXing.Net/</code>.</li>
+<li><code>Docnet</code> source absorbed into <code>Pdf/Docnet/</code>.</li>
+<li>PDFium runtimes stored under <code>Pdf/runtimes/</code>.</li>
+<li><code>Pdf</code> no longer depends on external <code>Docnet.Core</code> or <code>PdfPig</code> NuGet packages.</li>
+<li><code>packages.lock.json</code> files added for repeatable restore.</li>
+<li><code>_archive/</code>, <code>nupkg/</code>, <code>tests-output/</code>, and <code>output/</code> remain ignored and are not mainline commit content.</li>
+</ul>
+<br>
+<h2>Verification</h2>
+<br>
+<p>Build:</p>
+<br>
+<ul>
+<li><code>dotnet build ThirdParty\ThirdParty.csproj -c Release --nologo -clp:ErrorsOnly</code> PASS.</li>
+<li><code>dotnet build Pdf\PdfCore.csproj -c Release --nologo -clp:ErrorsOnly</code> PASS.</li>
+<li><code>dotnet build MultiModal\MultiModalCore.csproj -c Release --nologo -clp:ErrorsOnly</code> PASS.</li>
+<li><code>dotnet build Literature\LiteratureCore.csproj -c Release --nologo -clp:ErrorsOnly</code> PASS.</li>
+<li><code>dotnet build Cli\NongCli.csproj -c Release --nologo -clp:ErrorsOnly</code> PASS.</li>
+<li><code>dotnet build Cli.Tests\Cli.Tests.csproj -c Release --nologo -clp:ErrorsOnly</code> PASS.</li>
+<li><code>dotnet build Tests\Tests.csproj -c Release --nologo -clp:ErrorsOnly</code> PASS.</li>
+</ul>
+<br>
+<p>Tests:</p>
+<br>
+<ul>
+<li><code>dotnet test Cli.Tests\Cli.Tests.csproj -c Release --no-build --nologo</code> PASS, 83 passed.</li>
+<li><code>dotnet test Tests\Tests.csproj -c Release --no-build --nologo</code> PASS, 110 passed.</li>
+</ul>
+<br>
+<p>Local tool smoke from <code>nupkg/</code>:</p>
+<br>
+<ul>
+<li><code>nong --version</code> PASS: <code>3.2.5+73730c6e7c976fb333a54a35a37ee25edd0118c5</code>.</li>
+<li><code>nong commands --json</code> PASS: 82 implemented commands.</li>
+<li><code>nong lit parse --query &quot;SU=(&#39;腐植酸&#39;+&#39;腐殖酸&#39;)*(&#39;稀土&#39;+&#39;微肥&#39;)&quot; --json</code> PASS.</li>
+<li><code>nong ocr install-model pp-ocrv5-mobile --dry-run --json</code> PASS.</li>
+<li><code>nong chart bar ... --json</code> PASS and produced PNG through worker.</li>
+<li><code>nong diagram tree ... --json</code> PASS and produced PNG through worker.</li>
+</ul>
+<br>
+<p>Live NuGet install:</p>
+<br>
+<ul>
+<li><code>dotnet tool install --tool-path tests-output\nuget-live-smoke-325 Angri450.Nong.Cli --version 3.2.5 --add-source https://api.nuget.org/v3/index.json --ignore-failed-sources</code> PASS.</li>
+</ul>
+<br>
+<h2>Known Notes</h2>
+<br>
+<ul>
+<li>NuGet flat-container and registration indexes can lag after push. During release verification, <code>Angri450.Nong.Cli 3.2.5</code> appeared after a short delay.</li>
+<li>GitCode SSH emitted an OpenSSH post-quantum key-exchange warning; push still succeeded.</li>
+<li>Gitee HTTPS push requires a valid access token; the token was used through temporary <code>GIT_ASKPASS</code> and was not written into repository config or committed files.</li>
+<li><code>CLAUDE.md</code> was updated after release to capture current progress and next release boundary.</li>
+</ul>
+<br>
+<h2>Next Steps</h2>
+<br>
+<ul>
+<li>Hide/unlist non-Windows OCR runtime <code>3.2.5</code> packages using a NuGet key with unlist/delete permission or the NuGet web UI.</li>
+<li>Before the next release, move non-Windows OCR runtime packages from <code>nupkg/</code> into <code>_archive/</code>.</li>
+<li>Keep Windows runtime as the only published OCR runtime target until cross-platform installation and runtime smoke tests are intentionally scheduled.</li>
+<li>Keep Chart/Diagram rendering inside worker subprocesses.</li>
+<li>Do not re-add native image rendering to default xUnit tests.</li>
+</ul>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>

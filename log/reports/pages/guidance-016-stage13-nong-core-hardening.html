@@ -1,0 +1,685 @@
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-03 Stage 13 Guidance: Angri450.Nong Core Hardening - Nong.NET</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="container">
+<header><a href="../index.html" class="back-link">&larr; 返回总览</a> | 
+<a href="../guidance.html" class="back-link">&larr; 开发指导</a>
+<h1>2026-06-03 Stage 13 Guidance: Angri450.Nong Core Hardening</h1>
+<p class="subtitle">2026-06-03 | <span style="color: #7c3aed">开发指导</span></p></header>
+<article class="content">
+<h1>2026-06-03 Stage 13 Guidance: Angri450.Nong Core Hardening</h1>
+<br>
+<h2>Mission</h2>
+<br>
+<p>This stage only works on:</p>
+<br>
+<pre><code class="language-text">
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net
+</code></pre>
+<br>
+<p>Do not edit <code>Nong.Toolkit.Net</code> in this stage.</p>
+<br>
+<p>The product direction is fixed:</p>
+<br>
+<pre><code class="language-text">
+nong is the deterministic .NET 8+ CLI/tool layer for low-token AI-agent workflows.
+</code></pre>
+<br>
+<p>This stage is not a small patch. Treat it as a full hardening pass for the current <code>nong skill</code> migration and release surface. Use ClaudeCode multi-agent parallel development to reduce main-context load. The main conversation should only need to read the final audit report.</p>
+<br>
+<h2>Non-Negotiable Scope</h2>
+<br>
+<p>Allowed:</p>
+<br>
+<pre><code class="language-text">
+Cli/
+SkillManagerCore/
+SkillManager/
+Tests/
+CAPABILITY.md
+README.md
+README.zh-CN.md
+release-checklist.md
+log/
+changelog/
+</code></pre>
+<br>
+<p>Not allowed:</p>
+<br>
+<pre><code class="language-text">
+Do not edit Nong.Toolkit.Net.
+Do not merge external repositories.
+Do not refactor unrelated third-party source.
+Do not publish NuGet packages.
+Do not change git branches.
+Do not delete user work.
+Do not mark completion based only on changelog claims.
+</code></pre>
+<br>
+<h2>Current Audit Findings To Fix</h2>
+<br>
+<h3>A. <code>nong skill package</code> cannot package plugin roots</h3>
+<br>
+<p>Observed command:</p>
+<br>
+<pre><code class="language-powershell">
+dotnet .\Cli\bin\Release\net8.0\nong.dll skill package C:\Users\Administrator\Documents\Github\Nong.Toolkit.Net --json
+</code></pre>
+<br>
+<p>Current behavior:</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;status&quot;: &quot;error&quot;,
+  &quot;command&quot;: &quot;skill package&quot;,
+  &quot;errors&quot;: [
+    {
+      &quot;code&quot;: &quot;E006&quot;,
+      &quot;name&quot;: &quot;validation_failed&quot;,
+      &quot;message&quot;: &quot;SKILL.md: SKILL.md not found in skill directory&quot;
+    }
+  ]
+}
+</code></pre>
+<br>
+<p>This is wrong for product usage. <code>skill package</code> must support both:</p>
+<br>
+<pre><code class="language-text">
+single skill directory: contains SKILL.md
+plugin root directory: contains .claude-plugin/plugin.json or skills.sh.json and child directories with SKILL.md
+</code></pre>
+<br>
+<p>Required behavior:</p>
+<br>
+<pre><code class="language-text">
+nong skill package &lt;single-skill-dir&gt; --json
+nong skill package &lt;plugin-root-dir&gt; --json
+</code></pre>
+<br>
+<p>For single skill:</p>
+<br>
+<p>1. Validate the skill.</p>
+<p>2. Scan the skill.</p>
+<p>3. Block on Critical/High findings.</p>
+<p>4. Create zip.</p>
+<p>5. Verify zip exists, nonzero, and contains <code>SKILL.md</code>.</p>
+<p>6. Return <code>artifacts.zip</code>.</p>
+<br>
+<p>For plugin root:</p>
+<br>
+<p>1. Detect plugin root.</p>
+<p>2. Inventory child skills.</p>
+<p>3. Validate every child skill.</p>
+<p>4. Scan the plugin root.</p>
+<p>5. Block on Critical/High findings.</p>
+<p>6. Create one plugin zip containing:</p>
+<ul>
+<li><code>.claude-plugin/plugin.json</code> if present</li>
+<li><code>.claude-plugin/marketplace.json</code> if present</li>
+<li><code>skills.sh.json</code> if present</li>
+<li>skill directories and their resource files</li>
+</ul>
+<p>7. Exclude dev/build/runtime junk:</p>
+<ul>
+<li><code>.git/</code></li>
+<li><code>bin/</code></li>
+<li><code>obj/</code></li>
+<li><code>node_modules/</code></li>
+<li><code>__pycache__/</code></li>
+<li><code>workspace/</code></li>
+<li><code>tests/</code></li>
+<li><code>TestResults/</code></li>
+<li><code>.vs/</code></li>
+<li><code>temp/</code></li>
+<li>existing <code>*.zip</code></li>
+</ul>
+<p>8. Verify zip exists, nonzero, and contains at least one <code>SKILL.md</code>.</p>
+<p>9. Return <code>artifacts.zip</code>, <code>data.packageType = &quot;plugin&quot;</code>, <code>metrics.skillCount</code>.</p>
+<br>
+<p>If a directory is neither a single skill nor a plugin root, return:</p>
+<br>
+<pre><code class="language-text">
+E006 validation_failed
+EXIT:1
+</code></pre>
+<br>
+<p>Do not return <code>E004</code> for ordinary invalid input.</p>
+<br>
+<h3>B. <code>skill inventory</code> reports plugin manifests incorrectly</h3>
+<br>
+<p>Current code checks:</p>
+<br>
+<pre><code class="language-text">
+hasPluginManifest = File.Exists(Path.Combine(fullDir, &quot;marketplace.json&quot;))
+hasMarketplaceManifest = File.Exists(Path.Combine(fullDir, &quot;marketplace.json&quot;))
+</code></pre>
+<br>
+<p>This is wrong.</p>
+<br>
+<p>Required detection:</p>
+<br>
+<pre><code class="language-text">
+hasPluginManifest =
+  .claude-plugin/plugin.json exists
+  OR plugin.json exists
+
+hasMarketplaceManifest =
+  .claude-plugin/marketplace.json exists
+  OR marketplace.json exists
+
+hasSkillsManifest =
+  skills.sh.json exists
+</code></pre>
+<br>
+<p>Required JSON data:</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;root&quot;: &quot;...&quot;,
+  &quot;rootType&quot;: &quot;skill&quot; | &quot;plugin&quot; | &quot;directory&quot;,
+  &quot;skills&quot;: [],
+  &quot;skillCount&quot;: 17,
+  &quot;totalFiles&quot;: 111,
+  &quot;hasPluginManifest&quot;: true,
+  &quot;hasMarketplaceManifest&quot;: true,
+  &quot;hasSkillsManifest&quot;: true
+}
+</code></pre>
+<br>
+<p><code>rootType</code> rules:</p>
+<br>
+<pre><code class="language-text">
+skill     root contains SKILL.md
+plugin    root has plugin/marketplace/skills manifest or child skill dirs
+directory otherwise
+</code></pre>
+<br>
+<h3>C. Old <code>SkillManager</code> global tool remains a release hazard</h3>
+<br>
+<p><code>SkillManager/SkillManager.Cli.csproj</code> currently still has:</p>
+<br>
+<pre><code class="language-xml">
+&lt;PackAsTool&gt;true&lt;/PackAsTool&gt;
+&lt;ToolCommandName&gt;skill-manager&lt;/ToolCommandName&gt;
+&lt;PackageId&gt;Angri450.Nong.Skill.Manager&lt;/PackageId&gt;
+</code></pre>
+<br>
+<p>The product decision is:</p>
+<br>
+<pre><code class="language-text">
+Do not promote old skill-manager global tool.
+Use nong skill instead.
+</code></pre>
+<br>
+<p>Required action:</p>
+<br>
+<p>1. Keep legacy project buildable for local compatibility if useful.</p>
+<p>2. Remove it from normal publish/release path.</p>
+<p>3. Prefer:</p>
+<br>
+<pre><code class="language-xml">
+&lt;IsPackable&gt;false&lt;/IsPackable&gt;
+&lt;PackAsTool&gt;false&lt;/PackAsTool&gt;
+</code></pre>
+<br>
+<p>4. Its usage text must say legacy/deprecated and point to:</p>
+<br>
+<pre><code class="language-text">
+nong skill validate &lt;dir&gt;
+nong skill scan &lt;dir&gt;
+nong skill inventory &lt;dir&gt;
+nong skill package &lt;dir&gt;
+</code></pre>
+<br>
+<p>5. <code>release-checklist.md</code> must explicitly say:</p>
+<br>
+<pre><code class="language-text">
+Do not pack or publish Angri450.Nong.Skill.Manager in 3.1.x/2.0.0 migration.
+Only Angri450.Nong.Cli is the public tool entry.
+</code></pre>
+<br>
+<h3>D. Floating dependency in <code>SkillManagerCore</code></h3>
+<br>
+<p>Current:</p>
+<br>
+<pre><code class="language-xml">
+&lt;PackageReference Include=&quot;YamlDotNet&quot; Version=&quot;*&quot; /&gt;
+</code></pre>
+<br>
+<p>For <code>nong</code> release stability this is too loose.</p>
+<br>
+<p>Required action:</p>
+<br>
+<p>1. Pin YamlDotNet to the version currently restored in the environment.</p>
+<p>2. If lock file or package cache makes this unclear, inspect build output or <code>obj/project.assets.json</code>.</p>
+<p>3. Do not upgrade dependencies opportunistically.</p>
+<p>4. Record the chosen version and reason in the result report.</p>
+<br>
+<h3>E. CLI contract and tests are not strong enough</h3>
+<br>
+<p>Add focused tests or a deterministic verification harness for <code>nong skill</code>.</p>
+<br>
+<p>Required coverage:</p>
+<br>
+<pre><code class="language-text">
+skill validate empty path -&gt; E003 + EXIT:1
+skill validate missing dir -&gt; E001 + EXIT:1
+skill validate valid skill -&gt; status ok + EXIT:0
+skill validate invalid skill -&gt; E006 + EXIT:1
+skill scan no High/Critical -&gt; status ok + EXIT:0
+skill scan High/Critical -&gt; status error + E006 + EXIT:1
+skill inventory single skill -&gt; rootType skill + skillCount 1
+skill inventory plugin root -&gt; rootType plugin + manifest booleans correct
+skill inventory empty directory -&gt; rootType directory + skillCount 0 + EXIT:0
+skill package single skill -&gt; zip exists, nonzero, contains SKILL.md
+skill package plugin root -&gt; zip exists, nonzero, contains child SKILL.md and plugin manifests
+skill package invalid dir -&gt; E006 + EXIT:1
+commands --json -&gt; includes 24 implemented commands
+commands --all --json -&gt; includes stubs
+stub command -&gt; E009 + EXIT:1
+</code></pre>
+<br>
+<p>Tests can be:</p>
+<br>
+<pre><code class="language-text">
+real xUnit tests in Tests/
+or a PowerShell verification script under tests-output/stage13/
+</code></pre>
+<br>
+<p>But the result report must include exact commands run and key outputs.</p>
+<br>
+<h2>Multi-Agent Development Plan</h2>
+<br>
+<p>Use ClaudeCode subagents. The main ClaudeCode thread coordinates only; subagents do code reading, implementation, and local verification.</p>
+<br>
+<h3>Agent A: CLI Contract And Command Behavior</h3>
+<br>
+<p>Files:</p>
+<br>
+<pre><code class="language-text">
+Cli/Commands/SkillCommands.cs
+Cli/Common/CliHelpers.cs
+Cli/Common/ErrorCodes.cs
+Cli/Common\JsonOutput.cs
+Cli/Common\Manifest.cs
+Cli/Program.cs
+</code></pre>
+<br>
+<p>Tasks:</p>
+<br>
+<p>1. Refactor <code>SkillCommands</code> to share path classification:</p>
+<ul>
+<li>empty path</li>
+<li>missing path</li>
+<li>single skill root</li>
+<li>plugin root</li>
+<li>ordinary directory</li>
+</ul>
+<p>2. Ensure all expected invalid inputs return <code>E001</code>, <code>E003</code>, or <code>E006</code>, not <code>E004</code>.</p>
+<p>3. Ensure every error path sets nonzero exit code.</p>
+<p>4. Ensure every JSON response has:</p>
+<ul>
+<li><code>status</code></li>
+<li><code>command</code></li>
+<li><code>data</code></li>
+<li><code>issues</code></li>
+<li><code>artifacts</code></li>
+<li><code>metrics</code></li>
+<li><code>errors</code></li>
+<li><code>meta.durationMs</code></li>
+<li><code>meta.version</code></li>
+</ul>
+<p>5. Ensure command names are exact:</p>
+<ul>
+<li><code>skill validate</code></li>
+<li><code>skill scan</code></li>
+<li><code>skill inventory</code></li>
+<li><code>skill package</code></li>
+</ul>
+<br>
+<p>Agent A must not implement eval/scaffold/serve/optimizer commands.</p>
+<br>
+<h3>Agent B: SkillManagerCore Packaging And Inventory</h3>
+<br>
+<p>Files:</p>
+<br>
+<pre><code class="language-text">
+SkillManagerCore/Tools/Packager.cs
+SkillManagerCore/Tools/InventoryRunner.cs
+SkillManagerCore/Tools/SkillValidator.cs
+SkillManagerCore/Tools/SecurityScanner.cs
+SkillManagerCore/Models/*.cs
+</code></pre>
+<br>
+<p>Tasks:</p>
+<br>
+<p>1. Add clean support for plugin-root inventory and packaging.</p>
+<p>2. Avoid putting plugin-root logic only in <code>SkillCommands</code> if it belongs in core.</p>
+<p>3. Keep package exclusion rules centralized and testable.</p>
+<p>4. Verify archive content:</p>
+<ul>
+<li>single skill archive must contain root-level <code>SKILL.md</code></li>
+<li>plugin archive must contain at least one <code>*/SKILL.md</code></li>
+<li>plugin archive should include <code>.claude-plugin/plugin.json</code> and <code>.claude-plugin/marketplace.json</code> when present</li>
+</ul>
+<p>5. Keep namespace stable for now if broad rename would increase risk.</p>
+<br>
+<p>Do not move or rewrite unrelated eval/optimizer/viewer code.</p>
+<br>
+<h3>Agent C: Release Surface And Legacy Tool Safety</h3>
+<br>
+<p>Files:</p>
+<br>
+<pre><code class="language-text">
+SkillManager/SkillManager.Cli.csproj
+SkillManager/Program.cs
+SkillManager/README.md
+Cli/NongCli.csproj
+CAPABILITY.md
+README.md
+README.zh-CN.md
+release-checklist.md
+</code></pre>
+<br>
+<p>Tasks:</p>
+<br>
+<p>1. Make legacy <code>SkillManager</code> non-packable or otherwise impossible to accidentally publish in the normal release path.</p>
+<p>2. Keep it buildable if retained.</p>
+<p>3. Update user-facing Angri450.Nong docs so public install path is:</p>
+<br>
+<pre><code class="language-powershell">
+   dotnet tool install --global Angri450.Nong.Cli
+   nong skill ...
+</code></pre>
+<br>
+<p>4. Remove Angri450.Nong-side recommendations to install <code>Angri450.Nong.Skill.Manager</code>.</p>
+<p>5. Update release checklist with the new release rule.</p>
+<p>6. Confirm no <code>net11</code> or preview requirement is introduced in <code>Cli</code>, <code>SkillManagerCore</code>, or <code>SkillManager</code>.</p>
+<br>
+<p>Do not edit GroundPA docs in this stage.</p>
+<br>
+<h3>Agent D: Tests And Behavioral Verification</h3>
+<br>
+<p>Files:</p>
+<br>
+<pre><code class="language-text">
+Tests/
+tests-output/
+log/
+changelog/
+</code></pre>
+<br>
+<p>Tasks:</p>
+<br>
+<p>1. Create deterministic test fixtures under a stage-specific temporary folder.</p>
+<p>2. Include:</p>
+<ul>
+<li>valid skill</li>
+<li>invalid skill without frontmatter</li>
+<li>plugin root with <code>.claude-plugin/plugin.json</code></li>
+<li>plugin root with <code>.claude-plugin/marketplace.json</code></li>
+<li>plugin root with two child skills</li>
+<li>scan target containing a deliberate HIGH finding</li>
+</ul>
+<p>3. Run Release build.</p>
+<p>4. Run CLI behavior tests using the built <code>nong.dll</code>, not global <code>nong</code>.</p>
+<p>5. Capture exit codes.</p>
+<p>6. Capture zip content checks.</p>
+<p>7. Keep generated outputs out of source directories unless they are test fixtures.</p>
+<br>
+<p>Use this invocation pattern:</p>
+<br>
+<pre><code class="language-powershell">
+dotnet C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Cli\bin\Release\net8.0\nong.dll &lt;args&gt;
+Write-Output &quot;EXIT:$LASTEXITCODE&quot;
+</code></pre>
+<br>
+<h3>Agent E: Final Internal Audit Report</h3>
+<br>
+<p>Files:</p>
+<br>
+<pre><code class="language-text">
+changelog/
+log/
+</code></pre>
+<br>
+<p>Tasks:</p>
+<br>
+<p>1. Read all subagent results.</p>
+<p>2. Re-run the final acceptance commands independently.</p>
+<p>3. Create one final report:</p>
+<br>
+<pre><code class="language-text">
+changelog/2026-06-03-016-stage13-nong-core-hardening-result.md
+</code></pre>
+<br>
+<p>4. The report must be concise but audit-ready:</p>
+<br>
+<pre><code class="language-text">
+Goal
+Files changed
+Architecture changes
+Commands run
+Build/test results
+Behavior verification table
+Known remaining issues
+What was deliberately not changed
+Next recommended stage
+</code></pre>
+<br>
+<p>5. Include a <code>Reviewer Checklist</code> section with exact commands for Codex/user to re-run.</p>
+<br>
+<h2>Required Final Acceptance Commands</h2>
+<br>
+<p>Run from:</p>
+<br>
+<pre><code class="language-powershell">
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net
+</code></pre>
+<br>
+<p>Build:</p>
+<br>
+<pre><code class="language-powershell">
+dotnet build .\Cli\NongCli.csproj -c Release
+dotnet build .\SkillManager\SkillManager.Cli.csproj -c Release
+</code></pre>
+<br>
+<p>Command discovery:</p>
+<br>
+<pre><code class="language-powershell">
+dotnet .\Cli\bin\Release\net8.0\nong.dll commands --json
+dotnet .\Cli\bin\Release\net8.0\nong.dll commands --all --json
+</code></pre>
+<br>
+<p>Core skill commands:</p>
+<br>
+<pre><code class="language-powershell">
+dotnet .\Cli\bin\Release\net8.0\nong.dll skill validate &lt;valid-skill-dir&gt; --json
+dotnet .\Cli\bin\Release\net8.0\nong.dll skill scan &lt;plugin-root-dir&gt; --json
+dotnet .\Cli\bin\Release\net8.0\nong.dll skill inventory &lt;single-skill-dir&gt; --json
+dotnet .\Cli\bin\Release\net8.0\nong.dll skill inventory &lt;plugin-root-dir&gt; --json
+dotnet .\Cli\bin\Release\net8.0\nong.dll skill package &lt;single-skill-dir&gt; --json
+dotnet .\Cli\bin\Release\net8.0\nong.dll skill package &lt;plugin-root-dir&gt; --json
+</code></pre>
+<br>
+<p>Error behavior:</p>
+<br>
+<pre><code class="language-powershell">
+dotnet .\Cli\bin\Release\net8.0\nong.dll skill validate &quot;&quot; --json
+dotnet .\Cli\bin\Release\net8.0\nong.dll skill validate C:\missing\nong-skill --json
+dotnet .\Cli\bin\Release\net8.0\nong.dll skill package &lt;invalid-dir&gt; --json
+dotnet .\Cli\bin\Release\net8.0\nong.dll word extract --json
+</code></pre>
+<br>
+<p>For each error command, report:</p>
+<br>
+<pre><code class="language-text">
+errors[0].code
+status
+EXIT
+</code></pre>
+<br>
+<p>Artifact checks:</p>
+<br>
+<pre><code class="language-powershell">
+Test-Path &lt;zip&gt;
+(Get-Item &lt;zip&gt;).Length
+</code></pre>
+<br>
+<p>Zip content checks:</p>
+<br>
+<pre><code class="language-powershell">
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+[System.IO.Compression.ZipFile]::OpenRead(&quot;&lt;zip&gt;&quot;).Entries | Select-Object FullName,Length
+</code></pre>
+<br>
+<h2>Expected Behavior Summary</h2>
+<br>
+<h3><code>skill inventory &lt;GroundPA-like plugin root&gt; --json</code></h3>
+<br>
+<p>Expected:</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;command&quot;: &quot;skill inventory&quot;,
+  &quot;data&quot;: {
+    &quot;rootType&quot;: &quot;plugin&quot;,
+    &quot;skillCount&quot;: 2,
+    &quot;hasPluginManifest&quot;: true,
+    &quot;hasMarketplaceManifest&quot;: true,
+    &quot;hasSkillsManifest&quot;: true
+  }
+}
+</code></pre>
+<br>
+<h3><code>skill package &lt;GroundPA-like plugin root&gt; --json</code></h3>
+<br>
+<p>Expected:</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;command&quot;: &quot;skill package&quot;,
+  &quot;data&quot;: {
+    &quot;packageType&quot;: &quot;plugin&quot;,
+    &quot;skillCount&quot;: 2
+  },
+  &quot;artifacts&quot;: {
+    &quot;zip&quot;: &quot;...&quot;
+  }
+}
+</code></pre>
+<br>
+<h3><code>skill package &lt;invalid-dir&gt; --json</code></h3>
+<br>
+<p>Expected:</p>
+<br>
+<pre><code class="language-json">
+{
+  &quot;status&quot;: &quot;error&quot;,
+  &quot;command&quot;: &quot;skill package&quot;,
+  &quot;errors&quot;: [
+    {
+      &quot;code&quot;: &quot;E006&quot;,
+      &quot;name&quot;: &quot;validation_failed&quot;
+    }
+  ]
+}
+</code></pre>
+<br>
+<p>Exit code must be 1.</p>
+<br>
+<h2>Implementation Notes</h2>
+<br>
+<p>Prefer adding small domain helpers over duplicating conditions in every command. Suggested internal concepts:</p>
+<br>
+<pre><code class="language-text">
+SkillRootKind.Skill
+SkillRootKind.Plugin
+SkillRootKind.Directory
+</code></pre>
+<br>
+<p>Suggested helper output:</p>
+<br>
+<pre><code class="language-csharp">
+sealed record SkillRootInfo(
+    string FullPath,
+    SkillRootKind Kind,
+    bool HasSkillMd,
+    bool HasPluginManifest,
+    bool HasMarketplaceManifest,
+    bool HasSkillsManifest,
+    IReadOnlyList&lt;string&gt; SkillDirectories);
+</code></pre>
+<br>
+<p>This helper can live in <code>Cli/Commands/SkillCommands.cs</code> if kept private, or in <code>SkillManagerCore</code> if reused by packager/inventory.</p>
+<br>
+<p>Use <code>Path.GetFullPath</code> only after guarding empty/whitespace paths.</p>
+<br>
+<p>Use <code>CliHelpers.CheckArtifact</code> after creating zips.</p>
+<br>
+<p>For plugin zips, also verify archive content. <code>CheckArtifact</code> alone is not enough.</p>
+<br>
+<h2>Contract Guardrails</h2>
+<br>
+<p>Do not regress these established behaviors:</p>
+<br>
+<pre><code class="language-text">
+nong commands --json lists only implemented commands.
+nong commands --all --json lists implemented + stub commands.
+All stubs return E009 + EXIT:1.
+Missing file/dir returns E001 + EXIT:1.
+Malformed/invalid content returns E006 + EXIT:1.
+Internal exceptions return E004 + EXIT:1.
+Generated artifacts must exist and be nonzero before returning ok.
+</code></pre>
+<br>
+<h2>What Not To Do In Stage 13</h2>
+<br>
+<p>Do not implement:</p>
+<br>
+<pre><code class="language-text">
+nong skill eval
+nong skill eval serve
+nong skill scaffold
+nong skill optimize-description
+nong skill run-loop
+</code></pre>
+<br>
+<p>Do not touch:</p>
+<br>
+<pre><code class="language-text">
+Nong.Toolkit.Net
+PPTX/OCR implementation
+Word/Inspect/Chart expansion
+</code></pre>
+<br>
+<p>This stage is about making the Angri450.Nong core reliable enough before syncing skill-layer docs.</p>
+<br>
+<h2>Completion Definition</h2>
+<br>
+<p>This stage is complete only when:</p>
+<br>
+<p>1. <code>Cli</code> Release build passes.</p>
+<p>2. legacy <code>SkillManager</code> still builds or is explicitly documented as intentionally not built.</p>
+<p>3. <code>nong skill validate/scan/inventory/package</code> pass the behavior matrix.</p>
+<p>4. plugin-root packaging works.</p>
+<p>5. inventory manifest booleans are correct.</p>
+<p>6. old <code>SkillManager</code> cannot be accidentally published through normal release.</p>
+<p>7. YamlDotNet is pinned.</p>
+<p>8. final report exists at:</p>
+<br>
+<pre><code class="language-text">
+changelog/2026-06-03-016-stage13-nong-core-hardening-result.md
+</code></pre>
+<br>
+<p>9. final report includes exact commands and exit codes.</p>
+<br>
+<p>If any acceptance command fails, do not write &quot;completed&quot;. Write <code>PARTIAL</code> and list the failing command.</p>
+<br>
+
+</article>
+<footer><p>由 nong progress report 自动生成</p></footer>
+</div></body></html>
