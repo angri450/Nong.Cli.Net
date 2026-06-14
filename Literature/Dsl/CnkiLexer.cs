@@ -4,14 +4,17 @@ namespace Angri450.Nong.Literature.Dsl;
 
 public sealed class CnkiLexer
 {
-    static readonly HashSet<string> UnsupportedSlashOperators = new(StringComparer.OrdinalIgnoreCase)
+    static readonly Dictionary<string, CnkiProximityKind> ProximityOps = new(StringComparer.OrdinalIgnoreCase)
     {
-        "/SEN",
-        "/NEAR",
-        "/PREV",
-        "/AFT",
-        "/PRG"
+        ["/SEN"]  = CnkiProximityKind.Sen,
+        ["/NEAR"] = CnkiProximityKind.Near,
+        ["/PREV"] = CnkiProximityKind.Prev,
+        ["/AFT"]  = CnkiProximityKind.Aft,
+        ["/PRG"]  = CnkiProximityKind.Prg
     };
+
+    static readonly HashSet<string> ProximityOpKeys = new(
+        ProximityOps.Keys, StringComparer.OrdinalIgnoreCase);
 
     readonly string _text;
     int _index;
@@ -66,13 +69,24 @@ public sealed class CnkiLexer
                     tokens.Add(new CnkiToken(CnkiTokenKind.Comma, ",", position));
                     _index++;
                     break;
+                case '%':
+                    tokens.Add(ReadFuzzy(position));
+                    break;
+                case '#':
+                    tokens.Add(new CnkiToken(CnkiTokenKind.Hash, "#", position));
+                    _index++;
+                    break;
+                case '>':
+                    tokens.Add(new CnkiToken(CnkiTokenKind.Unsupported, ">", position));
+                    _index++;
+                    break;
+                case '<':
+                    tokens.Add(new CnkiToken(CnkiTokenKind.Unsupported, "<", position));
+                    _index++;
+                    break;
                 case '\'':
                 case '"':
                     tokens.Add(ReadQuoted(ch, position));
-                    break;
-                case '%':
-                    tokens.Add(new CnkiToken(CnkiTokenKind.Unsupported, "%", position));
-                    _index++;
                     break;
                 case '/':
                     tokens.Add(ReadSlash(position));
@@ -88,6 +102,28 @@ public sealed class CnkiLexer
 
         tokens.Add(new CnkiToken(CnkiTokenKind.End, string.Empty, _text.Length));
         return tokens;
+    }
+
+    CnkiToken ReadFuzzy(int position)
+    {
+        _index++;
+        SkipSpaces();
+
+        if (_index < _text.Length && _text[_index] == '=')
+        {
+            _index++;
+            return new CnkiToken(CnkiTokenKind.FuzzyOp, "%=", position);
+        }
+
+        if (_index < _text.Length && (_text[_index] == '\'' || _text[_index] == '"'))
+        {
+            var quote = _text[_index];
+            var quoted = ReadQuoted(quote, position);
+            return quoted with { Kind = CnkiTokenKind.FuzzyQuoted };
+        }
+
+        // Bare % not followed by a quote or = — treat as Unsupported
+        return new CnkiToken(CnkiTokenKind.Unsupported, "%", position);
     }
 
     CnkiToken ReadQuoted(char quote, int position)
@@ -115,30 +151,21 @@ public sealed class CnkiLexer
     CnkiToken ReadSlash(int position)
     {
         var word = ReadUntilBoundary();
-        foreach (var op in UnsupportedSlashOperators)
-        {
-            if (!word.StartsWith(op, StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
 
-            var suffix = word[op.Length..];
-            if (suffix.Length > 0)
-            {
-                _index -= suffix.Length;
-            }
+        if (ProximityOpKeys.Contains(word))
+            return new CnkiToken(CnkiTokenKind.ProximityOp, word, position);
 
-            return new CnkiToken(CnkiTokenKind.Unsupported, op, position);
-        }
+        if (string.Equals(word, "/SUB", StringComparison.OrdinalIgnoreCase))
+            return new CnkiToken(CnkiTokenKind.SubOp, word, position);
 
-        return ClassifyWord(word, position);
+        return new CnkiToken(CnkiTokenKind.Unsupported, word, position);
     }
 
     CnkiToken ReadDollar(int position)
     {
         var word = ReadUntilBoundary();
-        return word.Length > 1 && word.Skip(1).All(char.IsDigit)
-            ? new CnkiToken(CnkiTokenKind.Unsupported, word, position)
+        return word.Length > 1 && word[0] == '$' && word[1..].All(char.IsDigit)
+            ? new CnkiToken(CnkiTokenKind.WordFreq, word, position)
             : ClassifyWord(word, position);
     }
 
@@ -150,7 +177,7 @@ public sealed class CnkiLexer
         while (_index < _text.Length)
         {
             var ch = _text[_index];
-            if (char.IsWhiteSpace(ch) || ch is '(' or ')' or '=' or '+' or '*' or '-' or ',' or '\'' or '"')
+            if (char.IsWhiteSpace(ch) || ch is '(' or ')' or '=' or '+' or '*' or '-' or ',' or '\'' or '"' or '%' or '#' or '$' or '>' or '<')
                 break;
             _index++;
         }
@@ -161,12 +188,18 @@ public sealed class CnkiLexer
         return _text[start.._index];
     }
 
+    void SkipSpaces()
+    {
+        while (_index < _text.Length && char.IsWhiteSpace(_text[_index]))
+            _index++;
+    }
+
     static CnkiToken ClassifyWord(string word, int position)
     {
         return word.ToUpperInvariant() switch
         {
             "AND" => new CnkiToken(CnkiTokenKind.And, word, position),
-            "OR" => new CnkiToken(CnkiTokenKind.Or, word, position),
+            "OR"  => new CnkiToken(CnkiTokenKind.Or, word, position),
             "NOT" => new CnkiToken(CnkiTokenKind.Not, word, position),
             "BETWEEN" => new CnkiToken(CnkiTokenKind.Between, word, position),
             _ => new CnkiToken(CnkiTokenKind.Word, word, position)

@@ -28,7 +28,15 @@ public sealed class LiteratureSearchPipeline
 
     public async Task<LiteratureSearchResult> SearchAsync(LiteratureSearchRequest request, CancellationToken cancellationToken)
     {
-        var query = request.ParsedQuery ?? CnkiParser.Parse(request.Query);
+        var raw = request.ProviderQuery ?? request.Query;
+
+        // Auto-detect plain text: no DSL operators → pass directly to providers
+        if (request.ParsedQuery == null && (!raw.Contains('=') || (!raw.Contains('*') && !raw.Contains('+') && !raw.Contains('-'))))
+        {
+            return await SearchPlainAsync(raw, request, cancellationToken).ConfigureAwait(false);
+        }
+
+        var query = request.ParsedQuery ?? CnkiParser.Parse(raw);
         var validation = CnkiDslValidator.Validate(query);
         if (!validation.IsValid)
         {
@@ -44,7 +52,42 @@ public sealed class LiteratureSearchPipeline
             };
         }
 
-        var sources = request.Sources.Count == 0 ? new[] { "openalex", "crossref" } : request.Sources;
+        var sources = request.Sources.Count == 0 ? new[] { "openalex", "crossref", "unpaywall" } : request.Sources;
+
+        // Plain mode: no DSL, just pass query directly to providers
+        if (string.Equals(request.FilterMode, "none", StringComparison.OrdinalIgnoreCase))
+        {
+            var records2 = new List<PaperRecord>();
+            var issues2 = new List<LiteratureIssue>();
+            var plainQuery = request.ProviderQuery ?? request.Query;
+            foreach (var providerName in sources)
+            {
+                var p = _registry.Create(providerName);
+                var pr = new LiteratureSearchRequest
+                {
+                    Query = plainQuery,
+                    ProviderQuery = plainQuery,
+                    Sources = new[] { providerName },
+                    Limit = request.Limit,
+                };
+                var r = await p.SearchAsync(pr, cancellationToken).ConfigureAwait(false);
+                records2.AddRange(r.Records);
+                issues2.AddRange(r.Issues);
+            }
+            var deduped = _merger.Merge(records2);
+            deduped = deduped.Take(Math.Clamp(request.Limit <= 0 ? 20 : request.Limit, 1, 500)).ToList();
+            return new LiteratureSearchResult
+            {
+                Records = deduped,
+                Issues = issues2,
+                Metrics = new Dictionary<string, object>
+                {
+                    ["candidates"] = records2.Count,
+                    ["returned"] = deduped.Count
+                }
+            };
+        }
+
         var plan = _planner.Plan(query, sources);
         var issues = new List<LiteratureIssue>(plan.Issues);
         if (plan.Issues.Any(i => string.Equals(i.Severity, "Error", StringComparison.OrdinalIgnoreCase)))
@@ -66,6 +109,7 @@ public sealed class LiteratureSearchPipeline
                 FilterMode = request.FilterMode,
                 RoughQueries = providerPlan.RoughQueries,
                 ProviderQuery = providerPlan.RoughQueries.FirstOrDefault(),
+                StructuredQuery = providerPlan.StructuredQuery,
                 Doi = query.Terms.FirstOrDefault(t => string.Equals(t.EffectiveField, "DOI", StringComparison.OrdinalIgnoreCase))?.Value
             };
 
@@ -88,7 +132,8 @@ public sealed class LiteratureSearchPipeline
                     Profile = request.Profile,
                     FilterMode = request.FilterMode,
                     RoughQueries = new[] { rough },
-                    ProviderQuery = rough
+                    ProviderQuery = rough,
+                    StructuredQuery = providerPlan.StructuredQuery
                 };
                 var result = await provider.SearchAsync(roughRequest, cancellationToken).ConfigureAwait(false);
                 records.AddRange(result.Records);
@@ -115,6 +160,31 @@ public sealed class LiteratureSearchPipeline
                 ["merged"] = merged.Count,
                 ["returned"] = ranked.Length
             }
+        };
+    }
+
+    async Task<LiteratureSearchResult> SearchPlainAsync(string queryText, LiteratureSearchRequest request, CancellationToken ct)
+    {
+        var srcs = request.Sources.Count == 0
+            ? new[] { "openalex", "crossref", "unpaywall" }
+            : request.Sources;
+        var recs = new List<PaperRecord>();
+        var iss = new List<LiteratureIssue>();
+        foreach (var pn in srcs)
+        {
+            var p = _registry.Create(pn);
+            var pr = new LiteratureSearchRequest { Query = queryText, ProviderQuery = queryText, Sources = new[] { pn }, Limit = request.Limit };
+            var sr = await p.SearchAsync(pr, ct).ConfigureAwait(false);
+            recs.AddRange(sr.Records);
+            iss.AddRange(sr.Issues);
+        }
+        var deduped = _merger.Merge(recs);
+        deduped = deduped.Take(Math.Clamp(request.Limit <= 0 ? 20 : request.Limit, 1, 500)).ToList();
+        return new LiteratureSearchResult
+        {
+            Records = deduped,
+            Issues = iss,
+            Metrics = new Dictionary<string, object> { ["candidates"] = recs.Count, ["returned"] = deduped.Count }
         };
     }
 }

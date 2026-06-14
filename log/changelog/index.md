@@ -3,6 +3,7 @@
 > Agent 添加变更记录后同步更新此文件。格式：`- YYYY-MM-DD | 文件名 | 一句话摘要`
 
 ## 2026-06-14
+- 2026-06-14 | 2026-06-14-4.3.0-literature-rewrite.md | v4.3.0: CNKI 专业检索完整支持 (22运算符) + AMiner独立包 (7端点) + Metaso独立包 (search/reader/chat) + 平台土话翻译 + toolkit三工具协同指南
 - 2026-06-14 | 2026-06-14-4.2.1-cellreplace-refactor.md | Word 模板填充引擎重构: cellReplace 键值匹配 + tableRows 数据行追加，告别 index/match 定位漂移
 
 ## 2026-06-13

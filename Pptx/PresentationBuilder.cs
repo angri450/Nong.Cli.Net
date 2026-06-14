@@ -218,15 +218,17 @@ public sealed class PresentationBuilder : IDisposable
 
     private void StyleTable(ITable table, int rows, int cols)
     {
-        try { table.StyleOptions.HasHeaderRow = true; table.StyleOptions.HasBandedRows = true; } catch (Exception ex) { _notes.Add($"StyleTable-options: {ex.GetType().Name}"); }
+        // ShapeCrawler 0.79.2: ITable.UpdateFill() throws NotImplementedException.
+        // StyleOptions may also throw when the table document model was created from
+        // scratch rather than loaded from a template with existing style definitions.
+        try { table.StyleOptions.HasHeaderRow = true; table.StyleOptions.HasBandedRows = true; } catch { }
         if (_theme == null) return;
         try
         {
-            try { table.UpdateFill(_theme.Light1); } catch (Exception ex) { _notes.Add($"StyleTable-fill: {ex.GetType().Name}"); }
-            for (int c = 0; c < cols; c++) try { var cell = table[0, c]; cell.Fill.SetColor(_theme.Accent1); if (cell.TextBox is { Paragraphs.Count: > 0 } ctb && ctb.Paragraphs[0].Portions.Count > 0) { var f = ctb.Paragraphs[0].Portions[0].Font; f.LatinName = _theme.HeadFont; f.EastAsianName = _theme.HeadCJK; f.Size = 16m; f.IsBold = true; f.Color.Set(_theme.Light1); } } catch (Exception ex) { _notes.Add($"StyleTable-header: {ex.GetType().Name}"); }
-            for (int r = 1; r < rows; r++) { if (r % 2 == 1) continue; for (int c = 0; c < cols; c++) try { table[r, c].Fill.SetColor(_theme.Light2); } catch (Exception ex) { _notes.Add($"StyleTable-row: {ex.GetType().Name}"); } }
+            for (int c = 0; c < cols; c++) try { var cell = table[0, c]; cell.Fill.SetColor(_theme.Accent1); if (cell.TextBox is { Paragraphs.Count: > 0 } ctb && ctb.Paragraphs[0].Portions.Count > 0) { var f = ctb.Paragraphs[0].Portions[0].Font; f.LatinName = _theme.HeadFont; f.EastAsianName = _theme.HeadCJK; f.Size = 16m; f.IsBold = true; f.Color.Set(_theme.Light1); } } catch { }
+            for (int r = 1; r < rows; r++) { if (r % 2 == 1) continue; for (int c = 0; c < cols; c++) try { table[r, c].Fill.SetColor(_theme.Light2); } catch { } }
         }
-        catch (Exception ex) { _notes.Add($"StyleTable: {ex.GetType().Name}"); }
+        catch { }
     }
 
     private void AddPageNumber(IUserSlide slide)

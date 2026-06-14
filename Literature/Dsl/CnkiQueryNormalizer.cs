@@ -133,17 +133,15 @@ public static class CnkiQueryNormalizer
             case CnkiTermNode term:
                 yield return term;
                 break;
+            case CnkiProximityNode prox:
+                yield return prox.Left;
+                yield return prox.Right;
+                break;
             case CnkiBinaryNode binary:
                 foreach (var term in ExtractTerms(binary.Left))
-                {
                     yield return term;
-                }
-
                 foreach (var term in ExtractTerms(binary.Right))
-                {
                     yield return term;
-                }
-
                 break;
             case CnkiNotNode:
                 break;

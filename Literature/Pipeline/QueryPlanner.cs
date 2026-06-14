@@ -26,6 +26,7 @@ public sealed class QueryPlanner
         var providers = new List<ProviderPlan>();
         var registry = ProviderRegistry.CreateDefault();
         var conjunctions = BuildPositiveConjunctions(query.Root).ToArray();
+        var structuredQuery = BuildStructuredQuery(query);
 
         foreach (var providerName in providerNames.Select(p => p.Trim()).Where(p => p.Length > 0))
         {
@@ -40,6 +41,7 @@ public sealed class QueryPlanner
                 IsImplemented = implemented,
                 HasRequiredCredential = HasCredential(providerName),
                 RoughQueries = roughQueries,
+                StructuredQuery = structuredQuery,
                 Limitations = Limitations(providerName)
             });
 
@@ -135,6 +137,105 @@ public sealed class QueryPlanner
         return dnf.Length == 0 ? new[] { Array.Empty<CnkiTermNode>() } : dnf;
     }
 
+    /// <summary>
+    /// Extract field-specific filters from the full AST for provider-native query optimization.
+    /// Year, author, institution, and citation filters are the same across all conjunctions.
+    /// </summary>
+    public static ProviderStructuredQuery BuildStructuredQuery(CnkiQuery query)
+    {
+        var allTerms = query.Terms;
+
+        // Year ranges
+        var yearTerms = allTerms
+            .Where(t => string.Equals(t.EffectiveField, "YE", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        int? yearFrom = null, yearTo = null;
+        foreach (var yt in yearTerms)
+        {
+            if (yt.IsBetween)
+            {
+                if (int.TryParse(yt.BetweenStart, out var ys)) yearFrom = ys;
+                if (int.TryParse(yt.BetweenEnd, out var ye)) yearTo = ye;
+            }
+            else if (int.TryParse(yt.Value, out var yv))
+            {
+                yearFrom = yv; yearTo = yv;
+            }
+        }
+
+        // Citation count
+        var cfTerms = allTerms
+            .Where(t => string.Equals(t.EffectiveField, "CF", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        int? minCitations = null;
+        foreach (var ct in cfTerms)
+        {
+            if (ct.IsBetween && int.TryParse(ct.BetweenStart, out var cs))
+                minCitations = minCitations.HasValue ? Math.Max(minCitations.Value, cs) : cs;
+            else if (int.TryParse(ct.Value, out var cv))
+                minCitations = minCitations.HasValue ? Math.Max(minCitations.Value, cv) : cv;
+        }
+
+        // Authors
+        var authors = allTerms
+            .Where(t => IsAuthorField(t.EffectiveField))
+            .Select(t => t.Value)
+            .Where(v => !string.IsNullOrWhiteSpace(v))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        // Institutions
+        var institutions = allTerms
+            .Where(t => string.Equals(t.EffectiveField, "AF", StringComparison.OrdinalIgnoreCase))
+            .Select(t => t.Value)
+            .Where(v => !string.IsNullOrWhiteSpace(v))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        // Title terms
+        var titleTerms = allTerms
+            .Where(t => string.Equals(t.EffectiveField, "TI", StringComparison.OrdinalIgnoreCase))
+            .Select(t => t.Value)
+            .Where(v => !string.IsNullOrWhiteSpace(v))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        // Abstract terms
+        var abstractTerms = allTerms
+            .Where(t => string.Equals(t.EffectiveField, "AB", StringComparison.OrdinalIgnoreCase))
+            .Select(t => t.Value)
+            .Where(v => !string.IsNullOrWhiteSpace(v))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        // Venues
+        var venues = allTerms
+            .Where(t => string.Equals(t.EffectiveField, "JN", StringComparison.OrdinalIgnoreCase))
+            .Select(t => t.Value)
+            .Where(v => !string.IsNullOrWhiteSpace(v))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        return new ProviderStructuredQuery
+        {
+            YearFrom = yearFrom,
+            YearTo = yearTo,
+            MinCitations = minCitations,
+            Authors = authors,
+            Institutions = institutions,
+            TitleTerms = titleTerms,
+            AbstractTerms = abstractTerms,
+            Venues = venues
+        };
+    }
+
+    static bool IsAuthorField(string field)
+    {
+        return string.Equals(field, "AU", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(field, "FI", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(field, "F", StringComparison.OrdinalIgnoreCase);
+    }
+
     static bool IsPositiveRoughTerm(CnkiTermNode term)
     {
         return !string.IsNullOrWhiteSpace(term.Value)
@@ -148,6 +249,10 @@ public sealed class QueryPlanner
         {
             case CnkiTermNode term:
                 return new[] { new List<CnkiTermNode> { term } };
+            case CnkiProximityNode prox:
+                // Proximity is an AND of two terms with a distance constraint.
+                // For rough queries, both terms must appear together.
+                return new[] { new List<CnkiTermNode> { prox.Left, prox.Right } };
             case CnkiNotNode:
                 return new[] { new List<CnkiTermNode>() };
             case CnkiBinaryNode { Operator: CnkiBooleanOperator.Or } binary:
@@ -179,6 +284,18 @@ public sealed class QueryPlanner
                 || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("NONG_LIT_OPENALEX_KEY"));
         }
 
+        if (string.Equals(providerName, "aminer", StringComparison.OrdinalIgnoreCase))
+        {
+            return !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("NONG_LIT_AMINER_KEY"))
+                || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("AMINER_API_KEY"));
+        }
+
+        if (string.Equals(providerName, "metaso", StringComparison.OrdinalIgnoreCase))
+        {
+            return !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("NONG_LIT_METASO_KEY"))
+                || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("METASO_API_KEY"));
+        }
+
         return true;
     }
 
@@ -189,6 +306,8 @@ public sealed class QueryPlanner
             "openalex" => new[] { "No full-text search; CNKI DSL is filtered locally." },
             "crossref" => new[] { "Rough metadata search; DOI lookup/enrichment is primary; CNKI DSL is filtered locally." },
             "unpaywall" => new[] { "DOI-only OA lookup; no general metadata search." },
+            "aminer" => new[] { "Chinese academic KG search; keyword-based, CNKI DSL is filtered locally." },
+            "metaso" => new[] { "Chinese academic web search (秘塔); scholar scope, CNKI DSL is filtered locally." },
             _ => new[] { "Provider is not implemented in Stage19." }
         };
     }

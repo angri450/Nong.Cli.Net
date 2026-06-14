@@ -33,27 +33,82 @@ public sealed class CrossrefProvider : ILiteratureProvider
         var query = request.ProviderQuery
             ?? request.RoughQueries.FirstOrDefault()
             ?? request.Query;
-        var rows = Math.Clamp(request.Limit <= 0 ? 25 : request.Limit, 1, 100);
-        var url = AppendMailto($"https://api.crossref.org/works?query.bibliographic={Uri.EscapeDataString(query)}&rows={rows}");
-        using var httpRequest = CreateRequest(url);
-        using var response = await ProviderHttpClientFactory.SendWithRetryAsync(_client, httpRequest, cancellationToken).ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode)
-            return Unavailable((int)response.StatusCode, response.ReasonPhrase);
+        var maxTotal = Math.Clamp(request.Limit <= 0 ? 25 : request.Limit, 1, 500);
+        var sq = request.StructuredQuery;
 
-        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-        using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
         var records = new List<PaperRecord>();
-        if (TryGetNested(document.RootElement, out var items, "message", "items") && items.ValueKind == JsonValueKind.Array)
+        var totalFetched = 0;
+        string? cursor = null;
+
+        while (totalFetched < maxTotal)
         {
-            foreach (var item in items.EnumerateArray())
-                records.Add(MapWork(item));
+            var rows = Math.Min(maxTotal - totalFetched, 100);
+            var url = AppendMailto($"https://api.crossref.org/works?query.bibliographic={Uri.EscapeDataString(query)}");
+
+            if (sq?.Authors.Count > 0)
+                url += $"&query.author={Uri.EscapeDataString(sq.Authors[0])}";
+            if (sq?.TitleTerms.Count > 0)
+                url += $"&query.title={Uri.EscapeDataString(string.Join(' ', sq.TitleTerms))}";
+            if (sq?.Venues.Count > 0)
+                url += $"&query.container-title={Uri.EscapeDataString(sq.Venues[0])}";
+
+            var filters = new List<string>();
+            if (sq?.YearFrom.HasValue == true)
+                filters.Add($"from-pub-date:{sq.YearFrom.Value}");
+            if (sq?.YearTo.HasValue == true)
+                filters.Add($"until-pub-date:{sq.YearTo.Value}");
+            if (filters.Count > 0)
+                url += "&filter=" + string.Join(',', filters);
+
+            url += $"&rows={rows}";
+
+            // Cursor-based deep pagination
+            if (!string.IsNullOrWhiteSpace(cursor))
+                url += $"&cursor={Uri.EscapeDataString(cursor)}";
+
+            // Sort: translate rank profile
+            var sort = request.Profile switch
+            {
+                RankProfile.Recent => "published",
+                RankProfile.Classic => "relevance",
+                _ => "relevance"
+            };
+            url += $"&sort={sort}";
+
+            using var httpRequest = CreateRequest(url);
+            using var response = await ProviderHttpClientFactory.SendWithRetryAsync(_client, httpRequest, cancellationToken).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                if (records.Count > 0) break;
+                return Unavailable((int)response.StatusCode, response.ReasonPhrase);
+            }
+
+            await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+            var pageCount = 0;
+            if (TryGetNested(document.RootElement, out var items, "message", "items") && items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    records.Add(MapWork(item));
+                    pageCount++;
+                }
+            }
+
+            totalFetched += pageCount;
+            // Crossref returns next-cursor in message
+            cursor = TryGetNested(document.RootElement, out var nc, "message", "next-cursor") && nc.ValueKind == JsonValueKind.String
+                ? nc.GetString()
+                : null;
+            if (pageCount == 0 || string.IsNullOrWhiteSpace(cursor)) break;
         }
 
         return new ProviderSearchResult
         {
             Provider = Name,
             Records = records,
-            Diagnostics = Diagnostics(records.Count, (int)response.StatusCode)
+            Diagnostics = Diagnostics(records.Count, null)
         };
     }
 
@@ -139,6 +194,7 @@ public sealed class CrossrefProvider : ILiteratureProvider
         {
             Doi = NormalizeDoi(GetString(item, "DOI")),
             Title = GetFirstString(item, "title"),
+            Abstract = GetString(item, "abstract"),
             Venue = GetFirstString(item, "container-title"),
             Journal = GetFirstString(item, "container-title"),
             Publisher = GetString(item, "publisher"),
@@ -146,7 +202,8 @@ public sealed class CrossrefProvider : ILiteratureProvider
             Issue = GetString(item, "issue"),
             Pages = GetString(item, "page"),
             Year = GetYear(item),
-            CitationCount = GetInt(item, "is-referenced-by-count")
+            CitationCount = GetInt(item, "is-referenced-by-count"),
+            Issn = GetFirstString(item, "ISSN")
         };
 
         if (!string.IsNullOrWhiteSpace(record.Doi))
@@ -209,6 +266,7 @@ public sealed class CrossrefProvider : ILiteratureProvider
                 parts.GetArrayLength() > 0 &&
                 parts[0].ValueKind == JsonValueKind.Array &&
                 parts[0].GetArrayLength() > 0 &&
+                parts[0][0].ValueKind != JsonValueKind.Null &&
                 parts[0][0].TryGetInt32(out var year))
             {
                 return year;
@@ -236,7 +294,7 @@ public sealed class CrossrefProvider : ILiteratureProvider
 
     static int? GetInt(JsonElement item, string property)
     {
-        return item.TryGetProperty(property, out var value) && value.TryGetInt32(out var number)
+        return item.TryGetProperty(property, out var value) && value.ValueKind != JsonValueKind.Null && value.TryGetInt32(out var number)
             ? number
             : null;
     }

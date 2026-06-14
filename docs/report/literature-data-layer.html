@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Nong 数据层 — 统一存储 v4.3</title>
+<style>
+  :root { --bg: #0d1117; --fg: #c9d1d9; --border: #30363d; --accent: #58a6ff; --green: #3fb950; --orange: #d2991d; --code-bg: #161b22; }
+  body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.8; padding: 2rem; max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 1.6rem; border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; color: #fff; }
+  h2 { font-size: 1.2rem; margin: 2.5rem 0 1rem; color: var(--accent); }
+  p { margin: 0.8rem 0; }
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; font-family: "Cascadia Code", monospace; font-size: 0.85em; line-height: 1.6; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; border: 1px solid var(--border); }
+  th, td { padding: 0.5rem 0.8rem; text-align: left; border: 1px solid var(--border); }
+  th { background: var(--code-bg); color: var(--accent); }
+  .box { border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; background: var(--code-bg); }
+</style>
+</head>
+<body>
+
+<h1>Nong 数据层 — 统一存储方案</h1>
+
+<h2>1. 所有数据在一个地方</h2>
+
+<pre>C:\Users\你的用户名\Documents\workplace\
+  ├── Cache\
+  │   └── nong.db              ← 唯一数据库（LiteDB）
+  └── Output\                  ← 生成的文件（Word/PDF）
+</pre>
+
+<p>用 <code>NONG_WORKPLACE</code> 环境变量可以换位置。</p>
+<p>删掉 <code>workplace</code> 文件夹就清空所有数据。备份就复制这个文件夹。</p>
+
+<h2>2. 数据库里有什么</h2>
+
+<table>
+  <tr><th>集合</th><th>存什么</th><th>谁写入</th></tr>
+  <tr><td><code>papers</code></td><td>文献（标题、作者、摘要、引用数、DOI、关键词）</td><td><code>lit search --cache</code></td></tr>
+  <tr><td><code>documents</code></td><td>注册过的 Word/PDF 文档（路径、SHA256、格式）</td><td><code>word db-import</code></td></tr>
+  <tr><td><code>blocks</code></td><td>一刀三流切出的文本块（段落、标题、表格）</td><td><code>word db-import</code></td></tr>
+  <tr><td><code>formats</code></td><td>排版指纹（字体、字号、页边距）</td><td><code>word db-import</code></td></tr>
+  <tr><td><code>structures</code></td><td>文档结构（章节、表格位置）</td><td><code>word db-import</code></td></tr>
+  <tr><td><code>assets</code></td><td>提取的图片（二进制 + 尺寸）</td><td><code>word db-import</code></td></tr>
+  <tr><td><code>outputs</code></td><td>生成文件的路径记录</td><td>各生成命令</td></tr>
+</table>
+
+<h2>3. 命令速查</h2>
+
+<table>
+  <tr><th>命令</th><th>说明</th></tr>
+  <tr><td><code>lit search --cache</code></td><td>搜外文论文，直接写入 papers 集合</td></tr>
+  <tr><td><code>lit cache-stats</code></td><td>看库里有多少论文</td></tr>
+  <tr><td><code>lit cache-query --min-year 2020</code></td><td>从 papers 集合筛选</td></tr>
+  <tr><td><code>lit word --template tpl.docx</code></td><td>从 papers 拿数据填 Word 模板</td></tr>
+  <tr><td><code>lit cache-export --limit 5</code></td><td>导出精简 Markdown 喂 Claude</td></tr>
+  <tr><td><code>word db-import slicedir docx</code></td><td>把一刀三流的输出导入 DB</td></tr>
+  <tr><td><code>word db-list</code></td><td>看库里有哪些文档</td></tr>
+  <tr><td><code>word db-blocks doc-id</code></td><td>查某个文档的文本块</td></tr>
+  <tr><td><code>word db-images doc-id</code></td><td>查某个文档的图片</td></tr>
+</table>
+
+<h2>4. 实测验证</h2>
+
+<pre>
+lit search --query "zeolite slow release" --cache
+  → nong.db: papers 集合 +5
+
+lit cache-stats
+  → "5 papers cached, 5 with DOI"
+
+lit cache-query --min-year 2005
+  → 返回匹配论文的标题/作者/引用数
+
+word dissect doc.docx -o sliced/
+word db-import sliced/ doc.docx
+  → nong.db: documents +1, blocks +6, formats +1
+
+word db-blocks &lt;id&gt;
+  → 返回文本块列表
+</pre>
+
+<h2>5. 涉及源码</h2>
+
+<table>
+  <tr><th>文件</th><th>角色</th></tr>
+  <tr><td><code>Data/NongDb.cs</code></td><td>统一数据库（LiteDB 包装，全部集合定义）</td></tr>
+  <tr><td><code>Literature/Data/LiteratureCache.cs</code></td><td>文献缓存层（读写 NongDb.papers）</td></tr>
+  <tr><td><code>Common/NongWorkplace.cs</code></td><td>存储位置统一（默认 ~/Documents/workplace/）</td></tr>
+  <tr><td><code>LiteDB/</code></td><td>LiteDB 源码（238 .cs，编译进 ThirdParty.dll）</td></tr>
+  <tr><td><code>Cli/Commands/LitCommands.cs</code></td><td>lit 命令组</td></tr>
+  <tr><td><code>Cli/Commands/WordCommands.cs</code></td><td>word + word db-* 命令组</td></tr>
+</table>
+
+<p style="margin-top:3rem; color:var(--muted); font-size:0.85rem; text-align:center;">Nong.Cli.Net v4.3.0 — 2026-06-14</p>
+
+</body>
+</html>

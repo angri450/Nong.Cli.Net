@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PackageId>Angri450.Nong.Aminer</PackageId>
+    <AssemblyName>Angri450.Nong.Aminer</AssemblyName>
+    <Version>4.3.0</Version>
+    <Authors>angri450</Authors>
+    <Description>AMiner REST API client — scholar search, paper search, patent search, org search, venue search. Pure .NET HttpClient.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Literature\LiteratureCore.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

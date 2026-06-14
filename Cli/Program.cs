@@ -75,6 +75,8 @@ class Program
         root.AddCommand(IconsCommands.Create(jsonOpt));
         root.AddCommand(SkillCommands.Create(jsonOpt));
         root.AddCommand(LitCommands.Create(jsonOpt));
+        root.AddCommand(AminerCommands.Create(jsonOpt));
+        root.AddCommand(MetasoCommands.Create(jsonOpt));
         root.AddCommand(SliceCommands.Create(jsonOpt));
         root.AddCommand(ProgressCommands.Create(jsonOpt));
         // Heavy modules dispatched to external tools:

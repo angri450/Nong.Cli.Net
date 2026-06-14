@@ -6,6 +6,17 @@ public enum CnkiBooleanOperator
     Or
 }
 
+public enum CnkiProximityKind
+{
+    Sen,
+    Near,
+    Prev,
+    Aft,
+    Prg,
+    SameSentence,
+    SameSentenceOrdered
+}
+
 public abstract class CnkiAstNode
 {
     protected CnkiAstNode(int position)
@@ -34,7 +45,31 @@ public sealed class CnkiTermNode : CnkiAstNode
     public bool IsBetween { get; init; }
     public string? BetweenStart { get; init; }
     public string? BetweenEnd { get; init; }
+    public bool IsFuzzy { get; init; }
+    public int? MinFrequency { get; init; }
     public string EffectiveField => string.IsNullOrWhiteSpace(Field) ? "SU" : Field!;
+}
+
+public sealed class CnkiProximityNode : CnkiAstNode
+{
+    public CnkiProximityNode(
+        CnkiProximityKind kind,
+        CnkiTermNode left, CnkiTermNode right,
+        int distance, int position)
+        : base(position)
+    {
+        Kind = kind;
+        Left = left;
+        Right = right;
+        Distance = distance;
+    }
+
+    public CnkiProximityKind Kind { get; }
+    public CnkiTermNode Left { get; }
+    public CnkiTermNode Right { get; }
+    public int Distance { get; }
+    public string? Field { get; init; }
+    public string EffectiveField => Left.EffectiveField;
 }
 
 public sealed class CnkiBinaryNode : CnkiAstNode

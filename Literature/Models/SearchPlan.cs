@@ -14,5 +14,6 @@ public sealed class ProviderPlan
     public bool IsImplemented { get; init; }
     public bool HasRequiredCredential { get; init; } = true;
     public IReadOnlyList<string> RoughQueries { get; init; } = Array.Empty<string>();
+    public ProviderStructuredQuery? StructuredQuery { get; init; }
     public IReadOnlyList<string> Limitations { get; init; } = Array.Empty<string>();
 }

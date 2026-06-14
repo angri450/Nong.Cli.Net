@@ -33,6 +33,8 @@
     <ProjectReference Include="..\Bioicons\Bioicons.csproj" />
     <ProjectReference Include="..\SkillManagerCore\SkillManagerCore.csproj" />
     <ProjectReference Include="..\Literature\LiteratureCore.csproj" />
+    <ProjectReference Include="..\Aminer\Nong.Aminer.csproj" />
+    <ProjectReference Include="..\Metaso\Nong.Metaso.csproj" />
     <ProjectReference Include="..\Pandoc\PandocCore.csproj" />
     <ProjectReference Include="..\OcrModels\OcrModels.csproj" />
     <!-- Heavy modules (Chart/Diagram/Pdf/Pptx/MultiModal/Imaging) are separate dotnet tools -->

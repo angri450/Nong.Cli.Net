@@ -181,6 +181,22 @@ public sealed class UnpaywallProvider : ILiteratureProvider
                 record.MatchReasons.Add("unpaywall_host_type=" + hostType);
         }
 
+        // All OA locations (one paper can have multiple free copies)
+        if (item.TryGetProperty("oa_locations", out var locations) && locations.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var loc in locations.EnumerateArray())
+            {
+                var url = GetString(loc, "url_for_pdf") ?? GetString(loc, "url");
+                if (!string.IsNullOrWhiteSpace(url) && url != record.PdfUrl)
+                {
+                    record.MatchReasons.Add("oa_mirror=" + url);
+                    // Use first available PDF as fallback if best_oa_location has none
+                    if (string.IsNullOrWhiteSpace(record.PdfUrl))
+                        record.PdfUrl = url;
+                }
+            }
+        }
+
         return record;
     }
 
@@ -205,7 +221,7 @@ public sealed class UnpaywallProvider : ILiteratureProvider
 
     static int? GetInt(JsonElement item, string property)
     {
-        return item.TryGetProperty(property, out var value) && value.TryGetInt32(out var number)
+        return item.TryGetProperty(property, out var value) && value.ValueKind != JsonValueKind.Null && value.TryGetInt32(out var number)
             ? number
             : null;
     }

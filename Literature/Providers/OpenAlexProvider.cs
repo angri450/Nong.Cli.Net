@@ -55,28 +55,49 @@ public sealed class OpenAlexProvider : ILiteratureProvider
             };
         }
 
-        var url = BuildWorksUrl("works", query, request.Limit);
-        using var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
-        using var response = await ProviderHttpClientFactory.SendWithRetryAsync(_client, httpRequest, cancellationToken).ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode)
-            return Unavailable((int)response.StatusCode, response.ReasonPhrase);
-
-        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-        using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
         var records = new List<PaperRecord>();
-        if (document.RootElement.TryGetProperty("results", out var results) && results.ValueKind == JsonValueKind.Array)
+        var totalFetched = 0;
+        var maxTotal = Math.Clamp(request.Limit <= 0 ? 100 : request.Limit, 1, 500);
+        string? cursor = "*";
+
+        // Paginate with cursor until we have enough records or no more pages
+        while (totalFetched < maxTotal && !string.IsNullOrWhiteSpace(cursor))
         {
-            foreach (var item in results.EnumerateArray())
+            var perPage = Math.Min(maxTotal - totalFetched, 200);
+            var url = BuildWorksUrl("works", query, perPage, request.StructuredQuery, cursor, request.Profile);
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
+            using var response = await ProviderHttpClientFactory.SendWithRetryAsync(_client, httpRequest, cancellationToken).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
             {
-                records.Add(MapWork(item));
+                if (records.Count > 0) break; // partial results
+                return Unavailable((int)response.StatusCode, response.ReasonPhrase);
             }
+
+            await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
+            var root = document.RootElement;
+
+            var pageCount = 0;
+            if (root.TryGetProperty("results", out var results) && results.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in results.EnumerateArray())
+                {
+                    records.Add(MapWork(item));
+                    pageCount++;
+                }
+            }
+
+            totalFetched += pageCount;
+            // OpenAlex returns meta.next_cursor for pagination
+            cursor = GetNestedString(root, "meta", "next_cursor");
+            if (pageCount == 0 || string.IsNullOrWhiteSpace(cursor)) break;
         }
 
         return new ProviderSearchResult
         {
             Provider = Name,
             Records = records,
-            Diagnostics = Diagnostics(records.Count, (int)response.StatusCode)
+            Diagnostics = Diagnostics(records.Count, null)
         };
     }
 
@@ -104,10 +125,69 @@ public sealed class OpenAlexProvider : ILiteratureProvider
             : GetByDoiAsync(record.Doi, cancellationToken);
     }
 
-    string BuildWorksUrl(string path, string query, int limit)
+    string BuildWorksUrl(string path, string query, int limit, ProviderStructuredQuery? structured, string? cursor = null, RankProfile profile = RankProfile.Balanced)
     {
         var perPage = Math.Clamp(limit <= 0 ? 25 : limit, 1, 200);
-        var url = $"https://api.openalex.org/{path}?search={Uri.EscapeDataString(query)}&per-page={perPage}";
+        var url = $"https://api.openalex.org/{path}?search={Uri.EscapeDataString(query)}";
+
+        // Sort: respect caller's rank preference
+        var sort = profile switch
+        {
+            RankProfile.Recent => "publication_date:desc",
+            RankProfile.Classic => "cited_by_count:desc",
+            _ => null // Balanced: let OpenAlex default relevance sort
+        };
+        if (sort != null) url += $"&sort={sort}";
+
+        // Cursor pagination
+        if (!string.IsNullOrWhiteSpace(cursor) && cursor != "*")
+            url += $"&cursor={Uri.EscapeDataString(cursor)}";
+
+        // Build native filter clauses from structured query (OpenAlex "土话")
+        var filters = new List<string>();
+
+        if (structured != null)
+        {
+            // Year range
+            if (structured.YearFrom.HasValue)
+                filters.Add($"publication_year:{structured.YearFrom.Value}");
+            else if (structured.YearTo.HasValue)
+                filters.Add($"publication_year:{structured.YearTo.Value}");
+
+            if (structured.YearTo.HasValue && structured.YearFrom.HasValue
+                && structured.YearFrom.Value != structured.YearTo.Value)
+            {
+                // Remove the single-year filter added above, use range
+                filters.RemoveAll(f => f.StartsWith("publication_year:"));
+                filters.Add($"publication_year:>{structured.YearFrom.Value - 1}");
+                filters.Add($"publication_year:<{structured.YearTo.Value + 1}");
+            }
+
+            // Author names
+            foreach (var author in structured.Authors.Take(3))
+                filters.Add($"authorships.author.display_name.search:{Uri.EscapeDataString(author)}");
+
+            // Institution names
+            foreach (var inst in structured.Institutions.Take(3))
+                filters.Add($"authorships.institutions.display_name.search:{Uri.EscapeDataString(inst)}");
+
+            // Citation count
+            if (structured.MinCitations.HasValue)
+                filters.Add($"cited_by_count:>{structured.MinCitations.Value - 1}");
+
+            // Venue/journal
+            if (structured.Venues.Count > 0)
+                filters.Add($"primary_location.source.display_name.search:{Uri.EscapeDataString(structured.Venues[0])}");
+
+            // Title-specific terms — boost title search
+            if (structured.TitleTerms.Count > 0)
+                filters.Add($"title.search:{Uri.EscapeDataString(string.Join(' ', structured.TitleTerms))}");
+        }
+
+        if (filters.Count > 0)
+            url += "&filter=" + string.Join(',', filters);
+
+        url += $"&per-page={perPage}";
         return AppendAuth(url);
     }
 
@@ -232,6 +312,17 @@ public sealed class OpenAlexProvider : ILiteratureProvider
             }
         }
 
+        // Keywords (OpenAlex returns keywords[] with display_name + score)
+        if (item.TryGetProperty("keywords", out var keywords) && keywords.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var kw in keywords.EnumerateArray())
+            {
+                var name = GetString(kw, "display_name");
+                if (!string.IsNullOrWhiteSpace(name) && !record.Keywords.Contains(name))
+                    record.Keywords.Add(name);
+            }
+        }
+
         return record;
     }
 
@@ -265,7 +356,7 @@ public sealed class OpenAlexProvider : ILiteratureProvider
 
     static int? GetInt(JsonElement item, string property)
     {
-        return item.TryGetProperty(property, out var value) && value.TryGetInt32(out var number)
+        return item.TryGetProperty(property, out var value) && value.ValueKind != JsonValueKind.Null && value.TryGetInt32(out var number)
             ? number
             : null;
     }

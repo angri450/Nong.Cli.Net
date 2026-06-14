@@ -85,6 +85,12 @@ public static class WordCommands
         cmd.AddCommand(CreateCompare(jsonOpt));
         cmd.AddCommand(CreateRenderPreview(jsonOpt));
 
+        // === DB integration ===
+        cmd.AddCommand(CreateDbImport(jsonOpt));
+        cmd.AddCommand(CreateDbList(jsonOpt));
+        cmd.AddCommand(CreateDbBlocks(jsonOpt));
+        cmd.AddCommand(CreateDbImages(jsonOpt));
+
         return cmd;
     }
 
@@ -3154,4 +3160,105 @@ public static class WordCommands
                 break;
         }
     }
+
+    // ════════════════════════════════════════════════════════════
+    // word db — unified NongDb integration
+    // ════════════════════════════════════════════════════════════
+
+    static Command CreateDbImport(Option<bool> jsonOpt)
+    {
+        var sliceArg = new Argument<string>("slice-dir", "Directory from word dissect");
+        var docxArg = new Argument<string>("docx", "Original .docx file");
+        var cmd = new Command("db-import", "Import word dissect output into NongDb") { sliceArg, docxArg };
+        cmd.SetHandler((string dir, string docx, bool json) =>
+        {
+            if (!Directory.Exists(dir)) { CliHelpers.WriteError("word db-import", ErrorCodes.FileNotFound with { Message = $"Directory not found: {dir}" }, json); return; }
+            if (!File.Exists(docx)) { CliHelpers.WriteError("word db-import", ErrorCodes.FileNotFound with { Message = $"File not found: {docx}" }, json); return; }
+
+            using var db = new Angri450.Nong.Data.NongDb();
+            var doc = db.ImportSlice(docx, dir);
+            var blocks = db.GetBlocks(doc.Id.ToString()).Count;
+            var images = db.GetImages(doc.Id.ToString()).Count;
+            var fmt = db.GetFormat(doc.Id.ToString());
+
+            var shaShort = doc.Sha256[..12];
+            var dbPath = Path.Combine(Angri450.Nong.NongWorkplace.Cache, "nong.db");
+
+            var o = JsonOutput.Ok("word db-import", $"Imported: {blocks} blocks, {images} images", new
+            {
+                documentId = doc.Id.ToString(), doc.FileName, doc.Format, sha = shaShort,
+                blocks, images,
+                hasFormat = fmt != null,
+                dbFile = dbPath
+            });
+            o.Metrics["blocks"] = blocks; o.Metrics["images"] = images;
+            if (json) Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+            else Console.WriteLine($"Imported {doc.FileName}: {blocks} blocks, {images} images → nong.db");
+        }, sliceArg, docxArg, jsonOpt);
+        return cmd;
+    }
+
+    static Command CreateDbList(Option<bool> jsonOpt)
+    {
+        var cmd = new Command("db-list", "List documents in NongDb");
+        cmd.SetHandler((bool json) =>
+        {
+            using var db = new Angri450.Nong.Data.NongDb();
+            var docs = db.FindDocuments();
+            var o = JsonOutput.Ok("word db-list", $"{docs.Count} documents", new
+            {
+                count = docs.Count,
+                items = docs.Select(d => new { id = d.Id.ToString(), d.FileName, d.Format, d.FileSize, sha = d.Sha256.Length >= 12 ? d.Sha256[..12] : d.Sha256, d.RegisteredAt })
+            });
+            o.Metrics["documents"] = docs.Count;
+            Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+        }, jsonOpt);
+        return cmd;
+    }
+
+    static Command CreateDbBlocks(Option<bool> jsonOpt)
+    {
+        var idArg = new Argument<string>("document-id", "Document ID from db-list");
+        var typeArg = new Option<string?>("--type", "Block type filter: paragraph, heading, table, image");
+        var limitArg = new Option<int>("--limit", () => 50);
+        var cmd = new Command("db-blocks", "List blocks for a document") { idArg, typeArg, limitArg };
+        cmd.SetHandler((string id, string? type, int limit, bool json) =>
+        {
+            using var db = new Angri450.Nong.Data.NongDb();
+            var blocks = db.GetBlocks(id);
+            if (!string.IsNullOrWhiteSpace(type)) blocks = blocks.Where(b => b.BlockType == type).ToList();
+            blocks = blocks.Take(limit).ToList();
+
+            var o = JsonOutput.Ok("word db-blocks", $"{blocks.Count} blocks", new
+            {
+                count = blocks.Count,
+                items = blocks.Select(b => new { id = b.Id.ToString(), b.BlockId, b.BlockType, text = b.Text?.Trunc(200), b.Index })
+            });
+            o.Metrics["blocks"] = blocks.Count;
+            Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+        }, idArg, typeArg, limitArg, jsonOpt);
+        return cmd;
+    }
+
+    static Command CreateDbImages(Option<bool> jsonOpt)
+    {
+        var idArg = new Argument<string>("document-id", "Document ID from db-list");
+        var cmd = new Command("db-images", "List extracted images for a document") { idArg };
+        cmd.SetHandler((string id, bool json) =>
+        {
+            using var db = new Angri450.Nong.Data.NongDb();
+            var images = db.GetImages(id);
+
+            var o = JsonOutput.Ok("word db-images", $"{images.Count} images", new
+            {
+                count = images.Count,
+                items = images.Select(i => new { id = i.Id.ToString(), i.FileName, i.MimeType, i.Width, i.Height, i.Usage, dataSize = i.Data?.Length ?? 0 })
+            });
+            o.Metrics["images"] = images.Count;
+            Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+        }, idArg, jsonOpt);
+        return cmd;
+    }
 }
+
+file static class TruncExt { public static string? Trunc(this string? s, int m) => s == null || s.Length <= m ? s : s[..(m - 3)] + "..."; }

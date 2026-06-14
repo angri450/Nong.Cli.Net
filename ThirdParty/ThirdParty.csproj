@@ -52,6 +52,12 @@
     <Compile Include="..\SixLabors.Fonts\shared-infrastructure\src\SharedInfrastructure\*.cs" Link="SharedInfrastructure\%(Filename)%(Extension)" />
   </ItemGroup>
 
+  <!-- LiteDB: embedded NoSQL database engine — pure .NET, no external deps -->
+  <ItemGroup>
+    <Compile Include="..\LiteDB\**\*.cs" Exclude="..\LiteDB\bin\**\*;..\LiteDB\obj\**\*" />
+    <Compile Remove="..\LiteDB\**\AssemblyInfo.cs" />
+  </ItemGroup>
+
   <!-- Main third-party libraries (exclude bin/obj/common polyfills) -->
   <ItemGroup>
     <Compile Include="..\ClosedXML\**\*.cs" Exclude="..\ClosedXML\bin\**\*;..\ClosedXML\obj\**\*" />

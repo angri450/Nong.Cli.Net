@@ -12,6 +12,13 @@
     <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ThirdParty\ThirdParty.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Common\NongWorkplace.cs" Link="Common\NongWorkplace.cs" />
+    <Compile Include="..\Data\NongDb.cs" Link="Data\NongDb.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 </Project>

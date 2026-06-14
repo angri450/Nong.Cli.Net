@@ -23,50 +23,64 @@ public static class CnkiDslValidator
                     Context(query.Text, position)));
             }
 
-            if (term.IsBetween)
+            if (term is { IsBetween: true })
             {
-                if (!string.Equals(term.EffectiveField, "YE", StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(term.EffectiveField, "YE", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(term.EffectiveField, "CF", StringComparison.OrdinalIgnoreCase))
                 {
                     issues.Add(new CnkiParseIssue(
                         "E006",
                         "Error",
-                        $"BETWEEN is only supported for YE in Stage19; found '{term.EffectiveField}' at position {term.Position}.",
+                        $"BETWEEN is only supported for YE and CF in Stage19; found '{term.EffectiveField}' at position {term.Position}.",
                         term.Position,
                         Context(query.Text, term.Position)));
                     continue;
                 }
 
-                if (!TryParseYear(term.BetweenStart, out var start))
+                var isYear = string.Equals(term.EffectiveField, "YE", StringComparison.OrdinalIgnoreCase);
+                var parsedStart = isYear ? TryParseYear(term.BetweenStart, out var ys) : int.TryParse(term.BetweenStart, out ys);
+                var parsedEnd = isYear ? TryParseYear(term.BetweenEnd, out var ye) : int.TryParse(term.BetweenEnd, out ye);
+
+                if (!parsedStart)
                 {
                     issues.Add(new CnkiParseIssue(
                         "E006",
                         "Error",
-                        $"BETWEEN start year '{term.BetweenStart}' must be a four digit year.",
+                        $"BETWEEN start value '{term.BetweenStart}' must be a valid {(isYear ? "four digit year" : "integer")}.",
                         term.Position,
                         Context(query.Text, term.Position)));
                 }
 
-                if (!TryParseYear(term.BetweenEnd, out var end))
+                if (!parsedEnd)
                 {
                     issues.Add(new CnkiParseIssue(
                         "E006",
                         "Error",
-                        $"BETWEEN end year '{term.BetweenEnd}' must be a four digit year.",
+                        $"BETWEEN end value '{term.BetweenEnd}' must be a valid {(isYear ? "four digit year" : "integer")}.",
                         term.Position,
                         Context(query.Text, term.Position)));
                 }
 
-                if (TryParseYear(term.BetweenStart, out start)
-                    && TryParseYear(term.BetweenEnd, out end)
-                    && start > end)
+                if (parsedStart && parsedEnd && ys > ye)
                 {
                     issues.Add(new CnkiParseIssue(
                         "E006",
                         "Error",
-                        $"BETWEEN start year {start} must be less than or equal to end year {end}.",
+                        $"BETWEEN start value {ys} must be less than or equal to end value {ye}.",
                         term.Position,
                         Context(query.Text, term.Position)));
                 }
+            }
+
+            // Validate word frequency
+            if (term.MinFrequency.HasValue && term.MinFrequency.Value < 1)
+            {
+                issues.Add(new CnkiParseIssue(
+                    "E006",
+                    "Warning",
+                    $"Word frequency must be >= 1; got {term.MinFrequency.Value}.",
+                    term.Position,
+                    Context(query.Text, term.Position)));
             }
         }
 

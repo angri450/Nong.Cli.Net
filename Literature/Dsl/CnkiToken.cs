@@ -5,6 +5,9 @@ public enum CnkiTokenKind
     End,
     Word,
     Quoted,
+    FuzzyQuoted,
+    FuzzyOp,
+    Hash,
     LeftParen,
     RightParen,
     Equal,
@@ -16,12 +19,17 @@ public enum CnkiTokenKind
     Or,
     Not,
     Between,
+    ProximityOp,
+    SubOp,
+    WordFreq,
     Unsupported
 }
 
 public sealed record CnkiToken(CnkiTokenKind Kind, string Text, int Position)
 {
     public string RawText => Text;
+    public bool IsFuzzy { get; init; }
+    public int? WordFrequency { get; init; }
 }
 
 public sealed record CnkiParseIssue(
