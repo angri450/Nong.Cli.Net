@@ -28,28 +28,30 @@ Built-in groups stay in the main CLI: `word`, `excel`, `inspect`, `lit`, `aminer
 
 ## Command Discovery
 
-Current local discovery returns:
+Current local discovery from the built binary returns:
 
-- `126 commands available`
-- 126 OpenAI tool schemas
-- `meta.version = "4.1.2"`
+- `167 commands available`
+- 167 OpenAI tool schemas
+- `meta.version = "4.3.0"`
 
 Current group counts:
 
 | Group | Count |
 |-------|------:|
-| `word` | 51 |
+| `word` | 56 |
 | `inspect` | 12 |
-| `excel` | 8 |
+| `excel` | 9 |
 | `genre` | 2 |
 | `icons` | 2 |
 | `skill` | 4 |
-| `lit` | 5 |
+| `lit` | 11 |
+| `aminer` | 22 |
+| `metaso` | 3 |
 | `slice` | 4 |
 | `chart` | 11 |
 | `diagram` | 3 |
 | `ocr` | 11 |
-| `pdf` | 8 |
+| `pdf` | 13 |
 | `pptx` | 4 |
 
 Do not hard-code command counts in agent logic. Parse `nong commands --json` when exact availability matters.
@@ -107,7 +109,7 @@ Every command with `--json` returns:
   "artifacts": { "docx": "out.docx" },
   "metrics": {},
   "errors": [],
-  "meta": { "durationMs": 42, "version": "4.1.2" }
+  "meta": { "durationMs": 42, "version": "4.3.0" }
 }
 ```
 
@@ -143,6 +145,13 @@ Read `content.nongmark` and `slice inspect` evidence before handing a slice to a
 nong excel to-groups data.xlsx --group A --value B --raw > groups.json
 nong chart analyze groups.json --json
 nong chart bar groups.json -o fig.png --json
+```
+
+### Excel Restructure
+
+```bash
+nong excel restructure experiment.spec.json -o experiment.restructured.xlsx --json
+nong excel sheets experiment.restructured.xlsx --json
 ```
 
 ### PDF

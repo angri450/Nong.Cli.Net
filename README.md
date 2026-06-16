@@ -69,8 +69,8 @@ nong commands --format openai-tools</code></pre>
   <tr><td><code>word</code></td><td>56</td><td>DOCX creation, repair, visible formatting, add operations, compare, render preview, db import/list/block/image workflows</td></tr>
   <tr><td><code>inspect</code></td><td>12</td><td>Paper and official-document diagnostics and generation</td></tr>
   <tr><td><code>excel</code></td><td>9</td><td>Read, restructure, create, style, formula, pivot, grouped data, slicing</td></tr>
-  <tr><td><code>lit</code></td><td>10</td><td>CNKI-like DSL parse/validate/plan/search/export plus local cache import/query/export</td></tr>
-  <tr><td><code>aminer</code></td><td>23</td><td>Scholar, paper, patent, org, venue, and paid detail/analytics surfaces</td></tr>
+  <tr><td><code>lit</code></td><td>11</td><td>CNKI-like DSL parse/validate/plan/search/export plus local cache import/query/export and Word template fill</td></tr>
+  <tr><td><code>aminer</code></td><td>22</td><td>Scholar, paper, patent, org, venue, recommendation, and paid detail/analytics surfaces</td></tr>
   <tr><td><code>metaso</code></td><td>3</td><td>Search, reader, and RAG chat</td></tr>
   <tr><td><code>chart</code></td><td>11</td><td>ANOVA/Duncan plus bar, line, scatter, pie, boxplot, histogram, heatmap, radar</td></tr>
   <tr><td><code>diagram</code></td><td>3</td><td>Flowchart, network, phylogenetic tree</td></tr>

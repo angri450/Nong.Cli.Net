@@ -3,9 +3,9 @@ using LiteDB;
 namespace Angri450.Nong.Data;
 
 /// <summary>
-/// Unified Nong database interface. All document-related data:
-/// documents, blocks, formats, assets, structures, outputs.
-/// Literature papers have their own storage contract — see ILiteratureCache.
+/// Unified Nong database interface. All persisted Nong objects share the
+/// single nong.db store: documents, blocks, formats, assets, structures,
+/// outputs, and literature papers.
 /// </summary>
 public interface INongDb : IDisposable
 {

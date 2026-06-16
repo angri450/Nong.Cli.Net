@@ -36,6 +36,23 @@ ExcelBuilder.Sheet(wb, "Data")
 wb.SaveAs("output.xlsx");
 ```
 
+## CLI Surface
+
+当前 `nong excel` 命令组包括：
+
+- `nong excel sheets`
+- `nong excel read`
+- `nong excel to-groups`
+- `nong excel restructure`
+- `nong excel create`
+- `nong excel dissect`
+- `nong excel style`
+- `nong excel formula`
+- `nong excel pivot`
+
+其中 `nong excel restructure experiment.spec.json -o experiment.restructured.xlsx --json`
+用于把多来源实验表重构成标准化总表和描述统计工作簿。
+
 ## Features
 
 ### SheetBuilder (链式 API)

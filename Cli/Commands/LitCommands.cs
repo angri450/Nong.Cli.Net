@@ -24,6 +24,7 @@ public static class LitCommands
         cmd.AddCommand(CreateSearch(jsonOpt));
         cmd.AddCommand(CreateExport(jsonOpt));
         cmd.AddCommand(CreateBatch(jsonOpt));
+        cmd.AddCommand(CreateCacheImport(jsonOpt));
         cmd.AddCommand(CreateCacheQuery(jsonOpt));
         cmd.AddCommand(CreateCacheStats(jsonOpt));
         cmd.AddCommand(CreateCacheExport(jsonOpt));
@@ -115,8 +116,9 @@ public static class LitCommands
                 var hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(query)))[..12];
                 var list = ctx.Db.RegisterLiteratureList(hash, query, string.Join(",", ParseSources(sources)), result.Records.Count);
                 
-                // Convert PaperRecord → DbPaper using Literature layer's mapping (avoids Data→Literature dependency)
-                var dbPapers = result.Records.Select(r => LiteratureCache.FromRecord(r, hash)).ToList();
+                // Convert PaperRecord → DbPaper in the Literature layer so NongDb stays the
+                // single store without forcing Data/ to depend upward on Literature models.
+                var dbPapers = result.Records.Select(r => r.ToDbPaper(hash)).ToList();
                 ctx.Db.ImportPapers(dbPapers);
                 
                 // Create relationships: list → papers
@@ -227,6 +229,75 @@ public static class LitCommands
     // lit cache-query
     // ═════════════════════════════════════════════════════════
 
+    static Command CreateCacheImport(Option<bool> jsonOpt)
+    {
+        var inputOpt = new Option<string>("--input", "Path to JSON result file from lit search") { IsRequired = true };
+        var cmd = new Command("cache-import", "Import lit search JSON results into the unified nong.db literature store") { inputOpt };
+        cmd.SetHandler(async (string inputFile, bool json) =>
+        {
+            if (!File.Exists(inputFile))
+            {
+                CliHelpers.WriteError("lit cache-import",
+                    ErrorCodes.FileNotFound with { Message = $"File not found: {inputFile}" }, json);
+                return;
+            }
+
+            try
+            {
+                var content = await File.ReadAllTextAsync(inputFile);
+                var doc = JsonSerializer.Deserialize<JsonElement>(content);
+                var recs = new List<PaperRecord>();
+
+                JsonElement records;
+                if (doc.TryGetProperty("records", out records) && records.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var r in records.EnumerateArray()) recs.Add(ParseRecord(r));
+                }
+                else if (doc.TryGetProperty("data", out var data)
+                    && data.TryGetProperty("records", out records)
+                    && records.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var r in records.EnumerateArray()) recs.Add(ParseRecord(r));
+                }
+                else
+                {
+                    CliHelpers.WriteError("lit cache-import",
+                        ErrorCodes.ReadFailed with { Message = $"No records array found in: {inputFile}" }, json);
+                    return;
+                }
+
+                var queryHash = Convert.ToHexString(
+                    System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(content)))[..12];
+
+                using var db = new NongDb();
+                var (added, duplicates) = db.ImportPaperRecords(recs, queryHash);
+                var output = JsonOutput.Ok("lit cache-import",
+                    $"Imported {added} papers ({duplicates} duplicates skipped)",
+                    new
+                    {
+                        input = Path.GetFullPath(inputFile),
+                        records = recs.Count,
+                        imported = added,
+                        duplicates,
+                        totalInCache = db.Papers.Count(),
+                        queryHash
+                    });
+                Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
+            }
+            catch (JsonException jex)
+            {
+                CliHelpers.WriteError("lit cache-import",
+                    ErrorCodes.ReadFailed with { Message = $"Invalid JSON: {jex.Message}" }, json);
+            }
+            catch (Exception ex)
+            {
+                CliHelpers.WriteError("lit cache-import",
+                    ErrorCodes.InternalError with { Message = ex.Message }, json);
+            }
+        }, inputOpt, jsonOpt);
+        return cmd;
+    }
+
     static Command CreateCacheQuery(Option<bool> jsonOpt)
     {
         var titleOpt = new Option<string?>("--title"); var authorOpt = new Option<string?>("--author");
@@ -234,15 +305,15 @@ public static class LitCommands
         var minYr = new Option<int?>("--min-year"); var maxYr = new Option<int?>("--max-year");
         var minCite = new Option<int?>("--min-citations"); var limitOpt = new Option<int>("--limit", () => 20);
         var skipOpt = new Option<int>("--skip", () => 0);
-        var cmd = new Command("cache-query", "Query locally cached papers") { titleOpt, authorOpt, kwOpt, venueOpt, minYr, maxYr, minCite, limitOpt, skipOpt };
+        var cmd = new Command("cache-query", "Query locally stored literature papers from nong.db") { titleOpt, authorOpt, kwOpt, venueOpt, minYr, maxYr, minCite, limitOpt, skipOpt };
         cmd.SetHandler((context) =>
         {
             var cv = context.ParseResult;
-            using var cache = new LiteratureCache();
-            var r = cache.Query(cv.GetValueForOption(titleOpt), cv.GetValueForOption(minYr), cv.GetValueForOption(maxYr),
+            using var db = new NongDb();
+            var r = db.QueryPapers(cv.GetValueForOption(titleOpt), cv.GetValueForOption(minYr), cv.GetValueForOption(maxYr),
                 cv.GetValueForOption(minCite), cv.GetValueForOption(authorOpt), cv.GetValueForOption(venueOpt),
                 cv.GetValueForOption(kwOpt), cv.GetValueForOption(limitOpt), cv.GetValueForOption(skipOpt));
-            var o = JsonOutput.Ok("lit cache-query", $"{r.Count} papers", new { count = r.Count, totalInCache = cache.Count(), items = r.Select(x => x.CompactEntry()) });
+            var o = JsonOutput.Ok("lit cache-query", $"{r.Count} papers", new { count = r.Count, totalInCache = db.Papers.Count(), items = r.Select(x => x.CompactEntry()) });
             Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
         });
         return cmd;
@@ -250,11 +321,11 @@ public static class LitCommands
 
     static Command CreateCacheStats(Option<bool> jsonOpt)
     {
-        var cmd = new Command("cache-stats", "Show local cache statistics");
+        var cmd = new Command("cache-stats", "Show local literature statistics from nong.db");
         cmd.SetHandler((bool json) =>
         {
-            using var cache = new LiteratureCache();
-            var s = cache.GetStats();
+            using var db = new NongDb();
+            var s = db.GetPaperStats();
             var o = JsonOutput.Ok("lit cache-stats", $"{s.TotalRecords} papers cached", new { s.TotalRecords, s.WithDoi, s.WithAbstract, s.WithPdf, s.YearMin, s.YearMax, s.Sources, s.OldestImport, s.NewestImport, dbFile = Path.Combine(NongWorkplace.Cache, "nong.db") });
             Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
         }, jsonOpt);
@@ -265,11 +336,11 @@ public static class LitCommands
     {
         var limitOpt = new Option<int>("--limit", () => 20); var maxCharsOpt = new Option<int>("--max-chars", () => 8000);
         var outOpt = new Option<string?>("-o");
-        var cmd = new Command("cache-export", "Export cached papers as markdown") { limitOpt, maxCharsOpt, outOpt };
+        var cmd = new Command("cache-export", "Export literature papers from nong.db as markdown") { limitOpt, maxCharsOpt, outOpt };
         cmd.SetHandler((int limit, int maxChars, string? outFile, bool json) =>
         {
-            using var cache = new LiteratureCache();
-            var md = cache.ExportMarkdown(limit: limit, maxChars: maxChars);
+            using var db = new NongDb();
+            var md = db.ExportPaperMarkdown(limit: limit, maxChars: maxChars);
             if (outFile != null) File.WriteAllText(outFile, md);
             if (!json) Console.WriteLine(md);
             else { var o = JsonOutput.Ok("lit cache-export", $"{md.Length} chars", new { chars = md.Length, preview = md[..Math.Min(md.Length, 500)], file = outFile }); Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts)); }
@@ -278,7 +349,7 @@ public static class LitCommands
     }
 
     // ═════════════════════════════════════════════════════════
-    // lit word — direct DB → DocxTemplate, no JSON file
+    // lit word — direct nong.db → DocxTemplate, no JSON file
     // ═════════════════════════════════════════════════════════
 
     static Command CreateWord(Option<bool> jsonOpt)
@@ -289,18 +360,17 @@ public static class LitCommands
         var templateOpt = new Option<string>("--template", "Path to .docx template") { IsRequired = true };
         var outOpt = new Option<string>("-o", () => "filled.docx", "Output docx path");
 
-        var cmd = new Command("word", "Fill Word template directly from literature cache (no JSON file)") { dslOpt, modeOpt, limitOpt, templateOpt, outOpt };
+        var cmd = new Command("word", "Fill Word template directly from nong.db literature storage (no JSON file)") { dslOpt, modeOpt, limitOpt, templateOpt, outOpt };
         cmd.SetHandler((string? dsl, string mode, int limit, string template, string output, bool json) =>
         {
             if (!File.Exists(template)) { Console.Error.WriteLine($"Template not found: {template}"); return; }
 
             output = NongWorkplace.ResolveOutput(output);
 
-            using var cache = new LiteratureCache();
-            // CachedPaper.ToDocxData() returns Dictionary DocxTemplate consumes directly — zero serialization
+            using var db = new NongDb();
             var data = limit == 1
-                ? cache.AsDocxData(dsl, mode, 1)
-                : cache.AsDocxList(dsl, mode, Math.Clamp(limit, 2, 50));
+                ? db.AsDocxData(dsl, mode, 1)
+                : db.AsDocxList(dsl, mode, Math.Clamp(limit, 2, 50));
 
             DocxTemplate.Fill(template, output, data);
 

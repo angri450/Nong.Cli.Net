@@ -11,7 +11,7 @@
     <ProjectReference Include="..\Cli\NongCli.csproj" ReferenceOutputAssembly="false" />
     <!-- Direct reference for unit-testing the unified Data model (NongDb). -->
     <ProjectReference Include="..\Data\Nong.Data.csproj" />
-    <!-- Direct reference for stage-C tests: LiteratureCache now backed by nong.db. -->
+    <!-- Direct reference for literature regressions that run against the unified nong.db path. -->
     <ProjectReference Include="..\Literature\LiteratureCore.csproj" />
     <ProjectReference Include="..\Pdf\PdfCore.csproj" />
     <ProjectReference Include="..\Pandoc\PandocCore.csproj" />

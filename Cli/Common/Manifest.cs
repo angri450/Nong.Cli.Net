@@ -412,7 +412,7 @@ public static class Manifest
         list.Add(new("pdf db-images", "List extracted images for a PDF document", "pdf", [],
             Parameters: [new("document-id", "string", "Document ID from db-list", Required: true)]));
 
-        // === lit (implemented: parse, validate, plan, search, export, batch, cache-import, cache-query, cache-stats, cache-export) ===
+        // === lit (implemented: parse, validate, plan, search, export, batch, cache-import, cache-query, cache-stats, cache-export, word) ===
         list.Add(new("lit parse", "Parse CNKI-like literature retrieval DSL", "lit", [],
             Parameters: [new("query", "string", "CNKI-like search expression", Required: true)]));
         list.Add(new("lit validate", "Validate CNKI-like literature retrieval DSL syntax", "lit", [],
@@ -428,20 +428,27 @@ public static class Manifest
                          new("o", "string", "Output file path", Required: true)]));
         list.Add(new("lit batch", "Batch literature search across directory of DSL files", "lit", [],
             Parameters: [new("dir", "string", "Directory containing .txt files with DSL queries", Required: true)]));
-        list.Add(new("lit cache-import", "Import lit search JSON results into local LiteDB cache", "lit", [],
+        list.Add(new("lit cache-import", "Import lit search JSON results into the unified nong.db literature store", "lit", [],
             Parameters: [new("input", "string", "Path to JSON result file from lit search", Required: true)]));
-        list.Add(new("lit cache-query", "Query locally cached papers (year, citations, keywords, etc.)", "lit", [],
+        list.Add(new("lit cache-query", "Query literature papers stored in nong.db (year, citations, keywords, etc.)", "lit", [],
             Parameters: [new("min-year", "int", "Minimum year"), new("min-citations", "int", "Minimum citations")]));
-        list.Add(new("lit cache-stats", "Show local literature cache statistics", "lit", [], Parameters: []));
-        list.Add(new("lit cache-export", "Export cached papers as markdown (Claude context window friendly)", "lit", [],
+        list.Add(new("lit cache-stats", "Show local literature statistics from nong.db", "lit", [], Parameters: []));
+        list.Add(new("lit cache-export", "Export literature papers from nong.db as markdown (Claude context window friendly)", "lit", [],
             Parameters: [new("limit", "int", "Max papers"), new("max-chars", "int", "Character budget")]));
+        list.Add(new("lit word", "Fill Word template directly from nong.db literature storage (no JSON file)", "lit", [],
+            Parameters: [new("template", "string", "Path to .docx template", Required: true),
+                         new("dsl", "string", "Optional CNKI DSL filter"),
+                         new("limit", "int", "Number of cached papers to fill"),
+                         new("o", "string", "Output .docx path", Required: true)]));
 
-        // === aminer (28 endpoints: 7 free + 21 paid) ===
+        // === aminer (implemented: 22 endpoints — 8 free + 14 paid) ===
         // FREE
         list.Add(new("aminer scholar", "[免费] Search AMiner scholars by name or field", "aminer", [],
             Parameters: [new("query", "string", "Scholar name or research field", Required: true)]));
         list.Add(new("aminer paper", "[免费] Search AMiner papers by keyword", "aminer", [],
             Parameters: [new("query", "string", "Paper keyword or title", Required: true)]));
+        list.Add(new("aminer rec", "[免费] Recommend papers by scholar, topics, or author context", "aminer", [],
+            Parameters: [new("author", "string?", "Scholar name"), new("topics", "string[]?", "Interest topics")]));
         list.Add(new("aminer patent", "[免费] Search AMiner patents by keyword", "aminer", [],
             Parameters: [new("query", "string", "Patent keyword", Required: true)]));
         list.Add(new("aminer org", "[免费] Search AMiner organizations", "aminer", [],
@@ -461,32 +468,28 @@ public static class Manifest
             Parameters: [new("query", "string", "Natural language question", Required: true)]));
         list.Add(new("aminer paper-citations", "[¥0.10] Paper citation graph", "aminer", [],
             Parameters: [new("id", "string", "Paper ID", Required: true)]));
-        list.Add(new("aminer paper-keywords", "[¥0.10] Multi-keyword batch paper search", "aminer", [],
-            Parameters: [new("keywords", "string[]", "Keywords", Required: true)]));
+        list.Add(new("aminer deep-research", "[¥0.80] AMiner Deep Research with streaming answer output", "aminer", [],
+            Parameters: [new("query", "string", "Research question", Required: true)]));
         // PAID — 学者
         list.Add(new("aminer scholar-detail", "[¥1.00] Full scholar details by ID", "aminer", [],
             Parameters: [new("id", "string", "Scholar ID", Required: true)]));
-        list.Add(new("aminer scholar-portrait", "[¥0.50] Scholar research portrait", "aminer", [],
+        list.Add(new("aminer scholar-figure", "[¥0.50] Scholar research portrait", "aminer", [],
+            Parameters: [new("id", "string", "Scholar ID", Required: true)]));
+        list.Add(new("aminer scholar-stat", "[¥0.50] Scholar statistics", "aminer", [],
             Parameters: [new("id", "string", "Scholar ID", Required: true)]));
         list.Add(new("aminer scholar-papers", "[¥1.50] Scholar's paper list", "aminer", [],
             Parameters: [new("id", "string", "Scholar ID", Required: true)]));
         list.Add(new("aminer scholar-patents", "[¥1.50] Scholar's patent list", "aminer", [],
             Parameters: [new("id", "string", "Scholar ID", Required: true)]));
-        list.Add(new("aminer scholar-projects", "[¥3.00] Scholar's research projects/funding", "aminer", [],
+        list.Add(new("aminer scholar-projects", "[¥1.50] Scholar's research projects/funding", "aminer", [],
             Parameters: [new("id", "string", "Scholar ID", Required: true)]));
-        // PAID — 机构/期刊/专利
+        // PAID — 机构/专利
         list.Add(new("aminer org-detail", "[¥0.01] Full org details by ID", "aminer", [],
             Parameters: [new("id", "string", "Org ID", Required: true)]));
         list.Add(new("aminer org-patents", "[¥0.10] Org patent list", "aminer", [],
             Parameters: [new("id", "string", "Org ID", Required: true)]));
         list.Add(new("aminer patent-detail", "[¥0.01] Full patent details by ID", "aminer", [],
             Parameters: [new("id", "string", "Patent ID", Required: true)]));
-        list.Add(new("aminer venue-papers", "[¥0.10] Venue paper list", "aminer", [],
-            Parameters: [new("id", "string", "Venue ID", Required: true)]));
-        list.Add(new("aminer venue-analytics", "[¥0.30] Venue analysis report", "aminer", [],
-            Parameters: [new("id", "string", "Venue ID", Required: true)]));
-        list.Add(new("aminer org-normalize", "[¥0.05] Normalize org name", "aminer", [],
-            Parameters: [new("query", "string", "Raw org name", Required: true)]));
 
         // === metaso (implemented: search, reader, chat) ===
         list.Add(new("metaso search", "Metaso search API — webpage/document/scholar/image/video/podcast", "metaso", [],

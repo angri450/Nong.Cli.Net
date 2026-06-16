@@ -19,6 +19,8 @@ public sealed class NongDb : IDisposable
         if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir))
             Directory.CreateDirectory(dir);
         _db = new LiteDatabase($"Filename={path};Connection=direct");
+        EnsurePaperIndexes();
+        MigrateLegacyLiteratureDb(path);
     }
 
     // ═══ Collections ═══
@@ -32,7 +34,7 @@ public sealed class NongDb : IDisposable
     public ILiteCollection<DbRelationship> Relationships => _db.GetCollection<DbRelationship>("relationships");
     public ILiteCollection<DbRunProvenance> Runs => _db.GetCollection<DbRunProvenance>("runs");
 
-    /// <summary>Papers collection — unified with LiteratureCache.</summary>
+    /// <summary>Papers collection — unified first-class literature storage in nong.db.</summary>
     public ILiteCollection<DbPaper> Papers => _db.GetCollection<DbPaper>("papers");
 
     /// <summary>Literature lists — search results as first-class objects (execution req #4).</summary>
@@ -243,13 +245,13 @@ public sealed class NongDb : IDisposable
     /// <summary>Import papers into the database.</summary>
     public int ImportPapers(IEnumerable<DbPaper> papers)
     {
+        EnsurePaperIndexes();
         int count = 0;
         foreach (var paper in papers)
         {
             Papers.Insert(paper);
             count++;
         }
-        Papers.EnsureIndex(p => p.QueryHash);
         return count;
     }
 
@@ -293,6 +295,48 @@ public sealed class NongDb : IDisposable
     }
 
     public void Dispose() => _db?.Dispose();
+
+    void EnsurePaperIndexes()
+    {
+        Papers.EnsureIndex(p => p.NormalizedDoi);
+        Papers.EnsureIndex(p => p.QueryHash);
+        Papers.EnsureIndex(p => p.ImportedAt);
+    }
+
+    void MigrateLegacyLiteratureDb(string nongDbPath)
+    {
+        var legacy = Path.Combine(Path.GetDirectoryName(nongDbPath) ?? "", "literature.db");
+        if (!File.Exists(legacy)) return;
+
+        try
+        {
+            using var old = new LiteDatabase($"Filename={legacy};Connection=shared;ReadOnly=true");
+            var oldPapers = old.GetCollection<DbPaper>("papers");
+            var existingDois = new HashSet<string>(
+                Papers.FindAll()
+                    .Where(p => !string.IsNullOrWhiteSpace(p.NormalizedDoi))
+                    .Select(p => p.NormalizedDoi),
+                StringComparer.OrdinalIgnoreCase);
+
+            foreach (var paper in oldPapers.FindAll())
+            {
+                if (!string.IsNullOrWhiteSpace(paper.NormalizedDoi) && existingDois.Contains(paper.NormalizedDoi))
+                    continue;
+
+                paper.Id = ObjectId.Empty;
+                Papers.Insert(paper);
+
+                if (!string.IsNullOrWhiteSpace(paper.NormalizedDoi))
+                    existingDois.Add(paper.NormalizedDoi);
+            }
+        }
+        catch
+        {
+            return;
+        }
+
+        try { File.Move(legacy, legacy + ".retired", overwrite: true); } catch { }
+    }
 
     static string ComputeSha256(string path)
     {
