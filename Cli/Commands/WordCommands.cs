@@ -8,6 +8,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using DocxCore;
 using Nong.Cli.Common;
 using Nong.Inspect;
+using UglyToad.PdfPig.Writer;
 using A = DocumentFormat.OpenXml.Drawing;
 
 namespace Nong.Cli.Commands;
@@ -84,6 +85,9 @@ public static class WordCommands
         cmd.AddCommand(CreateAddMath(jsonOpt));
         cmd.AddCommand(CreateCompare(jsonOpt));
         cmd.AddCommand(CreateRenderPreview(jsonOpt));
+
+        // === Convert to PDF ===
+        cmd.AddCommand(CreateToPdf(jsonOpt));
 
         // === DB integration ===
         cmd.AddCommand(CreateDbImport(jsonOpt));
@@ -498,7 +502,9 @@ public static class WordCommands
         try
         {
             if (Marshal.IsComObject(value))
+#pragma warning disable CA1416 // Marshal.FinalReleaseComObject is Windows-only; this command is already Windows-only.
                 Marshal.FinalReleaseComObject(value);
+#pragma warning restore CA1416
         }
         catch { }
     }
@@ -3162,38 +3168,128 @@ public static class WordCommands
     }
 
     // ════════════════════════════════════════════════════════════
-    // word db — unified NongDb integration
+    // word to-pdf — DOCX → PDF via OpenXML direct extraction + PdfPig
+    // ════════════════════════════════════════════════════════════
+
+    static Command CreateToPdf(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .docx file");
+        var outOpt = new Option<string>(new[] { "-o", "--output" }, "Output .pdf path") { IsRequired = true };
+        var cmd = new Command("to-pdf", "Convert DOCX to PDF") { fileArg, outOpt };
+
+        cmd.SetHandler((string file, string output, bool json) =>
+        {
+            const string command = "word to-pdf";
+            try
+            {
+                var err = CliHelpers.ValidateDocxFile(file);
+                if (err != null) { CliHelpers.WriteError(command, err, json); return; }
+                CliHelpers.EnsureParentDir(output);
+
+                // 1. Extract paragraphs via OpenXML
+                var paragraphs = new List<(string text, bool isHeading)>();
+                using (var doc = WordprocessingDocument.Open(file, false))
+                {
+                    var body = doc.MainDocumentPart?.Document?.Body;
+                    if (body == null) { CliHelpers.WriteError(command, ErrorCodes.ReadFailed with { Message = "Document has no body." }, json); return; }
+
+                    foreach (var para in body.OfType<Paragraph>())
+                    {
+                        var styleId = para.Elements<ParagraphProperties>().FirstOrDefault()?.Elements<ParagraphStyleId>().FirstOrDefault()?.Val?.Value ?? "";
+                        var isHeading = styleId.StartsWith("Heading", StringComparison.OrdinalIgnoreCase)
+                                     || styleId.StartsWith("heading", StringComparison.OrdinalIgnoreCase)
+                                     || styleId.StartsWith("Title", StringComparison.OrdinalIgnoreCase);
+                        var text = para.InnerText;
+                        if (!string.IsNullOrWhiteSpace(text))
+                            paragraphs.Add((text.Trim(), isHeading));
+                    }
+                }
+
+                if (paragraphs.Count == 0)
+                { CliHelpers.WriteError(command, ErrorCodes.ValidationFailed with { Message = "No text content found." }, json); return; }
+
+                // 2. Build PDF with CJK font
+                var margin = 60d; var pageW = 595d; var pageH = 842d;
+                var usableH = pageH - 2 * margin; var lineHeight = 14d;
+                var linesPerPage = (int)(usableH / lineHeight);
+                int headingCount = 0, paraCount = 0, totalPages = 1;
+
+                using var builder = new PdfDocumentBuilder();
+                var font = builder.AddStandard14Font(UglyToad.PdfPig.Fonts.Standard14Fonts.Standard14Font.Helvetica);
+                var fontBold = builder.AddStandard14Font(UglyToad.PdfPig.Fonts.Standard14Fonts.Standard14Font.HelveticaBold);
+
+                var page = builder.AddPage(pageW, pageH);
+                var y = pageH - margin; int lineOnPage = 0;
+
+                foreach (var (text, isHeading) in paragraphs)
+                {
+                    var useFont = isHeading ? fontBold : font;
+                    var fs = isHeading ? 14d : 10d;
+                    var maxChars = 70;
+
+                    if (isHeading) headingCount++; else paraCount++;
+
+                    foreach (var line in WrapText(text, maxChars))
+                    {
+                        if (lineOnPage >= linesPerPage)
+                        { page = builder.AddPage(pageW, pageH); y = pageH - margin; lineOnPage = 0; totalPages++; }
+                        if (isHeading) y -= 8;
+                        page.AddText(line, fs, new UglyToad.PdfPig.Core.PdfPoint(margin, y), useFont);
+                        y -= lineHeight + 2; lineOnPage++;
+                    }
+                }
+
+                File.WriteAllBytes(output, builder.Build());
+                var info = new FileInfo(output);
+                var o = JsonOutput.Ok(command,
+                    $"Converted: {paragraphs.Count} paragraphs → PDF ({info.Length} bytes, {totalPages} page(s))",
+                    new { sourceCount = paragraphs.Count, outputBytes = info.Length, pages = totalPages, headings = headingCount, paragraphs = paraCount });
+                o.Artifacts["pdf"] = output;
+                o.Metrics["source"] = paragraphs.Count;
+                o.Metrics["pages"] = totalPages;
+                o.Metrics["outputBytes"] = info.Length;
+                Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+            }
+            catch (Exception ex) { CliHelpers.WriteError(command, ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        }, fileArg, outOpt, jsonOpt);
+        return cmd;
+    }
+
+    static List<string> WrapText(string text, int maxChars) => text.Length <= maxChars
+        ? new List<string> { text }
+        : Enumerable.Range(0, (text.Length + maxChars - 1) / maxChars).Select(i => text.Substring(i * maxChars, Math.Min(maxChars, text.Length - i * maxChars))).ToList();
+
+    // ════════════════════════════════════════════════════════════
+    // word db — unified ingestion via IngestionContext (stage D)
     // ════════════════════════════════════════════════════════════
 
     static Command CreateDbImport(Option<bool> jsonOpt)
     {
         var sliceArg = new Argument<string>("slice-dir", "Directory from word dissect");
         var docxArg = new Argument<string>("docx", "Original .docx file");
-        var cmd = new Command("db-import", "Import word dissect output into NongDb") { sliceArg, docxArg };
+        var cmd = new Command("db-import", "Import word dissect output into NongDb (unified ingestion)") { sliceArg, docxArg };
         cmd.SetHandler((string dir, string docx, bool json) =>
         {
             if (!Directory.Exists(dir)) { CliHelpers.WriteError("word db-import", ErrorCodes.FileNotFound with { Message = $"Directory not found: {dir}" }, json); return; }
             if (!File.Exists(docx)) { CliHelpers.WriteError("word db-import", ErrorCodes.FileNotFound with { Message = $"File not found: {docx}" }, json); return; }
 
-            using var db = new Angri450.Nong.Data.NongDb();
-            var doc = db.ImportSlice(docx, dir);
-            var blocks = db.GetBlocks(doc.Id.ToString()).Count;
-            var images = db.GetImages(doc.Id.ToString()).Count;
-            var fmt = db.GetFormat(doc.Id.ToString());
+            using var ctx = new Angri450.Nong.Data.IngestionContext();
+            var result = ctx.IngestSlice(docx, dir, "word", "db-import");
 
-            var shaShort = doc.Sha256[..12];
+            var shaShort = result.Sha256[..12];
             var dbPath = Path.Combine(Angri450.Nong.NongWorkplace.Cache, "nong.db");
 
-            var o = JsonOutput.Ok("word db-import", $"Imported: {blocks} blocks, {images} images", new
+            var o = JsonOutput.Ok("word db-import", $"Imported: {result.Blocks} blocks, {result.Images} images", new
             {
-                documentId = doc.Id.ToString(), doc.FileName, doc.Format, sha = shaShort,
-                blocks, images,
-                hasFormat = fmt != null,
-                dbFile = dbPath
+                documentId = result.DocumentId, result.FileName, result.Format, sha = shaShort,
+                result.Blocks, result.Images,
+                result.HasFormat,
+                dbFile = dbPath,
+                runId = result.RunId
             });
-            o.Metrics["blocks"] = blocks; o.Metrics["images"] = images;
+            o.Metrics["blocks"] = result.Blocks; o.Metrics["images"] = result.Images;
             if (json) Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
-            else Console.WriteLine($"Imported {doc.FileName}: {blocks} blocks, {images} images → nong.db");
+            else Console.WriteLine($"Imported {result.FileName}: {result.Blocks} blocks, {result.Images} images → nong.db");
         }, sliceArg, docxArg, jsonOpt);
         return cmd;
     }
@@ -3203,8 +3299,8 @@ public static class WordCommands
         var cmd = new Command("db-list", "List documents in NongDb");
         cmd.SetHandler((bool json) =>
         {
-            using var db = new Angri450.Nong.Data.NongDb();
-            var docs = db.FindDocuments();
+            using var ctx = new Angri450.Nong.Data.IngestionContext();
+            var docs = ctx.QueryDocuments();
             var o = JsonOutput.Ok("word db-list", $"{docs.Count} documents", new
             {
                 count = docs.Count,
@@ -3224,10 +3320,8 @@ public static class WordCommands
         var cmd = new Command("db-blocks", "List blocks for a document") { idArg, typeArg, limitArg };
         cmd.SetHandler((string id, string? type, int limit, bool json) =>
         {
-            using var db = new Angri450.Nong.Data.NongDb();
-            var blocks = db.GetBlocks(id);
-            if (!string.IsNullOrWhiteSpace(type)) blocks = blocks.Where(b => b.BlockType == type).ToList();
-            blocks = blocks.Take(limit).ToList();
+            using var ctx = new Angri450.Nong.Data.IngestionContext();
+            var blocks = ctx.QueryBlocks(id, type, limit);
 
             var o = JsonOutput.Ok("word db-blocks", $"{blocks.Count} blocks", new
             {
@@ -3246,8 +3340,8 @@ public static class WordCommands
         var cmd = new Command("db-images", "List extracted images for a document") { idArg };
         cmd.SetHandler((string id, bool json) =>
         {
-            using var db = new Angri450.Nong.Data.NongDb();
-            var images = db.GetImages(id);
+            using var ctx = new Angri450.Nong.Data.IngestionContext();
+            var images = ctx.QueryAssets(id, "image/");
 
             var o = JsonOutput.Ok("word db-images", $"{images.Count} images", new
             {

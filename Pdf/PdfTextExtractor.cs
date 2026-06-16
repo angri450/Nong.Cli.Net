@@ -191,6 +191,18 @@ public static class PdfTextExtractor
                 model.Warnings.Add($"Removed {skippedRepeatingLines} repeated header/footer line(s) from the PDF text stream.");
             }
 
+            // Post-process: remove annotation noise (figure labels, isolated single-char blocks, etc.)
+            // Patent PDFs and technical drawings scatter annotation numbers across the page
+            // as individual text blocks — these are not readable prose and should not pollute
+            // content.jsonl or downstream conversion.
+            var filtered = FilterAnnotationNoise(model.Blocks, model.Pages);
+            var removed = model.Blocks.Count - filtered.Count;
+            if (removed > 0)
+            {
+                model.Warnings.Add($"Removed {removed} annotation-noise block(s) from the PDF text model.");
+                model.Blocks = filtered;
+            }
+
             if (model.Blocks.All(b => b.Kind == "pageBreak"))
             {
                 model.Warnings.Add("No extractable text blocks were found. Use --mode ocr when local OCR runtime is installed, or use ocr cloud/to-word when a cloud key exists.");
@@ -667,20 +679,120 @@ public static class PdfTextExtractor
             }
         }).ToList();
 
+    /// <summary>
+    /// Remove blocks that are figure labels, annotation numbers, isolated single-char text,
+    /// or vertical strings of metadata characters. These are common noise in patent PDFs,
+    /// technical drawings, and scanned documents — they pollute content.jsonl and downstream
+    /// conversion output without carrying any readable prose.
+    /// </summary>
+    static List<PdfContentBlock> FilterAnnotationNoise(List<PdfContentBlock> blocks, List<PdfPageModel> pages)
+    {
+        var kept = new List<PdfContentBlock>();
+
+        // Build per-page block index for proximity queries
+        var blocksByPage = blocks
+            .Where(b => b.Kind != "pageBreak")
+            .GroupBy(b => b.Page)
+            .ToDictionary(g => g.Key, g => g.OrderBy(b => b.Bbox[0]).ToList());
+
+        foreach (var block in blocks)
+        {
+            if (block.Kind == "pageBreak")
+            {
+                kept.Add(block);
+                continue;
+            }
+
+            if (!blocksByPage.TryGetValue(block.Page, out var pageBlocks))
+            {
+                kept.Add(block);
+                continue;
+            }
+
+            var text = block.Text ?? "";
+            if (string.IsNullOrWhiteSpace(text))
+                continue; // already filtered upstream
+
+            // Rule 1: very short text (≤5 chars) that is isolated vertically —
+            // no other block within a one-line reading distance → figure label
+            if (text.Length <= 5)
+            {
+                var yCenter = (block.Bbox[1] + block.Bbox[3]) / 2.0;
+                var fontSize = block.Format?.Size ?? 10;
+                var lineTolerance = Math.Max(18, fontSize * 1.8);
+
+                var hasNearbyVertical = pageBlocks
+                    .Where(b => b != block && b.Kind != "pageBreak")
+                    .Any(b =>
+                    {
+                        var bY = (b.Bbox[1] + b.Bbox[3]) / 2.0;
+                        return Math.Abs(bY - yCenter) <= lineTolerance;
+                    });
+
+                if (!hasNearbyVertical)
+                {
+                    // Isolated short text — annotation noise, skip
+                    continue;
+                }
+            }
+
+            // Rule 2: single character or pure numeric ≤3 chars — even if on a line,
+            // it's almost certainly a figure marker, page number fragment, or patent label
+            if (text.Length <= 3)
+            {
+                var isNumericOrSymbol = text.All(c => char.IsDigit(c) || char.IsPunctuation(c) || c == ' ');
+                if (isNumericOrSymbol)
+                {
+                    var yCenter = (block.Bbox[1] + block.Bbox[3]) / 2.0;
+                    var fontSize = block.Format?.Size ?? 10;
+                    var lineTolerance = Math.Max(14, fontSize * 1.4);
+
+                    // Only keep if there's a real text block on the same line
+                    var hasTextPartner = pageBlocks
+                        .Where(b => b != block && b.Kind != "pageBreak")
+                        .Any(b =>
+                        {
+                            var bY = (b.Bbox[1] + b.Bbox[3]) / 2.0;
+                            var bText = b.Text ?? "";
+                            if (bText.Length <= 3) return false;
+                            return Math.Abs(bY - yCenter) <= lineTolerance;
+                        });
+
+                    if (!hasTextPartner)
+                        continue;
+                }
+            }
+
+            // Rule 3: block width < 10pt AND text ≤3 chars → glyph fragment noise
+            if (text.Length <= 3 && (block.Bbox[2] - block.Bbox[0]) < 10)
+                continue;
+
+            kept.Add(block);
+        }
+
+        return kept;
+    }
+
     static string InferKind(PdfLineGroup line, string text, int priorTextBlocks, HeadingThresholds thresholds)
     {
+        // Document's very first text block (e.g. a cover-page title) is a heading.
         if (priorTextBlocks == 0 && text.Length <= 100)
             return "heading";
 
-        if (line.FontSize is { } size)
+        // Font-size heuristic — only meaningful when the page actually has size variation.
+        // When every line on the page shares one size (median == p95), the threshold has no
+        // discriminating power and we MUST NOT treat matching sizes as headings; otherwise
+        // every body paragraph on a uniform-size page gets misclassified (see all-heading bug).
+        if (line.FontSize is { } size && thresholds.HasVariation)
         {
-            if (thresholds.P95 > 0 && size >= thresholds.P95 * 0.97 && text.Length <= 120)
-                return "heading";
-            if (thresholds.Median > 0 && size > thresholds.Median * 1.25 && text.Length <= 120)
+            // A heading must be clearly larger than body text, not merely "at the top of the range".
+            if (size >= thresholds.P95 * 0.97 && size > thresholds.Median * 1.25 && text.Length <= 120)
                 return "heading";
         }
 
-        if (line.IsBold && line.FontSize is { } boldSize && boldSize > thresholds.Median * 1.05 && text.Length <= 120)
+        // Bold alone is a weak signal — require a real size lift so bold body text stays body.
+        if (line.IsBold && line.FontSize is { } boldSize && thresholds.HasVariation
+            && boldSize > thresholds.Median * 1.15 && text.Length <= 120)
             return "heading";
 
         return "paragraph";
@@ -796,8 +908,16 @@ public static class PdfTextExtractor
 
     readonly record struct ColumnCluster(double Center, int Count);
 
-    readonly record struct HeadingThresholds(double Median, double P95)
+    readonly record struct HeadingThresholds(double Median, double P95, double Min, double Max)
     {
+        /// <summary>
+        /// True only when the page's font sizes actually spread — i.e. there is a body size
+        /// AND at least one noticeably larger size worth calling a heading. When the whole
+        /// page is one size (Min == Max, common for body-only pages), size-based heading
+        /// detection is meaningless and must be suppressed.
+        /// </summary>
+        public bool HasVariation => Max > 0 && Min > 0 && (Max - Min) / Min >= 0.12;
+
         public static HeadingThresholds From(IEnumerable<PdfLineGroup> lines)
         {
             var sizes = lines
@@ -807,11 +927,11 @@ public static class PdfTextExtractor
                 .OrderBy(s => s)
                 .ToList();
             if (sizes.Count == 0)
-                return new HeadingThresholds(0, 0);
+                return new HeadingThresholds(0, 0, 0, 0);
 
             var median = sizes[sizes.Count / 2];
             var p95 = sizes[(int)Math.Floor((sizes.Count - 1) * 0.95)];
-            return new HeadingThresholds(median, p95);
+            return new HeadingThresholds(median, p95, sizes[0], sizes[^1]);
         }
     }
 }

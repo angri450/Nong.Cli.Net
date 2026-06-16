@@ -43,7 +43,8 @@ public static class PdfSlice
         ValidateOptions(options);
         PrepareOutputDirectory(outputDir);
 
-        var check = PdfDocumentInspector.Check(pdfPath);
+        // ── Preflight: Poppler pdfinfo ──
+        var check = PdfPopplerInspector.Check(pdfPath);
         var effectiveMode = ResolveMode(options.Mode, check);
         var warnings = new List<string>(check.Warnings);
 
@@ -51,17 +52,19 @@ public static class PdfSlice
         {
             throw new PdfProcessingException(
                 PdfErrorKind.ValidationFailed,
-                "Text mode requested, but this PDF has no useful text layer. Use --mode ocr with local OCR runtime installed, or cloud OCR for full layout parsing.");
+                "Text mode requested, but this PDF has no useful text layer. Use --mode ocr with local OCR runtime installed.");
         }
 
         PdfDocumentModel model;
+
         if (effectiveMode == "ocr")
         {
             model = BuildOcrModel(pdfPath, outputDir, check, options, ocrRecognizer, warnings);
         }
         else
         {
-            model = PdfTextExtractor.ExtractTextModel(pdfPath, check);
+            // ── Poppler pdftotext is the sole text extraction engine ──
+            model = PdfPopplerExtractor.ExtractTextModel(pdfPath, check);
             model.Warnings.AddRange(warnings.Where(w => !model.Warnings.Contains(w)));
 
             if (effectiveMode == "hybrid")
@@ -70,10 +73,15 @@ public static class PdfSlice
             }
         }
 
-        var assets = PdfImageExtractor.Extract(pdfPath, Path.Combine(outputDir, "assets"));
-        model.Assets = assets.Items;
-        model.Warnings.AddRange(assets.Warnings);
-        AddImageBlocks(model, assets.Items);
+        // ── Image extraction: Poppler pdfimages ──
+        if (effectiveMode != "ocr")
+        {
+            var assets = PdfPopplerImageExtractor.Extract(pdfPath, Path.Combine(outputDir, "assets"));
+            model.Assets = assets.Items;
+            model.Warnings.AddRange(assets.Warnings);
+        }
+
+        AddImageBlocks(model, model.Assets);
         ReindexBlocks(model.Blocks);
 
         WriteSliceFiles(pdfPath, outputDir, model, check);
@@ -128,13 +136,20 @@ public static class PdfSlice
         {
             throw new PdfProcessingException(
                 PdfErrorKind.DependencyMissing,
-                "PDF OCR mode requires local PP-OCRv5 runtime. Run 'nong ocr install-model pp-ocrv5-mobile --json', then rerun pdf dissect --mode ocr. No Python is required.");
+                "PDF OCR mode requires local PP-OCRv6 runtime. Run 'nong ocr install-model pp-ocrv6-medium --json', then rerun pdf dissect --mode ocr. No Python is required.");
         }
+
+        var assets = PdfPopplerImageExtractor.Extract(pdfPath, Path.Combine(outputDir, "assets"));
+        var imagesByPage = assets.Items
+            .GroupBy(a => a.Page)
+            .ToDictionary(g => g.Key, g => g.ToList());
 
         var pagesDir = Path.Combine(outputDir, "pages");
         var render = PdfPageRenderer.Render(pdfPath, pagesDir, options.Dpi);
         var ocrDir = Path.Combine(outputDir, "ocr");
         Directory.CreateDirectory(ocrDir);
+        double scale = options.Dpi / 72.0;
+        double expandRatio = 0.05;
 
         var model = new PdfDocumentModel
         {
@@ -146,24 +161,52 @@ public static class PdfSlice
                 Classification = check.Classification,
             },
             Warnings = warnings,
+            Assets = assets.Items,
         };
+        model.Warnings.AddRange(assets.Warnings);
 
-        var blockIndex = 0;
         var ocrBlockIndex = 0;
         using var pagesWriter = new StreamWriter(Path.Combine(ocrDir, "pages.jsonl"), false, Encoding.UTF8);
         using var blocksWriter = new StreamWriter(Path.Combine(ocrDir, "blocks.jsonl"), false, Encoding.UTF8);
 
         foreach (var page in render.Pages)
         {
+            var pageInfo = check.Pages.FirstOrDefault(p => p.Page == page.Page);
+            double pdfW = pageInfo?.Width ?? 612;
+            double pdfH = pageInfo?.Height ?? 792;
+            double pngW = page.Width;
+            double pngH = page.Height;
+
             model.Pages.Add(new PdfPageModel
             {
                 Page = page.Page,
-                Width = page.Width,
-                Height = page.Height,
-                Unit = "px",
+                Width = pdfW,
+                Height = pdfH,
+                Unit = "pt",
                 TextCharCount = 0,
-                ImageCount = 1,
+                ImageCount = imagesByPage.TryGetValue(page.Page, out var imgs) ? imgs.Count : 0,
             });
+
+            var maskRects = new List<(double Left, double Top, double Right, double Bottom)>();
+            if (imagesByPage.TryGetValue(page.Page, out var pageImages))
+            {
+                foreach (var asset in pageImages)
+                {
+                    if (asset.Bbox is not { Length: >= 4 }) continue;
+                    double sLeft = asset.Bbox[0] * scale;
+                    double sRight = asset.Bbox[2] * scale;
+                    double sTop = (pdfH - asset.Bbox[3]) * scale;
+                    double sBottom = (pdfH - asset.Bbox[1]) * scale;
+
+                    double expW = (sRight - sLeft) * expandRatio;
+                    double expH = (sBottom - sTop) * expandRatio;
+                    maskRects.Add((
+                        Math.Max(0, sLeft - expW),
+                        Math.Max(0, sTop - expH),
+                        Math.Min(pngW, sRight + expW),
+                        Math.Min(pngH, sBottom + expH)));
+                }
+            }
 
             var pageImage = Path.Combine(pagesDir, page.Path);
             var ocr = ocrRecognizer.Recognize(pageImage, page.Page);
@@ -172,11 +215,47 @@ public static class PdfSlice
 
             pagesWriter.WriteLine(JsonSerializer.Serialize(ocr, PdfUtilities.JsonlOpts));
 
+            int blockIndex = model.Blocks.Count;
             foreach (var ocrBlock in ocr.Blocks.Where(b => !string.IsNullOrWhiteSpace(b.Text)))
             {
+                double oLeft, oTop, oRight, oBottom;
+                if (ocrBlock.Bbox is { Length: >= 4 })
+                {
+                    oLeft = ocrBlock.Bbox[0];
+                    oTop = ocrBlock.Bbox[1];
+                    oRight = ocrBlock.Bbox[2];
+                    oBottom = ocrBlock.Bbox[3];
+                }
+                else
+                {
+                    oLeft = oTop = oRight = oBottom = 0;
+                }
+
+                bool isMasked = false;
+                foreach (var m in maskRects)
+                {
+                    if (!(oRight < m.Left || oLeft > m.Right || oBottom < m.Top || oTop > m.Bottom))
+                    {
+                        isMasked = true;
+                        break;
+                    }
+                }
+                if (isMasked) continue;
+
                 ocrBlockIndex++;
                 blockIndex++;
                 var id = $"ocr{ocrBlockIndex:D4}";
+
+                var pdfBbox = oLeft > 0 || oTop > 0 || oRight > 0 || oBottom > 0
+                    ? new[]
+                    {
+                        Math.Round(oLeft * (pdfW / pngW), 3),
+                        Math.Round(pdfH - (oBottom * (pdfH / pngH)), 3),
+                        Math.Round(oRight * (pdfW / pngW), 3),
+                        Math.Round(pdfH - (oTop * (pdfH / pngH)), 3),
+                    }
+                    : new[] { 0d, 0d, 0d, 0d };
+
                 var block = new PdfContentBlock
                 {
                     Id = id,
@@ -184,7 +263,7 @@ public static class PdfSlice
                     Index = blockIndex - 1,
                     Kind = "ocrText",
                     Page = page.Page,
-                    Bbox = ocrBlock.Bbox,
+                    Bbox = pdfBbox,
                     Source = "localOcr",
                     Text = ocrBlock.Text,
                     Confidence = ocrBlock.GeometryValid ? "medium" : "low",
@@ -203,7 +282,7 @@ public static class PdfSlice
         {
             throw new PdfProcessingException(
                 PdfErrorKind.ReadFailed,
-                "Local OCR returned no text blocks; Nong will not publish an empty PDF slice as success. Try a higher --dpi value, verify the page render output, or use cloud OCR for layout-heavy PDFs.");
+                "Local OCR returned no text blocks after image-region masking. Try a higher --dpi value or use cloud OCR.");
         }
 
         return model;
@@ -224,13 +303,7 @@ public static class PdfSlice
                 Kind = "image",
                 Page = asset.Page,
                 Bbox = asset.Bbox,
-                Source = asset.ExtractionMethod switch
-                {
-                    "embeddedImage" => "pdfImage",
-                    "pageCrop" => "pageCrop",
-                    "embeddedImageRaw" => "pdfImageRaw",
-                    _ => "inferred",
-                },
+                Source = "pdfimages",
                 Text = asset.Caption ?? asset.AltTextCandidate ?? "image",
                 AssetId = asset.Id,
                 AssetPath = "assets/" + asset.Path.Replace('\\', '/'),
@@ -472,5 +545,4 @@ public static class PdfSlice
 
         Directory.CreateDirectory(full);
     }
-
 }

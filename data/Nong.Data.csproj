@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Angri450.Nong.Data</RootNamespace>
+    <AssemblyName>Angri450.Nong.Data</AssemblyName>
+    <PackageId>Angri450.Nong.Data</PackageId>
+    <Version>4.3.0</Version>
+    <Authors>angri450</Authors>
+    <Description>Unified Nong data layer: NongDb (LiteDB-backed document store) and NongWorkplace (rooted workspace path management with traversal protection).</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- LiteDB types (LiteDatabase, ILiteCollection<T>, ObjectId, BsonIdAttribute) are public in ThirdParty -->
+    <ProjectReference Include="..\ThirdParty\ThirdParty.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>

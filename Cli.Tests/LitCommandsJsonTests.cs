@@ -80,11 +80,17 @@ public class LitCommandsJsonTests
     public void LitValidate_UnsupportedOperator_ReturnsE006()
     {
         RequireCli();
-        var (json, exit) = Run("lit", "validate", "--query", "TI=humic /NEAR 3 acid", "--json");
-        Assert.NotEqual(0, exit);
+        // '/NEAR' (and /SEN /PREV /AFT /PRG) became supported CNKI proximity operators in
+        // the v4.3 22-operator DSL, so they no longer trigger E006. Use an unregistered
+        // slash operator (/BOGUS) which CnkiLexer.ReadSlash tokenizes as Unsupported -> E006.
+        // lit validate reports validity in data.valid (status stays "ok"); the contract under
+        // test is: an unsupported operator yields data.valid=false with an E006 issue.
+        var (json, exit) = Run("lit", "validate", "--query", "TI=humic/BOGUS acid", "--json");
+        Assert.Equal(0, exit);
         using var doc = JsonDocument.Parse(json);
-        Assert.Equal("error", doc.RootElement.GetProperty("status").GetString());
-        Assert.Equal("E006", doc.RootElement.GetProperty("errors")[0].GetProperty("code").GetString());
+        Assert.Equal("ok", doc.RootElement.GetProperty("status").GetString());
+        Assert.False(doc.RootElement.GetProperty("data").GetProperty("valid").GetBoolean());
+        Assert.Equal("E006", doc.RootElement.GetProperty("data").GetProperty("issues")[0].GetProperty("id").GetString());
     }
 
     [Fact]
@@ -112,12 +118,12 @@ public class LitCommandsJsonTests
             var md = Path.Combine(dir, "refs.md");
             var bib = Path.Combine(dir, "refs.bib");
 
-            var (mdJson, mdExit) = Run("lit", "export", "--input", input, "--format", "markdown", "--style", "gbt7714", "--out", md, "--json");
+            var (mdJson, mdExit) = Run("lit", "export", "--input", input, "--format", "markdown", "-o", md, "--json");
             Assert.Equal(0, mdExit);
             using (var doc = JsonDocument.Parse(mdJson))
                 Assert.Equal("ok", doc.RootElement.GetProperty("status").GetString());
 
-            var (bibJson, bibExit) = Run("lit", "export", "--input", input, "--format", "bibtex", "--out", bib, "--json");
+            var (bibJson, bibExit) = Run("lit", "export", "--input", input, "--format", "bibtex", "-o", bib, "--json");
             Assert.Equal(0, bibExit);
             using (var doc = JsonDocument.Parse(bibJson))
                 Assert.Equal("ok", doc.RootElement.GetProperty("status").GetString());

@@ -26,7 +26,12 @@ public sealed class PdfOcrRecognizerAdapter : IPdfOcrRecognizer
 
         try
         {
-            using var doc = JsonDocument.Parse(stdout);
+            // The native PaddleOCR runtime may write diagnostic messages (e.g.
+            // "ReduceMeanCheckIfOneDNNSupport") to stdout before the JSON output.
+            // Scan for the opening brace so JsonDocument.Parse succeeds.
+            var jsonStart = stdout.IndexOf('{');
+            var json = jsonStart >= 0 ? stdout[jsonStart..] : stdout;
+            using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
             var data = root.GetProperty("data");
             var output = new PdfOcrRecognizeResult

@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.CommandLine;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using ClosedXML.Excel;
 using ExcelCore;
 using Nong.Cli.Common;
@@ -8,7 +9,7 @@ using Nong.Cli.Common;
 namespace Nong.Cli.Commands;
 
 /// <summary>
-/// Excel command group: sheets, read, to-groups (phase 5).
+/// Excel command group.
 /// </summary>
 public static class ExcelCommands
 {
@@ -19,6 +20,7 @@ public static class ExcelCommands
         cmd.AddCommand(CreateSheets(jsonOpt));
         cmd.AddCommand(CreateRead(jsonOpt));
         cmd.AddCommand(CreateToGroups(jsonOpt));
+        cmd.AddCommand(CreateRestructure(jsonOpt));
         cmd.AddCommand(CreateCreateXlsx(jsonOpt));
         cmd.AddCommand(CreateDissect(jsonOpt));
         cmd.AddCommand(CreateStyle(jsonOpt));
@@ -78,9 +80,12 @@ public static class ExcelCommands
         var fileArg = new Argument<string>("file", "Path to .xlsx file");
         var sheetOpt = new Option<string>("--sheet", () => "", "Sheet name (default: first sheet)");
         var rangeOpt = new Option<string>("--range", () => "", "Cell range (e.g. A1:D20)");
+        var formulaOpt = new Option<bool>("--formula", () => false,
+            "Include formula string as second column of each cell (off by default). With --json each cell becomes {value,formula}; text mode only prints value.");
         var cmd = new Command("read", "Read xlsx content") { fileArg, sheetOpt, rangeOpt };
+        cmd.AddOption(formulaOpt);
 
-        cmd.SetHandler((string file, string sheet, string range, bool json) =>
+        cmd.SetHandler((string file, string sheet, string range, bool json, bool formula) =>
         {
             var err = ValidateXlsx(file);
             if (err != null) { CliHelpers.WriteError("excel read", err, json); return; }
@@ -107,12 +112,18 @@ public static class ExcelCommands
                     endCol = ws.LastColumnUsed()?.ColumnNumber() ?? 0;
                 }
 
-                var rows = new List<List<string>>();
+                var rows = new List<List<object>>();
                 for (int r = startRow; r <= endRow; r++)
                 {
-                    var row = new List<string>();
+                    var row = new List<object>();
                     for (int c = startCol; c <= endCol; c++)
-                        row.Add(ws.Cell(r, c).GetString());
+                    {
+                        var cell = ws.Cell(r, c);
+                        if (formula)
+                            row.Add(new { value = cell.GetString(), formula = cell.HasFormula ? cell.FormulaA1 : null });
+                        else
+                            row.Add(cell.GetString());
+                    }
                     rows.Add(row);
                 }
 
@@ -132,7 +143,17 @@ public static class ExcelCommands
             else
             {
                 foreach (var row in result.rows)
-                    Console.WriteLine(string.Join("\t", row));
+                {
+                    if (formula)
+                    {
+                        var cells = row.Select(o => o is string s ? s : ((dynamic)o).value?.ToString() ?? "");
+                        Console.WriteLine(string.Join("\t", cells));
+                    }
+                    else
+                    {
+                        Console.WriteLine(string.Join("\t", row));
+                    }
+                }
             }
 
             }
@@ -141,7 +162,7 @@ public static class ExcelCommands
                 CliHelpers.WriteError("excel read",
                     ErrorCodes.InternalError with { Message = ex.Message }, json);
             }
-        }, fileArg, sheetOpt, rangeOpt, jsonOpt);
+        }, fileArg, sheetOpt, rangeOpt, jsonOpt, formulaOpt);
 
         return cmd;
     }
@@ -232,6 +253,75 @@ public static class ExcelCommands
         return cmd;
     }
 
+    // ===== excel restructure =====
+
+    static Command CreateRestructure(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("spec", "Path to restructure spec JSON");
+        var outOpt = new Option<string>("-o", "Output xlsx path (required)") { IsRequired = true };
+        var cmd = new Command("restructure", "Restructure experiment Excel sources into normalized data + descriptive statistics workbook. Required: -o <output.xlsx>.") { fileArg, outOpt };
+
+        cmd.SetHandler((string file, string output, bool json) =>
+        {
+            var err = CliHelpers.ValidateTextFile(file);
+            if (err != null) { CliHelpers.WriteError("excel restructure", err, json); return; }
+
+            try
+            {
+                var jsonText = File.ReadAllText(file);
+                var spec = JsonSerializer.Deserialize<ExcelRestructureSpec>(jsonText, CliHelpers.JsonOpts);
+                var validationMessage = ValidateRestructureSpec(spec);
+                if (!string.IsNullOrEmpty(validationMessage))
+                {
+                    CliHelpers.WriteError("excel restructure",
+                        ErrorCodes.ValidationFailed with { Message = validationMessage }, json);
+                    return;
+                }
+
+                CliHelpers.EnsureParentDir(output);
+                var (result, elapsed) = CliHelpers.Time(() => RestructureWorkbook(spec!, output));
+
+                var aerr = CliHelpers.CheckArtifact(output, "XLSX");
+                if (aerr != null) { CliHelpers.WriteError("excel restructure", aerr, json); return; }
+
+                if (json)
+                {
+                    var outputJson = JsonOutput.Ok("excel restructure",
+                        $"Excel restructured: {output}",
+                        new
+                        {
+                            records = result.RecordCount,
+                            statsRows = result.StatsRowCount,
+                            summaryRows = result.SummaryRowCount,
+                            sheets = result.SheetCount,
+                            treatments = result.TreatmentCount,
+                            weeks = result.WeekCount,
+                        });
+                    outputJson.Artifacts["xlsx"] = Path.GetFullPath(output);
+                    outputJson.Meta.DurationMs = elapsed;
+                    Console.WriteLine(JsonSerializer.Serialize(outputJson, CliHelpers.JsonOpts));
+                }
+                else
+                {
+                    Console.WriteLine($"Excel restructured: {Path.GetFullPath(output)}");
+                    Console.WriteLine($"records={result.RecordCount}, statsRows={result.StatsRowCount}, summaryRows={result.SummaryRowCount}, sheets={result.SheetCount}");
+                }
+            }
+            catch (JsonException jex)
+            {
+                CliHelpers.WriteError("excel restructure",
+                    ErrorCodes.ValidationFailed with { Message = $"Invalid JSON spec: {jex.Message}" }, json);
+            }
+            catch (Exception ex)
+            {
+                CliHelpers.WriteError("excel restructure",
+                    ErrorCodes.InternalError with { Message = ex.Message }, json);
+            }
+        }, fileArg, outOpt, jsonOpt);
+
+        return cmd;
+    }
+
     // ===== helpers =====
 
     static Command CreateDissect(Option<bool> jsonOpt)
@@ -291,8 +381,8 @@ public static class ExcelCommands
     {
         var fileArg = new Argument<string>("file", "Path to .xlsx file to modify");
         var specArg = new Argument<string>("spec", "Path to style spec JSON");
-        var outOpt = new Option<string>("-o", "Output xlsx path") { IsRequired = true };
-        var cmd = new Command("style", "Apply cell styles from a JSON spec") { fileArg, specArg, outOpt };
+        var outOpt = new Option<string>("-o", "Output xlsx path (required)") { IsRequired = true };
+        var cmd = new Command("style", "Apply cell styles from a JSON spec. Required: -o <output.xlsx>.") { fileArg, specArg, outOpt };
 
         cmd.SetHandler((string file, string spec, string output, bool json) =>
         {
@@ -386,8 +476,8 @@ public static class ExcelCommands
     {
         var fileArg = new Argument<string>("file", "Path to .xlsx file to modify");
         var specArg = new Argument<string>("spec", "Path to formula spec JSON");
-        var outOpt = new Option<string>("-o", "Output xlsx path") { IsRequired = true };
-        var cmd = new Command("formula", "Write formulas from a JSON spec") { fileArg, specArg, outOpt };
+        var outOpt = new Option<string>("-o", "Output xlsx path (required)") { IsRequired = true };
+        var cmd = new Command("formula", "Write formulas from a JSON spec. Required: -o <output.xlsx>.") { fileArg, specArg, outOpt };
 
         cmd.SetHandler((string file, string spec, string output, bool json) =>
         {
@@ -449,8 +539,8 @@ public static class ExcelCommands
     {
         var fileArg = new Argument<string>("file", "Path to .xlsx file with source data");
         var specArg = new Argument<string>("spec", "Path to pivot spec JSON");
-        var outOpt = new Option<string>("-o", "Output xlsx path") { IsRequired = true };
-        var cmd = new Command("pivot", "Create a pivot table from a JSON spec") { fileArg, specArg, outOpt };
+        var outOpt = new Option<string>("-o", "Output xlsx path (required)") { IsRequired = true };
+        var cmd = new Command("pivot", "Create a pivot table from a JSON spec. Required: -o <output.xlsx>.") { fileArg, specArg, outOpt };
 
         cmd.SetHandler((string file, string spec, string output, bool json) =>
         {
@@ -511,6 +601,523 @@ public static class ExcelCommands
         _ => XLPivotSummary.Sum
     };
 
+    static string? ValidateRestructureSpec(ExcelRestructureSpec? spec)
+    {
+        if (spec == null) return "Spec is required.";
+        if ((spec.WeeklySources == null || spec.WeeklySources.Count == 0) &&
+            (spec.LegacySources == null || spec.LegacySources.Count == 0))
+            return "At least one weeklySources or legacySources entry is required.";
+        if (spec.Metrics == null || spec.Metrics.Count == 0)
+            return "metrics array must be non-empty.";
+        if (spec.Blocks == null || spec.Blocks.Count == 0)
+            return "blocks array must be non-empty.";
+
+        var metricKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var metric in spec.Metrics)
+        {
+            if (string.IsNullOrWhiteSpace(metric.Key))
+                return "Each metric must define key.";
+            if (string.IsNullOrWhiteSpace(metric.Title))
+                return $"Metric '{metric.Key}' must define title.";
+            if (!metricKeys.Add(metric.Key))
+                return $"Duplicate metric key: {metric.Key}";
+        }
+
+        foreach (var block in spec.Blocks)
+        {
+            if (block.HeaderRow < 1)
+                return "Each block.headerRow must be >= 1.";
+            if (block.MetricRows == null || block.MetricRows.Count == 0)
+                return $"Block headerRow={block.HeaderRow} must define metricRows.";
+
+            foreach (var metric in spec.Metrics)
+            {
+                if (!block.MetricRows.Keys.Any(k => string.Equals(k, metric.Key, StringComparison.OrdinalIgnoreCase)))
+                    return $"Block headerRow={block.HeaderRow} is missing metricRows entry for '{metric.Key}'.";
+            }
+        }
+
+        foreach (var source in spec.WeeklySources ?? new List<ExcelWeeklySourceSpec>())
+        {
+            var err = ValidateXlsx(source.File);
+            if (err != null) return err.Message;
+        }
+
+        foreach (var source in spec.LegacySources ?? new List<ExcelLegacySourceSpec>())
+        {
+            var err = ValidateXlsx(source.File);
+            if (err != null) return err.Message;
+            if (string.IsNullOrWhiteSpace(source.Treatment))
+                return $"Legacy source '{source.File}' must define treatment.";
+            if (string.IsNullOrWhiteSpace(source.ReplicateColumn))
+                return $"Legacy source '{source.File}' must define replicateColumn.";
+        }
+
+        return null;
+    }
+
+    static ExcelRestructureResult RestructureWorkbook(ExcelRestructureSpec spec, string output)
+    {
+        var metrics = spec.Metrics!;
+        var records = new List<ExcelRestructureRecord>();
+
+        foreach (var legacy in spec.LegacySources ?? new List<ExcelLegacySourceSpec>())
+            records.AddRange(ReadLegacySource(spec, legacy, metrics));
+
+        foreach (var weekly in spec.WeeklySources ?? new List<ExcelWeeklySourceSpec>())
+            records.AddRange(ReadWeeklySource(spec, weekly, metrics));
+
+        if (records.Count == 0)
+            throw new InvalidDataException("No records were parsed from the provided sources.");
+
+        var treatmentOrder = BuildTreatmentOrderMap(spec, records.Select(r => r.Treatment).Distinct(StringComparer.OrdinalIgnoreCase));
+        foreach (var record in records)
+            record.TreatmentOrder = treatmentOrder[record.Treatment];
+
+        var orderedRecords = records
+            .OrderBy(r => r.Week)
+            .ThenBy(r => r.TreatmentOrder)
+            .ThenBy(r => r.Replicate)
+            .ToList();
+
+        var outputSpec = spec.Output ?? new ExcelRestructureOutputSpec();
+
+        using var wb = new XLWorkbook();
+        WriteAllDataSheet(wb, outputSpec.AllDataSheet ?? "全部数据", orderedRecords, metrics);
+        var statsRows = WriteStatsSheet(wb, outputSpec.StatsSheet ?? "统计分析", orderedRecords, metrics, treatmentOrder);
+        var summaryRows = WriteSummarySheet(wb, outputSpec.SummarySheet ?? "统计分析 (2)", orderedRecords, metrics, treatmentOrder);
+        wb.SaveAs(output);
+
+        return new ExcelRestructureResult
+        {
+            RecordCount = orderedRecords.Count,
+            StatsRowCount = statsRows,
+            SummaryRowCount = summaryRows,
+            SheetCount = wb.Worksheets.Count,
+            TreatmentCount = treatmentOrder.Count,
+            WeekCount = orderedRecords.Select(r => r.Week).Distinct().Count(),
+        };
+    }
+
+    static List<ExcelRestructureRecord> ReadLegacySource(
+        ExcelRestructureSpec spec,
+        ExcelLegacySourceSpec source,
+        IReadOnlyList<ExcelRestructureMetricSpec> metrics)
+    {
+        using var wb = new XLWorkbook(source.File!);
+        var ws = ResolveWorksheet(wb, source.Sheet, spec.Sheet);
+        var replicateColumn = ResolveColumn(ws, source.ReplicateColumn!);
+        var startRow = source.DataStartRow > 0 ? source.DataStartRow : 2;
+        var lastRow = ws.LastRowUsed()?.RowNumber() ?? 0;
+        var rows = new List<ExcelRestructureRecord>();
+
+        for (int rowNumber = startRow; rowNumber <= lastRow; rowNumber++)
+        {
+            var replicateText = ws.Cell(rowNumber, replicateColumn).GetString().Trim();
+            if (string.IsNullOrWhiteSpace(replicateText) || !TryParseFlexibleNumber(replicateText, out var replicateNumber))
+                continue;
+
+            var record = new ExcelRestructureRecord
+            {
+                Week = source.Week,
+                SourceFile = Path.GetFileName(source.File!),
+                Treatment = source.Treatment!,
+                Replicate = (int)Math.Round(replicateNumber, MidpointRounding.AwayFromZero),
+                Note = source.Note ?? string.Empty,
+            };
+
+            foreach (var metric in metrics)
+            {
+                if (source.MetricColumns != null &&
+                    TryGetDictionaryValue(source.MetricColumns, metric.Key!, out var metricColumn))
+                {
+                    var columnNumber = ResolveColumn(ws, metricColumn);
+                    record.Values[metric.Key!] = ParseNullableNumber(ws.Cell(rowNumber, columnNumber).GetString());
+                }
+                else
+                {
+                    record.Values[metric.Key!] = null;
+                }
+            }
+
+            rows.Add(record);
+        }
+
+        return rows;
+    }
+
+    static List<ExcelRestructureRecord> ReadWeeklySource(
+        ExcelRestructureSpec spec,
+        ExcelWeeklySourceSpec source,
+        IReadOnlyList<ExcelRestructureMetricSpec> metrics)
+    {
+        using var wb = new XLWorkbook(source.File!);
+        var ws = ResolveWorksheet(wb, source.Sheet, spec.Sheet);
+        var lastColumn = ws.LastColumnUsed()?.ColumnNumber() ?? 0;
+        var rows = new List<ExcelRestructureRecord>();
+
+        foreach (var block in spec.Blocks!)
+        {
+            for (int columnNumber = 1; columnNumber <= lastColumn; columnNumber++)
+            {
+                var label = ws.Cell(block.HeaderRow, columnNumber).GetString().Trim();
+                if (string.IsNullOrWhiteSpace(label))
+                    continue;
+
+                var treatmentInfo = ParseTreatmentLabel(label, spec);
+                var record = new ExcelRestructureRecord
+                {
+                    Week = source.Week,
+                    SourceFile = Path.GetFileName(source.File!),
+                    Treatment = treatmentInfo.Treatment,
+                    Replicate = treatmentInfo.Replicate,
+                    Note = source.Note ?? string.Empty,
+                };
+
+                foreach (var metric in metrics)
+                {
+                    if (!TryGetDictionaryValue(block.MetricRows!, metric.Key!, out var metricRow))
+                        throw new InvalidDataException($"Block headerRow={block.HeaderRow} does not define metric row for '{metric.Key}'.");
+
+                    record.Values[metric.Key!] = ParseNullableNumber(ws.Cell(metricRow, columnNumber).GetString());
+                }
+
+                rows.Add(record);
+            }
+        }
+
+        return rows;
+    }
+
+    static IXLWorksheet ResolveWorksheet(XLWorkbook workbook, string? primarySheet, string? fallbackSheet)
+    {
+        var sheetName = !string.IsNullOrWhiteSpace(primarySheet) ? primarySheet : fallbackSheet;
+        if (string.IsNullOrWhiteSpace(sheetName))
+            return workbook.Worksheet(1);
+
+        var sheet = workbook.Worksheets.FirstOrDefault(ws => string.Equals(ws.Name, sheetName, StringComparison.OrdinalIgnoreCase));
+        if (sheet == null)
+            throw new InvalidDataException($"Worksheet not found: {sheetName}");
+        return sheet;
+    }
+
+    static ExcelTreatmentInfo ParseTreatmentLabel(string label, ExcelRestructureSpec spec)
+    {
+        var pattern = string.IsNullOrWhiteSpace(spec.TreatmentPattern)
+            ? @"^(?<code>[A-Za-z]+)(?<rep>\d+)$"
+            : spec.TreatmentPattern!;
+
+        var match = Regex.Match(label, pattern, RegexOptions.CultureInvariant);
+        if (!match.Success)
+            throw new InvalidDataException($"Treatment label '{label}' does not match pattern '{pattern}'.");
+
+        var rawCode = match.Groups["code"].Value;
+        var mappedCode = TryGetDictionaryValue(spec.TreatmentMap, rawCode, out var mapped)
+            ? mapped
+            : rawCode.ToUpperInvariant();
+
+        if (!int.TryParse(match.Groups["rep"].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var replicate))
+            throw new InvalidDataException($"Treatment label '{label}' has invalid replicate suffix.");
+
+        return new ExcelTreatmentInfo(mappedCode, replicate);
+    }
+
+    static Dictionary<string, int> BuildTreatmentOrderMap(ExcelRestructureSpec spec, IEnumerable<string> discoveredTreatments)
+    {
+        var map = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        int index = 1;
+
+        foreach (var treatment in spec.TreatmentOrder ?? new List<string>())
+        {
+            if (string.IsNullOrWhiteSpace(treatment) || map.ContainsKey(treatment))
+                continue;
+            map[treatment] = index++;
+        }
+
+        foreach (var treatment in discoveredTreatments)
+        {
+            if (string.IsNullOrWhiteSpace(treatment) || map.ContainsKey(treatment))
+                continue;
+            map[treatment] = index++;
+        }
+
+        return map;
+    }
+
+    static void WriteAllDataSheet(
+        XLWorkbook workbook,
+        string sheetName,
+        IReadOnlyList<ExcelRestructureRecord> records,
+        IReadOnlyList<ExcelRestructureMetricSpec> metrics)
+    {
+        var ws = workbook.Worksheets.Add(sheetName);
+        var headers = new List<string> { "周次", "来源文件", "处理", "处理序号", "重复" };
+        headers.AddRange(metrics.Select(m => m.Title!));
+        headers.Add("备注");
+
+        for (int column = 0; column < headers.Count; column++)
+            ws.Cell(1, column + 1).Value = headers[column];
+
+        int rowNumber = 2;
+        foreach (var record in records)
+        {
+            int column = 1;
+            ws.Cell(rowNumber, column++).Value = record.Week;
+            ws.Cell(rowNumber, column++).Value = record.SourceFile;
+            ws.Cell(rowNumber, column++).Value = record.Treatment;
+            ws.Cell(rowNumber, column++).Value = record.TreatmentOrder;
+            ws.Cell(rowNumber, column++).Value = record.Replicate;
+
+            foreach (var metric in metrics)
+            {
+                var value = record.Values.TryGetValue(metric.Key!, out var metricValue) ? metricValue : null;
+                var cell = ws.Cell(rowNumber, column++);
+                if (value.HasValue)
+                    cell.Value = value.Value;
+            }
+
+            ws.Cell(rowNumber, column).Value = record.Note;
+            rowNumber++;
+        }
+
+        ws.SheetView.FreezeRows(1);
+        ws.RangeUsed()?.SetAutoFilter();
+        ws.Column(1).Width = 8;
+        ws.Column(2).Width = 20;
+        ws.Column(3).Width = 10;
+        ws.Column(4).Width = 10;
+        ws.Column(5).Width = 8;
+        for (int i = 0; i < metrics.Count; i++)
+        {
+            var metricColumn = 6 + i;
+            ws.Column(metricColumn).Width = 12;
+            ws.Column(metricColumn).Style.NumberFormat.Format = BuildNumberFormat(metrics[i].Decimals);
+        }
+        ws.Column(headers.Count).Width = 28;
+
+        StylePresets.MonoHeader(ws.Row(1), 1, headers.Count);
+        if (rowNumber > 2)
+            StylePresets.AlternatingRows(ws, 1, rowNumber - 1, 1, headers.Count, "#F5F5F5");
+    }
+
+    static int WriteStatsSheet(
+        XLWorkbook workbook,
+        string sheetName,
+        IReadOnlyList<ExcelRestructureRecord> records,
+        IReadOnlyList<ExcelRestructureMetricSpec> metrics,
+        IReadOnlyDictionary<string, int> treatmentOrder)
+    {
+        var ws = workbook.Worksheets.Add(sheetName);
+        var headers = new[]
+        {
+            "周次", "指标", "处理", "处理序号", "个案数", "平均值", "标准差",
+            "标准误", "95%CI下限", "95%CI上限", "最小值", "最大值",
+        };
+
+        for (int column = 0; column < headers.Length; column++)
+            ws.Cell(1, column + 1).Value = headers[column];
+
+        int rowNumber = 2;
+        foreach (var week in records.Select(r => r.Week).Distinct().OrderBy(w => w))
+        {
+            foreach (var metric in metrics)
+            {
+                foreach (var treatment in treatmentOrder.OrderBy(kvp => kvp.Value).Select(kvp => kvp.Key))
+                {
+                    var values = records
+                        .Where(r => r.Week == week && string.Equals(r.Treatment, treatment, StringComparison.OrdinalIgnoreCase))
+                        .Select(r => r.Values.TryGetValue(metric.Key!, out var value) ? value : null)
+                        .Where(v => v.HasValue)
+                        .Select(v => v!.Value)
+                        .ToList();
+
+                    if (values.Count == 0)
+                        continue;
+
+                    var stats = ComputeStats(values);
+                    ws.Cell(rowNumber, 1).Value = week;
+                    ws.Cell(rowNumber, 2).Value = metric.Title;
+                    ws.Cell(rowNumber, 3).Value = treatment;
+                    ws.Cell(rowNumber, 4).Value = treatmentOrder[treatment];
+                    ws.Cell(rowNumber, 5).Value = stats.Count;
+                    ws.Cell(rowNumber, 6).Value = stats.Mean;
+                    ws.Cell(rowNumber, 7).Value = stats.Sd;
+                    ws.Cell(rowNumber, 8).Value = stats.Se;
+                    ws.Cell(rowNumber, 9).Value = stats.Lower;
+                    ws.Cell(rowNumber, 10).Value = stats.Upper;
+                    ws.Cell(rowNumber, 11).Value = stats.Min;
+                    ws.Cell(rowNumber, 12).Value = stats.Max;
+                    rowNumber++;
+                }
+            }
+        }
+
+        ws.SheetView.FreezeRows(1);
+        ws.RangeUsed()?.SetAutoFilter();
+        ws.Columns(1, 12).AdjustToContents();
+        ws.Range($"F2:L{Math.Max(rowNumber - 1, 2)}").Style.NumberFormat.Format = "0.000000";
+        StylePresets.MonoHeader(ws.Row(1), 1, headers.Length);
+        if (rowNumber > 2)
+            StylePresets.AlternatingRows(ws, 1, rowNumber - 1, 1, headers.Length, "#F5F5F5");
+
+        return rowNumber - 2;
+    }
+
+    static int WriteSummarySheet(
+        XLWorkbook workbook,
+        string sheetName,
+        IReadOnlyList<ExcelRestructureRecord> records,
+        IReadOnlyList<ExcelRestructureMetricSpec> metrics,
+        IReadOnlyDictionary<string, int> treatmentOrder)
+    {
+        var ws = workbook.Worksheets.Add(sheetName);
+        var headers = new List<string> { "周次", "处理", "处理序号", "个案数" };
+        headers.AddRange(metrics.Select(m => $"{m.Title}(均值+/-SD)"));
+
+        for (int column = 0; column < headers.Count; column++)
+            ws.Cell(1, column + 1).Value = headers[column];
+
+        int rowNumber = 2;
+        foreach (var week in records.Select(r => r.Week).Distinct().OrderBy(w => w))
+        {
+            foreach (var treatment in treatmentOrder.OrderBy(kvp => kvp.Value).Select(kvp => kvp.Key))
+            {
+                var group = records
+                    .Where(r => r.Week == week && string.Equals(r.Treatment, treatment, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                if (group.Count == 0)
+                    continue;
+
+                ws.Cell(rowNumber, 1).Value = week;
+                ws.Cell(rowNumber, 2).Value = treatment;
+                ws.Cell(rowNumber, 3).Value = treatmentOrder[treatment];
+                ws.Cell(rowNumber, 4).Value = group.Count;
+
+                for (int i = 0; i < metrics.Count; i++)
+                {
+                    var metric = metrics[i];
+                    var values = group
+                        .Select(r => r.Values.TryGetValue(metric.Key!, out var value) ? value : null)
+                        .Where(v => v.HasValue)
+                        .Select(v => v!.Value)
+                        .ToList();
+
+                    ws.Cell(rowNumber, 5 + i).Value = values.Count == 0
+                        ? string.Empty
+                        : FormatMeanSd(ComputeStats(values), metric.Decimals);
+                }
+
+                rowNumber++;
+            }
+        }
+
+        ws.SheetView.FreezeRows(1);
+        ws.RangeUsed()?.SetAutoFilter();
+        ws.Columns(1, headers.Count).AdjustToContents();
+        StylePresets.FinanceHeader(ws.Row(1), 1, headers.Count);
+        if (rowNumber > 2)
+            StylePresets.AlternatingRows(ws, 1, rowNumber - 1, 1, headers.Count, "#FFF3E0");
+
+        return rowNumber - 2;
+    }
+
+    static ExcelDescriptiveStats ComputeStats(IReadOnlyList<double> values)
+    {
+        var mean = values.Average();
+        var min = values.Min();
+        var max = values.Max();
+        var sd = 0.0;
+        var se = 0.0;
+        var lower = mean;
+        var upper = mean;
+
+        if (values.Count > 1)
+        {
+            var sumSquares = values.Sum(value => Math.Pow(value - mean, 2));
+            sd = Math.Sqrt(sumSquares / (values.Count - 1));
+            se = sd / Math.Sqrt(values.Count);
+            var halfWidth = GetTCritical(values.Count) * se;
+            lower = mean - halfWidth;
+            upper = mean + halfWidth;
+        }
+
+        return new ExcelDescriptiveStats(values.Count, mean, sd, se, lower, upper, min, max);
+    }
+
+    static double GetTCritical(int count) => count switch
+    {
+        2 => 12.7062047364,
+        3 => 4.3026527299,
+        4 => 3.1824463053,
+        5 => 2.7764451052,
+        6 => 2.5705818366,
+        7 => 2.4469118511,
+        8 => 2.3646242510,
+        9 => 2.3060041352,
+        10 => 2.2621571629,
+        _ => 1.96,
+    };
+
+    static string FormatMeanSd(ExcelDescriptiveStats stats, int? decimals)
+    {
+        var precision = Math.Max(decimals ?? 2, 0);
+        return string.Format(CultureInfo.InvariantCulture, $"{{0:F{precision}}} +/- {{1:F{precision}}}", stats.Mean, stats.Sd);
+    }
+
+    static string BuildNumberFormat(int? decimals)
+    {
+        var precision = Math.Max(decimals ?? 2, 0);
+        return precision == 0 ? "0" : "0." + new string('0', precision);
+    }
+
+    static double? ParseNullableNumber(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return null;
+
+        return TryParseFlexibleNumber(text, out var value) ? value : null;
+    }
+
+    static bool TryParseFlexibleNumber(string text, out double value)
+    {
+        value = 0;
+        var normalized = text.Trim()
+            .Replace("cm", "", StringComparison.OrdinalIgnoreCase)
+            .Replace("mm", "", StringComparison.OrdinalIgnoreCase)
+            .Replace("。", ".", StringComparison.Ordinal)
+            .Replace("，", ",", StringComparison.Ordinal);
+
+        if (Regex.IsMatch(normalized, @"^\-?\d+,\d+$"))
+            normalized = normalized.Replace(",", ".", StringComparison.Ordinal);
+        else
+            normalized = normalized.Replace(",", "", StringComparison.Ordinal);
+
+        normalized = Regex.Replace(normalized, @"[^\d\.\-]", "");
+        if (string.IsNullOrWhiteSpace(normalized))
+            return false;
+
+        return double.TryParse(normalized, NumberStyles.Float | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out value);
+    }
+
+    static bool TryGetDictionaryValue<TValue>(IDictionary<string, TValue>? dictionary, string key, out TValue value)
+    {
+        if (dictionary != null)
+        {
+            foreach (var item in dictionary)
+            {
+                if (string.Equals(item.Key, key, StringComparison.OrdinalIgnoreCase))
+                {
+                    value = item.Value;
+                    return true;
+                }
+            }
+        }
+
+        value = default!;
+        return false;
+    }
+
     static ErrorEntry? ValidateXlsx(string? path)
     {
         if (string.IsNullOrWhiteSpace(path)) return ErrorCodes.MissingArgument with { Message = "File path is required." };
@@ -558,8 +1165,8 @@ public static class ExcelCommands
     static Command CreateCreateXlsx(Option<bool> jsonOpt)
     {
         var fileArg = new Argument<string>("file", "Path to spec JSON");
-        var outOpt = new Option<string>("-o", "Output xlsx path") { IsRequired = true };
-        var cmd = new Command("create", "Create xlsx from JSON spec") { fileArg, outOpt };
+        var outOpt = new Option<string>("-o", "Output xlsx path (required)") { IsRequired = true };
+        var cmd = new Command("create", "Create xlsx from JSON spec. Required: -o <output.xlsx>.") { fileArg, outOpt };
 
         cmd.SetHandler((string file, string output, bool json) =>
         {
@@ -752,6 +1359,94 @@ public static class ExcelCommands
         return cmd;
     }
 }
+
+// === JSON spec model for excel restructure ===
+
+internal sealed class ExcelRestructureSpec
+{
+    public string? Sheet { get; set; }
+    public string? TreatmentPattern { get; set; }
+    public Dictionary<string, string>? TreatmentMap { get; set; } = new();
+    public List<string>? TreatmentOrder { get; set; } = new();
+    public List<ExcelRestructureMetricSpec>? Metrics { get; set; } = new();
+    public List<ExcelRestructureBlockSpec>? Blocks { get; set; } = new();
+    public List<ExcelWeeklySourceSpec>? WeeklySources { get; set; } = new();
+    public List<ExcelLegacySourceSpec>? LegacySources { get; set; } = new();
+    public ExcelRestructureOutputSpec? Output { get; set; } = new();
+}
+
+internal sealed class ExcelRestructureMetricSpec
+{
+    public string? Key { get; set; }
+    public string? Title { get; set; }
+    public int? Decimals { get; set; }
+}
+
+internal sealed class ExcelRestructureBlockSpec
+{
+    public int HeaderRow { get; set; }
+    public Dictionary<string, int>? MetricRows { get; set; } = new();
+}
+
+internal sealed class ExcelWeeklySourceSpec
+{
+    public string? File { get; set; }
+    public string? Sheet { get; set; }
+    public int Week { get; set; }
+    public string? Note { get; set; }
+}
+
+internal sealed class ExcelLegacySourceSpec
+{
+    public string? File { get; set; }
+    public string? Sheet { get; set; }
+    public int Week { get; set; }
+    public string? Treatment { get; set; }
+    public string? ReplicateColumn { get; set; }
+    public Dictionary<string, string>? MetricColumns { get; set; } = new();
+    public int DataStartRow { get; set; } = 2;
+    public string? Note { get; set; }
+}
+
+internal sealed class ExcelRestructureOutputSpec
+{
+    public string? AllDataSheet { get; set; } = "全部数据";
+    public string? StatsSheet { get; set; } = "统计分析";
+    public string? SummarySheet { get; set; } = "统计分析 (2)";
+}
+
+internal sealed class ExcelRestructureResult
+{
+    public int RecordCount { get; set; }
+    public int StatsRowCount { get; set; }
+    public int SummaryRowCount { get; set; }
+    public int SheetCount { get; set; }
+    public int TreatmentCount { get; set; }
+    public int WeekCount { get; set; }
+}
+
+internal sealed class ExcelRestructureRecord
+{
+    public int Week { get; set; }
+    public string SourceFile { get; set; } = string.Empty;
+    public string Treatment { get; set; } = string.Empty;
+    public int TreatmentOrder { get; set; }
+    public int Replicate { get; set; }
+    public Dictionary<string, double?> Values { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public string Note { get; set; } = string.Empty;
+}
+
+internal sealed record ExcelTreatmentInfo(string Treatment, int Replicate);
+
+internal sealed record ExcelDescriptiveStats(
+    int Count,
+    double Mean,
+    double Sd,
+    double Se,
+    double Lower,
+    double Upper,
+    double Min,
+    double Max);
 
 // === JSON spec model for excel create ===
 

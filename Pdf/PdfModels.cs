@@ -63,6 +63,7 @@ public sealed record PdfSliceOptions
 {
     public string Mode { get; set; } = "auto";
     public int Dpi { get; set; } = 200;
+    public string Extractor { get; set; } = "auto";
 }
 
 public sealed record PdfSliceResult

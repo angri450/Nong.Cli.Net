@@ -5,7 +5,7 @@
     <RootNamespace>ThirdParty</RootNamespace>
     <AssemblyName>Angri450.Nong.ThirdParty</AssemblyName>
     <PackageId>Angri450.Nong.ThirdParty</PackageId>
-    <Version>4.1.2</Version>
+    <Version>4.3.0</Version>
     <Authors>angri450</Authors>
     <Description>Merged source of ClosedXML, DocumentFormat.OpenXml, ScottPlot, MSAGL, SkiaSharp, HarfBuzzSharp, SixLabors.Fonts, ZXing.Net, PdfPig and sub-dependencies — compiled into a single assembly. Low-external-dependency foundation for the Angri450.Nong document toolkit.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -146,7 +146,7 @@
   </ItemGroup>
 
   <!-- OpenXml Source Generator infrastructure (borrowed from OpenXmlSourceGenerator.targets) -->
-  <Import Project="..\data\OpenXmlData.targets" />
+  <Import Project="..\OpenXmlData\OpenXmlData.targets" />
 
   <ItemGroup>
     <ProjectReference Include="..\DocumentFormat.OpenXml.Generator\DocumentFormat.OpenXml.Generator.csproj"
@@ -158,12 +158,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="@(OpenXmlDataNamespace)" OpenXml="Namespace" LinkBase="data" />
-    <AdditionalFiles Include="@(OpenXmlDataSchematron)" OpenXml="Schematron" LinkBase="data" />
-    <AdditionalFiles Include="@(OpenXmlDataPart)" OpenXml="Part" LinkBase="data/parts" />
-    <AdditionalFiles Include="@(OpenXmlDataSchema)" OpenXml="Schema" LinkBase="data/schema" />
-    <AdditionalFiles Include="@(OpenXmlDataTypedNamespace)" OpenXml="TypedNamespace" LinkBase="data/typed" />
-    <AdditionalFiles Include="@(OpenXmlDataTypedSchema)" OpenXml="TypedSchema" LinkBase="data/typed" />
+    <AdditionalFiles Include="@(OpenXmlDataNamespace)" OpenXml="Namespace" LinkBase="OpenXmlData" />
+    <AdditionalFiles Include="@(OpenXmlDataSchematron)" OpenXml="Schematron" LinkBase="OpenXmlData" />
+    <AdditionalFiles Include="@(OpenXmlDataPart)" OpenXml="Part" LinkBase="OpenXmlData/parts" />
+    <AdditionalFiles Include="@(OpenXmlDataSchema)" OpenXml="Schema" LinkBase="OpenXmlData/schema" />
+    <AdditionalFiles Include="@(OpenXmlDataTypedNamespace)" OpenXml="TypedNamespace" LinkBase="OpenXmlData/typed" />
+    <AdditionalFiles Include="@(OpenXmlDataTypedSchema)" OpenXml="TypedSchema" LinkBase="OpenXmlData/typed" />
   </ItemGroup>
 
   <ItemGroup>

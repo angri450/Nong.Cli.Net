@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageId>Angri450.Nong.Literature</PackageId>
     <AssemblyName>Angri450.Nong.Literature</AssemblyName>
-    <Version>4.1.2</Version>
+    <Version>4.3.0</Version>
     <Authors>angri450</Authors>
     <Description>CNKI-like literature retrieval DSL, metadata providers, ranking, and exports for Nong.NET.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -13,10 +13,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\ThirdParty\ThirdParty.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\Common\NongWorkplace.cs" Link="Common\NongWorkplace.cs" />
-    <Compile Include="..\Data\NongDb.cs" Link="Data\NongDb.cs" />
+    <ProjectReference Include="..\Data\Nong.Data.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="/" />

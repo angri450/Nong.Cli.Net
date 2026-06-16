@@ -2,6 +2,12 @@
   "version": 1,
   "dependencies": {
     "net8.0": {
+      "SkiaSharp.NativeAssets.Win32": {
+        "type": "Direct",
+        "requested": "[3.119.0, )",
+        "resolved": "3.119.0",
+        "contentHash": "IwC9yx36lOdXVT2DjgmWHl1qkVspfj8ctd4+li8CNnvqdfaTolXCOh6TLznURcPAvzatx9K/tLOB7zT6T8EA9w=="
+      },
       "System.CommandLine": {
         "type": "Direct",
         "requested": "[2.0.0-beta4.22272.1, )",
@@ -47,6 +53,12 @@
           "System.Formats.Nrbf": "9.0.0"
         }
       },
+      "Angri450.Nong.Data": {
+        "type": "Project",
+        "dependencies": {
+          "Angri450.Nong.ThirdParty": "[4.3.0, )"
+        }
+      },
       "Angri450.Nong.Pandoc": {
         "type": "Project"
       },
@@ -61,8 +73,8 @@
       "pdfcore": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.Pandoc": "[4.1.0, )",
-          "Angri450.Nong.ThirdParty": "[4.1.0, )"
+          "Angri450.Nong.Pandoc": "[4.3.0, )",
+          "Angri450.Nong.ThirdParty": "[4.3.0, )"
         }
       }
     }

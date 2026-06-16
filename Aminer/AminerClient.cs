@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -13,14 +14,18 @@ public sealed class AminerClient
     const string B = "https://datacenter.aminer.cn/gateway/open_platform";
     readonly HttpClient _c;
     readonly Func<string, string?> _env;
+    readonly string? _cachedToken;
+    static readonly TimeSpan RetryDelay = TimeSpan.FromMilliseconds(500);
+    const int MaxRetries = 2;
 
     public AminerClient(HttpClient? c = null, Func<string, string?>? env = null)
     {
         _c = c ?? new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
         _c.DefaultRequestHeaders.UserAgent.ParseAdd("Nong-Aminer/4.3");
         _env = env ?? Environment.GetEnvironmentVariable;
+        _cachedToken = _env("NONG_LIT_AMINER_KEY") ?? _env("AMINER_API_KEY");
     }
-    string? Tk => _env("NONG_LIT_AMINER_KEY") ?? _env("AMINER_API_KEY");
+    string? Tk => _cachedToken;
 
     // ══════════════════════════════════════════════════════
     // FREE — 9 endpoints
@@ -148,26 +153,52 @@ public sealed class AminerClient
     }
 
     /// <summary>AMiner沉思(SSE) [¥0.80] POST /api/paper/deep_research</summary>
-    public async Task DeepResearchAsync(
+    public async Task<AminerResult<string>> DeepResearchAsync(
         string message, int type = 1, bool webSearch = false,
         Func<string, Task>? onChunk = null, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(Tk)) return;
+        if (string.IsNullOrWhiteSpace(Tk)) return AminerResult<string>.NoToken;
+        var url = B + "/api/paper/deep_research";
         var body = JsonSerializer.Serialize(new { message, type, web_search = webSearch });
-        using var req = new HttpRequestMessage(HttpMethod.Post, B + "/api/paper/deep_research")
-        { Content = new StringContent(body, Encoding.UTF8, "application/json") };
-        req.Headers.TryAddWithoutValidation("Authorization", Tk);
-        using var resp = await _c.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
-        if (!resp.IsSuccessStatusCode) return;
-        using var stream = await resp.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);
-        using var reader = new StreamReader(stream);
-        while (!reader.EndOfStream)
+
+        try
         {
-            var line = (await reader.ReadLineAsync(ct).ConfigureAwait(false))?.Trim();
-            if (string.IsNullOrEmpty(line) || !line.StartsWith("data:")) continue;
-            var data = line[5..].Trim();
-            if (data == "[DONE]") break;
-            if (onChunk != null) await onChunk(data).ConfigureAwait(false);
+            using var req = new HttpRequestMessage(HttpMethod.Post, url)
+            { Content = new StringContent(body, Encoding.UTF8, "application/json") };
+            req.Headers.TryAddWithoutValidation("Authorization", Tk);
+            using var resp = await _c.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
+
+            if (!resp.IsSuccessStatusCode)
+            {
+                var err = StatusToError(resp.StatusCode);
+                return AminerResult<string>.Fail(err.code, err.msg);
+            }
+
+            using var stream = await resp.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);
+            using var reader = new StreamReader(stream);
+            var sb = new StringBuilder();
+            while (!reader.EndOfStream)
+            {
+                var line = (await reader.ReadLineAsync(ct).ConfigureAwait(false))?.Trim();
+                if (string.IsNullOrEmpty(line) || !line.StartsWith("data:")) continue;
+                var data = line[5..].Trim();
+                if (data == "[DONE]") break;
+                sb.Append(data);
+                if (onChunk != null) await onChunk(data).ConfigureAwait(false);
+            }
+            return new AminerResult<string> { Success = true, Items = new List<string> { sb.ToString() }, Total = 1 };
+        }
+        catch (TaskCanceledException) when (!ct.IsCancellationRequested)
+        {
+            return AminerResult<string>.Err("Deep research request timed out.");
+        }
+        catch (HttpRequestException ex)
+        {
+            return AminerResult<string>.Err($"Deep research network error: {ex.Message}");
+        }
+        catch (OperationCanceledException)
+        {
+            return AminerResult<string>.Err("Deep research request cancelled.");
         }
     }
 
@@ -231,21 +262,106 @@ public sealed class AminerClient
     async Task<AminerResult<T>> GetAsync<T>(string path, Func<JsonElement, T> map, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(Tk)) return AminerResult<T>.NoToken;
-        using var req = new HttpRequestMessage(HttpMethod.Get, B + path);
-        req.Headers.TryAddWithoutValidation("Authorization", Tk);
-        try { using var r = await _c.SendAsync(req, ct).ConfigureAwait(false); var t = await r.Content.ReadAsStringAsync(ct).ConfigureAwait(false); using var d = JsonDocument.Parse(t); return Parse(d.RootElement, map); }
-        catch (Exception ex) { return AminerResult<T>.Err(ex.Message); }
+        var url = B + path;
+        for (int attempt = 0; attempt <= MaxRetries; attempt++)
+        {
+            try
+            {
+                using var req = new HttpRequestMessage(HttpMethod.Get, url);
+                req.Headers.TryAddWithoutValidation("Authorization", Tk);
+                using var r = await _c.SendAsync(req, ct).ConfigureAwait(false);
+
+                if (!r.IsSuccessStatusCode)
+                {
+                    var statusErr = StatusToError(r.StatusCode);
+                    if (IsRetryable((int)r.StatusCode) && attempt < MaxRetries) { await Task.Delay(RetryDelay, ct); continue; }
+                    return AminerResult<T>.Fail(statusErr.code, statusErr.msg);
+                }
+
+                var t = await r.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var d = JsonDocument.Parse(t);
+                return Parse(d.RootElement, map);
+            }
+            catch (TaskCanceledException) when (!ct.IsCancellationRequested) // timeout
+            {
+                if (attempt < MaxRetries) { await Task.Delay(RetryDelay, ct); continue; }
+                return AminerResult<T>.Err("Request timed out after retries.");
+            }
+            catch (HttpRequestException ex)
+            {
+                if (attempt < MaxRetries) { await Task.Delay(RetryDelay, ct); continue; }
+                return AminerResult<T>.Err($"Network error: {ex.Message}");
+            }
+            catch (JsonException ex)
+            {
+                return AminerResult<T>.Err($"JSON parse error: {ex.Message}");
+            }
+            catch (OperationCanceledException)
+            {
+                return AminerResult<T>.Err("Request cancelled.");
+            }
+        }
+        return AminerResult<T>.Err("Max retries exhausted.");
     }
 
     async Task<AminerResult<T>> PostAsync<T>(string path, object body, Func<JsonElement, T> map, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(Tk)) return AminerResult<T>.NoToken;
-        using var req = new HttpRequestMessage(HttpMethod.Post, B + path)
-        { Content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json") };
-        req.Headers.TryAddWithoutValidation("Authorization", Tk);
-        try { using var r = await _c.SendAsync(req, ct).ConfigureAwait(false); var t = await r.Content.ReadAsStringAsync(ct).ConfigureAwait(false); using var d = JsonDocument.Parse(t); return Parse(d.RootElement, map); }
-        catch (Exception ex) { return AminerResult<T>.Err(ex.Message); }
+        var url = B + path;
+        for (int attempt = 0; attempt <= MaxRetries; attempt++)
+        {
+            try
+            {
+                using var req = new HttpRequestMessage(HttpMethod.Post, url)
+                { Content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json") };
+                req.Headers.TryAddWithoutValidation("Authorization", Tk);
+                using var r = await _c.SendAsync(req, ct).ConfigureAwait(false);
+
+                if (!r.IsSuccessStatusCode)
+                {
+                    var statusErr = StatusToError(r.StatusCode);
+                    if (IsRetryable((int)r.StatusCode) && attempt < MaxRetries) { await Task.Delay(RetryDelay, ct); continue; }
+                    return AminerResult<T>.Fail(statusErr.code, statusErr.msg);
+                }
+
+                var t = await r.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var d = JsonDocument.Parse(t);
+                return Parse(d.RootElement, map);
+            }
+            catch (TaskCanceledException) when (!ct.IsCancellationRequested) // timeout
+            {
+                if (attempt < MaxRetries) { await Task.Delay(RetryDelay, ct); continue; }
+                return AminerResult<T>.Err("Request timed out after retries.");
+            }
+            catch (HttpRequestException ex)
+            {
+                if (attempt < MaxRetries) { await Task.Delay(RetryDelay, ct); continue; }
+                return AminerResult<T>.Err($"Network error: {ex.Message}");
+            }
+            catch (JsonException ex)
+            {
+                return AminerResult<T>.Err($"JSON parse error: {ex.Message}");
+            }
+            catch (OperationCanceledException)
+            {
+                return AminerResult<T>.Err("Request cancelled.");
+            }
+        }
+        return AminerResult<T>.Err("Max retries exhausted.");
     }
+
+    static (string code, string msg) StatusToError(HttpStatusCode status) => (int)status switch
+    {
+        400 => ("aminer_400", "Bad request — check parameters."),
+        401 => ("aminer_401", "Unauthorized. Check NONG_LIT_AMINER_KEY (JWT from https://open.aminer.cn)."),
+        403 => ("aminer_403", "Forbidden. Your API key may lack permission for this endpoint."),
+        404 => ("aminer_404", "Not found."),
+        429 => ("aminer_429", "Rate limited. Retry after a pause."),
+        >= 500 => ("aminer_5xx", $"Server error ({(int)status}). AMiner may be temporarily unavailable."),
+        _ => ($"aminer_{(int)status}", $"HTTP {(int)status}.")
+    };
+
+    static bool IsRetryable(int status) => status == 429 || status >= 500 || status == 0;
 
     static AminerResult<T> Parse<T>(JsonElement root, Func<JsonElement, T> map)
     {

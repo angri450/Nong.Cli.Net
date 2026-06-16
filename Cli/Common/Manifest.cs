@@ -180,6 +180,9 @@ public static class Manifest
             Parameters: [new("file", "string", "Path to .docx file", Required: true),
                          new("formula", "string", "LaTeX or OMML formula", Required: true),
                          new("o", "string", "Output .docx path", Required: true)]));
+        list.Add(new("word to-pdf", "Convert DOCX to PDF through OpenXML text extraction and PdfPig builder", "word", [],
+            Parameters: [new("file", "string", "Path to .docx file", Required: true),
+                         new("o", "string", "Output .pdf path", Required: true)]));
         list.Add(new("word compare", "Compare two DOCX files paragraph-by-paragraph", "word", [],
             Parameters: [new("left", "string", "Path to first .docx file", Required: true),
                          new("right", "string", "Path to second .docx file", Required: true)]));
@@ -187,6 +190,18 @@ public static class Manifest
             Parameters: [new("file", "string", "Path to .docx file", Required: true),
                          new("o", "string", "Output directory for PNGs", Required: true),
                          new("dpi", "integer", "Render DPI (default 150)")]));
+
+        // === word db (NongDb integration) ===
+        list.Add(new("word db-import", "Import word dissect output into NongDb", "word", [],
+            Parameters: [new("slice-dir", "string", "Directory from word dissect", Required: true),
+                         new("docx", "string", "Original .docx file", Required: true)]));
+        list.Add(new("word db-list", "List documents in NongDb", "word", []));
+        list.Add(new("word db-blocks", "List blocks for a document", "word", [],
+            Parameters: [new("document-id", "string", "Document ID from db-list", Required: true),
+                         new("type", "string", "Block type filter: paragraph, heading, table, image"),
+                         new("limit", "integer", "Max blocks to return (default 50)")]));
+        list.Add(new("word db-images", "List extracted images for a document", "word", [],
+            Parameters: [new("document-id", "string", "Document ID from db-list", Required: true)]));
 
         // === inspect (12 commands) ===
         list.Add(new("inspect diagnose", "Full paper quality diagnosis", "inspect", [],
@@ -249,7 +264,7 @@ public static class Manifest
             Parameters: [new("file", "string", "Path to data file (CSV/JSON)", Required: true),
                          new("o", "string", "Output PNG path", Required: true)]));
 
-        // === excel (implemented: 8 commands) ===
+        // === excel (implemented: 9 commands) ===
         list.Add(new("excel sheets", "List worksheet names in a workbook", "excel", [],
             Parameters: [new("file", "string", "Path to .xlsx file", Required: true)]));
         list.Add(new("excel read", "Read xlsx content as structured data", "excel", [],
@@ -259,6 +274,9 @@ public static class Manifest
             Parameters: [new("file", "string", "Path to .xlsx file", Required: true),
                          new("treatment", "string", "Treatment column name or letter", Required: true),
                          new("value", "string", "Value column name or letter", Required: true)]));
+        list.Add(new("excel restructure", "Restructure experiment Excel sources into normalized data + descriptive statistics workbook", "excel", [],
+            Parameters: [new("spec", "string", "Path to restructure JSON spec", Required: true),
+                         new("o", "string", "Output .xlsx path", Required: true)]));
         list.Add(new("excel create", "Create xlsx from JSON spec", "excel", [],
             Parameters: [new("spec", "string", "Path to JSON spec file", Required: true),
                          new("o", "string", "Output .xlsx path", Required: true)]));
@@ -351,7 +369,7 @@ public static class Manifest
                          new("interval", "integer", "Capture interval ms (default 2000)"),
                          new("count", "integer", "Number of captures, 0=unlimited (default 5)")]));
 
-        // === pdf (implemented: 8 commands) ===
+        // === pdf (implemented: 12 commands) ===
         list.Add(new("pdf check", "Preflight PDF and classify text/hybrid/scan route", "pdf", [],
             Parameters: [new("file", "string", "Path to PDF file", Required: true)]));
         list.Add(new("pdf dissect", "Slice PDF into a NongPandoc package", "pdf", [],
@@ -377,9 +395,22 @@ public static class Manifest
                          new("o", "string", "Output PDF path", Required: true),
                          new("dpi", "integer", "Render DPI (default 200)"),
                          new("with-ocr", "boolean", "Run local PP-OCRv6 on each page (requires nong-ocr installed)")]));
+        list.Add(new("pdf to-word", "Convert PDF to DOCX through NongPandoc slice pipeline", "pdf", [],
+            Parameters: [new("file", "string", "Path to PDF file", Required: true),
+                         new("o", "string", "Output .docx path", Required: true)]));
         list.Add(new("pdf compress", "Compress PDF by rebuilding content stream and removing unused objects", "pdf", [],
             Parameters: [new("file", "string", "Path to PDF file", Required: true),
                          new("o", "string", "Output compressed PDF path", Required: true)]));
+        list.Add(new("pdf db-import", "Import pdf dissect output into NongDb", "pdf", [],
+            Parameters: [new("slice-dir", "string", "Directory from pdf dissect", Required: true),
+                         new("pdf", "string", "Original .pdf file path", Required: true)]));
+        list.Add(new("pdf db-list", "List documents in NongDb", "pdf", [], Parameters: []));
+        list.Add(new("pdf db-blocks", "List blocks for a PDF document", "pdf", [],
+            Parameters: [new("document-id", "string", "Document ID from db-list", Required: true),
+                         new("type", "string", "Block type filter"),
+                         new("limit", "integer", "Max blocks (default 50)")]));
+        list.Add(new("pdf db-images", "List extracted images for a PDF document", "pdf", [],
+            Parameters: [new("document-id", "string", "Document ID from db-list", Required: true)]));
 
         // === lit (implemented: parse, validate, plan, search, export, batch, cache-import, cache-query, cache-stats, cache-export) ===
         list.Add(new("lit parse", "Parse CNKI-like literature retrieval DSL", "lit", [],
@@ -475,9 +506,6 @@ public static class Manifest
                          new("id", "string", "Block ID to read", Required: true)]));
         list.Add(new("slice assets", "List assets from a NongPandoc package", "slice", [],
             Parameters: [new("dir", "string", "Path to NongPandoc package directory", Required: true)]));
-
-        // === progress (implemented: report) ===
-        list.Add(new("progress report", "Generate HTML progress reports from log/plans, log/changelog, log/debug, and log/guidance", "progress", []));
 
         return list;
     }

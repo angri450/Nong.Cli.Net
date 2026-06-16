@@ -293,6 +293,66 @@ public class PdfCommandTests
     }
 
     [Fact]
+    public void PdfPopplerExtractor_RuntimeResolvesAvailableTools()
+    {
+        // The extractor delegates runtime resolution to PdfNativeRuntime.
+        // If Poppler is available, pdftotext must resolve and IsPopplerAvailable must hold;
+        // otherwise both must consistently report unavailable.
+        var pdftotext = PdfCore.PdfNativeRuntime.ResolvePopplerTool("pdftotext");
+        if (pdftotext == null)
+        {
+            Assert.False(PdfCore.PdfNativeRuntime.IsPopplerAvailable);
+            return;
+        }
+
+        Assert.False(string.IsNullOrWhiteSpace(pdftotext));
+        Assert.True(PdfCore.PdfNativeRuntime.IsPopplerAvailable);
+    }
+
+    [Fact]
+    public void NongPdfDissect_TextPdf_AutoExtractor_UsesPdftotext_WhenPopplerAvailable()
+    {
+        // Gate on the actual runtime resolver rather than a hardcoded versioned path,
+        // so the test runs wherever Poppler is actually discoverable (bundled/known-install/PATH).
+        var popplerExe = PdfCore.PdfNativeRuntime.ResolvePopplerTool("pdftotext");
+        if (string.IsNullOrWhiteSpace(popplerExe) || !PdfCore.PdfNativeRuntime.IsPopplerAvailable)
+            return;
+
+        var toolDll = Path.Combine(RepoRoot, "Pdf", "tools", "bin", "Release", "net8.0", "nong-pdf.dll");
+        Assert.True(File.Exists(toolDll), "nong-pdf.dll not found. Build first: dotnet build Pdf\\tools\\nong-pdf.csproj -c Release");
+
+        var pdf = CreateTextPdf();
+        var outDir = Path.Combine(Path.GetTempPath(), "nong-pdf-auto-" + Guid.NewGuid().ToString("N")[..8]);
+        try
+        {
+            var result = CliTestToolPath.RunDotnetCli(
+                RepoRoot,
+                toolDll,
+                timeoutMs: 60000,
+                captureStdErr: true,
+                environment: null,
+                "dissect", pdf, "--output", outDir, "--mode", "text", "--extractor", "auto", "--json");
+
+            Assert.True(result.ExitCode == 0, $"Exit={result.ExitCode}\nSTDOUT:\n{result.StdOut}\nSTDERR:\n{result.StdErr}");
+            using var doc = Parse(result.StdOut);
+            Assert.Equal("ok", doc.RootElement.GetProperty("status").GetString());
+
+            var firstContentLine = File.ReadLines(Path.Combine(outDir, "content.jsonl"))
+                .First(line => line.Contains("\"kind\":\"heading\"") || line.Contains("\"kind\":\"paragraph\""));
+            using var lineDoc = Parse(firstContentLine);
+            Assert.Equal("pdftotext", lineDoc.RootElement.GetProperty("source").GetString());
+            // After the Poppler merge-back the extractor emits an informational
+            // "Poppler extracted N blocks ..." line in issues; that is the expected
+            // engine, not a warning condition, so no "does not contain Poppler" check.
+        }
+        finally
+        {
+            try { File.Delete(pdf); } catch { }
+            try { if (Directory.Exists(outDir)) Directory.Delete(outDir, true); } catch { }
+        }
+    }
+
+    [Fact]
     public void PdfImages_TextPdf_WritesEmptyManifest()
     {
         RequireCli();

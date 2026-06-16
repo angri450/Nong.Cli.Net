@@ -7,7 +7,7 @@
     <RootNamespace>ExcelCore</RootNamespace>
     <AssemblyName>ExcelCore</AssemblyName>
     <PackageId>Angri450.Nong.Excel</PackageId>
-    <Version>4.1.2</Version>
+    <Version>4.3.0</Version>
     <Authors>angri450</Authors>
     <Description>Excel generation library — chainable builder API over ClosedXML. ClosedXML, OpenXml SDK, RBush, SixLabors.Fonts and all dependencies merged into a single assembly via ThirdParty.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>

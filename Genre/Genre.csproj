@@ -6,7 +6,7 @@
     <RootNamespace>Nong.Genre</RootNamespace>
     <AssemblyName>Angri450.Nong.Genre</AssemblyName>
     <PackageId>Angri450.Nong.Genre</PackageId>
-    <Version>4.1.2</Version>
+    <Version>4.3.0</Version>
     <Authors>angri450</Authors>
     <Description>Document format template library. Pure JSON templates for journal papers, degree theses, contest papers, defense PPTs, official documents, and business letters. No code — just format definitions.</Description>
     <DebugType>embedded</DebugType>

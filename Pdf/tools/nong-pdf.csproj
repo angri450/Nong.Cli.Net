@@ -11,7 +11,7 @@
     <PackAsTool>true</PackAsTool>
     <Version>4.1.6</Version>
     <Authors>angri450</Authors>
-    <Description>PDF operations — check, dissect, render, images, merge, split, compress, OCR.</Description>
+    <Description>PDF operations — check, dissect, render, images, merge, split, compress, OCR, to-word, db-*.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -19,9 +19,11 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PdfCore.csproj" />
+    <ProjectReference Include="..\..\Data\Nong.Data.csproj" />
     <ProjectReference Include="..\..\ThirdParty\ThirdParty.csproj" />
   </ItemGroup>
   <ItemGroup>

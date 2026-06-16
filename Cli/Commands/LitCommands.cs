@@ -1,6 +1,7 @@
 using System.CommandLine;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Angri450.Nong.Data;
 using Angri450.Nong.Literature.Dsl;
 using Angri450.Nong.Literature.Export;
 using Angri450.Nong.Literature.Models;
@@ -95,7 +96,7 @@ public static class LitCommands
         var profileOpt = new Option<string>("--profile", () => "balanced", "balanced | classic | recent");
         var outOpt = new Option<string?>("-o", "Optional JSON output file");
         var modeOpt = new Option<string>("--mode", () => "strict", "strict | recall | none");
-        var cacheOpt = new Option<bool>("--cache", () => false, "Store results directly in local LiteDB cache");
+        var cacheOpt = new Option<bool>("--cache", () => false, "Store results as unified literature list object in nong.db");
         var cmd = new Command("search", "Search foreign academic literature via OpenAlex/Crossref/Unpaywall") { queryOpt, sourcesOpt, limitOpt, profileOpt, outOpt, modeOpt, cacheOpt };
         cmd.SetHandler(async (string query, string sources, int limit, string profile, string? outputPath, string mode, bool cache, bool json) =>
         {
@@ -106,21 +107,33 @@ public static class LitCommands
             };
             var result = await pipeline.SearchAsync(request, CancellationToken.None);
 
-            // Direct DB cache — no JSON file intermediate
-            int? cachedAdded = null, cachedDups = null;
+            // Store as unified literature list object (stage D: execution req #4)
+            string? listId = null;
             if (cache && result.Records.Count > 0)
             {
-                using var db = new LiteratureCache();
+                using var ctx = new IngestionContext();
                 var hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(query)))[..12];
-                var (added, dups) = db.Import(result.Records, hash);
-                cachedAdded = added; cachedDups = dups;
+                var list = ctx.Db.RegisterLiteratureList(hash, query, string.Join(",", ParseSources(sources)), result.Records.Count);
+                
+                // Convert PaperRecord → DbPaper using Literature layer's mapping (avoids Data→Literature dependency)
+                var dbPapers = result.Records.Select(r => LiteratureCache.FromRecord(r, hash)).ToList();
+                ctx.Db.ImportPapers(dbPapers);
+                
+                // Create relationships: list → papers
+                var papers = ctx.Db.FindPapersByHash(hash);
+                foreach (var paper in papers)
+                {
+                    ctx.Db.Link("literature-list", list.Id.ToString(), "contains", "paper", paper.Id.ToString());
+                }
+                
+                listId = list.Id.ToString();
             }
 
             if (outputPath != null)
                 await File.WriteAllTextAsync(outputPath, JsonSerializer.Serialize(new { records = result.Records }, CliHelpers.JsonOpts));
 
             var metrics = result.Metrics.ToDictionary(kv => kv.Key, kv => kv.Value);
-            if (cachedAdded.HasValue) { metrics["cached_added"] = cachedAdded.Value; metrics["cached_duplicates"] = cachedDups!.Value; }
+            if (listId != null) { metrics["list_id"] = listId; metrics["cached_papers"] = result.Records.Count; }
 
             var output = JsonOutput.Ok("lit search", $"Literature search returned {result.Records.Count} record(s)", new { records = result.Records, metrics, issues = Array.Empty<object>() });
             output.Metrics = metrics;
@@ -196,7 +209,7 @@ public static class LitCommands
                         for (int i = 0; i < result.Records.Count; i++)
                         {
                             var r = result.Records[i];
-                            sb.AppendLine($"{i + 1}. **{r.Title.Truncate(120)}**. {r.Authors.FirstOrDefault()} et al. {r.Year}. [{r.RetrievedFrom.FirstOrDefault() ?? "?"}]");
+                            sb.AppendLine($"{i + 1}. **{r.Title?.Truncate(120) ?? ""}**. {r.Authors.FirstOrDefault()} et al. {r.Year}. [{r.RetrievedFrom.FirstOrDefault() ?? "?"}]");
                         }
                     }
                     catch (Exception ex) { sb.AppendLine($"Error: {ex.Message}"); }
@@ -242,7 +255,7 @@ public static class LitCommands
         {
             using var cache = new LiteratureCache();
             var s = cache.GetStats();
-            var o = JsonOutput.Ok("lit cache-stats", $"{s.TotalRecords} papers cached", new { s.TotalRecords, s.WithDoi, s.WithAbstract, s.WithPdf, s.YearMin, s.YearMax, s.Sources, s.OldestImport, s.NewestImport, dbFile = NongWorkplace.LiteratureDb });
+            var o = JsonOutput.Ok("lit cache-stats", $"{s.TotalRecords} papers cached", new { s.TotalRecords, s.WithDoi, s.WithAbstract, s.WithPdf, s.YearMin, s.YearMax, s.Sources, s.OldestImport, s.NewestImport, dbFile = Path.Combine(NongWorkplace.Cache, "nong.db") });
             Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
         }, jsonOpt);
         return cmd;

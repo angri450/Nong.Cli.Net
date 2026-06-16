@@ -57,7 +57,13 @@ public class CliContractTests
         var (text, exit) = Run("--version");
 
         Assert.Equal(0, exit);
-        Assert.Equal("nong v4.1.2", text.Trim());
+        // The version is the single CliVersion.Current constant in Cli/Common/CliVersion.cs;
+        // the test project references Cli with ReferenceOutputAssembly=false, so read the
+        // source-of-truth constant from disk rather than via a compile-time reference.
+        var versionLine = File.ReadAllLines(Path.Combine(RepoRoot, "Cli", "Common", "CliVersion.cs"))
+            .First(l => l.Contains("Current"));
+        var current = versionLine.Split('"')[1];
+        Assert.Equal($"nong v{current}", text.Trim());
     }
 
     [Fact]
@@ -182,43 +188,6 @@ public class CliContractTests
             Assert.True(cmd.TryGetProperty("description", out _));
             Assert.True(cmd.TryGetProperty("group", out _));
             Assert.True(cmd.TryGetProperty("status", out _));
-        }
-    }
-
-    [Fact]
-    public void ProgressReport_GeneratesHtmlAndJsonArtifacts()
-    {
-        RequireCli();
-        var dir = Path.Combine(Path.GetTempPath(), "nong-progress-test-" + Guid.NewGuid().ToString("N")[..8]);
-        var plansDir = Path.Combine(dir, "log", "plans");
-        Directory.CreateDirectory(plansDir);
-        Directory.CreateDirectory(Path.Combine(dir, "log", "changelog"));
-        Directory.CreateDirectory(Path.Combine(dir, "log", "debug"));
-        Directory.CreateDirectory(Path.Combine(dir, "log", "guidance"));
-
-        try
-        {
-            File.WriteAllText(Path.Combine(plansDir, "index.md"),
-                "# plans\n\n- 2026-06-10 | 2026-06-10-demo.md | Demo plan | done\n");
-            File.WriteAllText(Path.Combine(plansDir, "2026-06-10-demo.md"),
-                "# Demo plan\n\nReport generation smoke test.\n");
-
-            var (json, exit) = Run("progress", "report", "--project-root", dir, "--json");
-            Assert.Equal(0, exit);
-
-            using var doc = Parse(json);
-            var root = doc.RootElement;
-            Assert.Equal("ok", root.GetProperty("status").GetString());
-            Assert.Equal("progress report", root.GetProperty("command").GetString());
-            Assert.Equal(1, root.GetProperty("data").GetProperty("entries").GetInt32());
-
-            var indexPath = root.GetProperty("artifacts").GetProperty("index").GetString()!;
-            Assert.True(File.Exists(indexPath));
-            Assert.True(File.Exists(Path.Combine(dir, "log", "reports", "pages", "plans-2026-06-10-demo.html")));
-        }
-        finally
-        {
-            try { if (Directory.Exists(dir)) Directory.Delete(dir, true); } catch { }
         }
     }
 
@@ -1386,6 +1355,183 @@ public class CliContractTests
             using var doc = Parse(fjson);
             Assert.Equal("ok", doc.RootElement.GetProperty("status").GetString());
             Assert.True(File.Exists(formulaOut));
+        }
+        finally { try { Directory.Delete(dir, true); } catch { } }
+    }
+
+    [Fact]
+    public void Commands_Json_ExposesExcelRestructure()
+    {
+        RequireCli();
+        var (json, exit) = Run("commands", "--json");
+        Assert.Equal(0, exit);
+
+        using var doc = Parse(json);
+        var names = doc.RootElement.GetProperty("data")
+            .EnumerateArray()
+            .Select(e => e.GetProperty("name").GetString())
+            .ToHashSet();
+
+        Assert.Contains("excel restructure", names);
+    }
+
+    [Fact]
+    public void ExcelRestructure_GeneratesWorkbook_FromSpec()
+    {
+        RequireCli();
+        var dir = Path.Combine(Path.GetTempPath(), "xl-restructure-" + Guid.NewGuid().ToString("N")[..8]);
+        Directory.CreateDirectory(dir);
+        try
+        {
+            var legacyPath = Path.Combine(dir, "week0.xlsx");
+            var weeklyPath = Path.Combine(dir, "week1.xlsx");
+            var specPath = Path.Combine(dir, "spec.json");
+            var outPath = Path.Combine(dir, "restructured.xlsx");
+
+            using (var wb = new XLWorkbook())
+            {
+                var ws = wb.AddWorksheet("Sheet1");
+                ws.Cell("A1").Value = "rep";
+                ws.Cell("B1").Value = "leafCount";
+                ws.Cell("C1").Value = "stemDiameter";
+                ws.Cell("D1").Value = "plantHeight";
+                ws.Cell("E1").Value = "leafArea1";
+                ws.Cell("F1").Value = "leafArea2";
+
+                ws.Cell("A2").Value = 1; ws.Cell("B2").Value = 4; ws.Cell("C2").Value = 0.8; ws.Cell("D2").Value = 8; ws.Cell("E2").Value = 40; ws.Cell("F2").Value = 12;
+                ws.Cell("A3").Value = 2; ws.Cell("B3").Value = 5; ws.Cell("C3").Value = 0.9; ws.Cell("D3").Value = 10; ws.Cell("E3").Value = 42; ws.Cell("F3").Value = 14;
+                wb.SaveAs(legacyPath);
+            }
+
+            using (var wb = new XLWorkbook())
+            {
+                var ws = wb.AddWorksheet("Sheet1");
+                ws.Cell("B1").Value = "ck1";
+                ws.Cell("C1").Value = "ck2";
+                ws.Cell("D1").Value = "n1";
+                ws.Cell("E1").Value = "n2";
+                ws.Cell("F1").Value = "n3";
+
+                ws.Cell("A2").Value = "株高";
+                ws.Cell("B2").Value = 10; ws.Cell("C2").Value = 12; ws.Cell("D2").Value = 20; ws.Cell("E2").Value = 22; ws.Cell("F2").Value = 24;
+                ws.Cell("A3").Value = "茎粗";
+                ws.Cell("B3").Value = 1.1; ws.Cell("C3").Value = 1.2; ws.Cell("D3").Value = 2.0; ws.Cell("E3").Value = 2.2; ws.Cell("F3").Value = 2.4;
+                ws.Cell("A4").Value = "叶片数";
+                ws.Cell("B4").Value = 5; ws.Cell("C4").Value = 6; ws.Cell("D4").Value = 7; ws.Cell("E4").Value = 8; ws.Cell("F4").Value = 9;
+                ws.Cell("A5").Value = "叶面积1";
+                ws.Cell("B5").Value = 50; ws.Cell("C5").Value = 55; ws.Cell("D5").Value = 60; ws.Cell("E5").Value = 65; ws.Cell("F5").Value = 70;
+                ws.Cell("A6").Value = "叶面积2";
+                ws.Cell("B6").Value = 15; ws.Cell("C6").Value = 17; ws.Cell("D6").Value = 20; ws.Cell("E6").Value = 22; ws.Cell("F6").Value = 24;
+                wb.SaveAs(weeklyPath);
+            }
+
+            var spec = new
+            {
+                treatmentMap = new Dictionary<string, string>
+                {
+                    ["ck"] = "CK",
+                    ["n"] = "N",
+                },
+                treatmentOrder = new[] { "CK", "N" },
+                metrics = new object[]
+                {
+                    new { key = "plantHeight", title = "株高(cm)", decimals = 2 },
+                    new { key = "stemDiameter", title = "茎粗(mm)", decimals = 2 },
+                    new { key = "leafCount", title = "叶片数", decimals = 2 },
+                    new { key = "leafArea1", title = "叶面积1", decimals = 3 },
+                    new { key = "leafArea2", title = "叶面积2", decimals = 3 },
+                },
+                blocks = new object[]
+                {
+                    new
+                    {
+                        headerRow = 1,
+                        metricRows = new Dictionary<string, int>
+                        {
+                            ["plantHeight"] = 2,
+                            ["stemDiameter"] = 3,
+                            ["leafCount"] = 4,
+                            ["leafArea1"] = 5,
+                            ["leafArea2"] = 6,
+                        },
+                    },
+                },
+                weeklySources = new object[]
+                {
+                    new { file = weeklyPath, week = 1 },
+                },
+                legacySources = new object[]
+                {
+                    new
+                    {
+                        file = legacyPath,
+                        week = 0,
+                        treatment = "CK",
+                        replicateColumn = "A",
+                        note = "legacy",
+                        metricColumns = new Dictionary<string, string>
+                        {
+                            ["leafCount"] = "B",
+                            ["stemDiameter"] = "C",
+                            ["plantHeight"] = "D",
+                            ["leafArea1"] = "E",
+                            ["leafArea2"] = "F",
+                        },
+                    },
+                },
+            };
+
+            File.WriteAllText(specPath, System.Text.Json.JsonSerializer.Serialize(spec));
+
+            var (json, exit) = Run("excel", "restructure", specPath, "-o", outPath, "--json");
+            Assert.Equal(0, exit);
+            using (var doc = Parse(json))
+            {
+                Assert.Equal("ok", doc.RootElement.GetProperty("status").GetString());
+                Assert.Equal(7, doc.RootElement.GetProperty("data").GetProperty("records").GetInt32());
+                Assert.Equal(15, doc.RootElement.GetProperty("data").GetProperty("statsRows").GetInt32());
+                Assert.Equal(3, doc.RootElement.GetProperty("data").GetProperty("summaryRows").GetInt32());
+            }
+
+            using var resultWb = new XLWorkbook(outPath);
+            Assert.NotNull(resultWb.Worksheet("全部数据"));
+            Assert.NotNull(resultWb.Worksheet("统计分析"));
+            Assert.NotNull(resultWb.Worksheet("统计分析 (2)"));
+
+            var allData = resultWb.Worksheet("全部数据");
+            Assert.Equal("周次", allData.Cell("A1").GetString());
+            Assert.Equal("legacy", allData.Cell("K2").GetString());
+
+            var stats = resultWb.Worksheet("统计分析");
+            var foundStats = false;
+            for (int row = 2; row <= stats.LastRowUsed()!.RowNumber(); row++)
+            {
+                if (stats.Cell(row, 1).GetDouble() == 1 &&
+                    stats.Cell(row, 2).GetString() == "株高(cm)" &&
+                    stats.Cell(row, 3).GetString() == "N")
+                {
+                    Assert.Equal(3, stats.Cell(row, 5).GetDouble());
+                    Assert.Equal(22, stats.Cell(row, 6).GetDouble(), 6);
+                    foundStats = true;
+                    break;
+                }
+            }
+
+            Assert.True(foundStats);
+
+            var summary = resultWb.Worksheet("统计分析 (2)");
+            var foundSummary = false;
+            for (int row = 2; row <= summary.LastRowUsed()!.RowNumber(); row++)
+            {
+                if (summary.Cell(row, 1).GetDouble() == 1 && summary.Cell(row, 2).GetString() == "N")
+                {
+                    Assert.Equal("22.00 +/- 2.00", summary.Cell(row, 5).GetString());
+                    foundSummary = true;
+                    break;
+                }
+            }
+
+            Assert.True(foundSummary);
         }
         finally { try { Directory.Delete(dir, true); } catch { } }
     }

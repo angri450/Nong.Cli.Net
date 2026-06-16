@@ -1,0 +1,38 @@
+  正在确定要还原的项目…
+  已还原 C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Pdf\PdfCore.csproj (用时 1.34 秒)。
+  已还原 C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\Nong.Data.csproj (用时 1.34 秒)。
+  已还原 C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Pdf\tools\nong-pdf.csproj (用时 1.34 秒)。
+  4 个项目(共 7 个)是最新的，无法还原。
+  PandocCore -> C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Pandoc\bin\Release\net8.0\Angri450.Nong.Pandoc.dll
+  DocumentFormat.OpenXml.Generator.Models -> C:\Users\Administrator\Documents\Github\Nong.Cli.Net\DocumentFormat.OpenXml.Generator.Models\bin\Release\netstandard2.0\DocumentFormat.OpenXml.Generator.Models.dll
+  DocumentFormat.OpenXml.Generator -> C:\Users\Administrator\Documents\Github\Nong.Cli.Net\DocumentFormat.OpenXml.Generator\bin\Release\netstandard2.0\DocumentFormat.OpenXml.Generator.dll
+  ThirdParty -> C:\Users\Administrator\Documents\Github\Nong.Cli.Net\ThirdParty\bin\Release\net8.0\Angri450.Nong.ThirdParty.dll
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\NongDb.cs(212,30): warning CS8618: 在退出构造函数时，不可为 null 的 属性 "Id" 必须包含非 null 值。请考虑添加 "required" 修饰符或将该 属性 声明为可为 null。 [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\Nong.Data.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\NongDb.cs(234,30): warning CS8618: 在退出构造函数时，不可为 null 的 属性 "Id" 必须包含非 null 值。请考虑添加 "required" 修饰符或将该 属性 声明为可为 null。 [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\Nong.Data.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\NongDb.cs(242,30): warning CS8618: 在退出构造函数时，不可为 null 的 属性 "Id" 必须包含非 null 值。请考虑添加 "required" 修饰符或将该 属性 声明为可为 null。 [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\Nong.Data.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\NongDb.cs(250,30): warning CS8618: 在退出构造函数时，不可为 null 的 属性 "Id" 必须包含非 null 值。请考虑添加 "required" 修饰符或将该 属性 声明为可为 null。 [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\Nong.Data.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\NongDb.cs(223,30): warning CS8618: 在退出构造函数时，不可为 null 的 属性 "Id" 必须包含非 null 值。请考虑添加 "required" 修饰符或将该 属性 声明为可为 null。 [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\Nong.Data.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\NongDb.cs(263,30): warning CS8618: 在退出构造函数时，不可为 null 的 属性 "Id" 必须包含非 null 值。请考虑添加 "required" 修饰符或将该 属性 声明为可为 null。 [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\Nong.Data.csproj]
+  Nong.Data -> C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\bin\Release\net8.0\Angri450.Nong.Data.dll
+  PdfCore -> C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Pdf\bin\Release\net8.0\PdfCore.dll
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Cli\Commands\PdfCommands.cs(566,47): error CS0246: 未能找到类型或命名空间名“Drawing”(是否缺少 using 指令或程序集引用?) [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Pdf\tools\nong-pdf.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Cli\Commands\PdfCommands.cs(591,84): error CS1061: “ImagePart”未包含“GetRelationshipId”的定义，并且找不到可接受第一个“ImagePart”类型参数的可访问扩展方法“GetRelationshipId”(是否缺少 using 指令或程序集引用?) [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Pdf\tools\nong-pdf.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Cli\Commands\PdfCommands.cs(599,57): error CS1503: 参数 2: 无法从“DocumentFormat.OpenXml.Drawing.ShapeTypeValues”转换为“DocumentFormat.OpenXml.OpenXmlElement” [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Pdf\tools\nong-pdf.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Cli\Commands\PdfCommands.cs(601,43): error CS0117: “Graphic”未包含“Uri”的定义 [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Pdf\tools\nong-pdf.csproj]
+
+生成失败。
+
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\NongDb.cs(212,30): warning CS8618: 在退出构造函数时，不可为 null 的 属性 "Id" 必须包含非 null 值。请考虑添加 "required" 修饰符或将该 属性 声明为可为 null。 [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\Nong.Data.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\NongDb.cs(234,30): warning CS8618: 在退出构造函数时，不可为 null 的 属性 "Id" 必须包含非 null 值。请考虑添加 "required" 修饰符或将该 属性 声明为可为 null。 [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\Nong.Data.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\NongDb.cs(242,30): warning CS8618: 在退出构造函数时，不可为 null 的 属性 "Id" 必须包含非 null 值。请考虑添加 "required" 修饰符或将该 属性 声明为可为 null。 [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\Nong.Data.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\NongDb.cs(250,30): warning CS8618: 在退出构造函数时，不可为 null 的 属性 "Id" 必须包含非 null 值。请考虑添加 "required" 修饰符或将该 属性 声明为可为 null。 [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\Nong.Data.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\NongDb.cs(223,30): warning CS8618: 在退出构造函数时，不可为 null 的 属性 "Id" 必须包含非 null 值。请考虑添加 "required" 修饰符或将该 属性 声明为可为 null。 [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\Nong.Data.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\NongDb.cs(263,30): warning CS8618: 在退出构造函数时，不可为 null 的 属性 "Id" 必须包含非 null 值。请考虑添加 "required" 修饰符或将该 属性 声明为可为 null。 [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Data\Nong.Data.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Cli\Commands\PdfCommands.cs(566,47): error CS0246: 未能找到类型或命名空间名“Drawing”(是否缺少 using 指令或程序集引用?) [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Pdf\tools\nong-pdf.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Cli\Commands\PdfCommands.cs(591,84): error CS1061: “ImagePart”未包含“GetRelationshipId”的定义，并且找不到可接受第一个“ImagePart”类型参数的可访问扩展方法“GetRelationshipId”(是否缺少 using 指令或程序集引用?) [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Pdf\tools\nong-pdf.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Cli\Commands\PdfCommands.cs(599,57): error CS1503: 参数 2: 无法从“DocumentFormat.OpenXml.Drawing.ShapeTypeValues”转换为“DocumentFormat.OpenXml.OpenXmlElement” [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Pdf\tools\nong-pdf.csproj]
+C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Cli\Commands\PdfCommands.cs(601,43): error CS0117: “Graphic”未包含“Uri”的定义 [C:\Users\Administrator\Documents\Github\Nong.Cli.Net\Pdf\tools\nong-pdf.csproj]
+    6 个警告
+    4 个错误
+
+已用时间 00:00:06.62

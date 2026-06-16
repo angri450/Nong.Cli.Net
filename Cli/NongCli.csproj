@@ -9,7 +9,7 @@
     <PackageId>Angri450.Nong.Cli</PackageId>
     <ToolCommandName>nong</ToolCommandName>
     <PackAsTool>true</PackAsTool>
-    <Version>4.2.2</Version>
+    <Version>4.3.0</Version>
     <RollForward>LatestMajor</RollForward>
     <Authors>angri450</Authors>
     <Description>CLI toolkit for Nong.NET document generation and inspection. Light nong router plus pure .NET built-ins and external Angri450.Nong.Tool.* command groups.</Description>
@@ -26,6 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <!-- Lightweight pure-.NET modules (stay in CLI) -->
+    <ProjectReference Include="..\Data\Nong.Data.csproj" />
     <ProjectReference Include="..\Docx\DocxCore.csproj" />
     <ProjectReference Include="..\Inspect\Inspect.csproj" />
     <ProjectReference Include="..\Excel\ExcelCore.csproj" />

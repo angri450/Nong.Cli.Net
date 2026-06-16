@@ -135,6 +135,19 @@
           "xunit.extensibility.core": "[2.9.0]"
         }
       },
+      "Angri450.Nong.Data": {
+        "type": "Project",
+        "dependencies": {
+          "Angri450.Nong.ThirdParty": "[4.3.0, )"
+        }
+      },
+      "Angri450.Nong.Literature": {
+        "type": "Project",
+        "dependencies": {
+          "Angri450.Nong.Data": "[4.3.0, )",
+          "Angri450.Nong.ThirdParty": "[4.3.0, )"
+        }
+      },
       "Angri450.Nong.Pandoc": {
         "type": "Project"
       },
@@ -149,15 +162,15 @@
       "pdfcore": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.Pandoc": "[4.1.0, )",
-          "Angri450.Nong.ThirdParty": "[4.1.0, )"
+          "Angri450.Nong.Pandoc": "[4.3.0, )",
+          "Angri450.Nong.ThirdParty": "[4.3.0, )"
         }
       },
       "pptxcore": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.Pandoc": "[4.1.0, )",
-          "Angri450.Nong.ThirdParty": "[4.1.0, )"
+          "Angri450.Nong.Pandoc": "[4.3.0, )",
+          "Angri450.Nong.ThirdParty": "[4.3.0, )"
         }
       }
     }

@@ -1,11 +1,11 @@
-# Agent Contract for nong CLI v4.1.x
+# Agent Contract for nong CLI v4.x
 
 ## Quick Start
 
 ```bash
 dotnet tool install --global Angri450.Nong.Cli
-nong commands --json                 # discover 126 implemented commands
-nong commands --format openai-tools  # emit 126 OpenAI tool schemas
+nong commands --json                 # discover the current implemented commands
+nong commands --format openai-tools  # emit the current OpenAI tool schemas
 nong word read file.docx             # extract DOCX text
 ```
 
@@ -24,7 +24,7 @@ The main `nong` tool is a light router plus pure .NET built-ins. Heavy native gr
 | `nong ocr ...` | `nong-ocr` | `Angri450.Nong.Tool.Ocr` |
 | `nong word images ...` / `nong word crop ...` | `nong-imaging` | `Angri450.Nong.Tool.Imaging` |
 
-Built-in groups stay in the main CLI: `word`, `excel`, `inspect`, `lit`, `genre`, `icons`, `slice`, `skill`, and `progress`.
+Built-in groups stay in the main CLI: `word`, `excel`, `inspect`, `lit`, `aminer`, `metaso`, `genre`, `icons`, `slice`, and `skill`.
 
 ## Command Discovery
 
@@ -46,7 +46,6 @@ Current group counts:
 | `skill` | 4 |
 | `lit` | 5 |
 | `slice` | 4 |
-| `progress` | 1 |
 | `chart` | 11 |
 | `diagram` | 3 |
 | `ocr` | 11 |

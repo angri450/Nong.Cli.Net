@@ -44,7 +44,7 @@ public static class MetasoCommands
                 })
             });
             output.Metrics["items"] = result.Items.Count;
-            output.Metrics["credits"] = result.Credits;
+            output.Metrics["credits"] = result.Credits.GetValueOrDefault();
             Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
         }, queryOpt, scopeOpt, sizeOpt, summaryOpt, conciseOpt, jsonOpt);
         return cmd;

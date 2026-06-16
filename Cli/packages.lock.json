@@ -69,24 +69,30 @@
       "Angri450.Nong.Aminer": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.Literature": "[4.1.2, )"
+          "Angri450.Nong.Literature": "[4.3.0, )"
         }
       },
       "Angri450.Nong.Bioicons": {
         "type": "Project"
       },
+      "Angri450.Nong.Data": {
+        "type": "Project",
+        "dependencies": {
+          "Angri450.Nong.ThirdParty": "[4.3.0, )"
+        }
+      },
       "Angri450.Nong.Docx": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.Pandoc": "[4.1.2, )",
-          "Angri450.Nong.ThirdParty": "[4.1.2, )"
+          "Angri450.Nong.Pandoc": "[4.3.0, )",
+          "Angri450.Nong.ThirdParty": "[4.3.0, )"
         }
       },
       "Angri450.Nong.Excel": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.Pandoc": "[4.1.2, )",
-          "Angri450.Nong.ThirdParty": "[4.1.2, )",
+          "Angri450.Nong.Pandoc": "[4.3.0, )",
+          "Angri450.Nong.ThirdParty": "[4.3.0, )",
           "System.IO.Packaging": "[10.0.2, )"
         }
       },
@@ -96,20 +102,21 @@
       "Angri450.Nong.Inspect": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.Docx": "[4.2.2, )",
-          "Angri450.Nong.ThirdParty": "[4.1.2, )"
+          "Angri450.Nong.Docx": "[4.3.0, )",
+          "Angri450.Nong.ThirdParty": "[4.3.0, )"
         }
       },
       "Angri450.Nong.Literature": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.ThirdParty": "[4.1.2, )"
+          "Angri450.Nong.Data": "[4.3.0, )",
+          "Angri450.Nong.ThirdParty": "[4.3.0, )"
         }
       },
       "Angri450.Nong.Metaso": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.Literature": "[4.1.2, )"
+          "Angri450.Nong.Literature": "[4.3.0, )"
         }
       },
       "Angri450.Nong.OcrModels": {

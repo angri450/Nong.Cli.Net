@@ -41,10 +41,17 @@
           "System.Formats.Nrbf": "9.0.0"
         }
       },
+      "Angri450.Nong.Data": {
+        "type": "Project",
+        "dependencies": {
+          "Angri450.Nong.ThirdParty": "[4.3.0, )"
+        }
+      },
       "Angri450.Nong.Literature": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.ThirdParty": "[4.1.2, )"
+          "Angri450.Nong.Data": "[4.3.0, )",
+          "Angri450.Nong.ThirdParty": "[4.3.0, )"
         }
       },
       "Angri450.Nong.ThirdParty": {

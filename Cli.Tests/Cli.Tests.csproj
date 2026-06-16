@@ -9,6 +9,10 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cli\NongCli.csproj" ReferenceOutputAssembly="false" />
+    <!-- Direct reference for unit-testing the unified Data model (NongDb). -->
+    <ProjectReference Include="..\Data\Nong.Data.csproj" />
+    <!-- Direct reference for stage-C tests: LiteratureCache now backed by nong.db. -->
+    <ProjectReference Include="..\Literature\LiteratureCore.csproj" />
     <ProjectReference Include="..\Pdf\PdfCore.csproj" />
     <ProjectReference Include="..\Pandoc\PandocCore.csproj" />
     <ProjectReference Include="..\Pptx\PptxCore.csproj" />

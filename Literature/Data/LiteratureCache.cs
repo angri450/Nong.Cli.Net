@@ -1,31 +1,138 @@
 using LiteDB;
-using Angri450.Nong.Data;
+using Angri450.Nong.Data;          // unified NongDb / DbPaper (single nong.db)
 using Angri450.Nong.Literature.Models;
 
 namespace Angri450.Nong.Literature.Data;
 
 /// <summary>
-/// Literature paper cache. Thin wrapper over NongDb.Papers collection.
-/// For backwards compatibility with existing LitCommands callers.
-/// All data goes to NongWorkplace.Cache/nong.db
+/// Literature paper cache. Stage C of the unified-nongdb plan: papers no longer have a
+/// separate literature.db. They live in the single nong.db via NongDb.Papers, alongside
+/// documents, blocks, assets, outputs and the other unified model objects.
+/// File: NongWorkplace.Cache/nong.db (shared with the rest of Nong).
 /// </summary>
-public sealed class LiteratureCache : IDisposable
+public interface ILiteratureCache : IDisposable
+{
+    (int Added, int Duplicates) Import(IEnumerable<PaperRecord> records, string queryHash);
+    IReadOnlyList<DbPaper> Query(string? title = null, int? minYear = null, int? maxYear = null,
+        int? minCitations = null, string? author = null, string? venue = null,
+        string? keyword = null, int limit = 50, int skip = 0);
+    IReadOnlyList<PaperRecord> FilterByDsl(string dsl, string mode = "strict");
+    Dictionary<string, object?> AsDocxData(string? dsl = null, string mode = "strict", int limit = 20);
+    Dictionary<string, object?> AsDocxList(string? dsl = null, string mode = "strict", int limit = 20);
+    string ExportMarkdown(IEnumerable<DbPaper>? papers = null, int limit = 20, int maxChars = 8000);
+    int Count();
+    CacheStats GetStats();
+}
+
+public sealed class LiteratureCache : ILiteratureCache
 {
     readonly NongDb _db;
     readonly ILiteCollection<DbPaper> _papers;
+    readonly bool _ownsDb;
 
+    /// <summary>Open the unified nong.db at the default workplace cache location.</summary>
     public LiteratureCache() : this(Path.Combine(NongWorkplace.Cache, "nong.db")) { }
 
+    /// <summary>Open the unified nong.db at an explicit path (tests / custom roots).</summary>
     public LiteratureCache(string dbPath)
     {
-        _db = new NongDb(dbPath);
+        var full = Path.GetFullPath(dbPath);
+        NongWorkplace.RequireUnderRoot(full);
+
+        _db = new NongDb(full);
+        _ownsDb = true;
+        _papers = _db.Papers;
+        _papers.EnsureIndex(x => x.NormalizedDoi);
+        _papers.EnsureIndex(x => x.QueryHash);
+        _papers.EnsureIndex(x => x.ImportedAt);
+
+        // One-time legacy migration: papers used to live in a sibling literature.db.
+        // If it exists next to the nong.db, fold its papers into the unified store and
+        // retire the file. This runs once per install and then self-disables (the file is
+        // renamed away so it never matches again).
+        MigrateLegacyLiteratureDb(full);
+    }
+
+    void MigrateLegacyLiteratureDb(string nongDbPath)
+    {
+        var legacy = Path.Combine(Path.GetDirectoryName(nongDbPath) ?? "", "literature.db");
+        if (!File.Exists(legacy)) return;
+
+        try
+        {
+            using var old = new LiteDatabase($"Filename={legacy};Connection=shared;ReadOnly=true");
+            var oldPapers = old.GetCollection<DbPaper>("papers");
+            var existingDois = new HashSet<string>(
+                _papers.FindAll()
+                    .Where(p => !string.IsNullOrWhiteSpace(p.NormalizedDoi))
+                    .Select(p => p.NormalizedDoi),
+                StringComparer.OrdinalIgnoreCase);
+
+            foreach (var p in oldPapers.FindAll())
+            {
+                if (!string.IsNullOrWhiteSpace(p.NormalizedDoi) && existingDois.Contains(p.NormalizedDoi))
+                    continue;
+                // Strip the ObjectId from the legacy row so LiteDB assigns a fresh id.
+                p.Id = ObjectId.Empty;
+                _papers.Insert(p);
+                if (!string.IsNullOrWhiteSpace(p.NormalizedDoi)) existingDois.Add(p.NormalizedDoi);
+            }
+        }
+        catch
+        {
+            // Migration is best-effort: never block opening the cache on a corrupt legacy file.
+            return;
+        }
+
+        // Retire the legacy file so this migration never re-runs.
+        try { File.Move(legacy, legacy + ".retired", overwrite: true); } catch { }
+    }
+
+    /// <summary>Wrap an existing NongDb (caller owns disposal). Shares the single nong.db.</summary>
+    public LiteratureCache(NongDb db)
+    {
+        _db = db;
+        _ownsDb = false;
         _papers = _db.Papers;
         _papers.EnsureIndex(x => x.NormalizedDoi);
         _papers.EnsureIndex(x => x.QueryHash);
         _papers.EnsureIndex(x => x.ImportedAt);
     }
 
-    public NongDb Db => _db;
+    // ═══ DbPaper <-> PaperRecord mapping ═══
+    // These conversions live in the Literature layer (not in Data/NongDb.cs) so the
+    // unified Data package stays free of an upward dependency on Literature models.
+
+    public static DbPaper FromRecord(PaperRecord r, string queryHash) => new()
+    {
+        NormalizedDoi = string.IsNullOrWhiteSpace(r.Doi) ? "" : r.Doi.Trim().ToLowerInvariant(),
+        QueryHash = queryHash, ImportedAt = DateTime.UtcNow,
+        Title = r.Title ?? "", TitleZh = r.Title ?? "", Year = r.Year,
+        CitationCount = r.CitationCount ?? 0,
+        VenueName = r.Venue ?? r.Journal ?? "", Journal = r.Journal ?? "", Publisher = r.Publisher ?? "",
+        OpenAccess = r.IsOpenAccess == true ? "OA" : (r.OpenAccessStatus ?? ""),
+        PdfUrl = r.PdfUrl ?? "", LandingPageUrl = r.LandingPageUrl ?? "",
+        Authors = string.Join(',', r.Authors),
+        Keywords = string.Join(',', r.Keywords), KeywordsZh = string.Join(',', r.Keywords),
+        Abstract = r.Abstract ?? "", AbstractZh = r.Abstract ?? "",
+        RetrievedFrom = string.Join(',', r.RetrievedFrom),
+        SourceIds = string.Join(',', r.SourceIds.Select(kv => $"{kv.Key}={kv.Value}")),
+    };
+
+    static PaperRecord ToRecord(DbPaper p)
+    {
+        var list = (string s) => s.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).Where(x => x.Length > 0).ToList();
+        return new PaperRecord
+        {
+            Doi = p.NormalizedDoi, Title = p.Title, Year = p.Year, CitationCount = p.CitationCount,
+            Venue = p.VenueName, Journal = p.Journal, Publisher = p.Publisher,
+            IsOpenAccess = p.OpenAccess == "OA", OpenAccessStatus = p.OpenAccess,
+            PdfUrl = p.PdfUrl, LandingPageUrl = p.LandingPageUrl,
+            Authors = list(p.Authors), Keywords = list(p.Keywords),
+            Abstract = string.IsNullOrWhiteSpace(p.Abstract) ? null : p.Abstract,
+            RetrievedFrom = list(p.RetrievedFrom),
+        };
+    }
 
     // ═══ Import ═══
 
@@ -38,7 +145,7 @@ public sealed class LiteratureCache : IDisposable
         int added = 0, dups = 0;
         foreach (var r in records)
         {
-            var d = DbPaper.Create(r, queryHash);
+            var d = FromRecord(r, queryHash);
             if (!string.IsNullOrWhiteSpace(d.NormalizedDoi) && existing.Contains(d.NormalizedDoi)) { dups++; continue; }
             _papers.Insert(d);
             if (!string.IsNullOrWhiteSpace(d.NormalizedDoi)) existing.Add(d.NormalizedDoi);
@@ -66,7 +173,7 @@ public sealed class LiteratureCache : IDisposable
     }
 
     public IReadOnlyList<PaperRecord> FilterByDsl(string dsl, string mode = "strict")
-        => new Pipeline.LocalBooleanFilter().Filter(_papers.FindAll().Select(p => p.ToRecord()).ToList(), Dsl.CnkiParser.Parse(dsl), mode, out _);
+        => new Pipeline.LocalBooleanFilter().Filter(_papers.FindAll().Select(p => ToRecord(p)).ToList(), Dsl.CnkiParser.Parse(dsl), mode, out _);
 
     // ═══ DocxTemplate ═══
 
@@ -87,7 +194,7 @@ public sealed class LiteratureCache : IDisposable
     List<DbPaper> Filtered(string dsl, string mode, int limit)
     {
         var records = FilterByDsl(dsl, mode).Take(limit).ToList();
-        return records.Select(r => DbPaper.Create(r, "")).ToList();
+        return records.Select(r => FromRecord(r, "")).ToList();
     }
 
     // ═══ Markdown ═══
@@ -119,56 +226,16 @@ public sealed class LiteratureCache : IDisposable
             WithDoi = all.Count(p => !string.IsNullOrWhiteSpace(p.NormalizedDoi)),
             WithAbstract = all.Count(p => !string.IsNullOrWhiteSpace(p.Abstract) || !string.IsNullOrWhiteSpace(p.AbstractZh)),
             WithPdf = all.Count(p => !string.IsNullOrWhiteSpace(p.PdfUrl)),
-            YearMin = all.Where(p => p.Year.HasValue).Min(p => p.Year),
-            YearMax = all.Where(p => p.Year.HasValue).Max(p => p.Year),
+            YearMin = all.Select(p => p.Year).DefaultIfEmpty().Min(),
+            YearMax = all.Select(p => p.Year).DefaultIfEmpty().Max(),
             Sources = all.SelectMany(p => p.RetrievedFrom.Split(',', StringSplitOptions.RemoveEmptyEntries)).Where(s => s.Length > 0).GroupBy(s => s.Trim()).ToDictionary(g => g.Key, g => g.Count()),
-            OldestImport = all.Min(p => p.ImportedAt),
-            NewestImport = all.Max(p => p.ImportedAt),
+            OldestImport = all.Any() ? all.Min(p => (DateTime?)p.ImportedAt) : null,
+            NewestImport = all.Any() ? all.Max(p => (DateTime?)p.ImportedAt) : null,
         };
     }
 
-    public void Dispose() => _db?.Dispose();
-}
-
-public sealed class CacheStats
-{
-    public int TotalRecords { get; set; } public int WithDoi { get; set; } public int WithAbstract { get; set; } public int WithPdf { get; set; }
-    public int? YearMin { get; set; } public int? YearMax { get; set; }
-    public Dictionary<string, int> Sources { get; set; } = new();
-    public DateTime? OldestImport { get; set; } public DateTime? NewestImport { get; set; }
-}
-
-/// <summary>DocxTemplate extensions on DbPaper — lives here so DbPaper stays a clean DB model.</summary>
-public static class DbPaperExt
-{
-    public static Dictionary<string, object?> ToDocxData(this DbPaper p) => new()
+    public void Dispose()
     {
-        ["cellReplace"] = new Dictionary<string, object?>
-        {
-            ["title"] = p.TitleZh ?? p.Title, ["title_en"] = p.Title, ["title_zh"] = p.TitleZh,
-            ["year"] = p.Year?.ToString() ?? "", ["doi"] = p.NormalizedDoi,
-            ["venue"] = p.VenueName, ["journal"] = p.Journal, ["publisher"] = p.Publisher,
-            ["abstract"] = p.AbstractZh ?? p.Abstract,
-            ["abstract_en"] = p.Abstract, ["abstract_zh"] = p.AbstractZh,
-            ["keywords"] = p.Keywords, ["keywords_zh"] = p.KeywordsZh,
-            ["citations"] = p.CitationCount.ToString(), ["oa"] = p.OpenAccess,
-        },
-        ["tableRows"] = new Dictionary<string, object?>
-        {
-            ["name"] = S(p.Authors).Select(a => (object)new List<string> { a, "" }).ToList()
-        }
-    };
-
-    public static string CompactEntry(this DbPaper p)
-    {
-        var title = (p.TitleZh ?? p.Title ?? "?").Trunc(80);
-        var author = S(p.Authors).FirstOrDefault() + (p.Authors.Contains(',') ? " et al." : "");
-        var venue = (p.VenueName ?? p.Journal ?? "").Trunc(40);
-        var doi = !string.IsNullOrWhiteSpace(p.NormalizedDoi) ? $"doi:{p.NormalizedDoi}" : "";
-        return $"**{title}**\n{author} ({p.Year}). {venue}. {doi}\nCitations: {p.CitationCount} | OA: {p.OpenAccess}";
+        if (_ownsDb) _db?.Dispose();
     }
-
-    static List<string> S(string s) => s.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).Where(x => x.Length > 0).ToList();
 }
-
-file static class Str { public static string Trunc(this string s, int m) => s.Length <= m ? s : s[..(m - 3)] + "..."; }
