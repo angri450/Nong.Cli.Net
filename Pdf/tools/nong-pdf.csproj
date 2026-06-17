@@ -9,7 +9,7 @@
     <PackageId>Angri450.Nong.Tool.Pdf</PackageId>
     <ToolCommandName>nong-pdf</ToolCommandName>
     <PackAsTool>true</PackAsTool>
-    <Version>4.1.6</Version>
+    <Version>4.1.7</Version>
     <Authors>angri450</Authors>
     <Description>PDF operations — check, dissect, render, images, merge, split, compress, OCR, to-word, db-*.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
