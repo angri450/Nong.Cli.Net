@@ -51,24 +51,23 @@ public static class NongCliCommands
                 Directory.CreateDirectory(modelDir);
 
                 var modelDirForward = modelDir.Replace('\\', '/');
-                var releaseUrl = "https://github.com/angri450/Nong.Cli.Net/releases/download/model-v5-nano";
+                var omniUrl = "https://modelscope.cn/onnx-community/jina-embeddings-v5-omni-nano-ONNX.git";
                 var instructions = string.Join("\n",
                     $"Embedding model not found at: {modelDir}",
                     "",
-                    "One-time install (choose one):",
+                    "One-time install: download from ModelScope (~268 MB total)",
                     "",
-                    "  Option A — Download pre-built model (~434 MB):",
-                    $"    curl -L {releaseUrl}/model.onnx -o {modelDirForward}/model.onnx",
-                    $"    curl -L {releaseUrl}/tokenizer.json -o {modelDirForward}/tokenizer.json",
+                    $"  git clone --depth 1 {omniUrl} {modelDirForward}",
                     "",
-                    "  Option B — Build from source (requires Python):",
-                    "    1. git clone --depth 1 https://www.modelscope.cn/jinaai/jina-embeddings-v5-text-nano.git",
-                    "    2. pip install sentence-transformers peft onnx onnxruntime",
-                    "    3. Run the export script from nong docs",
+                    "  Then copy the text tower files:",
+                    $"    copy {modelDirForward}\\onnx\\text_model_q4f16.onnx {modelDirForward}\\model.onnx",
+                    $"    copy {modelDirForward}\\onnx\\text_model_q4f16.onnx_data {modelDirForward}\\text_model_q4f16.onnx_data",
+                    $"    copy {modelDirForward}\\tokenizer.json {modelDirForward}\\tokenizer.json",
                     "",
-                    $"  Needed files in {modelDir}:",
-                    "    - model.onnx      (~417 MB, FP16 ONNX with retrieval adapter)",
-                    "    - tokenizer.json  (~17 MB)",
+                    $"  Files needed in {modelDir}:",
+                    "    - model.onnx                     (Q4F16 text tower)",
+                    "    - text_model_q4f16.onnx_data     (262 MB weight data)",
+                    "    - tokenizer.json                 (17 MB)",
                     "",
                     "After install, run: nong search 'your query'");
 

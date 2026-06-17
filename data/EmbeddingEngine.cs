@@ -4,15 +4,16 @@ using Microsoft.ML.OnnxRuntime.Tensors;
 namespace Angri450.Nong.Data;
 
 /// <summary>
-/// Local text embedding engine: jina-embeddings-v5-nano ONNX model,
-/// BpeTokenizer tokenization, ONNX Runtime CPU inference.
-/// Output: L2-normalized float[768] using last-token pooling.
+/// Local text embedding engine: jina-embeddings-v5 ONNX model.
+/// Handles both raw last_hidden_state (self-pooled) and pooled sentence_embedding outputs.
+/// ONNX Runtime CPU inference, L2-normalized float[_hiddenSize].
 /// </summary>
 public sealed class EmbeddingEngine : IDisposable
 {
     readonly InferenceSession _session;
     readonly BpeTokenizer _tokenizer;
     readonly int _hiddenSize;
+    readonly bool _pooledOutput; // true if model already outputs pooled embeddings
 
     const string PassagePrefix = "Document: ";
     const string QueryPrefix = "";
@@ -40,9 +41,23 @@ public sealed class EmbeddingEngine : IDisposable
         _session = new InferenceSession(onnxPath, options);
         _tokenizer = new BpeTokenizer(tokPath);
 
+        // Detect output shape: pooled [1,768] vs raw [1,seq,768]
         foreach (var name in _session.OutputMetadata.Keys)
-            if (_session.OutputMetadata[name].Dimensions is [1, _, >= 384])
-                { _hiddenSize = _session.OutputMetadata[name].Dimensions[2]; break; }
+        {
+            var dims = _session.OutputMetadata[name].Dimensions;
+            if (dims is [1, _, >= 384])
+            {
+                _pooledOutput = false;
+                _hiddenSize = dims[2];
+                break;
+            }
+            if (dims is [1, >= 384])
+            {
+                _pooledOutput = true;
+                _hiddenSize = dims[1];
+                break;
+            }
+        }
         if (_hiddenSize == 0) _hiddenSize = 768;
     }
 
@@ -72,7 +87,10 @@ public sealed class EmbeddingEngine : IDisposable
         if (tensor == null)
             throw new InvalidOperationException("Cannot read ONNX output as float32.");
 
-        return LastTokenPoolAndNormalize(tensor, ids.Count);
+        if (_pooledOutput)
+            return Normalize(tensor, 0, _hiddenSize);
+        else
+            return LastTokenPoolAndNormalize(tensor, ids.Count);
     }
 
     public static float Cosine(float[] a, float[] b)
@@ -88,12 +106,22 @@ public sealed class EmbeddingEngine : IDisposable
         var vec = new float[hidden];
         int last = Math.Max(0, seqLen - 1);
         for (int i = 0; i < hidden; i++) vec[i] = h[0, last, i];
+        return L2(vec);
+    }
 
+    float[] Normalize(Tensor<float> h, int batchIdx, int dim)
+    {
+        var vec = new float[dim];
+        for (int i = 0; i < dim; i++) vec[i] = h[batchIdx, i];
+        return L2(vec);
+    }
+
+    float[] L2(float[] vec)
+    {
         float norm = 0;
-        for (int i = 0; i < hidden; i++) norm += vec[i] * vec[i];
+        for (int i = 0; i < vec.Length; i++) norm += vec[i] * vec[i];
         norm = MathF.Sqrt(norm);
-        if (norm > 1e-8f) for (int i = 0; i < hidden; i++) vec[i] /= norm;
-
+        if (norm > 1e-8f) for (int i = 0; i < vec.Length; i++) vec[i] /= norm;
         return vec;
     }
 
