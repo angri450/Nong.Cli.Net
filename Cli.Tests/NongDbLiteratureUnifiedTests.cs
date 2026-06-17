@@ -40,8 +40,8 @@ public class NongDbLiteratureUnifiedTests
                 Assert.Equal(0, dups);
             }
 
-            using var db = new NongDb(nongDb);
-            var paper = Assert.Single(db.Papers.FindAll());
+            using var importedDb = new NongDb(nongDb);
+            var paper = Assert.Single(importedDb.Papers.FindAll());
             Assert.Equal("10.1/abc", paper.NormalizedDoi);
             Assert.Equal("Humic acid", paper.Title);
 
@@ -64,9 +64,9 @@ public class NongDbLiteratureUnifiedTests
                 papers.Insert(new DbPaper { NormalizedDoi = "10.2/legacy", Title = "Legacy paper", Year = 2020, ImportedAt = DateTime.UtcNow });
             }
 
-            using (var db = new NongDb(nongDb))
+            using (var migratedDb = new NongDb(nongDb))
             {
-                Assert.Equal(1, db.Papers.Count());
+                Assert.Equal(1, migratedDb.Papers.Count());
             }
 
             using var db = new NongDb(nongDb);
