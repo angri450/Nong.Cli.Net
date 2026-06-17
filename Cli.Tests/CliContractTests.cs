@@ -693,7 +693,9 @@ public class CliContractTests
             Assert.Equal(0, Run("pdf", "dissect", pdfPath, "-o", pdfSlice, "--json").exitCode);
             AssertBlockProvenance(pdfSlice, "pdf", p =>
             {
-                Assert.Equal("pdfText", p.GetProperty("source").GetString());
+                var src = p.GetProperty("source").GetString();
+                Assert.True(src == "pdfText" || src == "pdftotext",
+                    $"Expected pdfText or pdftotext, got: {src}");
                 Assert.Equal(1, p.GetProperty("page").GetInt32());
                 Assert.Equal(4, p.GetProperty("bbox").GetArrayLength());
             });

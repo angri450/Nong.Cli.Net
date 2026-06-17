@@ -2,8 +2,11 @@ namespace Angri450.Nong;
 
 /// <summary>
 /// Unified Nong data directory. All cache, config, generated files go here.
-/// Default: ~/Documents/workplace/
-/// Override: NONG_WORKPLACE env var (absolute path, must exist and be writable)
+///
+/// Root resolution priority:
+/// 1. $NONG_WORKPLACE env var (absolute path, auto-created if needed)
+/// 2. Find .nong/ upward from the current working directory (project-local workplace)
+/// 3. CWD/.nong/ (fallback: create in the current directory)
 /// </summary>
 public static class NongWorkplace
 {
@@ -16,18 +19,42 @@ public static class NongWorkplace
         {
             if (!Path.IsPathRooted(env))
                 throw new InvalidOperationException($"NONG_WORKPLACE must be an absolute path, got: {env}");
-            if (!Directory.Exists(env))
-                throw new InvalidOperationException($"NONG_WORKPLACE directory does not exist: {env}");
             var normalized = Path.GetFullPath(env).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             Root = normalized;
         }
         else
         {
-            Root = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "workplace");
+            // Try to find .nong/ upward from CWD.
+            var found = FindProjectRoot();
+            if (found != null)
+            {
+                Root = found;
+            }
+            else
+            {
+                // Fallback: create .nong/ in the current directory.
+                Root = Path.Combine(Directory.GetCurrentDirectory(), ".nong");
+            }
         }
         Directory.CreateDirectory(Root);
+    }
+
+    /// <summary>Walk up from CWD looking for a directory that contains .nong/.</summary>
+    public static string? FindProjectRoot()
+    {
+        var dir = Directory.GetCurrentDirectory();
+        while (dir != null)
+        {
+            var candidate = Path.Combine(dir, ".nong");
+            if (Directory.Exists(candidate))
+                return candidate;
+
+            var parent = Path.GetDirectoryName(dir);
+            if (parent == null || parent == dir)
+                break;
+            dir = parent;
+        }
+        return null;
     }
 
     /// <summary>Root directory. All Nong data lives under here.</summary>

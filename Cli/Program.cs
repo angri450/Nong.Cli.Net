@@ -78,6 +78,7 @@ class Program
         root.AddCommand(AminerCommands.Create(jsonOpt));
         root.AddCommand(MetasoCommands.Create(jsonOpt));
         root.AddCommand(SliceCommands.Create(jsonOpt));
+        root.AddCommand(NongCliCommands.Create(jsonOpt));
         // Heavy modules dispatched to external tools:
         root.AddCommand(CreateExternalGroup("chart"));
         root.AddCommand(CreateExternalGroup("diagram"));

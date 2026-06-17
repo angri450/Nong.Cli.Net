@@ -510,6 +510,12 @@ public static class Manifest
         list.Add(new("slice assets", "List assets from a NongPandoc package", "slice", [],
             Parameters: [new("dir", "string", "Path to NongPandoc package directory", Required: true)]));
 
+        // === nongcli (implemented: 2 commands) ===
+        list.Add(new("nongcli init", "Create .nong/ workspace skeleton in target directory", "nongcli", [],
+            Parameters: [new("path", "string", "Target directory (default: current directory)")]));
+        list.Add(new("nongcli where", "Print the resolved NongWorkplace root path", "nongcli", [],
+            Parameters: []));
+
         return list;
     }
 }
