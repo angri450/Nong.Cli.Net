@@ -20,3 +20,8 @@ _archive/
 
 # Temporary trash / staging area before permanent deletion.
 delete/
+
+# Captured build/log output accidentally saved into source dirs (e.g. Pdf/tools/*.txt).
+# Tools projects hold only source (.cs/.csproj/.json); stray .txt there is build-log noise.
+**/tools/*.txt
+*_build.txt
