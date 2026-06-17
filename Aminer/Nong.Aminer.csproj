@@ -7,6 +7,7 @@
     <AssemblyName>Angri450.Nong.Aminer</AssemblyName>
     <Version>4.3.0</Version>
     <Authors>angri450</Authors>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Description>AMiner REST API client — scholar search, paper search, patent search, org search, venue search. Pure .NET HttpClient.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
