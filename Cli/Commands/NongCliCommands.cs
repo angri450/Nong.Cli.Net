@@ -27,7 +27,7 @@ public static class NongCliCommands
             try
             {
                 var modelDir = Path.Combine(NongWorkplace.Dir, "models", "jina-v5-nano");
-                var onnxPath = Path.Combine(modelDir, "model_int8.onnx");
+                var onnxPath = Path.Combine(modelDir, "model.onnx");
                 var tokPath = Path.Combine(modelDir, "tokenizer.json");
 
                 if (File.Exists(onnxPath) && File.Exists(tokPath))
@@ -51,25 +51,26 @@ public static class NongCliCommands
                 Directory.CreateDirectory(modelDir);
 
                 var modelDirForward = modelDir.Replace('\\', '/');
+                var releaseUrl = "https://github.com/angri450/Nong.Cli.Net/releases/download/model-v5-nano";
                 var instructions = string.Join("\n",
                     $"Embedding model not found at: {modelDir}",
                     "",
-                    "Manual install (one-time setup):",
-                    "  1. Download from modelscope:",
-                    $"     git clone --depth 1 https://www.modelscope.cn/jinaai/jina-embeddings-v5-text-nano.git {modelDirForward}",
+                    "One-time install (choose one):",
                     "",
-                    "  2. Export ONNX model (requires Python):",
-                    "     pip install optimum onnx onnxruntime transformers",
-                    $"     python -c \"from optimum.onnxruntime import ORTModelForFeatureExtraction; m=ORTModelForFeatureExtraction.from_pretrained('{modelDirForward}',export=True); m.save_pretrained('{modelDirForward}')\"",
+                    "  Option A — Download pre-built model (~434 MB):",
+                    $"    curl -L {releaseUrl}/model.onnx -o {modelDirForward}/model.onnx",
+                    $"    curl -L {releaseUrl}/tokenizer.json -o {modelDirForward}/tokenizer.json",
                     "",
-                    "  3. Then quantize:",
-                    $"     python -c \"from onnxruntime.quantization import quantize_dynamic,QuantType; quantize_dynamic('{modelDirForward}/model.onnx','{modelDirForward}/model_int8.onnx',weight_type=QuantType.QInt8)\"",
+                    "  Option B — Build from source (requires Python):",
+                    "    1. git clone --depth 1 https://www.modelscope.cn/jinaai/jina-embeddings-v5-text-nano.git",
+                    "    2. pip install sentence-transformers peft onnx onnxruntime",
+                    "    3. Run the export script from nong docs",
                     "",
-                    $"  Place both files in {modelDir}:",
-                    "    - model_int8.onnx (~60 MB)",
+                    $"  Needed files in {modelDir}:",
+                    "    - model.onnx      (~417 MB, FP16 ONNX with retrieval adapter)",
                     "    - tokenizer.json  (~17 MB)",
                     "",
-                    "See docs for pre-packaged model download.");
+                    "After install, run: nong search 'your query'");
 
                 if (json)
                 {

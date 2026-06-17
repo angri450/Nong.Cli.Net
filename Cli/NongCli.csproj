@@ -55,4 +55,16 @@
     <Compile Remove="Adapters\PdfOcrRecognizerStub.cs" />
     <Compile Remove="Adapters\WordImageAnalyzerAdapter.cs" />
   </ItemGroup>
+
+  <!-- Ensure onnxruntime native DLL is published to tool root for dotnet-tool loading -->
+  <Target Name="IncludeOnnxRuntimeNativeInToolPackage" BeforeTargets="_GetToolPackageFiles">
+    <ItemGroup>
+      <_ToolPackageFiles Include="$(OutputPath)onnxruntime.dll" Condition="Exists('$(OutputPath)onnxruntime.dll')">
+        <PackagePath>tools/$(TargetFramework)/any/onnxruntime.dll</PackagePath>
+      </_ToolPackageFiles>
+      <_ToolPackageFiles Include="$(OutputPath)onnxruntime_providers_shared.dll" Condition="Exists('$(OutputPath)onnxruntime_providers_shared.dll')">
+        <PackagePath>tools/$(TargetFramework)/any/onnxruntime_providers_shared.dll</PackagePath>
+      </_ToolPackageFiles>
+    </ItemGroup>
+  </Target>
 </Project>

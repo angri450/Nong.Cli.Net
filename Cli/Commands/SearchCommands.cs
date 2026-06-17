@@ -50,7 +50,7 @@ public static class SearchCommands
                 using var engine = new EmbeddingEngine(modelDir);
 
                 // Get query embedding
-                var queryVec = engine.Embed(query);
+                var queryVec = engine.EmbedQuery(query);
 
                 // Read all blocks from NongDb
                 using var ctx = new IngestionContext();
@@ -63,7 +63,7 @@ public static class SearchCommands
                     foreach (var block in blocks)
                     {
                         if (string.IsNullOrWhiteSpace(block.Text)) continue;
-                        var blockVec = engine.Embed(block.Text);
+                        var blockVec = engine.EmbedPassage(block.Text);
                         var score = EmbeddingEngine.Cosine(queryVec, blockVec);
                         allResults.Add((doc.FileName, block.BlockId ?? block.Id.ToString(),
                             block.BlockType, block.Text, score));
