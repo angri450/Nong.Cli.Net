@@ -1,5 +1,6 @@
 using System.CommandLine;
 using System.Text.Json;
+using Angri450.Nong.Data;
 using Angri450.Nong.Metaso;
 using Nong.Cli.Common;
 
@@ -26,9 +27,10 @@ public static class MetasoCommands
         var sizeOpt = new Option<int>("--size", () => 10, "Result count (max 50)");
         var summaryOpt = new Option<bool>("--summary", () => false, "Include AI-generated summary of results");
         var conciseOpt = new Option<bool>("--concise", () => true, "Return concise snippet text");
+        var ingestOpt = new Option<bool>("--ingest", () => false, "Ingest search results into NongDb for nong search");
 
-        var cmd = new Command("search", "Metaso search API — multi-scope web + academic") { queryOpt, scopeOpt, sizeOpt, summaryOpt, conciseOpt };
-        cmd.SetHandler(async (string q, string scope, int size, bool summary, bool concise, bool json) =>
+        var cmd = new Command("search", "Metaso search API — multi-scope web + academic") { queryOpt, scopeOpt, sizeOpt, summaryOpt, conciseOpt, ingestOpt };
+        cmd.SetHandler(async (string q, string scope, int size, bool summary, bool concise, bool ingest, bool json) =>
         {
             var client = new MetasoClient();
             var result = await client.SearchAsync(q, scope, Math.Clamp(size, 1, 50), summary, concise);
@@ -45,8 +47,20 @@ public static class MetasoCommands
             });
             output.Metrics["items"] = result.Items.Count;
             output.Metrics["credits"] = result.Credits.GetValueOrDefault();
+
+            if (ingest && result.Success && result.Items.Count > 0)
+            {
+                try
+                {
+                    var texts = result.Items.Select(i => $"{i.Title}\n{i.Snippet}");
+                    var count = IngestHelper.IngestTexts(texts, q, "metaso", "search");
+                    if (!json) Console.Error.WriteLine($"[ingest] {count} results saved to nong.db");
+                }
+                catch (Exception ex) { if (!json) Console.Error.WriteLine($"[ingest] warning: {ex.Message}"); }
+            }
+
             Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
-        }, queryOpt, scopeOpt, sizeOpt, summaryOpt, conciseOpt, jsonOpt);
+        }, queryOpt, scopeOpt, sizeOpt, summaryOpt, conciseOpt, ingestOpt, jsonOpt);
         return cmd;
     }
 
@@ -58,9 +72,10 @@ public static class MetasoCommands
         var formatOpt = new Option<string>("--format", () => "json",
             "Output format: json (structured) | markdown (clean text)");
         var outOpt = new Option<string?>("-o", "Save content to file");
+        var ingestOpt = new Option<bool>("--ingest", () => false, "Ingest page content into NongDb for nong search");
 
-        var cmd = new Command("reader", "Fetch web page content — JSON or Markdown") { urlOpt, formatOpt, outOpt };
-        cmd.SetHandler(async (string url, string format, string? outFile, bool json) =>
+        var cmd = new Command("reader", "Fetch web page content — JSON or Markdown") { urlOpt, formatOpt, outOpt, ingestOpt };
+        cmd.SetHandler(async (string url, string format, string? outFile, bool ingest, bool json) =>
         {
             var client = new MetasoClient();
             var result = await client.ReadAsync(url, format);
@@ -68,6 +83,17 @@ public static class MetasoCommands
 
             if (outFile != null && result.Success && result.Content != null)
                 await File.WriteAllTextAsync(outFile, result.Content, System.Text.Encoding.UTF8);
+
+            if (ingest && result.Success && !string.IsNullOrWhiteSpace(result.Content))
+            {
+                try
+                {
+                    var text = string.IsNullOrWhiteSpace(result.Title) ? result.Content : $"# {result.Title}\n\n{result.Content}";
+                    IngestHelper.IngestText(text, url, "metaso", "reader");
+                    if (!json) Console.Error.WriteLine($"[ingest] page content saved to nong.db");
+                }
+                catch (Exception ex) { if (!json) Console.Error.WriteLine($"[ingest] warning: {ex.Message}"); }
+            }
 
             var output = JsonOutput.Ok("metaso reader", outFile != null ? $"Saved to {outFile}" : $"Page fetched ({result.RawLength} chars)", new
             {
@@ -78,7 +104,7 @@ public static class MetasoCommands
             });
             if (outFile != null) output.Artifacts["file"] = outFile;
             Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
-        }, urlOpt, formatOpt, outOpt, jsonOpt);
+        }, urlOpt, formatOpt, outOpt, ingestOpt, jsonOpt);
         return cmd;
     }
 

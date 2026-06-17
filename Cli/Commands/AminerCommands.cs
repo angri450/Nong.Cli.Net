@@ -1,6 +1,7 @@
 using System.CommandLine;
 using System.Text.Json;
 using Angri450.Nong.Aminer;
+using Angri450.Nong.Data;
 using Nong.Cli.Common;
 
 namespace Nong.Cli.Commands;
@@ -47,14 +48,15 @@ public static class AminerCommands
         var orgIds = new Option<string[]?>("--org-ids", "Institution IDs");
         var off = new Option<int>("--offset", () => 0, "Offset");
         var size = new Option<int>("--size", () => 10, "Max 10");
-        var cmd = new Command("scholar", "[FREE] Search scholars") { name, org, orgIds, off, size };
-        cmd.SetHandler(async (string? n, string? o, string[]? oids, int offv, int sz, bool j) => {
+        var ingest = new Option<bool>("--ingest", () => false, "Ingest results into NongDb for semantic search");
+        var cmd = new Command("scholar", "[FREE] Search scholars") { name, org, orgIds, off, size, ingest };
+        cmd.SetHandler(async (string? n, string? o, string[]? oids, int offv, int sz, bool ig, bool j) => {
             var r = await new AminerClient().SearchScholarsAsync(n, o, oids, offv, sz);
             W(jo, "scholar", $"{r.Total} scholars", r, r.Items.Select(s => (object)new {
                 s.Id, s.Name, s.NameZh, display = s.DisplayName, s.CitationCount,
                 s.Interests, s.Org, s.OrgId, s.OrgZh, s.Nation, profileUrl = s.ProfileUrl
-            }));
-        }, name, org, orgIds, off, size, jo); return cmd;
+            }), ingest: ig, query: n ?? "", toText: s => $"{s.DisplayName}\n{s.Interests} ({s.Org})");
+        }, name, org, orgIds, off, size, ingest, jo); return cmd;
     }
 
     // ── FREE: aminer paper ─────────────────────────────
@@ -63,11 +65,13 @@ public static class AminerCommands
         var q = new Option<string>("--title", "Paper title") { IsRequired = true };
         var pg = new Option<int>("--page", () => 1, "Page (starts at 1)");
         var sz = new Option<int>("--size", () => 10, "Max 20");
-        var cmd = new Command("paper", "[FREE] Search papers by title") { q, pg, sz };
-        cmd.SetHandler(async (string t, int p, int s, bool j) => {
+        var ingest = new Option<bool>("--ingest", () => false, "Ingest results into NongDb for semantic search");
+        var cmd = new Command("paper", "[FREE] Search papers by title") { q, pg, sz, ingest };
+        cmd.SetHandler(async (string t, int p, int s, bool ig, bool j) => {
             var r = await new AminerClient().SearchPapersAsync(t, p, s);
-            W(jo, "paper", $"{r.Total} papers", r, r.Items.Select(P));
-        }, q, pg, sz, jo); return cmd;
+            W(jo, "paper", $"{r.Total} papers", r, r.Items.Select(P),
+                ingest: ig, query: t, toText: (AminerPaper x) => $"{x.DisplayTitle}\n{x.AbstractSlice}");
+        }, q, pg, sz, ingest, jo); return cmd;
     }
 
     // ── FREE: aminer rec ───────────────────────────────
@@ -288,8 +292,25 @@ public static class AminerCommands
         }, id, jo); return cmd; }
 
     // ── helpers ────────────────────────────────────────
-    static void W<T>(Option<bool> jo, string cmd, string sum, AminerResult<T> r, IEnumerable<object> items)
-    { var o = JsonOutput.Ok(cmd, sum, new { r.Success, r.Total, r.ErrorCode, r.ErrorMessage, items }); o.Metrics["items"] = r.Items.Count; Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts)); }
+    static void W<T>(Option<bool> jo, string cmd, string sum, AminerResult<T> r, IEnumerable<object> items,
+        bool ingest = false, string? query = null, Func<T, string>? toText = null)
+    {
+        var o = JsonOutput.Ok(cmd, sum, new { r.Success, r.Total, r.ErrorCode, r.ErrorMessage, items });
+        o.Metrics["items"] = r.Items.Count;
+
+        if (ingest && r.Success && r.Items.Count > 0 && query != null && toText != null)
+        {
+            try
+            {
+                var texts = r.Items.Select(i => toText(i)).Where(t => !string.IsNullOrWhiteSpace(t));
+                var count = IngestHelper.IngestTexts(texts, query, "aminer", cmd);
+                o.Metrics["ingested"] = count;
+            }
+            catch { }
+        }
+
+        Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+    }
 
     static object P(AminerPaper p) => new {
         p.Id, p.Title, p.TitleZh, displayTitle = p.DisplayTitle, p.Doi, p.Year,
