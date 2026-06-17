@@ -14,7 +14,7 @@ public static class SearchCommands
 {
     public static Command Create(Option<bool> jsonOpt)
     {
-        var cmd = new Command("search", "Semantic search across document blocks");
+        var cmd = new Command("search", "Semantic search across ingested document blocks. Sources must be ingested first with --ingest flag.");
 
         var queryArg = new Argument<string>("query", "Search query text");
         var limitOpt = new Option<int>("--limit", () => 5, "Max results (1-20)");
@@ -114,12 +114,30 @@ public static class SearchCommands
                             ? $"[{i + 1}] [{r.Score:F4}] {r.DocName} / {r.BlockType}"
                             : $"[{i + 1}] {r.DocName} / {r.BlockType}";
                         Console.WriteLine(prefix);
-                        // Truncate long text
                         var displayText = r.Text.Length > 300
                             ? r.Text[..297] + "..."
                             : r.Text;
                         Console.WriteLine($"  {displayText}");
                         Console.WriteLine();
+                    }
+                }
+
+                // Hint when empty
+                if (topK.Count == 0 && allResults.Count == 0)
+                {
+                    var hint = "No documents ingested. First run:\n" +
+                               "  nong word dissect paper.docx -o slice --ingest\n" +
+                               "  nong pdf dissect guide.pdf -o slice --ingest\n" +
+                               "  nong inspect diagnose paper.docx --ingest\n" +
+                               "  nong lit search \"query\" --ingest";
+                    if (json)
+                    {
+                        var issues = new List<Issue> { new() { Id = "empty_index", Severity = "Info", Message = hint } };
+                        Console.Error.WriteLine(JsonSerializer.Serialize(new { status = "ok", command = "search", summary = "0 results", data = new { count = 0, items = Array.Empty<object>() }, issues, artifacts = new { }, metrics = new { totalBlocks = 0, durationMs = sw.ElapsedMilliseconds }, errors = Array.Empty<object>(), meta = new { durationMs = 0, version = "4.5.0" } }, CliHelpers.JsonOpts));
+                    }
+                    else
+                    {
+                        Console.Error.WriteLine(hint);
                     }
                 }
             }

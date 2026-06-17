@@ -1,5 +1,6 @@
 using System.CommandLine;
 using System.Text.Json;
+using Angri450.Nong.Data;
 using Nong.Cli.Common;
 using Nong.Inspect;
 
@@ -35,9 +36,10 @@ public static class InspectCommands
     static Command CreateDiagnose(Option<bool> jsonOpt)
     {
         var fileArg = new Argument<string>("file", "Path to paper text file (.txt)");
-        var cmd = new Command("diagnose", "Full paper quality diagnosis pipeline") { fileArg };
+        var ingestOpt = new Option<bool>("--ingest", () => false, "Ingest diagnosis results into NongDb for semantic search");
+        var cmd = new Command("diagnose", "Full paper quality diagnosis pipeline") { fileArg, ingestOpt };
 
-        cmd.SetHandler((string file, bool json) =>
+        cmd.SetHandler((string file, bool ingest, bool json) =>
         {
             var err = CliHelpers.ValidateTextFile(file);
             if (err != null)
@@ -159,8 +161,33 @@ public static class InspectCommands
                 }
             }
 
+            // Ingest diagnosis results into NongDb
+            if (ingest)
+            {
+                try
+                {
+                    var blocks = new List<string>();
+                    blocks.Add($"Paper Type: {result.PaperType} (match: {result.TypeMatchPercent}%)");
+                    blocks.Add($"Recommended: data={result.RecommendedData}, methods={result.RecommendedMethods}");
+                    blocks.Add($"Gap Grade: {result.GapGrade.等级} — {result.GapGrade.判断标准}");
+                    foreach (var e in result.Evidence)
+                        blocks.Add($"[Evidence/{e.优先级}] {e.诊断项目}: {e.修改建议}");
+                    foreach (var d in result.DataReqs)
+                        blocks.Add($"[DataReq] {d.项目}: {d.最低补充要求}");
+                    foreach (var q in result.QualityIssues)
+                        blocks.Add($"[Quality/{q.类别}] {q.具体问题} → {q.最低修改要求}");
+                    foreach (var r in result.ReferenceRisks)
+                        blocks.Add($"[RefRisk/{r.文献问题}] {r.修改建议}");
+                    var count = IngestHelper.IngestTexts(blocks, file, "inspect", "diagnosis");
+                    if (!json) Console.Error.WriteLine($"[ingest] {count} diagnosis blocks saved to nong.db");
+                }
+                catch (Exception ex)
+                {
+                    if (!json) Console.Error.WriteLine($"[ingest] warning: {ex.Message}");
+                }
+            }
 
-        }, fileArg, jsonOpt);
+        }, fileArg, ingestOpt, jsonOpt);
 
         return cmd;
     }

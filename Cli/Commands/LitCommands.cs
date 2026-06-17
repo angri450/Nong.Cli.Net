@@ -97,9 +97,9 @@ public static class LitCommands
         var profileOpt = new Option<string>("--profile", () => "balanced", "balanced | classic | recent");
         var outOpt = new Option<string?>("-o", "Optional JSON output file");
         var modeOpt = new Option<string>("--mode", () => "strict", "strict | recall | none");
-        var cacheOpt = new Option<bool>("--cache", () => false, "Store results as unified literature list object in nong.db");
-        var cmd = new Command("search", "Search foreign academic literature via OpenAlex/Crossref/Unpaywall") { queryOpt, sourcesOpt, limitOpt, profileOpt, outOpt, modeOpt, cacheOpt };
-        cmd.SetHandler(async (string query, string sources, int limit, string profile, string? outputPath, string mode, bool cache, bool json) =>
+        var ingestOpt = new Option<bool>(new[] { "--ingest", "--cache" }, () => false, "Ingest search results into NongDb for semantic search");
+        var cmd = new Command("search", "Search foreign academic literature via OpenAlex/Crossref/Unpaywall") { queryOpt, sourcesOpt, limitOpt, profileOpt, outOpt, modeOpt, ingestOpt };
+        cmd.SetHandler(async (string query, string sources, int limit, string profile, string? outputPath, string mode, bool ingest, bool json) =>
         {
             var pipeline = new LiteratureSearchPipeline();
             var request = new LiteratureSearchRequest
@@ -110,7 +110,8 @@ public static class LitCommands
 
             // Store as unified literature list object (stage D: execution req #4)
             string? listId = null;
-            if (cache && result.Records.Count > 0)
+            var shouldCache = ingest;
+            if (shouldCache && result.Records.Count > 0)
             {
                 using var ctx = new IngestionContext();
                 var hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(query)))[..12];
@@ -140,7 +141,7 @@ public static class LitCommands
             var output = JsonOutput.Ok("lit search", $"Literature search returned {result.Records.Count} record(s)", new { records = result.Records, metrics, issues = Array.Empty<object>() });
             output.Metrics = metrics;
             Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
-        }, queryOpt, sourcesOpt, limitOpt, profileOpt, outOpt, modeOpt, cacheOpt, jsonOpt);
+        }, queryOpt, sourcesOpt, limitOpt, profileOpt, outOpt, modeOpt, ingestOpt, jsonOpt);
         return cmd;
     }
 

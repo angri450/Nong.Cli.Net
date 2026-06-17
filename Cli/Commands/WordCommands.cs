@@ -1213,9 +1213,10 @@ public static class WordCommands
     {
         var fileArg = new Argument<string>("file", "Path to .docx file");
         var outOpt = new Option<string>(new[] { "-o", "--output" }, "Output directory for full one-cut three-stream slice");
-        var cmd = new Command("dissect", "Format fingerprint or full nongmark slice") { fileArg, outOpt };
+        var ingestOpt = new Option<bool>("--ingest", () => false, "Auto-import dissect output into NongDb for semantic search");
+        var cmd = new Command("dissect", "Format fingerprint or full nongmark slice") { fileArg, outOpt, ingestOpt };
 
-        cmd.SetHandler((string file, string? output, bool json) =>
+        cmd.SetHandler((string file, string? output, bool ingest, bool json) =>
         {
             var err = CliHelpers.ValidateDocxFile(file);
             if (err != null) { CliHelpers.WriteError("word dissect", err, json); return; }
@@ -1244,6 +1245,17 @@ public static class WordCommands
                         Console.WriteLine($"Sliced to {Path.GetFullPath(output)}: {result.BlockCount} blocks");
                         if (result.Warnings.Count > 0)
                             foreach (var w in result.Warnings) Console.Error.WriteLine($"[WARN] {w}");
+                    }
+                    // Auto-ingest into NongDb when --ingest flag is set
+                    if (ingest)
+                    {
+                        try
+                        {
+                            using var ctx = new Angri450.Nong.Data.IngestionContext();
+                            var ir = ctx.IngestSlice(file, output, "word", "dissect");
+                            if (!json) Console.Error.WriteLine($"[ingest] {ir.Blocks} blocks + {ir.Images} images imported to nong.db");
+                        }
+                        catch (Exception ex) { if (!json) Console.Error.WriteLine($"[ingest] warning: {ex.Message}"); }
                     }
                     return;
                 }
@@ -1317,12 +1329,10 @@ public static class WordCommands
                     ErrorCodes.InternalError with { Message = ex.Message }, json);
             }
 
-        }, fileArg, outOpt, jsonOpt);
+        }, fileArg, outOpt, ingestOpt, jsonOpt);
 
         return cmd;
     }
-
-    // ===== word merge =====
 
     static Command CreateMerge(Option<bool> jsonOpt)
     {
