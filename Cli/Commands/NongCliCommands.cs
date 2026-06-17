@@ -14,7 +14,86 @@ public static class NongCliCommands
 
         cmd.AddCommand(CreateInit(jsonOpt));
         cmd.AddCommand(CreateWhere(jsonOpt));
+        cmd.AddCommand(CreateInstallEmbedding(jsonOpt));
 
+        return cmd;
+    }
+
+    static Command CreateInstallEmbedding(Option<bool> jsonOpt)
+    {
+        var cmd = new Command("install-embedding", "Install jina-embeddings-v5-text-nano ONNX model for semantic search");
+        cmd.SetHandler((bool json) =>
+        {
+            try
+            {
+                var modelDir = Path.Combine(NongWorkplace.Dir, "models", "jina-v5-nano");
+                var onnxPath = Path.Combine(modelDir, "model_int8.onnx");
+                var tokPath = Path.Combine(modelDir, "tokenizer.json");
+
+                if (File.Exists(onnxPath) && File.Exists(tokPath))
+                {
+                    var msg = $"Model already installed at {modelDir}";
+                    if (json)
+                    {
+                        var oj = JsonOutput.Ok("nongcli install-embedding", msg,
+                            new { path = modelDir, ready = true });
+                        Console.WriteLine(JsonSerializer.Serialize(oj, CliHelpers.JsonOpts));
+                    }
+                    else
+                    {
+                        Console.WriteLine(msg);
+                        Console.WriteLine("  nong search is ready to use.");
+                    }
+                    return;
+                }
+
+                // Model not installed — print instructions
+                Directory.CreateDirectory(modelDir);
+
+                var modelDirForward = modelDir.Replace('\\', '/');
+                var instructions = string.Join("\n",
+                    $"Embedding model not found at: {modelDir}",
+                    "",
+                    "Manual install (one-time setup):",
+                    "  1. Download from modelscope:",
+                    $"     git clone --depth 1 https://www.modelscope.cn/jinaai/jina-embeddings-v5-text-nano.git {modelDirForward}",
+                    "",
+                    "  2. Export ONNX model (requires Python):",
+                    "     pip install optimum onnx onnxruntime transformers",
+                    $"     python -c \"from optimum.onnxruntime import ORTModelForFeatureExtraction; m=ORTModelForFeatureExtraction.from_pretrained('{modelDirForward}',export=True); m.save_pretrained('{modelDirForward}')\"",
+                    "",
+                    "  3. Then quantize:",
+                    $"     python -c \"from onnxruntime.quantization import quantize_dynamic,QuantType; quantize_dynamic('{modelDirForward}/model.onnx','{modelDirForward}/model_int8.onnx',weight_type=QuantType.QInt8)\"",
+                    "",
+                    $"  Place both files in {modelDir}:",
+                    "    - model_int8.onnx (~60 MB)",
+                    "    - tokenizer.json  (~17 MB)",
+                    "",
+                    "See docs for pre-packaged model download.");
+
+                if (json)
+                {
+                    var data = new Dictionary<string, object?>
+                    {
+                        ["path"] = modelDir,
+                        ["ready"] = false,
+                        ["instructions"] = instructions,
+                    };
+                    var oj = JsonOutput.Ok("nongcli install-embedding",
+                        "Model not installed. Follow instructions to install.", data);
+                    Console.WriteLine(JsonSerializer.Serialize(oj, CliHelpers.JsonOpts));
+                }
+                else
+                {
+                    Console.WriteLine(instructions);
+                }
+            }
+            catch (Exception ex)
+            {
+                CliHelpers.WriteError("nongcli install-embedding",
+                    ErrorCodes.InternalError with { Message = ex.Message }, json);
+            }
+        }, jsonOpt);
         return cmd;
     }
 

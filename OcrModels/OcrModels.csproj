@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>Angri450.Nong.OcrModels</AssemblyName>
     <PackageId>Angri450.Nong.OcrModels</PackageId>
-    <Version>4.4.1</Version>
+    <Version>4.5.0</Version>
     <Authors>angri450</Authors>
     <Description>PP-OCRv6 model assets — dictionaries for medium/small/tiny tiers. Consumed by Nong CLI OCR commands. No native binaries.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>

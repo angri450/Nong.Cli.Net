@@ -34,6 +34,14 @@
         "resolved": "17.11.1",
         "contentHash": "nPJqrcA5iX+Y0kqoT3a+pD/8lrW/V7ayqnEJQsTonSoPz59J8bmoQhcSN4G8+UJ64Hkuf0zuxnfuj2lkHOq4cA=="
       },
+      "Microsoft.ML.OnnxRuntime.Managed": {
+        "type": "Transitive",
+        "resolved": "1.20.0",
+        "contentHash": "oo5zUEnnVFD0vFLAiHqj2ya48nVxhPwonjIT8uT7QXv/oHfDHa0u+o0yUKERVssqPtyt5D5xiBAiHjZintu7tg==",
+        "dependencies": {
+          "System.Memory": "4.5.5"
+        }
+      },
       "Microsoft.TestPlatform.ObjectModel": {
         "type": "Transitive",
         "resolved": "17.11.1",
@@ -78,6 +86,11 @@
         "type": "Transitive",
         "resolved": "10.0.2",
         "contentHash": "JTpM4z0wpoIHHDvlCU27HsXo+zVnpWib94HXQpzzr+jc/P9NYf4w353AK4MXyGq/grm1mbLi7eXsOsDU8sGmNg=="
+      },
+      "System.Memory": {
+        "type": "Transitive",
+        "resolved": "4.5.5",
+        "contentHash": "XIWiDvKPXaTveaB7HVganDlOCRoj03l+jrwNvcge/t8vhGYKvqV+dMv6G4SAX2NoNmN0wZfVPTAlFwZcZvVOUw=="
       },
       "System.Reflection.Metadata": {
         "type": "Transitive",
@@ -138,14 +151,15 @@
       "Angri450.Nong.Data": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.ThirdParty": "[4.3.0, )"
+          "Angri450.Nong.ThirdParty": "[4.5.0, )",
+          "Microsoft.ML.OnnxRuntime.Managed": "[1.20.0, )"
         }
       },
       "Angri450.Nong.Literature": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.Data": "[4.3.0, )",
-          "Angri450.Nong.ThirdParty": "[4.3.0, )"
+          "Angri450.Nong.Data": "[4.5.0, )",
+          "Angri450.Nong.ThirdParty": "[4.5.0, )"
         }
       },
       "Angri450.Nong.Pandoc": {
@@ -162,15 +176,15 @@
       "pdfcore": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.Pandoc": "[4.3.0, )",
-          "Angri450.Nong.ThirdParty": "[4.3.0, )"
+          "Angri450.Nong.Pandoc": "[4.5.0, )",
+          "Angri450.Nong.ThirdParty": "[4.5.0, )"
         }
       },
       "pptxcore": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.Pandoc": "[4.3.0, )",
-          "Angri450.Nong.ThirdParty": "[4.3.0, )"
+          "Angri450.Nong.Pandoc": "[4.5.0, )",
+          "Angri450.Nong.ThirdParty": "[4.5.0, )"
         }
       }
     }

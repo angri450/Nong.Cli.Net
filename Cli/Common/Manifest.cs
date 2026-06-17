@@ -539,6 +539,15 @@ public static class Manifest
             Parameters: [new("path", "string", "Target directory (default: current directory)")]));
         list.Add(new("nongcli where", "Print the resolved NongWorkplace root path", "nongcli", [],
             Parameters: []));
+        list.Add(new("nongcli install-embedding", "Install jina-embeddings-v5-text-nano ONNX model for semantic search", "nongcli", [],
+            Parameters: []));
+
+        // === search (implemented: 1 command) ===
+        list.Add(new("search", "Semantic vector search across ingested document blocks using jina-embeddings-v5-nano", "search", [],
+            Parameters: [new("query", "string", "Search query text", Required: true),
+                         new("limit", "integer", "Max results (default 5, max 20)"),
+                         new("format", "string", "Filter by document format: docx, pdf, xlsx, pptx"),
+                         new("scores", "boolean", "Include similarity scores")]));
 
         return list;
     }

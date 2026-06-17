@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageId>Angri450.Nong.Aminer</PackageId>
     <AssemblyName>Angri450.Nong.Aminer</AssemblyName>
-    <Version>4.4.1</Version>
+    <Version>4.5.0</Version>
     <Authors>angri450</Authors>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Description>AMiner REST API client — scholar search, paper search, patent search, org search, venue search. Pure .NET HttpClient.</Description>
