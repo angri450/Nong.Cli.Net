@@ -9,7 +9,7 @@
     <PackageId>Angri450.Nong.Tool.Pptx</PackageId>
     <ToolCommandName>nong-pptx</ToolCommandName>
     <PackAsTool>true</PackAsTool>
-    <Version>4.2.0</Version>
+    <Version>4.2.1</Version>
     <Authors>angri450</Authors>
     <Description>PowerPoint operations</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -21,6 +21,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PptxCore.csproj" />
+    <ProjectReference Include="..\..\Data\Nong.Data.csproj" />
     <ProjectReference Include="..\..\ThirdParty\ThirdParty.csproj" />
   </ItemGroup>
   <ItemGroup>

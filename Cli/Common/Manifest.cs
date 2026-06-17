@@ -296,6 +296,18 @@ public static class Manifest
                          new("spec", "string", "Path to JSON pivot spec", Required: true),
                          new("o", "string", "Output .xlsx path", Required: true)]));
 
+        // === excel db (NongDb integration) ===
+        list.Add(new("excel db-import", "Import excel dissect output into NongDb", "excel", [],
+            Parameters: [new("slice-dir", "string", "Directory from excel dissect", Required: true),
+                         new("xlsx", "string", "Original .xlsx file", Required: true)]));
+        list.Add(new("excel db-list", "List documents in NongDb", "excel", []));
+        list.Add(new("excel db-blocks", "List blocks for a document", "excel", [],
+            Parameters: [new("document-id", "string", "Document ID from db-list", Required: true),
+                         new("type", "string", "Block type filter: paragraph, heading, table, image"),
+                         new("limit", "integer", "Max blocks to return (default 50)")]));
+        list.Add(new("excel db-images", "List extracted images for a document", "excel", [],
+            Parameters: [new("document-id", "string", "Document ID from db-list", Required: true)]));
+
         // === diagram (implemented: flowchart, network, tree) ===
         list.Add(new("diagram flowchart", "Flowchart from JSON spec", "diagram", [],
             Parameters: [new("spec", "string", "Path to JSON flowchart spec", Required: true),
@@ -332,6 +344,18 @@ public static class Manifest
         list.Add(new("pptx create", "Create pptx from JSON slide spec", "pptx", [],
             Parameters: [new("spec", "string", "Path to JSON slide spec file", Required: true),
                          new("o", "string", "Output .pptx path", Required: true)]));
+
+        // === pptx db (NongDb integration) ===
+        list.Add(new("pptx db-import", "Import pptx dissect output into NongDb", "pptx", [],
+            Parameters: [new("slice-dir", "string", "Directory from pptx dissect", Required: true),
+                         new("pptx", "string", "Original .pptx file", Required: true)]));
+        list.Add(new("pptx db-list", "List documents in NongDb", "pptx", []));
+        list.Add(new("pptx db-blocks", "List blocks for a document", "pptx", [],
+            Parameters: [new("document-id", "string", "Document ID from db-list", Required: true),
+                         new("type", "string", "Block type filter: paragraph, heading, table, image"),
+                         new("limit", "integer", "Max blocks to return (default 50)")]));
+        list.Add(new("pptx db-images", "List extracted images for a document", "pptx", [],
+            Parameters: [new("document-id", "string", "Document ID from db-list", Required: true)]));
 
         // === ocr (implemented: cloud, local, check-env, analyze-image, models, install-model, to-word) ===
         list.Add(new("ocr local", "Local PP-OCRv6 Chinese text recognition through pure .NET runtime (no Python required)", "ocr", [],

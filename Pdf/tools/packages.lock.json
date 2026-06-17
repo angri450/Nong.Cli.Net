@@ -50,7 +50,7 @@
       "Angri450.Nong.Data": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.ThirdParty": "[4.3.0, )"
+          "Angri450.Nong.ThirdParty": "[4.4.0, )"
         }
       },
       "Angri450.Nong.Pandoc": {
@@ -67,8 +67,8 @@
       "pdfcore": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.Pandoc": "[4.3.0, )",
-          "Angri450.Nong.ThirdParty": "[4.3.0, )"
+          "Angri450.Nong.Pandoc": "[4.4.0, )",
+          "Angri450.Nong.ThirdParty": "[4.4.0, )"
         }
       }
     }

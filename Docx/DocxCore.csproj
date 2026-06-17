@@ -6,7 +6,7 @@
     <RootNamespace>DocxCore</RootNamespace>
     <AssemblyName>Angri450.Nong.Docx</AssemblyName>
     <PackageId>Angri450.Nong.Docx</PackageId>
-    <Version>4.4.0</Version>
+    <Version>4.4.1</Version>
     <Authors>angri450</Authors>
     <Description>Pure OpenXML Word engine for reading, writing, and formatting .docx files. Provides builders, template fill, style engine, image embedding, OOXML repair, footnotes/endnotes, track changes, and document merge. Not a COM wrapper. For paper/official-document/letter writing, see Angri450.Nong.Genre.</Description>
     <DebugType>embedded</DebugType>

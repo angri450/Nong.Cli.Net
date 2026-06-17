@@ -16,6 +16,10 @@ public static class PptxCommands
         cmd.AddCommand(CreateSlides(jsonOpt));
         cmd.AddCommand(CreateDissect(jsonOpt));
         cmd.AddCommand(CreateCreatePptx(jsonOpt));
+        cmd.AddCommand(CreateDbImport(jsonOpt));
+        cmd.AddCommand(CreateDbList(jsonOpt));
+        cmd.AddCommand(CreateDbBlocks(jsonOpt));
+        cmd.AddCommand(CreateDbImages(jsonOpt));
         return cmd;
     }
 
@@ -388,6 +392,101 @@ public static class PptxCommands
         var entry = zip.CreateEntry(entryName, CompressionLevel.Optimal);
         using var writer = new System.IO.StreamWriter(entry.Open(), System.Text.Encoding.UTF8);
         writer.Write(content);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // pptx db — unified ingestion via IngestionContext
+    // ════════════════════════════════════════════════════════════
+
+    static Command CreateDbImport(Option<bool> jsonOpt)
+    {
+        var sliceArg = new Argument<string>("slice-dir", "Directory from pptx dissect");
+        var pptxArg = new Argument<string>("pptx", "Original .pptx file");
+        var cmd = new Command("db-import", "Import pptx dissect output into NongDb (unified ingestion)") { sliceArg, pptxArg };
+        cmd.SetHandler((string dir, string pptx, bool json) =>
+        {
+            if (!Directory.Exists(dir)) { CliHelpers.WriteError("pptx db-import", ErrorCodes.FileNotFound with { Message = $"Directory not found: {dir}" }, json); return; }
+            if (!File.Exists(pptx)) { CliHelpers.WriteError("pptx db-import", ErrorCodes.FileNotFound with { Message = $"File not found: {pptx}" }, json); return; }
+
+            using var ctx = new Angri450.Nong.Data.IngestionContext();
+            var result = ctx.IngestSlice(pptx, dir, "pptx", "db-import");
+
+            var shaShort = result.Sha256[..12];
+            var dbPath = Path.Combine(Angri450.Nong.NongWorkplace.Cache, "nong.db");
+
+            var o = JsonOutput.Ok("pptx db-import", $"Imported: {result.Blocks} blocks, {result.Images} images", new
+            {
+                documentId = result.DocumentId, result.FileName, result.Format, sha = shaShort,
+                result.Blocks, result.Images,
+                result.HasFormat,
+                dbFile = dbPath,
+                runId = result.RunId
+            });
+            o.Metrics["blocks"] = result.Blocks; o.Metrics["images"] = result.Images;
+            if (json) Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+            else Console.WriteLine($"Imported {result.FileName}: {result.Blocks} blocks, {result.Images} images -> nong.db");
+        }, sliceArg, pptxArg, jsonOpt);
+        return cmd;
+    }
+
+    static Command CreateDbList(Option<bool> jsonOpt)
+    {
+        var cmd = new Command("db-list", "List documents in NongDb");
+        cmd.SetHandler((bool json) =>
+        {
+            using var ctx = new Angri450.Nong.Data.IngestionContext();
+            var docs = ctx.QueryDocuments();
+            var o = JsonOutput.Ok("pptx db-list", $"{docs.Count} documents", new
+            {
+                count = docs.Count,
+                items = docs.Select(d => new { id = d.Id.ToString(), d.FileName, d.Format, d.FileSize, sha = d.Sha256.Length >= 12 ? d.Sha256[..12] : d.Sha256, d.RegisteredAt })
+            });
+            o.Metrics["documents"] = docs.Count;
+            Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+        }, jsonOpt);
+        return cmd;
+    }
+
+    static Command CreateDbBlocks(Option<bool> jsonOpt)
+    {
+        var idArg = new Argument<string>("document-id", "Document ID from db-list");
+        var typeArg = new Option<string?>("--type", "Block type filter: paragraph, heading, table, image");
+        var limitArg = new Option<int>("--limit", () => 50);
+        var cmd = new Command("db-blocks", "List blocks for a document") { idArg, typeArg, limitArg };
+        cmd.SetHandler((string id, string? type, int limit, bool json) =>
+        {
+            using var ctx = new Angri450.Nong.Data.IngestionContext();
+            var blocks = ctx.QueryBlocks(id, type, limit);
+
+            var o = JsonOutput.Ok("pptx db-blocks", $"{blocks.Count} blocks", new
+            {
+                count = blocks.Count,
+                items = blocks.Select(b => new { id = b.Id.ToString(), b.BlockId, b.BlockType, text = b.Text?.Length > 200 ? b.Text[..197] + "..." : b.Text, b.Index })
+            });
+            o.Metrics["blocks"] = blocks.Count;
+            Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+        }, idArg, typeArg, limitArg, jsonOpt);
+        return cmd;
+    }
+
+    static Command CreateDbImages(Option<bool> jsonOpt)
+    {
+        var idArg = new Argument<string>("document-id", "Document ID from db-list");
+        var cmd = new Command("db-images", "List extracted images for a document") { idArg };
+        cmd.SetHandler((string id, bool json) =>
+        {
+            using var ctx = new Angri450.Nong.Data.IngestionContext();
+            var images = ctx.QueryAssets(id, "image/");
+
+            var o = JsonOutput.Ok("pptx db-images", $"{images.Count} images", new
+            {
+                count = images.Count,
+                items = images.Select(i => new { id = i.Id.ToString(), i.FileName, i.MimeType, i.Width, i.Height, i.Usage, dataSize = i.Data?.Length ?? 0 })
+            });
+            o.Metrics["images"] = images.Count;
+            Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+        }, idArg, jsonOpt);
+        return cmd;
     }
 }
 

@@ -47,6 +47,12 @@
           "System.Formats.Nrbf": "9.0.0"
         }
       },
+      "Angri450.Nong.Data": {
+        "type": "Project",
+        "dependencies": {
+          "Angri450.Nong.ThirdParty": "[4.4.0, )"
+        }
+      },
       "Angri450.Nong.Pandoc": {
         "type": "Project"
       },
@@ -61,8 +67,8 @@
       "pptxcore": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.Pandoc": "[4.1.0, )",
-          "Angri450.Nong.ThirdParty": "[4.1.0, )"
+          "Angri450.Nong.Pandoc": "[4.4.0, )",
+          "Angri450.Nong.ThirdParty": "[4.4.0, )"
         }
       }
     }
