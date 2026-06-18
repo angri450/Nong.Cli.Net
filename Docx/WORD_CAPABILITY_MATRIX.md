@@ -139,3 +139,6 @@ Regression now includes combined long+wide reflow: row chunks, column groups, re
 | TabStops (paragraph-level) | yes | `DocxTabStops.cs` — Add/ApplyTo/ReadFrom + ParagraphBuilder.TabStop + NongMark `tabs:` frontmatter + CLI `word tab-stops` |
 | Table merge/split (create API) | yes | `TableBuilder.MergeHorizontal/MergeVertical/MergeRange/SplitAt/FromExisting` — gridSpan + vMerge restart/continue |
 | NongMark DSL colspan/rowspan | yes | Pipe table `[colspan=N]` / `[rowspan=N]` markers parsed in `NongMarkDocumentBuilder.AppendTable` |
+| Numbering creation API | yes | `DocxNumbering.cs` — CreateList/List with numId max+100 compat, 6 numbering kinds, multi-level |
+| Field result half-expansion | yes | `FieldBlock.CachedResult` in `WordSlice.cs` + CLI `word fields` |
+| Style inheritance resolution | yes | `StyleResolver.cs` — ResolveParagraph/ResolveCell with docDefaults→style→direct chain |

@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>ImagingCore</RootNamespace>
     <IsPackable>false</IsPackable>
-    <Version>4.1.2</Version>
+    <Version>5.0.0</Version>
     <Authors>angri450</Authors>
     <Description>Pure .NET image analysis and content-aware cropping for Nong CLI. Uses SkiaSharp for pixel-level border detection — auto-trim margins, uniform resize. No AI dependency.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
