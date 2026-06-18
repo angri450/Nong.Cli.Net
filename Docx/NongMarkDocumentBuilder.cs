@@ -38,6 +38,9 @@ public sealed class NongMarkDocumentBuilder
     readonly Dictionary<string, W.Paragraph> _blockIdToParagraph = new(StringComparer.Ordinal);
     int _blockSeq;
 
+    // V5: pending tab stops for the next paragraph (from frontmatter tabs: field)
+    DocxTabStops? _pendingTabStops;
+
     static readonly Regex AttributeRegex = new(
         @"(?<key>[\w-]+)\s*=\s*(?:""(?<dq>[^""]*)""|'(?<sq>[^']*)'|(?<bare>[^\s}]+))",
         RegexOptions.Compiled);
@@ -427,8 +430,85 @@ public sealed class NongMarkDocumentBuilder
     void FlushParagraph(List<string> paragraph)
     {
         if (paragraph.Count == 0) return;
-        AppendParagraph(JoinParagraphLines(paragraph), "Normal");
+        // V5: extract frontmatter lines (key: value) before joining text
+        _pendingTabStops = null;
+        var contentLines = new List<string>();
+        foreach (var line in paragraph)
+        {
+            var trimmed = line.Trim();
+            if (TryParseFrontmatterLine(trimmed, out var key, out var value))
+            {
+                if (key == "tabs")
+                    _pendingTabStops = ParseTabsFrontmatter(value);
+            }
+            else
+            {
+                contentLines.Add(line);
+            }
+        }
+        var text = JoinParagraphLines(contentLines);
+        if (string.IsNullOrWhiteSpace(text)) return;
+        AppendParagraph(text, "Normal");
         paragraph.Clear();
+    }
+
+    static bool TryParseFrontmatterLine(string line, out string key, out string value)
+    {
+        key = "";
+        value = "";
+        var colon = line.IndexOf(':');
+        if (colon <= 0 || colon >= line.Length - 1) return false;
+        key = line[..colon].Trim();
+        if (key.Contains(' ')) return false;
+        value = line[(colon + 1)..].Trim();
+        return key.Length > 0 && value.Length > 0;
+    }
+
+    static DocxTabStops? ParseTabsFrontmatter(string value)
+    {
+        var inner = value.Trim('[', ']', ' ');
+        if (string.IsNullOrEmpty(inner)) return null;
+        var tabs = new DocxTabStops();
+        foreach (var part in inner.Split(','))
+        {
+            var spec = ParseTabStopSpec(part.Trim());
+            if (spec != null) tabs.Add(spec);
+        }
+        return tabs.Stops.Count > 0 ? tabs : null;
+    }
+
+    static TabStopSpec? ParseTabStopSpec(string part)
+    {
+        var parts = part.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0) return null;
+
+        var posStr = parts[0];
+        if (!posStr.EndsWith("cm") || !double.TryParse(posStr[..^2], out var posCm)) return null;
+
+        var alignment = TabAlignment.Left;
+        var leader = TabLeader.None;
+
+        for (int i = 1; i < parts.Length; i++)
+        {
+            var token = parts[i].ToLowerInvariant();
+            switch (token)
+            {
+                case "left": alignment = TabAlignment.Left; break;
+                case "center": alignment = TabAlignment.Center; break;
+                case "right": alignment = TabAlignment.Right; break;
+                case "decimal": alignment = TabAlignment.Decimal; break;
+                case "bar": alignment = TabAlignment.Bar; break;
+                case "num": alignment = TabAlignment.Num; break;
+                case "dot": leader = TabLeader.Dot; break;
+                case "hyphen": leader = TabLeader.Hyphen; break;
+                case "underscore": leader = TabLeader.Underscore; break;
+                case "heavy": leader = TabLeader.Heavy; break;
+                case "middledot": leader = TabLeader.MiddleDot; break;
+                case "none": leader = TabLeader.None; break;
+            }
+        }
+
+        return new TabStopSpec(posCm, alignment, leader);
     }
 
     static string JoinParagraphLines(IEnumerable<string> lines) =>
@@ -576,6 +656,15 @@ public sealed class NongMarkDocumentBuilder
         AppendBeforeSectPr(paragraph);
         TrackBlock(paragraph, "p");
         _paragraphs++;
+
+        // V5: apply pending tab stops from frontmatter
+        if (_pendingTabStops != null && _pendingTabStops.Stops.Count > 0)
+        {
+            var ppr = paragraph.GetFirstChild<W.ParagraphProperties>();
+            if (ppr == null) { ppr = new W.ParagraphProperties(); paragraph.PrependChild(ppr); }
+            _pendingTabStops.ApplyTo(ppr);
+            _pendingTabStops = null;
+        }
     }
 
     /// <summary>Track paragraph blockId for style application (Bug 8).</summary>

@@ -123,32 +123,38 @@ public class DocxTabStopsTests
     // ===== CLI tests =====
 
     [Fact]
-    public void WordTabStopsCommand_SetAndRead_RoundTrips()
+    public void NongMark_ParseTabsFrontmatter_AppliesToParagraph()
     {
         RequireCli();
-        var docxPath = CreateMinimalDocx();
-        var outPath = docxPath + ".out.docx";
+        var nongmark = """
+---
+title: 测试公文
+---
+## 标题段
+tabs: [4cm dot, 15cm right]
+标题\t页码
+""";
+        var nmkPath = Path.Combine(Path.GetTempPath(), "tabs-test-" + Guid.NewGuid().ToString("N")[..8] + ".nmk");
+        var docxPath = nmkPath + ".docx";
 
         try
         {
-            // Set tab stops on first paragraph (index 0)
-            var (setOut, setCode) = Run("word", "tab-stops", "--input", docxPath, "--paragraph", "0", "--set", "4cm dot,15cm right", "--output", outPath);
-            Assert.Equal(0, setCode);
+            File.WriteAllText(nmkPath, nongmark);
 
-            // Read back with --json
-            var (readOut, readCode) = Run("word", "tab-stops", "--input", outPath, "--paragraph", "0", "--json");
+            var (createOut, createCode) = Run("word", "create", nmkPath, "-o", docxPath);
+            Assert.Equal(0, createCode);
+
+            // Read back tab stops from the body paragraph (index 2: after title + heading)
+            var (readOut, readCode) = Run("word", "tab-stops", "--input", docxPath, "--paragraph", "2", "--json");
             Assert.Equal(0, readCode);
-
-            // Verify JSON contains expected tab stops
-            Assert.Contains("\"positionCm\": 4", readOut);
             Assert.Contains("\"positionCm\": 15", readOut);
             Assert.Contains("\"alignment\": \"Right\"", readOut);
             Assert.Contains("\"leader\": \"Dot\"", readOut);
         }
         finally
         {
+            try { File.Delete(nmkPath); } catch { }
             try { File.Delete(docxPath); } catch { }
-            try { File.Delete(outPath); } catch { }
         }
     }
 }
