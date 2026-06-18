@@ -30,6 +30,8 @@ public sealed class NongMarkDocumentBuilder
     string _fontEastAsia = "宋体";
     string _fontAscii = "Times New Roman";
     string _fontSizeHalfPt = "21";   // 10.5pt = 五号, OOXML uses half-points
+    bool _defaultBold;
+    bool _defaultItalic;
 
     // Bug 8: format specs and style→block mappings from frontmatter
     readonly Dictionary<string, NongMarkFormatSpec> _formats = new(StringComparer.Ordinal);
@@ -401,6 +403,23 @@ public sealed class NongMarkDocumentBuilder
             case "paragraph":
                 ApplyParagraphAttrs(attrs);
                 AppendParagraph(JoinParagraphLines(blockLines), attrs.TryGetValue("style", out var style) ? style : "Normal");
+                // V5.0.1: apply alignment and indent from paragraph block attrs
+                ApplyParagraphBlockAttrs(attrs);
+                ResetParagraphState();
+                break;
+            case "cover-block":
+                // V5.0.1: cover block — defaults to 二号(44)宋体居中无缩进
+                ApplyParagraphAttrs(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["font-size"] = "44",
+                    ["font-eastasia"] = "宋体",
+                    ["alignment"] = "center",
+                    ["first-line-indent"] = "0"
+                });
+                ApplyParagraphAttrs(attrs); // user attrs override defaults
+                AppendParagraph(JoinParagraphLines(blockLines), "CoverBlock");
+                ApplyParagraphBlockAttrs(attrs.Count > 0 ? attrs
+                    : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["alignment"] = "center" });
                 ResetParagraphState();
                 break;
             case "table":
@@ -626,6 +645,18 @@ public sealed class NongMarkDocumentBuilder
                 attrs[match.Groups["key"].Value] = value;
             }
         }
+        else
+        {
+            // V5.0.1: parse space-separated key=value pairs (no braces)
+            // e.g. "paragraph font-size=44 alignment=center bold=true"
+            var parts = header.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var part in parts.Skip(1)) // skip kind
+            {
+                var eq = part.IndexOf('=');
+                if (eq > 0 && eq < part.Length - 1)
+                    attrs[part[..eq].Trim()] = part[(eq + 1)..].Trim();
+            }
+        }
 
         return (kind, attrs);
     }
@@ -680,7 +711,7 @@ public sealed class NongMarkDocumentBuilder
         if (string.IsNullOrWhiteSpace(text)) return;
         var paragraph = new W.Paragraph(
             new W.ParagraphProperties(new W.ParagraphStyleId { Val = styleId }));
-        AppendInlineRuns(paragraph, text);
+        AppendInlineRuns(paragraph, text, defaultBold: _defaultBold);
         AppendBeforeSectPr(paragraph);
         TrackBlock(paragraph, "p");
         _paragraphs++;
@@ -1206,14 +1237,21 @@ public sealed class NongMarkDocumentBuilder
 
     void ApplyParagraphAttrs(IReadOnlyDictionary<string, string> attrs)
     {
-        if (attrs.TryGetValue("font", out var font))
+        if (attrs.TryGetValue("font", out var font)
+            || attrs.TryGetValue("font-eastasia", out font))
             _fontEastAsia = font;
-        if (attrs.TryGetValue("fontAscii", out var fontAscii))
+        if (attrs.TryGetValue("fontAscii", out var fontAscii)
+            || attrs.TryGetValue("font-ascii", out fontAscii))
             _fontAscii = fontAscii;
         if (attrs.TryGetValue("size", out var sizeStr) && double.TryParse(sizeStr, out var sizePt))
             _fontSizeHalfPt = ((int)(sizePt * 2)).ToString();
-        if (attrs.TryGetValue("sizeHalfPt", out var shp))
+        if (attrs.TryGetValue("sizeHalfPt", out var shp)
+            || attrs.TryGetValue("font-size", out shp))
             _fontSizeHalfPt = shp;
+        if (attrs.TryGetValue("bold", out var boldStr))
+            _defaultBold = bool.TryParse(boldStr, out var b) && b;
+        if (attrs.TryGetValue("italic", out var italicStr))
+            _defaultItalic = bool.TryParse(italicStr, out var it) && it;
     }
 
     void ResetParagraphState()
@@ -1221,6 +1259,48 @@ public sealed class NongMarkDocumentBuilder
         _fontEastAsia = "宋体";
         _fontAscii = "Times New Roman";
         _fontSizeHalfPt = "21";
+        _defaultBold = false;
+        _defaultItalic = false;
+    }
+
+    /// <summary>
+    /// V5.0.1: Apply paragraph-level attributes (alignment, indent) to the last
+    /// paragraph added to the body.
+    /// </summary>
+    void ApplyParagraphBlockAttrs(IReadOnlyDictionary<string, string> attrs)
+    {
+        // Get the last paragraph in body
+        var lastPara = _body.Elements<W.Paragraph>().LastOrDefault();
+        if (lastPara == null) return;
+
+        var ppr = lastPara.GetFirstChild<W.ParagraphProperties>();
+        if (ppr == null) { ppr = new W.ParagraphProperties(); lastPara.PrependChild(ppr); }
+
+        if (attrs.TryGetValue("alignment", out var alignment))
+        {
+            var jv = alignment.ToLowerInvariant() switch
+            {
+                "center" => W.JustificationValues.Center,
+                "right" => W.JustificationValues.Right,
+                "left" => W.JustificationValues.Left,
+                "both" => W.JustificationValues.Both,
+                _ => (W.JustificationValues?)null
+            };
+            if (jv.HasValue)
+                SetParaProp(ppr, new W.Justification { Val = jv.Value });
+        }
+
+        if (attrs.TryGetValue("first-line-indent", out var indentStr)
+            && int.TryParse(indentStr, out var indentVal))
+        {
+            SetParaProp(ppr, new W.Indentation { FirstLine = indentVal.ToString() });
+        }
+    }
+
+    static void SetParaProp<T>(W.ParagraphProperties ppr, T child) where T : OpenXmlElement
+    {
+        ppr.RemoveAllChildren<T>();
+        ppr.Append(child);
     }
 
     string ResolvePath(string path) =>

@@ -809,6 +809,8 @@ public static class WordAcademicFormatter
                 return ParagraphRole.Title;
             if (styleId.Equals("Caption", StringComparison.OrdinalIgnoreCase))
                 return ParagraphRole.TableCaption;
+            if (styleId.Equals("CoverBlock", StringComparison.OrdinalIgnoreCase))
+                return ParagraphRole.Empty; // V5.0.1: cover-block paragraphs untouched
         }
 
         if (paragraphIndex <= 2 && LooksLikeCoverTitle(text))

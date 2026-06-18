@@ -128,5 +128,6 @@ public static class StyleBuilder
         S(styles, "FootnoteText", "Footnote Text", "宋体", "Times New Roman", "18", JustificationValues.Both, line: "240");
         S(styles, "FootnoteReference", "Footnote Reference", "宋体", "Times New Roman", "18", JustificationValues.Both, line: "240");
         S(styles, "Title", "Title", "黑体", "Times New Roman", "32", JustificationValues.Center, bold: true);
+        S(styles, "CoverBlock", "Cover Block", "宋体", "Times New Roman", "44", JustificationValues.Center, bold: true);
     }
 }
