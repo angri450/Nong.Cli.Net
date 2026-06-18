@@ -90,9 +90,10 @@ public class OcrCommandTests
         var data = root.GetProperty("data");
         Assert.True(data.TryGetProperty("imageAnalyzer", out _));
         Assert.True(data.TryGetProperty("cloudToken", out _));
-        Assert.True(data.TryGetProperty("localModel", out _));
-        Assert.True(data.TryGetProperty("localDotNetPpOcrV6", out var local));
-        Assert.True(local.GetProperty("noPython").GetBoolean());
+        Assert.True(data.TryGetProperty("ocrV6Onnx", out var ocr));
+        Assert.True(ocr.GetProperty("noPython").GetBoolean());
+        Assert.Equal("pp-ocrv6-onnx", ocr.GetProperty("engine").GetString());
+        Assert.Equal("onnxruntime", ocr.GetProperty("runtime").GetString());
     }
 
     // ===== Test 2: analyze-image with missing file returns E001 =====
@@ -163,81 +164,31 @@ public class OcrCommandTests
         Assert.Equal("ok", root.GetProperty("status").GetString());
         Assert.Equal("ocr install-model", root.GetProperty("command").GetString());
         var data = root.GetProperty("data");
-        Assert.True(data.GetProperty("noPython").GetBoolean());
         Assert.Equal("pp-ocrv6-medium", data.GetProperty("modelId").GetString());
-        Assert.Equal("medium", data.GetProperty("size").GetString());
-        Assert.Equal("pp-ocrv6-dotnet-sdcb", data.GetProperty("engine").GetString());
-        Assert.Equal("cdn-download-pir-model", data.GetProperty("deployment").GetString());
-        Assert.Contains("PP-OCRv6_medium_det_infer.tar", data.GetProperty("detUrl").GetString());
-        Assert.Contains("PP-OCRv6_medium_rec_infer.tar", data.GetProperty("recUrl").GetString());
-        Assert.Contains("No Python", data.GetProperty("note").GetString());
+        Assert.True(data.TryGetProperty("modelDir", out _));
+        Assert.True(data.TryGetProperty("det", out var det));
+        Assert.Equal("det.onnx", det.GetProperty("file").GetString());
+        Assert.Contains("det_onnx", det.GetProperty("url").GetString());
+        Assert.Equal("ONNX Runtime (Microsoft.ML.OnnxRuntime, already included in nong CLI)", data.GetProperty("runtime").GetString());
     }
 
     [Fact(Skip = "ONNX migration — old install-model deleted")]
     public void InstallModel_FirstPartyRuntimeVersion_DoesNotUseCliVersion() { }
 
-    // ===== Test 7: install-model can explicitly enable upstream fallback =====
+    // ===== Test 7: install-model can explicitly enable upstream fallback (skip — old path deleted) =====
 
-    [Fact]
-    public void InstallModel_DryRun_ReportsExplicitUpstreamFallback()
-    {
-        RequireCli();
-        var (json, exit) = Run("ocr", "install-model", "pp-ocrv6-medium", "--dry-run", "--allow-upstream-fallback", "--json");
-        Assert.Equal(0, exit);
+    [Fact(Skip = "ONNX migration — old --allow-upstream-fallback deleted")]
+    public void InstallModel_DryRun_ReportsExplicitUpstreamFallback() { }
 
-        using var doc = Parse(json);
-        var data = doc.RootElement.GetProperty("data");
-        Assert.Equal("pp-ocrv6-medium", data.GetProperty("modelId").GetString());
-        Assert.Equal("cdn-download-pir-model", data.GetProperty("deployment").GetString());
-        Assert.True(data.GetProperty("noPython").GetBoolean());
-    }
-
-    // ===== Test 8: native extraction handles Windows/Linux/macOS files =====
+    // ===== Test 8: native extraction (skip — old code deleted) =====
 
     [Fact(Skip = "ONNX migration — old native runtime extraction deleted")]
     public void NativeRuntimeExtraction_AcceptsDllSoVersionedSoAndDylib() { }
 
-    // ===== Test 9: first-party local runtime bundle installs from directory source when present =====
+    // ===== Test 9: first-party nupkg bundle (skip — old code deleted) =====
 
-    [Fact]
-    public void InstallModel_LocalNupkgSource_UsesFirstPartyBundleWhenPresent()
-    {
-        if (!OperatingSystem.IsWindows())
-            return;
-
-        RequireCli();
-        var sourceDir = Path.Combine(RepoRoot, "nupkg");
-        if (!Directory.Exists(sourceDir))
-            return;
-
-        var packagePattern = $"Angri450.Nong.OcrRuntime.*.{ReadOcrRuntimeVersion()}.nupkg";
-        var packageExists = Directory.EnumerateFiles(sourceDir, packagePattern).Any();
-        if (!packageExists)
-            return;
-
-        var runtimeDir = Path.Combine(Path.GetTempPath(), "nong-runtime-install-" + Guid.NewGuid().ToString("N"));
-        try
-        {
-            var (json, exit) = RunWithEnv(
-                new Dictionary<string, string> { ["NONG_OCR_RUNTIME_DIR"] = runtimeDir },
-                "ocr", "install-model", "pp-ocrv6-medium", "--source", sourceDir, "--json");
-
-            Assert.Equal(0, exit);
-            using var doc = Parse(json);
-            var data = doc.RootElement.GetProperty("data");
-            var installed = data.GetProperty("installed");
-            Assert.Equal("nong-bundle", installed[0].GetProperty("origin").GetString());
-            Assert.StartsWith("Angri450.Nong.OcrRuntime.", installed[0].GetProperty("package").GetString());
-            Assert.Equal("disabled", data.GetProperty("upstreamFallbackDefault").GetString());
-
-            var downloads = Path.Combine(runtimeDir, "downloads");
-            Assert.False(Directory.Exists(downloads));
-        }
-        finally
-        {
-            try { Directory.Delete(runtimeDir, recursive: true); } catch { }
-        }
-    }
+    [Fact(Skip = "ONNX migration — old NuGet/runtime bundle deleted")]
+    public void InstallModel_LocalNupkgSource_UsesFirstPartyBundleWhenPresent() { }
 
     // ===== Test 10: install-model invalid-id returns E006 =====
 

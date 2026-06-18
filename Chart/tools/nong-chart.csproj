@@ -9,7 +9,7 @@
     <PackageId>Angri450.Nong.Tool.Chart</PackageId>
     <ToolCommandName>nong-chart</ToolCommandName>
     <PackAsTool>true</PackAsTool>
-    <Version>4.2.0</Version>
+    <Version>4.2.1</Version>
     <Authors>angri450</Authors>
     <Description>Statistical charts — bar, line, scatter, pie, boxplot, histogram, heatmap, radar, ANOVA, Duncan MRT.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>

@@ -9,9 +9,9 @@
     <PackageId>Angri450.Nong.Tool.Pdf</PackageId>
     <ToolCommandName>nong-pdf</ToolCommandName>
     <PackAsTool>true</PackAsTool>
-    <Version>4.1.8</Version>
+    <Version>4.1.9</Version>
     <Authors>angri450</Authors>
-    <Description>PDF operations — check, dissect, render, images, merge, split, compress, OCR, to-word, db-*.</Description>
+    <Description>PDF operations — check, dissect (--ingest), render, images, merge, split, compress, OCR, to-word, db-*.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>

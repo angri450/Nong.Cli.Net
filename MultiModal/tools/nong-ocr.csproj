@@ -9,7 +9,7 @@
     <PackageId>Angri450.Nong.Tool.Ocr</PackageId>
     <ToolCommandName>nong-ocr</ToolCommandName>
     <PackAsTool>true</PackAsTool>
-    <Version>4.1.7</Version>
+    <Version>4.2.0</Version>
     <Authors>angri450</Authors>
     <Description>Local OCR (PP-OCRv6)</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
