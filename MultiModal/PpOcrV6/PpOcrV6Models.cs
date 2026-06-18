@@ -1,5 +1,3 @@
-using OpenCvSharp;
-
 namespace MultiModalCore;
 
 /// <summary>PP-OCRv6 共享类型 (原 PpOcrV5 命名保留兼容)。</summary>
