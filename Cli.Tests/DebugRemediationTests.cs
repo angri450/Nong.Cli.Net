@@ -272,4 +272,68 @@ lang: zh-CN
             try { File.Delete(docxPath); } catch { }
         }
     }
+
+    // =========================================================================
+    // #2 — lit search relevanceScore non-zero + MatchReasons non-empty
+    // =========================================================================
+
+    [Fact]
+    public void LiteratureRanker_RelevanceScore_NonZero_ForRelevantPaper()
+    {
+        // Use Angri450.Nong.Literature types directly
+        var query = Angri450.Nong.Literature.Dsl.CnkiParser.Parse("SU='banana' AND SU='ethylene'");
+        var concepts = Angri450.Nong.Literature.Dsl.CnkiQueryNormalizer.Normalize(query).Concepts;
+        Assert.NotEmpty(concepts);
+
+        var record = new Angri450.Nong.Literature.Models.PaperRecord
+        {
+            Title = "Ethylene regulation of banana fruit ripening",
+            Abstract = "Banana is a climacteric fruit whose ripening is controlled by ethylene...",
+            Keywords = new List<string> { "banana", "ethylene", "ripening" },
+            CitationCount = 50,
+            Year = 2022,
+            RetrievedFrom = new List<string> { "openalex" },
+            MatchReasons = new List<string> { "SU:banana", "SU:ethylene" }
+        };
+
+        var ranker = new Angri450.Nong.Literature.Pipeline.LiteratureRanker();
+        var score = ranker.Score(query, record, Angri450.Nong.Literature.Models.RankProfile.Balanced);
+
+        Assert.True(score > 0, $"RelevanceScore should be > 0 for a relevant paper, got {score}");
+        Assert.True(score >= 0.5, $"Highly relevant paper should score >= 0.5, got {score}");
+    }
+
+    [Fact]
+    public void LiteratureRanker_IrrelevantPaper_ScoresLowerThanRelevant()
+    {
+        var query = Angri450.Nong.Literature.Dsl.CnkiParser.Parse("SU='banana' AND SU='ethylene'");
+        var concepts = Angri450.Nong.Literature.Dsl.CnkiQueryNormalizer.Normalize(query).Concepts;
+
+        var relevant = new Angri450.Nong.Literature.Models.PaperRecord
+        {
+            Title = "Ethylene regulation of banana fruit ripening",
+            Abstract = "Banana is a climacteric fruit...",
+            Keywords = new List<string> { "banana", "ethylene" },
+            CitationCount = 50, Year = 2022,
+            RetrievedFrom = new List<string> { "openalex" },
+            MatchReasons = new List<string> { "SU:banana", "SU:ethylene" }
+        };
+
+        var irrelevant = new Angri450.Nong.Literature.Models.PaperRecord
+        {
+            Title = "Advances in applied supramolecular technologies",
+            Abstract = "This review covers recent advances in supramolecular chemistry...",
+            Keywords = new List<string> { "supramolecular", "chemistry" },
+            CitationCount = 50, Year = 2022,
+            RetrievedFrom = new List<string> { "openalex" },
+            MatchReasons = new List<string>()
+        };
+
+        var ranker = new Angri450.Nong.Literature.Pipeline.LiteratureRanker();
+        var relevantScore = ranker.Score(query, relevant, Angri450.Nong.Literature.Models.RankProfile.Balanced);
+        var irrelevantScore = ranker.Score(query, irrelevant, Angri450.Nong.Literature.Models.RankProfile.Balanced);
+
+        Assert.True(relevantScore > irrelevantScore,
+            $"Relevant paper ({relevantScore:F3}) should outscore irrelevant paper ({irrelevantScore:F3})");
+    }
 }
