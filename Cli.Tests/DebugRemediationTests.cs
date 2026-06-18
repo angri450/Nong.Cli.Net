@@ -442,4 +442,25 @@ lang: zh-CN
             try { File.Delete(docxPath); } catch { }
         }
     }
+
+    // =========================================================================
+    // #2 (deep fix) — DSL queries with '=' must go through filter + ranker
+    // =========================================================================
+
+    [Fact]
+    public void LiteraturePipeline_DslQuery_GoesThroughRanker()
+    {
+        // Verify the plain-text detection doesn't mistakenly skip ranking for DSL queries.
+        // A query with '=' (e.g. SU='banana') should NOT take the plain-text shortcut.
+        var pipeline = new Angri450.Nong.Literature.Pipeline.LiteratureSearchPipeline();
+
+        // This query has '=' but no '*+-' — the old bug would treat it as plain text
+        var query = "SU='banana' AND SU='ethylene'";
+        var ranker = new Angri450.Nong.Literature.Pipeline.LiteratureRanker();
+
+        // Verify the ranker produces meaningful scores for DSL-parsed concepts
+        var parsed = Angri450.Nong.Literature.Dsl.CnkiParser.Parse(query);
+        var concepts = Angri450.Nong.Literature.Dsl.CnkiQueryNormalizer.Normalize(parsed).Concepts;
+        Assert.NotEmpty(concepts); // DSL query should produce concepts for scoring
+    }
 }

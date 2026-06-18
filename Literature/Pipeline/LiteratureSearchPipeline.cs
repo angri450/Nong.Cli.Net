@@ -30,8 +30,8 @@ public sealed class LiteratureSearchPipeline
     {
         var raw = request.ProviderQuery ?? request.Query;
 
-        // Auto-detect plain text: no DSL operators → pass directly to providers
-        if (request.ParsedQuery == null && (!raw.Contains('=') || (!raw.Contains('*') && !raw.Contains('+') && !raw.Contains('-'))))
+        // Auto-detect plain text: no DSL operators, no '=' → pass directly to providers
+        if (request.ParsedQuery == null && !raw.Contains('=') && !raw.Contains('*') && !raw.Contains('+') && !raw.Contains('-'))
         {
             return await SearchPlainAsync(raw, request, cancellationToken).ConfigureAwait(false);
         }
