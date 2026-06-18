@@ -64,7 +64,7 @@ Notes:
 | Scenario | Create | Read/Slice | Repair/Format | Regression |
 |---|---:|---:|---:|---:|
 | Three-line tables | yes | yes | yes | yes |
-| Merged cells | partial | yes | planned | planned |
+| Merged cells (vMerge/gridSpan) | yes | yes | planned | planned |
 | Widths and percent widths | yes | yes | yes | yes |
 | Auto-fit/table layout | planned | partial | planned | planned |
 | Borders and header rules | yes | yes | yes | yes |
@@ -94,7 +94,7 @@ Regression now includes combined long+wide reflow: row chunks, column groups, re
 | Scenario | Create | Read/Slice | Repair/Format | Regression |
 |---|---:|---:|---:|---:|
 | Inline images | add-only | yes | partial | yes |
-| Floating images | planned | partial | planned | planned |
+| Floating images (DocxImageWrap) | yes | partial | planned | planned |
 | Size extraction | partial | partial | planned | planned |
 | Alt text | planned | partial | planned | planned |
 | VML/legacy pictures | n/a | yes | preserve as assets | yes |
@@ -131,3 +131,11 @@ Regression now includes combined long+wide reflow: row chunks, column groups, re
 | python-docx generated | minimal styles, table property ordering gaps | `check -> fix-order -> validate` |
 | Old Word generated | VML images, legacy `tblLook`, style pollution | `check -> fix-order -> academic-format -> validate -> dissect` |
 | AI generated DOCX | invalid OOXML and weak typography | reject ad hoc path; use NongMark or repair path |
+
+## v5.0 New Capabilities
+
+| Capability | Status | Implementation |
+|---|---|---|
+| TabStops (paragraph-level) | yes | `DocxTabStops.cs` — Add/ApplyTo/ReadFrom + ParagraphBuilder.TabStop + NongMark `tabs:` frontmatter + CLI `word tab-stops` |
+| Table merge/split (create API) | yes | `TableBuilder.MergeHorizontal/MergeVertical/MergeRange/SplitAt/FromExisting` — gridSpan + vMerge restart/continue |
+| NongMark DSL colspan/rowspan | yes | Pipe table `[colspan=N]` / `[rowspan=N]` markers parsed in `NongMarkDocumentBuilder.AppendTable` |
