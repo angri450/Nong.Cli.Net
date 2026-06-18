@@ -47,6 +47,24 @@ public sealed class ThemePreset : IEquatable<ThemePreset>
 
     // --- 6 built-in presets (matching v1.0.1) ---
 
+    /// <summary>Default theme (Professional) when none specified.</summary>
+    public static ThemePreset Default => Professional;
+
+    /// <summary>Resolve a theme by name (case-insensitive). Returns null if not found.</summary>
+    public static ThemePreset? ByName(string name)
+    {
+        return name?.ToLowerInvariant() switch
+        {
+            "professional" => Professional,
+            "academic" => Academic,
+            "modern" => Modern,
+            "minimal" => Minimal,
+            "warm" => Warm,
+            "cool" => Cool,
+            _ => null
+        };
+    }
+
     public static ThemePreset Professional => new()
     {
         Accent1 = "1F4E79", Accent2 = "2E75B6", Accent3 = "4A90D9",
