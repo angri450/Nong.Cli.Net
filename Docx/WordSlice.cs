@@ -997,12 +997,12 @@ public static class WordSlice
         var indentation = ppr.Indentation;
         var format = new NongParagraphFormat
         {
-            Alignment = ppr.Justification?.Val?.Value.ToString(),
+            Alignment = ppr.Justification?.Val?.ToString(),
             FirstLineIndent = indentation?.FirstLine?.Value,
             LeftIndent = indentation?.Left?.Value,
             RightIndent = indentation?.Right?.Value,
             LineSpacing = spacing?.Line?.Value,
-            LineRule = spacing?.LineRule?.Value.ToString(),
+            LineRule = spacing?.LineRule?.ToString(),
             SpaceBefore = spacing?.Before?.Value,
             SpaceAfter = spacing?.After?.Value,
             KeepNext = ppr.KeepNext == null ? null : ppr.KeepNext.Val?.Value ?? true,
@@ -1029,9 +1029,9 @@ public static class WordSlice
         var width = tpr.TableWidth;
         var format = new NongTableFormat
         {
-            Justification = tpr.TableJustification?.Val?.Value.ToString(),
+            Justification = tpr.TableJustification?.Val?.ToString(),
             Width = width?.Width?.Value,
-            WidthType = width?.Type?.Value.ToString(),
+            WidthType = width?.Type?.ToString(),
             Borders = ExtractTableBorders(tpr.TableBorders),
         };
 
@@ -1052,8 +1052,8 @@ public static class WordSlice
         var format = new NongTableCellFormat
         {
             Width = width?.Width?.Value,
-            WidthType = width?.Type?.Value.ToString(),
-            VerticalAlignment = tcPr.TableCellVerticalAlignment?.Val?.Value.ToString(),
+            WidthType = width?.Type?.ToString(),
+            VerticalAlignment = tcPr.TableCellVerticalAlignment?.Val?.ToString(),
             ShadingFill = tcPr.Shading?.Fill?.Value,
             Borders = ExtractTableBorders(tcPr.TableCellBorders),
         };
@@ -1116,7 +1116,7 @@ public static class WordSlice
 
         var result = new NongBorderInfo
         {
-            Val = border.Val?.Value.ToString(),
+            Val = border.Val?.ToString(),
             Size = border.Size?.Value,
             Color = border.Color?.Value,
             Space = border.Space?.Value,
@@ -1169,7 +1169,7 @@ public static class WordSlice
             format.Italic = rpr.Italic?.Val?.Value == true || rpr.ItalicComplexScript?.Val?.Value == true;
             if (format.Italic == false) format.Italic = null;
 
-            format.Underline = rpr.Underline?.Val?.Value.ToString();
+            format.Underline = rpr.Underline?.Val?.ToString();
             format.Color = rpr.Color?.Val?.Value;
 
             var vertAlign = rpr.VerticalTextAlignment?.Val?.Value;
