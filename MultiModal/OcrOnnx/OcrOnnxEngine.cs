@@ -17,8 +17,8 @@ public sealed class OcrOnnxEngine : IDisposable
     readonly int _detLimit;
     readonly string _modelId;
 
-    const float DetThresh = 0.3f;
-    const float DetBoxThresh = 0.6f;
+    const float DetThresh = 0.25f;    // pixel prob threshold (was 0.3, lower picks up lighter text)
+    const float DetBoxThresh = 0.45f; // box score threshold (was 0.6, lower keeps more text candidates)
     const int RecHeight = 48;
     const int RecWidth = 320;
 

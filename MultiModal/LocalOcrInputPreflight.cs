@@ -38,9 +38,13 @@ public static class LocalOcrInputPreflight
         var barcode = TryDecodeBarcode(imagePath);
         var nonWhite = layout.BlackPixelCount + layout.GraphicPixelCount + layout.EdgePixelCount;
         var largest = layout.Regions.OrderByDescending(r => r.PixelCount).FirstOrDefault();
-        var largestRatio = nonWhite == 0 || largest == null ? 0 : largest.PixelCount / (double)nonWhite;
-        var graphicRatio = nonWhite == 0 ? 0 : layout.GraphicPixelCount / (double)nonWhite;
-        var darkRatio = nonWhite == 0 ? 0 : (layout.BlackPixelCount + layout.EdgePixelCount) / (double)nonWhite;
+        // Bug 14 fix: largestRegionRatio should be relative to total image area, not just non-white pixels.
+        // A page with 140 graphic pixels on a 1653x2338 image should score ~0.004%, not 15%.
+        var totalSampleArea = layout.SampleWidth * layout.SampleHeight;
+        var largestRatio = totalSampleArea == 0 || largest == null ? 0 : largest.PixelCount / (double)totalSampleArea;
+        var graphicRatio = totalSampleArea == 0 ? 0 : layout.GraphicPixelCount / (double)totalSampleArea;
+        // darkRatio relative to total image area (for blank-page detection)
+        var darkRatio = totalSampleArea == 0 ? 0 : (layout.BlackPixelCount + layout.EdgePixelCount) / (double)totalSampleArea;
         var aspect = layout.ContentHeight > 0 ? layout.ContentWidth / (double)layout.ContentHeight : 0;
 
         var result = new LocalOcrInputPreflightResult
@@ -59,10 +63,31 @@ public static class LocalOcrInputPreflight
 
         if (barcode != null)
         {
+            // Bug 4 fix: a QR code in the corner of a text-heavy page (e.g. patent documents)
+            // should NOT block OCR. If the page has many regions and moderate content density,
+            // treat the barcode as incidental and proceed.
+            if (layout.Regions.Count > 10 && largestRatio > 0.03 && largestRatio < 0.5)
+            {
+                result.Classification = "text_with_barcode";
+                result.Reason = $"ZXing decoded a {barcode.Format} code, but the page contains {layout.Regions.Count} text-like regions and substantial content. OCR will proceed; the barcode is likely incidental (e.g. patent header/footer QR).";
+                result.Recommendation = "OCR will proceed normally. Use --force if you want to skip preflight checks entirely.";
+                return result;
+            }
+
             result.ShouldSkip = true;
             result.Classification = "barcode_or_qr";
             result.Reason = $"ZXing decoded a {barcode.Format} code; PP-OCR text recognition is not the right engine for barcode/QR decoding.";
             result.Recommendation = "Use the decoded barcode/QR value or inspect the image as an asset. Rerun with --force only if surrounding text OCR is explicitly required.";
+            return result;
+        }
+
+        // Bug 14 fix: images with near-zero dark pixels are effectively blank
+        if (darkRatio < 0.005 && layout.Regions.Count < 5)
+        {
+            result.ShouldSkip = true;
+            result.Classification = "blank";
+            result.Reason = $"Image has {layout.Regions.Count} region(s) and darkRatio {darkRatio:F4}. An image with near-zero dark pixels cannot contain readable text.";
+            result.Recommendation = "The rendered page appears blank. The PDF may use fonts not available on this system. Try cloud OCR, or check the source PDF's font embedding.";
             return result;
         }
 
@@ -147,9 +172,11 @@ public static class LocalOcrInputPreflight
     static bool LooksLikeQrOrCodeGraphic(ImageLayout layout, double largestRatio, double graphicRatio, double darkRatio, double aspect)
     {
         var nonWhiteRatio = 1.0 - layout.WhitespaceRatio;
+        // Thresholds recalibrated for total-image-area denominator (Bug 14 fix).
+        // Old values (0.72, 0.70) were relative to non-white pixels; new values scaled by ~0.22.
         return layout.Regions.Count <= 8
-            && largestRatio >= 0.72
-            && (graphicRatio >= 0.70 || darkRatio >= 0.70)
+            && largestRatio >= 0.15
+            && (graphicRatio >= 0.15 || darkRatio >= 0.15)
             && nonWhiteRatio >= 0.22
             && layout.WhitespaceRatio <= 0.70
             && aspect is >= 0.45 and <= 2.2;
@@ -159,8 +186,8 @@ public static class LocalOcrInputPreflight
     {
         var nonWhiteRatio = 1.0 - layout.WhitespaceRatio;
         return layout.Regions.Count <= 3
-            && largestRatio >= 0.82
-            && graphicRatio >= 0.75
+            && largestRatio >= 0.15
+            && graphicRatio >= 0.13
             && nonWhiteRatio >= 0.20
             && layout.BlackPixelCount < layout.GraphicPixelCount * 0.15;
     }

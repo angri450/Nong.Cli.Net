@@ -49,8 +49,12 @@ public static class OcrOnnxPostprocess
 
         if (posCount == 0) return boxes;
 
-        // Shrink binary map to separate connected components
-        int shrink = Math.Max(1, (int)(MathF.Sqrt(posCount / (float)(h * w)) * 2));
+        // Shrink binary map to separate connected components.
+        // Bug 5: use a gentler shrink for denser text pages (Chinese patent docs etc).
+        float density = (float)posCount / (h * w);
+        int shrink = density > 0.05f
+            ? Math.Max(1, (int)(MathF.Sqrt(density) * 1.2f))
+            : Math.Max(1, (int)(MathF.Sqrt(posCount / (float)(h * w)) * 2));
         var shrunk = ShrinkBinaryMap(binMask, w, h, shrink);
         if (shrunk == null) return boxes;
 
@@ -94,8 +98,8 @@ public static class OcrOnnxPostprocess
                     }
                 }
 
-                // Filter tiny components (noise)
-                if (count < 10) continue;
+                // Filter tiny components (noise). Bug 5: lower threshold for small-text detection.
+                if (count < 4) continue;
 
                 // Box score: fraction of positive pixels in this bbox in the ORIGINAL binMask
                 // (not the shrunk one)
@@ -106,7 +110,7 @@ public static class OcrOnnxPostprocess
                         if (binMask[by * w + bx]) boxPos++;
 
                 float score = (float)boxPos / boxPixels;
-                if (score < 0.15f) continue;
+                if (score < boxThreshold) continue;
 
                 // Expand bbox slightly (unclip effect)
                 int ux = shrink, uy = shrink;

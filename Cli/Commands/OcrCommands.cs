@@ -65,15 +65,25 @@ public static class OcrCommands
             {
                 CliHelpers.EnsureParentDir(Path.Combine(outputDir, ".keep"));
 
+                // Bug 15: .jfif files are functionally JPEG; rename to .jpg for API compatibility
+                string uploadFile = file;
+                string? tempJfif = null;
+                if (Path.GetExtension(file).Equals(".jfif", StringComparison.OrdinalIgnoreCase))
+                {
+                    tempJfif = Path.Combine(Path.GetTempPath(), $"nong_ocr_{Guid.NewGuid():N}.jpg");
+                    File.Copy(file, tempJfif, overwrite: true);
+                    uploadFile = tempJfif;
+                }
+
                 using var client = new PaddleOcrVlClient(token);
 
                 var (ocrResult, elapsed) = CliHelpers.Time(() =>
                 {
-                    // Use structured download for richer output
-                    var task = ProcessStructuredAsync(client, file, outputDir);
-                    task.Wait();
-                    return task.Result;
-                });
+                        // Use structured download for richer output
+                        var task = ProcessStructuredAsync(client, uploadFile, outputDir);
+                        task.Wait();
+                        return task.Result;
+                    });
 
                 if (json)
                 {
@@ -134,6 +144,9 @@ public static class OcrCommands
                     }
                     catch (Exception ex) { if (!json) Console.Error.WriteLine($"[ingest] warning: {ex.Message}"); }
                 }
+
+                // Clean up temp .jfif→.jpg conversion
+                if (tempJfif != null) { try { File.Delete(tempJfif); } catch { } }
             }
             catch (AggregateException ae) when (ae.InnerException != null)
             {
@@ -1002,9 +1015,10 @@ public static class OcrCommands
         var dirArg = new Argument<string>("dir", "Directory containing image files");
         var patternOpt = new Option<string>("--pattern", () => "*.png", "File pattern (e.g. *.jpg)");
         var recursiveOpt = new Option<bool>("--recursive", () => false, "Search subdirectories");
-        var cmd = new Command("batch", "Batch OCR on all images in a directory") { dirArg, patternOpt, recursiveOpt };
+        var forceOpt = new Option<bool>("--force", () => false, "Run local OCR even if image preflight flags QR/code/graphic-heavy input");
+        var cmd = new Command("batch", "Batch OCR on all images in a directory") { dirArg, patternOpt, recursiveOpt, forceOpt };
 
-        cmd.SetHandler((string dir, string pattern, bool recursive, bool json) =>
+        cmd.SetHandler((string dir, string pattern, bool recursive, bool force, bool json) =>
         {
             if (string.IsNullOrWhiteSpace(dir))
             {
@@ -1037,11 +1051,38 @@ public static class OcrCommands
                 using var client = ocr;
                 var results = new List<object>();
                 var totalElapsed = 0L;
+                int preflightSkipped = 0;
 
                 foreach (var file in files)
                 {
                     try
                     {
+                        // Preflight check (Bug 6: skip if preflight says so and --force not set)
+                        if (!force)
+                        {
+                            try
+                            {
+                                var preflight = LocalOcrInputPreflight.Analyze(file);
+                                if (preflight.ShouldSkip)
+                                {
+                                    preflightSkipped++;
+                                    results.Add(new
+                                    {
+                                        file = Path.GetFullPath(file),
+                                        fileName = Path.GetFileName(file),
+                                        preflightSkipped = true,
+                                        preflightClassification = preflight.Classification,
+                                        preflightReason = preflight.Reason
+                                    });
+                                    continue;
+                                }
+                            }
+                            catch
+                            {
+                                // Preflight analysis failure is non-fatal; proceed with OCR
+                            }
+                        }
+
                         var (result, elapsed) = CliHelpers.Time(() =>
                             InvokeRecognize(client, file));
                         totalElapsed += elapsed;
@@ -1069,7 +1110,7 @@ public static class OcrCommands
 
                 var okCount = results.Count(r =>
                 {
-                    try { return ((dynamic)r).error == null; } catch { return true; }
+                    try { return ((dynamic)r).error == null && ((dynamic)r).preflightSkipped == null; } catch { return true; }
                 });
 
                 if (json)
@@ -1080,22 +1121,27 @@ public static class OcrCommands
                         pattern,
                         totalFiles = files.Count,
                         successCount = okCount,
+                        preflightSkipped,
+                        force,
                         results
                     };
                     var output = JsonOutput.Ok("ocr batch",
                         $"Batch OCR: {okCount}/{files.Count} files", data);
                     output.Metrics["totalFiles"] = files.Count;
                     output.Metrics["successCount"] = okCount;
+                    output.Metrics["preflightSkipped"] = preflightSkipped;
                     output.Meta.DurationMs = totalElapsed;
                     Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
                 }
                 else
                 {
-                    Console.WriteLine($"Batch: {okCount}/{files.Count}");
+                    Console.WriteLine($"Batch: {okCount}/{files.Count}" + (preflightSkipped > 0 ? $" (preflight skipped {preflightSkipped})" : ""));
                     foreach (dynamic r in results)
                     {
                         if (r.error != null)
                             Console.WriteLine($"  FAIL {r.fileName}: {r.error}");
+                        else if (r.preflightSkipped == true)
+                            Console.WriteLine($"  SKIP {r.fileName}: [{r.preflightClassification}] {r.preflightReason}");
                         else
                             Console.WriteLine($"  OK   {r.fileName}: {r.text}");
                     }
@@ -1105,7 +1151,7 @@ public static class OcrCommands
             {
                 CliHelpers.WriteError("ocr batch", ErrorCodes.InternalError with { Message = ex.Message }, json);
             }
-        }, dirArg, patternOpt, recursiveOpt, jsonOpt);
+        }, dirArg, patternOpt, recursiveOpt, forceOpt, jsonOpt);
 
         return cmd;
     }
@@ -1501,7 +1547,7 @@ public static class OcrCommands
     static bool IsImageExtension(string path)
     {
         var ext = Path.GetExtension(path).ToLowerInvariant();
-        return ext is ".png" or ".jpg" or ".jpeg" or ".bmp" or ".tiff" or ".tif" or ".webp";
+        return ext is ".png" or ".jpg" or ".jpeg" or ".jfif" or ".bmp" or ".tiff" or ".tif" or ".webp";
     }
 
     sealed record FrameOcrResult

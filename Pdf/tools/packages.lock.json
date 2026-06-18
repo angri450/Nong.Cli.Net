@@ -99,6 +99,16 @@
           "Angri450.Nong.ThirdParty": "[4.5.0, )"
         }
       }
+    },
+    "net8.0/win-x64": {
+      "Microsoft.ML.OnnxRuntime": {
+        "type": "Transitive",
+        "resolved": "1.21.0",
+        "contentHash": "1IN5rz0W7SFiVKblydIcCh0TVXDVbgTHdFGchjrH+vEtneRED7PL8RDcQOXE4FO3y10vvjg03LNubFTX74FCpA==",
+        "dependencies": {
+          "Microsoft.ML.OnnxRuntime.Managed": "1.21.0"
+        }
+      }
     }
   }
 }

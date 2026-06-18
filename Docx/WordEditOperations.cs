@@ -15,7 +15,7 @@ public static class WordEditOperations
     /// <summary>
     /// Result for <see cref="FixOrder"/>.
     /// </summary>
-    public sealed record FixOrderResult(int FixedElements, int PartsScanned, int OrphanBordersFixed);
+    public sealed record FixOrderResult(int FixedElements, int PartsScanned, int OrphanBordersFixed, int EnumValuesFixed);
 
     /// <summary>
     /// Fix OOXML element ordering across all document parts.
@@ -37,6 +37,7 @@ public static class WordEditOperations
         int fixedElements = 0;
         int orphanBordersFixed = 0;
         int partsScanned = 0;
+        int enumValuesFixed = 0;
 
         void ProcessRoot(DocumentFormat.OpenXml.OpenXmlElement root)
         {
@@ -44,6 +45,7 @@ public static class WordEditOperations
             fixedElements += ElementOrder.RectifyTree(root);
             orphanBordersFixed += ElementOrder.FixOrphanBorders(root);
             fixedElements += ElementOrder.RectifyTree(root);
+            enumValuesFixed += ElementOrder.FixInvalidEnumValues(root);
             partsScanned++;
         }
 
@@ -114,7 +116,7 @@ public static class WordEditOperations
             ProcessRoot(commentsPart.Comments);
         }
 
-        return new FixOrderResult(fixedElements, partsScanned, orphanBordersFixed);
+        return new FixOrderResult(fixedElements, partsScanned, orphanBordersFixed, enumValuesFixed);
     }
 
     // ==================== protect ====================

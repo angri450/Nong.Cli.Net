@@ -134,6 +134,7 @@ public static class PdfCommands
                 output.Metrics["pages"] = result.PageCount;
                 output.Metrics["dpi"] = result.Dpi;
                 output.Meta.DurationMs = elapsed;
+                AddWarnings(output, result.Warnings, "pdf_render");
                 Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
             }
             catch (Exception ex)
@@ -479,12 +480,18 @@ public static class PdfCommands
                 if (!File.Exists(file))
                 { CliHelpers.WriteError(command, ErrorCodes.FileNotFound with { Message = $"File not found: {file}" }, json); return; }
 
+                // Bug 2: auto-append .docx extension if output path doesn't have it
+                if (!output.EndsWith(".docx", StringComparison.OrdinalIgnoreCase))
+                    output += ".docx";
+
                 CliHelpers.EnsureParentDir(output);
 
                 // 1. Dissect PDF to temp directory
                 var tempDir = Path.Combine(Path.GetTempPath(), "pdf-to-word-" + Guid.NewGuid().ToString("N")[..8]);
                 var options = new PdfSliceOptions { Mode = "auto", Dpi = 200 };
-                var sliceResult = PdfSlice.Dissect(file, tempDir, options, null);
+                // Bug 3: always provide OCR recognizer so scan PDFs can be processed
+                var recognizer = new PdfOcrRecognizerAdapter();
+                var sliceResult = PdfSlice.Dissect(file, tempDir, options, recognizer);
 
                 // 2. Import into NongDb via unified ingestion context
                 string documentId;

@@ -93,7 +93,7 @@ public static class WordAcademicFormatter
         int LatinParentheticalRunsItalicized,
         List<string> Warnings);
 
-    public static AcademicFormatResult Apply(string inputPath, string outputPath)
+    public static AcademicFormatResult Apply(string inputPath, string outputPath, bool keepTableBorders = false)
     {
         GuardDifferentPaths(inputPath, outputPath);
         File.Copy(inputPath, outputPath, true);
@@ -139,7 +139,8 @@ public static class WordAcademicFormatter
             foreach (var table in root.Descendants<W.Table>())
             {
                 tables++;
-                ApplyThreeLineTable(table);
+                if (!keepTableBorders)
+                    ApplyThreeLineTable(table);
                 if (FormatHeaderRow(table))
                     headerRows++;
             }

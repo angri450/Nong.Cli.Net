@@ -2109,7 +2109,7 @@ public static class WordCommands
                     visibleFormattingChanged = false,
                     nextForVisibleFormatting = "word academic-format",
                 };
-                var o = JsonOutput.Ok("word fix-order", $"Fixed {r.FixedElements} internal OOXML element(s); visible formatting was not the goal", data); o.Artifacts["docx"] = Path.GetFullPath(output); o.Meta.DurationMs = e;
+                var o = JsonOutput.Ok("word fix-order", $"Fixed {r.FixedElements} OOXML element(s) + {r.EnumValuesFixed} invalid enum value(s); visible formatting was not the goal", data); o.Artifacts["docx"] = Path.GetFullPath(output); o.Meta.DurationMs = e;
                 Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts)); }
             catch (Exception ex) { CliHelpers.WriteError("word fix-order", ErrorCodes.InternalError with { Message = ex.Message }, json); }
         }, fileArg, outOpt, jsonOpt);
@@ -2120,8 +2120,9 @@ public static class WordCommands
     {
         var fileArg = new Argument<string>("file", "Path to .docx file");
         var outOpt = new Option<string>("-o", "Output .docx path") { IsRequired = true };
-        var cmd = new Command("academic-format", "Visible academic Word formatting repair for headings, body text, tables, fonts, and spacing") { fileArg, outOpt };
-        cmd.SetHandler((string file, string output, bool json) =>
+        var keepBordersOpt = new Option<bool>("--keep-table-borders", () => false, "Preserve original table borders (e.g. for form documents). Default: three-line academic table style.");
+        var cmd = new Command("academic-format", "Visible academic Word formatting repair for headings, body text, tables, fonts, and spacing") { fileArg, outOpt, keepBordersOpt };
+        cmd.SetHandler((string file, string output, bool keepTableBorders, bool json) =>
         {
             const string command = "word academic-format";
             var err = CliHelpers.ValidateDocxFile(file);
@@ -2144,7 +2145,7 @@ public static class WordCommands
                 CliHelpers.EnsureParentDir(output);
                 var (r, e) = CliHelpers.Time(() =>
                 {
-                    var formatted = WordAcademicFormatter.Apply(file, output);
+                    var formatted = WordAcademicFormatter.Apply(file, output, keepTableBorders);
                     FixOrderInPlace(output);
                     return formatted;
                 });
@@ -2169,7 +2170,7 @@ public static class WordCommands
             {
                 CliHelpers.WriteError(command, ErrorCodes.InternalError with { Message = ex.Message }, json);
             }
-        }, fileArg, outOpt, jsonOpt);
+        }, fileArg, outOpt, keepBordersOpt, jsonOpt);
         return cmd;
     }
 
@@ -2837,7 +2838,23 @@ public static class WordCommands
         try
         {
             CliHelpers.EnsureParentDir(output);
-            var (r, e) = CliHelpers.Time(() => WordAddOperations.AddParagraph(file, output, ps!, after));
+            // Bug 10: in-place editing — copy to temp, edit, copy back
+            string workInput = file;
+            string workOutput = output;
+            string? tempPath = null;
+            if (string.Equals(Path.GetFullPath(file), Path.GetFullPath(output), StringComparison.OrdinalIgnoreCase))
+            {
+                tempPath = Path.Combine(Path.GetTempPath(), $"nong-word-add-{Guid.NewGuid():N}.docx");
+                File.Copy(file, tempPath, true);
+                workInput = tempPath;
+                workOutput = tempPath;
+            }
+            var (r, e) = CliHelpers.Time(() => WordAddOperations.AddParagraph(workInput, workOutput, ps!, after));
+            if (tempPath != null)
+            {
+                File.Copy(tempPath, output, true);
+                try { File.Delete(tempPath); } catch { }
+            }
             WriteDocxAddOk(command, $"Added: {r.TextPreview}", r, output, e, json);
         }
         catch (Exception ex) { WriteAddException(command, ex, json); }
@@ -3086,12 +3103,8 @@ public static class WordCommands
         var err = CliHelpers.ValidateDocxFile(file);
         if (err != null) { CliHelpers.WriteError(command, err, json); return false; }
 
-        if (string.Equals(Path.GetFullPath(file), Path.GetFullPath(output), StringComparison.OrdinalIgnoreCase))
-        {
-            CliHelpers.WriteError(command,
-                ErrorCodes.ValidationFailed with { Message = "Input and output paths must be different." }, json);
-            return false;
-        }
+        // Bug 10: allow same-path in-place editing. Handler must use temp file + replacement.
+        // Removed the "Input and output paths must be different" guard.
 
         return true;
     }

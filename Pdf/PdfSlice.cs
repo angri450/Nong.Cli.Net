@@ -74,11 +74,26 @@ public static class PdfSlice
         }
 
         // ── Image extraction: Poppler pdfimages ──
-        if (effectiveMode != "ocr")
+        // Bug 1: skip image extraction for text PDFs with zero embedded images,
+        // and for non-ocr modes where the PDF is text-only.
+        if (effectiveMode != "ocr" && check.ImageCount > 0)
         {
-            var assets = PdfPopplerImageExtractor.Extract(pdfPath, Path.Combine(outputDir, "assets"));
-            model.Assets = assets.Items;
-            model.Warnings.AddRange(assets.Warnings);
+            try
+            {
+                var assets = PdfPopplerImageExtractor.Extract(pdfPath, Path.Combine(outputDir, "assets"));
+                model.Assets = assets.Items;
+                model.Warnings.AddRange(assets.Warnings);
+            }
+            catch (Exception ex)
+            {
+                // Bug 1: image extraction failure should not block the whole pipeline.
+                // Downgrade to warning and continue with text-only blocks.
+                model.Warnings.Add($"Image extraction skipped: {ex.Message}");
+            }
+        }
+        else if (effectiveMode != "ocr" && check.ImageCount == 0)
+        {
+            model.Warnings.Add("No embedded images found; image extraction skipped.");
         }
 
         AddImageBlocks(model, model.Assets);

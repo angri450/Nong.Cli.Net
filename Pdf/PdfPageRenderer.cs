@@ -33,6 +33,11 @@ public static class PdfPageRenderer
                 var relative = $"page-{i + 1:D4}.png";
                 var outPath = Path.Combine(outputDir, relative);
                 using var bitmap = CreateBgraBitmap(bytes, width, height);
+
+                // Bug 13: quick dark-pixel check to detect blank renders
+                // (e.g. when PDF uses unembedded fonts not available on this system)
+                double darkRatio = ComputeDarkRatio(bitmap);
+
                 WritePng(bitmap, outPath);
                 result.Pages.Add(new PdfRenderedPage
                 {
@@ -40,7 +45,16 @@ public static class PdfPageRenderer
                     Path = relative,
                     Width = width,
                     Height = height,
+                    DarkRatio = Math.Round(darkRatio, 4),
                 });
+
+                if (darkRatio < 0.005)
+                {
+                    result.Warnings.Add(
+                        $"Page {i + 1} rendered with darkRatio {darkRatio:F4} — may be blank. " +
+                        "The PDF likely uses fonts not available on this system. " +
+                        "Try cloud OCR or install the required fonts.");
+                }
             }
 
             PdfUtilities.WriteJson(Path.Combine(outputDir, "manifest.json"), result);
@@ -219,4 +233,23 @@ public static class PdfPageRenderer
 
     static byte CompositeChannel(byte channel, byte alpha) =>
         (byte)Math.Clamp(((channel * alpha) + (255 * (255 - alpha))) / 255, 0, 255);
+
+    /// <summary>Quick dark-pixel ratio estimate by sampling every 16th row/col.</summary>
+    static double ComputeDarkRatio(SKBitmap bitmap)
+    {
+        int darkCount = 0, samples = 0;
+        int w = bitmap.Width, h = bitmap.Height;
+        const int step = 16;
+        for (int y = 0; y < h; y += step)
+        {
+            for (int x = 0; x < w; x += step)
+            {
+                samples++;
+                var pixel = bitmap.GetPixel(x, y);
+                if ((pixel.Red + pixel.Green + pixel.Blue) / 3f < 128)
+                    darkCount++;
+            }
+        }
+        return samples > 0 ? (double)darkCount / samples : 0;
+    }
 }

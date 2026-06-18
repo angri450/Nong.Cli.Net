@@ -2,24 +2,6 @@
   "version": 1,
   "dependencies": {
     "net8.0": {
-      "Microsoft.ML.OnnxRuntime": {
-        "type": "Direct",
-        "requested": "[1.21.0, )",
-        "resolved": "1.21.0",
-        "contentHash": "1IN5rz0W7SFiVKblydIcCh0TVXDVbgTHdFGchjrH+vEtneRED7PL8RDcQOXE4FO3y10vvjg03LNubFTX74FCpA==",
-        "dependencies": {
-          "Microsoft.ML.OnnxRuntime.Managed": "1.21.0"
-        }
-      },
-      "Microsoft.ML.OnnxRuntime.Managed": {
-        "type": "Transitive",
-        "resolved": "1.21.0",
-        "contentHash": "Pp4PFhCELCMO8dWNbGK9Ge+Zh09xPVknmjvAgXIrLsfAgmv1It5aATP3UJTG/GBVzcvshDL/UI+KV9O8YQzkkQ==",
-        "dependencies": {
-          "System.Memory": "4.5.5",
-          "System.Numerics.Tensors": "9.0.0"
-        }
-      },
       "System.Collections.Immutable": {
         "type": "Transitive",
         "resolved": "9.0.0",
@@ -43,16 +25,6 @@
         "resolved": "10.0.2",
         "contentHash": "JTpM4z0wpoIHHDvlCU27HsXo+zVnpWib94HXQpzzr+jc/P9NYf4w353AK4MXyGq/grm1mbLi7eXsOsDU8sGmNg=="
       },
-      "System.Memory": {
-        "type": "Transitive",
-        "resolved": "4.5.5",
-        "contentHash": "XIWiDvKPXaTveaB7HVganDlOCRoj03l+jrwNvcge/t8vhGYKvqV+dMv6G4SAX2NoNmN0wZfVPTAlFwZcZvVOUw=="
-      },
-      "System.Numerics.Tensors": {
-        "type": "Transitive",
-        "resolved": "9.0.0",
-        "contentHash": "hyJB4UlpAi19Xr9AXzu2NuagKC4lPfHObNMEAA0HmqFz2rX7wKgzeYzO/jM/eBHDhnUGFFEjk5cOoJaxqg5J4A=="
-      },
       "System.Reflection.Metadata": {
         "type": "Transitive",
         "resolved": "9.0.0",
@@ -69,23 +41,15 @@
           "System.Formats.Nrbf": "9.0.0"
         }
       },
+      "Angri450.Nong.Bioicons": {
+        "type": "Project"
+      },
       "Angri450.Nong.ThirdParty": {
         "type": "Project",
         "dependencies": {
           "System.IO.Hashing": "[9.0.0, )",
           "System.IO.Packaging": "[10.0.2, )",
           "System.Resources.Extensions": "[9.0.0, )"
-        }
-      }
-    },
-    "net8.0/win-x64": {
-      "Microsoft.ML.OnnxRuntime": {
-        "type": "Direct",
-        "requested": "[1.21.0, )",
-        "resolved": "1.21.0",
-        "contentHash": "1IN5rz0W7SFiVKblydIcCh0TVXDVbgTHdFGchjrH+vEtneRED7PL8RDcQOXE4FO3y10vvjg03LNubFTX74FCpA==",
-        "dependencies": {
-          "Microsoft.ML.OnnxRuntime.Managed": "1.21.0"
         }
       }
     }

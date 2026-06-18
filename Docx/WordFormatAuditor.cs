@@ -115,6 +115,11 @@ public sealed record WordFormatHeadingSample
     [JsonPropertyName("fontSize")]
     public string? FontSize { get; init; }
 
+    /// <summary>Bug 17: font size in points (OOXML stores half-points; this is FontSizeVal / 2).</summary>
+    [JsonPropertyName("fontSizePt")]
+    public double? FontSizePt => FontSize != null && int.TryParse(FontSize, out var halfPt)
+        ? halfPt / 2.0 : null;
+
     [JsonPropertyName("alignment")]
     public string? Alignment { get; init; }
 
@@ -180,6 +185,11 @@ public sealed record WordFormatParagraphSample
 
     [JsonPropertyName("fontSize")]
     public string? FontSize { get; init; }
+
+    /// <summary>Bug 17: font size in points (OOXML stores half-points; this is FontSizeVal / 2).</summary>
+    [JsonPropertyName("fontSizePt")]
+    public double? FontSizePt => FontSize != null && int.TryParse(FontSize, out var halfPt)
+        ? halfPt / 2.0 : null;
 
     [JsonPropertyName("alignment")]
     public string? Alignment { get; init; }

@@ -387,4 +387,95 @@ public static class ElementOrder
 
         return prefix == null ? null : $"{prefix}:{element.LocalName}";
     }
+
+    /// <summary>
+    /// Bug 12: repair invalid enum values (e.g. val="1", val="0") on OOXML elements.
+    /// Scans for common attribute-value violations and replaces them with valid defaults
+    /// based on the element type.
+    /// </summary>
+    public static int FixInvalidEnumValues(OpenXmlElement root)
+    {
+        int fixed_ = 0;
+
+        // Element → (attribute → valid default) mappings for common enumeration violations.
+        // Values like "1", "0", "true", "false" get mapped to spec-legal values.
+        foreach (var el in root.Descendants().ToList())
+        {
+            foreach (var attr in el.GetAttributes()
+                .Where(a => a.LocalName == "val"
+                    && a.NamespaceUri == WordprocessingNamespace)
+                .ToList())
+            {
+                var v = attr.Value?.Trim();
+                if (string.IsNullOrEmpty(v)) continue;
+
+                string? replacement = null;
+
+                switch (el.LocalName)
+                {
+                    case "bdr":  // border
+                        replacement = MapBorderVal(v);
+                        break;
+                    case "jc":   // justification
+                        replacement = MapJustificationVal(v);
+                        break;
+                    case "shd":  // shading
+                        replacement = MapShadingVal(v);
+                        break;
+                    case "textDirection": // text direction
+                        replacement = MapTextDirectionVal(v);
+                        break;
+                }
+
+                if (replacement != null && replacement != v)
+                {
+                    el.SetAttribute(new OpenXmlAttribute(attr.LocalName, attr.NamespaceUri, replacement));
+                    fixed_++;
+                }
+            }
+        }
+
+        return fixed_;
+    }
+
+    static readonly HashSet<string> ValidBorderValues = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "nil", "none", "single", "thick", "double", "dotted", "dashed", "dotDash",
+        "dotDotDash", "triple", "thinThickSmallGap", "thickThinSmallGap",
+        "thinThickThinSmallGap", "thinThickMediumGap", "thickThinMediumGap",
+        "thinThickThinMediumGap", "thinThickLargeGap", "thickThinLargeGap",
+        "thinThickThinLargeGap", "wave", "doubleWave", "dashSmallGap",
+        "dashDotStroked", "threeDEmboss", "threeDEngrave", "outset", "inset",
+        "apples", "archedScallops", "babyPacifier", "babyRattle",
+    };
+    static readonly HashSet<string> ValidJustificationValues = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "left", "center", "right", "both", "distribute", "mediumKashida",
+        "highKashida", "lowKashida", "thaiDistribute",
+    };
+    static readonly HashSet<string> ValidShadingValues = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "nil", "clear", "solid", "horzStripe", "vertStripe", "reverseDiagStripe",
+        "diagStripe", "horzCross", "diagCross", "thinHorzStripe", "thinVertStripe",
+        "thinReverseDiagStripe", "thinDiagStripe", "thinHorzCross", "thinDiagCross",
+        "pct5", "pct10", "pct12", "pct15", "pct20", "pct25", "pct30", "pct35",
+        "pct37", "pct40", "pct45", "pct50", "pct55", "pct60", "pct62", "pct65",
+        "pct70", "pct75", "pct80", "pct85", "pct87", "pct90", "pct95",
+    };
+    static readonly HashSet<string> ValidTextDirectionValues = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "btLr", "lrTb", "lrTbV", "tbRl", "tbRlV",
+    };
+
+    static string? MapBorderVal(string v)
+        => ValidBorderValues.Contains(v) ? null : "single";
+
+    static string? MapJustificationVal(string v)
+        => ValidJustificationValues.Contains(v) ? null : "left";
+
+    static string? MapShadingVal(string v)
+        => ValidShadingValues.Contains(v) ? null : "clear";
+
+    static string? MapTextDirectionVal(string v)
+        => ValidTextDirectionValues.Contains(v) ? null : "lrTb";
 }

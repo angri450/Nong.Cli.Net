@@ -83,6 +83,7 @@ public sealed record PdfRenderResult
     public int PageCount { get; set; }
     public int Dpi { get; set; }
     public List<PdfRenderedPage> Pages { get; set; } = new();
+    public List<string> Warnings { get; set; } = new();
 }
 
 public sealed record PdfRenderedPage
@@ -91,6 +92,7 @@ public sealed record PdfRenderedPage
     public string Path { get; set; } = "";
     public int Width { get; set; }
     public int Height { get; set; }
+    public double DarkRatio { get; set; }
 }
 
 public sealed record PdfRenderedCrop

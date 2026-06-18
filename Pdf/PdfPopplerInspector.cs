@@ -208,5 +208,17 @@ public static class PdfPopplerInspector
 
         if (textPerPage < 10 && pageCount > 0)
             result.Warnings.Add("PDF has very little extractable text. Use --mode ocr for OCR-based extraction.");
+
+        // Bug 16: when text extraction returns 0 but PDF has substantial size,
+        // likely CID fonts without ToUnicode CMap are embedded. Signal this.
+        if (textPerPage < 1 && pageCount > 0 && result.FileSize > 10240)
+        {
+            result.Warnings.Add(
+                "PDF text extraction returned 0 characters despite having content. " +
+                "This PDF likely uses CID-keyed fonts without a ToUnicode CMap, " +
+                "which prevents local pdftotext from extracting readable text. " +
+                "Cloud OCR (or pypdfium2) can still extract the text. " +
+                "Recommended route: use --mode ocr with cloud OCR, or 'nong ocr cloud'.");
+        }
     }
 }

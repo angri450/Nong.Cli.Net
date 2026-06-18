@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using W = DocumentFormat.OpenXml.Wordprocessing;
+using System.Text.Json;
 
 namespace DocxCore;
 
@@ -30,9 +31,34 @@ public sealed class NongMarkDocumentBuilder
     string _fontAscii = "Times New Roman";
     string _fontSizeHalfPt = "21";   // 10.5pt = 五号, OOXML uses half-points
 
+    // Bug 8: format specs and style→block mappings from frontmatter
+    readonly Dictionary<string, NongMarkFormatSpec> _formats = new(StringComparer.Ordinal);
+    readonly Dictionary<string, List<string>> _styleToBlocks = new(StringComparer.Ordinal);
+    // Maps blockId → Paragraph reference for style application
+    readonly Dictionary<string, W.Paragraph> _blockIdToParagraph = new(StringComparer.Ordinal);
+    int _blockSeq;
+
     static readonly Regex AttributeRegex = new(
         @"(?<key>[\w-]+)\s*=\s*(?:""(?<dq>[^""]*)""|'(?<sq>[^']*)'|(?<bare>[^\s}]+))",
         RegexOptions.Compiled);
+
+    static readonly Regex BlockIdRegex = new(@"^[pmtcdine]\d{4}$", RegexOptions.Compiled);
+
+    /// <summary>Format specification for a named style (Bug 8).</summary>
+    sealed record NongMarkFormatSpec
+    {
+        public string? FontEastAsia;
+        public string? FontAscii;
+        public string? FontSizePt;
+        public bool Bold;
+        public bool Italic;
+        public string? Alignment;      // left, center, right, both
+        public string? SpacingBefore;   // twips
+        public string? SpacingAfter;    // twips
+        public string? LineSpacing;     // twips
+        public string? LineRule;        // auto, exact, atLeast
+        public string? Color;
+    }
 
     public static NongMarkBuildResult Build(string inputPath, string outputPath)
     {
@@ -61,6 +87,9 @@ public sealed class NongMarkDocumentBuilder
         var contentStart = SkipFrontMatterAndApplyTitle(lines);
         ProcessLines(lines.Skip(contentStart).ToArray());
 
+        // Bug 8: apply format styles from frontmatter to matching paragraphs
+        ApplyFormatStyles();
+
         AppendSectionProperties();
         _mainPart.Document.Save();
 
@@ -85,6 +114,7 @@ public sealed class NongMarkDocumentBuilder
             return 0;
 
         var metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var frontLines = new List<string>();
         var i = 1;
         for (; i < lines.Length; i++)
         {
@@ -94,11 +124,11 @@ public sealed class NongMarkDocumentBuilder
                 i++;
                 break;
             }
-
-            var colon = line.IndexOf(':');
-            if (colon > 0)
-                metadata[line[..colon].Trim()] = line[(colon + 1)..].Trim().Trim('"', '\'');
+            frontLines.Add(lines[i]); // preserve original indentation
         }
+
+        // Parse frontmatter with indent-aware parsing (Bug 8)
+        ParseFrontMatterBlock(frontLines, metadata, _formats, _styleToBlocks);
 
         if (metadata.TryGetValue("title", out var title) && !string.IsNullOrWhiteSpace(title))
             AppendTitle(title);
@@ -109,6 +139,120 @@ public sealed class NongMarkDocumentBuilder
 
         return i;
     }
+
+    /// <summary>
+    /// Bug 8: indent-aware frontmatter parser for nested format/style blocks.
+    /// Lines at indent 0 become top-level keys (title, author, date, format, styles).
+    /// Lines indented by 2+ spaces become child keys of the most recent parent.
+    /// </summary>
+    void ParseFrontMatterBlock(
+        List<string> lines,
+        Dictionary<string, string> metadata,
+        Dictionary<string, NongMarkFormatSpec> formats,
+        Dictionary<string, List<string>> styleToBlocks)
+    {
+        string? currentSection = null;
+        string? currentFormatName = null;
+        NongMarkFormatSpec? currentSpec = null;
+
+        foreach (var rawLine in lines)
+        {
+            var line = rawLine.Trim();
+            if (line.Length == 0) continue;
+            int indent = rawLine.Length - rawLine.TrimStart().Length;
+
+            // Top-level key
+            if (indent == 0 && line.Contains(':'))
+            {
+                currentSection = null;
+                currentFormatName = null;
+                currentSpec = null;
+                var colon = line.IndexOf(':');
+                var key = line[..colon].Trim();
+                var value = line[(colon + 1)..].Trim();
+                if (value.Length > 0)
+                {
+                    metadata[key] = value;
+                }
+                else
+                {
+                    // Nested section: format, styles, etc.
+                    currentSection = key;
+                }
+                continue;
+            }
+
+            // Indented: second-level key (format name) or third-level property
+            if (indent >= 2 && currentSection == "format" && line.Contains(':'))
+            {
+                var colon = line.IndexOf(':');
+                var key = line[..colon].Trim();
+                var value = line[(colon + 1)..].Trim();
+                if (value.Length > 0)
+                {
+                    // Property of current format spec
+                    if (currentSpec != null)
+                        ApplyFormatProperty(currentSpec, key, value);
+                }
+                else
+                {
+                    // New format name
+                    currentFormatName = key;
+                    currentSpec = new NongMarkFormatSpec();
+                    formats[currentFormatName] = currentSpec;
+                }
+                continue;
+            }
+
+            if (indent >= 2 && currentSection == "styles" && line.Contains(':'))
+            {
+                var colon = line.IndexOf(':');
+                var key = line[..colon].Trim();
+                var value = line[(colon + 1)..].Trim();
+                var blockIds = ParseBlockIdList(value);
+                if (blockIds.Count > 0)
+                    styleToBlocks[key] = blockIds;
+                continue;
+            }
+
+            // Indented but unknown section — treat as simple key:value
+            if (indent >= 2 && currentSection != null && line.Contains(':'))
+            {
+                continue; // ignore unrecognized nested keys
+            }
+        }
+    }
+
+    static List<string> ParseBlockIdList(string value)
+    {
+        var list = new List<string>();
+        // Match p0001, m0001, t0001, etc.
+        foreach (Match m in BlockIdRegex.Matches(value))
+            list.Add(m.Value);
+        return list;
+    }
+
+    static void ApplyFormatProperty(NongMarkFormatSpec spec, string key, string value)
+    {
+        switch (key.ToLowerInvariant())
+        {
+            case "fonteastasia": spec.FontEastAsia = value; break;
+            case "fontascii": spec.FontAscii = value; break;
+            case "fontsizep": case "fontsizept": spec.FontSizePt = value; break;
+            case "bold": spec.Bold = ParseBool(value); break;
+            case "italic": spec.Italic = ParseBool(value); break;
+            case "alignment": spec.Alignment = value; break;
+            case "spacingbefore": spec.SpacingBefore = value; break;
+            case "spacingafter": spec.SpacingAfter = value; break;
+            case "linespacing": spec.LineSpacing = value; break;
+            case "linerule": spec.LineRule = value; break;
+            case "color": spec.Color = value; break;
+        }
+    }
+
+    static bool ParseBool(string v) =>
+        v.Equals("true", StringComparison.OrdinalIgnoreCase)
+        || v == "1" || v.Equals("yes", StringComparison.OrdinalIgnoreCase);
 
     void ProcessLines(IReadOnlyList<string> lines)
     {
@@ -338,7 +482,9 @@ public sealed class NongMarkDocumentBuilder
         {
             if (!IsPipeTableLine(line.Trim())) continue;
             var cells = line.Trim().Trim('|').Split('|').Select(c => c.Trim()).ToArray();
-            if (cells.Length == 0 || cells.All(c => c.Length == 0)) continue;
+            // Bug 9: preserve empty-cell rows — an all-empty row is still a valid table row.
+            // Only skip if there are zero cells (malformed line).
+            if (cells.Length == 0) continue;
             if (cells.All(IsTableSeparatorCell)) continue;
             rows.Add(cells);
         }
@@ -391,6 +537,7 @@ public sealed class NongMarkDocumentBuilder
                 new W.Justification { Val = W.JustificationValues.Center }));
         AppendInlineRuns(paragraph, text, defaultBold: true);
         AppendBeforeSectPr(paragraph);
+        TrackBlock(paragraph, "p");
         _headings++;
         _lastHeadingText = text;
     }
@@ -403,6 +550,7 @@ public sealed class NongMarkDocumentBuilder
             new W.ParagraphProperties(new W.ParagraphStyleId { Val = $"Heading{level}" }));
         AppendInlineRuns(paragraph, text, defaultBold: true);
         AppendBeforeSectPr(paragraph);
+        TrackBlock(paragraph, "h");
         _headings++;
         _lastHeadingText = text;
     }
@@ -415,6 +563,7 @@ public sealed class NongMarkDocumentBuilder
                 new W.Justification { Val = W.JustificationValues.Center }));
         AppendInlineRuns(paragraph, text);
         AppendBeforeSectPr(paragraph);
+        TrackBlock(paragraph, "p");
         _paragraphs++;
     }
 
@@ -425,7 +574,139 @@ public sealed class NongMarkDocumentBuilder
             new W.ParagraphProperties(new W.ParagraphStyleId { Val = styleId }));
         AppendInlineRuns(paragraph, text);
         AppendBeforeSectPr(paragraph);
+        TrackBlock(paragraph, "p");
         _paragraphs++;
+    }
+
+    /// <summary>Track paragraph blockId for style application (Bug 8).</summary>
+    void TrackBlock(W.Paragraph para, string prefix)
+    {
+        _blockSeq++;
+        var blockId = $"{prefix}{_blockSeq:D4}";
+        _blockIdToParagraph[blockId] = para;
+    }
+
+    /// <summary>Apply format specs to matching paragraphs after document body is built (Bug 8).</summary>
+    void ApplyFormatStyles()
+    {
+        if (_formats.Count == 0 || _styleToBlocks.Count == 0) return;
+
+        foreach (var (styleName, blockIds) in _styleToBlocks)
+        {
+            if (!_formats.TryGetValue(styleName, out var spec)) continue;
+
+            foreach (var blockId in blockIds)
+            {
+                if (!_blockIdToParagraph.TryGetValue(blockId, out var para)) continue;
+                ApplySpecToParagraph(para, spec);
+            }
+        }
+    }
+
+    void ApplySpecToParagraph(W.Paragraph para, NongMarkFormatSpec spec)
+    {
+        var ppr = para.GetFirstChild<W.ParagraphProperties>();
+        if (ppr == null)
+        {
+            ppr = new W.ParagraphProperties();
+            para.PrependChild(ppr);
+        }
+
+        // Alignment
+        if (!string.IsNullOrEmpty(spec.Alignment))
+        {
+            var existingJc = ppr.GetFirstChild<W.Justification>();
+            existingJc?.Remove();
+            ppr.Append(new W.Justification { Val = spec.Alignment.ToLowerInvariant() switch
+            {
+                "left" => W.JustificationValues.Left,
+                "right" => W.JustificationValues.Right,
+                "center" => W.JustificationValues.Center,
+                "both" => W.JustificationValues.Both,
+                _ => W.JustificationValues.Left
+            }});
+        }
+
+        // Spacing
+        if (!string.IsNullOrEmpty(spec.SpacingBefore) || !string.IsNullOrEmpty(spec.SpacingAfter) ||
+            !string.IsNullOrEmpty(spec.LineSpacing))
+        {
+            var sp = ppr.GetFirstChild<W.SpacingBetweenLines>();
+            if (sp == null)
+            {
+                sp = new W.SpacingBetweenLines();
+                ppr.Append(sp);
+            }
+            if (!string.IsNullOrEmpty(spec.SpacingBefore) && int.TryParse(spec.SpacingBefore, out var sb))
+                sp.Before = sb.ToString();
+            if (!string.IsNullOrEmpty(spec.SpacingAfter) && int.TryParse(spec.SpacingAfter, out var sa))
+                sp.After = sa.ToString();
+            if (!string.IsNullOrEmpty(spec.LineSpacing) && int.TryParse(spec.LineSpacing, out var ls))
+            {
+                sp.Line = ls.ToString();
+                if (!string.IsNullOrEmpty(spec.LineRule))
+                    sp.LineRule = spec.LineRule.ToLowerInvariant() switch
+                    {
+                        "exact" => W.LineSpacingRuleValues.Exact,
+                        "atleast" => W.LineSpacingRuleValues.AtLeast,
+                        _ => W.LineSpacingRuleValues.Auto
+                    };
+            }
+        }
+
+        // Run-level formatting: font, size, bold, italic, color
+        foreach (var run in para.Descendants<W.Run>())
+        {
+            var rpr = run.GetFirstChild<W.RunProperties>();
+            if (rpr == null)
+            {
+                rpr = new W.RunProperties();
+                run.PrependChild(rpr);
+            }
+
+            if (!string.IsNullOrEmpty(spec.FontEastAsia) || !string.IsNullOrEmpty(spec.FontAscii))
+            {
+                var rf = rpr.GetFirstChild<W.RunFonts>();
+                if (rf == null)
+                {
+                    rf = new W.RunFonts();
+                    rpr.Append(rf);
+                }
+                if (!string.IsNullOrEmpty(spec.FontEastAsia))
+                    rf.EastAsia = spec.FontEastAsia;
+                if (!string.IsNullOrEmpty(spec.FontAscii))
+                {
+                    rf.Ascii = spec.FontAscii;
+                    rf.HighAnsi = spec.FontAscii;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(spec.FontSizePt) && double.TryParse(spec.FontSizePt, out var fsPt))
+            {
+                var rfs = rpr.GetFirstChild<W.FontSize>();
+                rfs?.Remove();
+                rpr.Append(new W.FontSize { Val = ((int)(fsPt * 2)).ToString() });
+                rpr.Append(new W.FontSizeComplexScript { Val = ((int)(fsPt * 2)).ToString() });
+            }
+
+            if (spec.Bold)
+            {
+                if (rpr.GetFirstChild<W.Bold>() == null)
+                    rpr.Append(new W.Bold());
+            }
+            if (spec.Italic)
+            {
+                if (rpr.GetFirstChild<W.Italic>() == null)
+                    rpr.Append(new W.Italic());
+            }
+
+            if (!string.IsNullOrEmpty(spec.Color))
+            {
+                var c = rpr.GetFirstChild<W.Color>();
+                c?.Remove();
+                rpr.Append(new W.Color { Val = spec.Color.StartsWith("#") ? spec.Color[1..] : spec.Color });
+            }
+        }
     }
 
     void AppendReferences(IReadOnlyList<string> lines, IReadOnlyDictionary<string, string> attrs)
