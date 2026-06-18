@@ -91,6 +91,31 @@ public class DocumentWriter
         return this;
     }
 
+    // ===== 列表 (V5) =====
+
+    /// <summary>Ordered list with auto-created numbering.</summary>
+    public DocumentWriter OrderedList(NumberingSpec spec, params string[] items)
+    {
+        if (_doc == null) throw new InvalidOperationException("DocumentWriter needs a WordprocessingDocument for lists");
+        var numbering = new DocxNumbering(_doc);
+        var numId = numbering.CreateList(spec);
+        foreach (var item in items)
+        {
+            var p = new Paragraph(
+                new ParagraphProperties(
+                    new NumberingProperties(
+                        new NumberingLevelReference { Val = 0 },
+                        new NumberingId { Val = numId })));
+            p.Append(new Run(new Text(item)));
+            _body.Append(p);
+        }
+        return this;
+    }
+
+    /// <summary>Unordered (bullet) list.</summary>
+    public DocumentWriter UnorderedList(params string[] items)
+        => OrderedList(new NumberingSpec(NumberingKind.Bullet), items);
+
     // ===== 表格 =====
 
     /// <summary>三线表。</summary>
