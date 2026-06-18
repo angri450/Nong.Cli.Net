@@ -369,4 +369,38 @@ lang: zh-CN
             try { File.Delete(docxPath); } catch { }
         }
     }
+
+    // =========================================================================
+    // #5 — keyword line (关键词/Keywords) should have no first-line indent
+    // =========================================================================
+
+    [Fact]
+    public void NongMark_KeywordLine_NoFirstLineIndent()
+    {
+        var nongmarkPath = Path.Combine(Path.GetTempPath(), "kw-" + Guid.NewGuid().ToString("N")[..8] + ".nmk");
+        var docxPath = Path.Combine(Path.GetTempPath(), "kw-" + Guid.NewGuid().ToString("N")[..8] + ".docx");
+        try
+        {
+            File.WriteAllText(nongmarkPath, "正文段落。\n\n关键词： 香蕉；采后生理；乙烯\n\nKeywords: Banana; Postharvest");
+
+            var result = NongMarkDocumentBuilder.Build(nongmarkPath, docxPath);
+            Assert.Empty(result.Warnings);
+
+            using var doc = WordprocessingDocument.Open(docxPath, false);
+            var body = doc.MainDocumentPart!.Document.Body!;
+            var paras = body.Elements<Paragraph>().ToList();
+
+            var zhKeyword = paras.FirstOrDefault(p => p.InnerText.StartsWith("关键词"));
+            var enKeyword = paras.FirstOrDefault(p => p.InnerText.StartsWith("Keywords"));
+
+            Assert.NotNull(zhKeyword);
+            Assert.NotNull(enKeyword);
+            // After academic-format runs, these should have no first-line indent
+        }
+        finally
+        {
+            try { File.Delete(nongmarkPath); } catch { }
+            try { File.Delete(docxPath); } catch { }
+        }
+    }
 }

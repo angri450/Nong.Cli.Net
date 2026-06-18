@@ -326,6 +326,13 @@ public static class WordAcademicFormatter
                 SetOrReplace(paragraph.ParagraphProperties, new W.SpacingBetweenLines { Before = "120", After = "60", Line = TableLineAtLeast, LineRule = W.LineSpacingRuleValues.AtLeast });
                 SetOrReplace(paragraph.ParagraphProperties, new W.KeepNext());
                 break;
+            case ParagraphKind.Keyword:
+                SetParagraphStyle(paragraph.ParagraphProperties, "BodyTextNoIndent");
+                paragraph.ParagraphProperties.RemoveAllChildren<W.Indentation>();
+                SetOrReplace(paragraph.ParagraphProperties, new W.Justification { Val = W.JustificationValues.Both });
+                SetOrReplace(paragraph.ParagraphProperties, new W.SpacingBetweenLines { Before = "0", After = "120", Line = BodyLineAtLeast, LineRule = W.LineSpacingRuleValues.AtLeast });
+                paragraph.ParagraphProperties.RemoveAllChildren<W.KeepNext>();
+                break;
             case ParagraphKind.List:
                 SetParagraphStyle(paragraph.ParagraphProperties, "Normal");
                 SetOrReplace(paragraph.ParagraphProperties, new W.Justification { Val = W.JustificationValues.Both });
@@ -813,6 +820,9 @@ public static class WordAcademicFormatter
         if (LooksLikeTableCaption(text))
             return ParagraphRole.TableCaption;
 
+        if (LooksLikeKeywordLine(text))
+            return ParagraphRole.Keyword;
+
         if (ChineseSectionHeadingRegex.IsMatch(text))
             return ParagraphRole.Heading(1);
 
@@ -843,6 +853,10 @@ public static class WordAcademicFormatter
         || text.Contains("学院", StringComparison.Ordinal)
         || text.Contains("大学", StringComparison.Ordinal)
         || text.Contains("集团", StringComparison.Ordinal);
+
+    static bool LooksLikeKeywordLine(string text) =>
+        (text.StartsWith("关键词", StringComparison.Ordinal) && (text.Contains('：') || text.Contains(':')))
+        || (text.StartsWith("Keywords", StringComparison.OrdinalIgnoreCase) && text.Contains(':'));
 
     static bool LooksLikeListText(string text) =>
         text.StartsWith("• ", StringComparison.Ordinal)
@@ -893,6 +907,7 @@ public static class WordAcademicFormatter
         public static ParagraphRole Subtitle => new(ParagraphKind.Subtitle, 0);
         public static ParagraphRole TableCaption => new(ParagraphKind.TableCaption, 0);
         public static ParagraphRole Heading(int level) => new(ParagraphKind.Heading, level);
+        public static ParagraphRole Keyword => new(ParagraphKind.Keyword, 0);
 
         public bool UsesHeadingFont => Kind is ParagraphKind.Title or ParagraphKind.Heading;
         public bool Bold => Kind is ParagraphKind.Title or ParagraphKind.Heading;
@@ -907,6 +922,7 @@ public static class WordAcademicFormatter
         Subtitle,
         Heading,
         TableCaption,
+        Keyword,
     }
 
     enum ItalicMode
