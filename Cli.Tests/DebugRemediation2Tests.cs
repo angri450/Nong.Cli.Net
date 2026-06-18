@@ -118,6 +118,188 @@ public class DebugRemediation2Tests
     }
 
     // =========================================================================
+    // #2 — academic-format skips cover-block and heuristic cover detection
+    // =========================================================================
+
+    [Fact]
+    public void AcademicFormat_SkipsCoverBlockMarker()
+    {
+        // Create a docx with a cover-block paragraph (CoverBlock style + large centered text)
+        var docxPath = Path.Combine(Path.GetTempPath(), "af-cover-" + Guid.NewGuid().ToString("N")[..8] + ".docx");
+        var outPath = Path.Combine(Path.GetTempPath(), "af-cover-out-" + Guid.NewGuid().ToString("N")[..8] + ".docx");
+        try
+        {
+            using (var createDoc = WordprocessingDocument.Create(docxPath, WordprocessingDocumentType.Document))
+            {
+                createDoc.AddMainDocumentPart();
+                var stylesPart = createDoc.MainDocumentPart!.AddNewPart<StyleDefinitionsPart>();
+                stylesPart.Styles = new Styles(
+                    new Style(new StyleName { Val = "CoverBlock" })
+                    {
+                        StyleId = "CoverBlock",
+                        Type = StyleValues.Paragraph,
+                    });
+                stylesPart.Styles.Save();
+
+                var coverPara = new Paragraph(
+                    new ParagraphProperties(
+                        new ParagraphStyleId { Val = "CoverBlock" },
+                        new Justification { Val = JustificationValues.Center }),
+                    new Run(
+                        new RunProperties(new FontSize { Val = "44" }),
+                        new Text("Course Paper Title")));
+
+                var bodyPara = new Paragraph(
+                    new ParagraphProperties(new Justification { Val = JustificationValues.Both }),
+                    new Run(new Text("Body text content.")));
+
+                var body = new Body(coverPara, bodyPara,
+                    new SectionProperties(new PageSize { Width = 11906, Height = 16838 }));
+                createDoc.MainDocumentPart.Document = new Document(body);
+            }
+
+            WordAcademicFormatter.Apply(docxPath, outPath);
+
+            using var resultDoc = WordprocessingDocument.Open(outPath, false);
+            var paras = resultDoc.MainDocumentPart!.Document.Body!.Elements<Paragraph>().ToList();
+            var coverResult = paras[0];
+
+            // Cover paragraph should retain center alignment (not changed to Both)
+            var jc = coverResult.ParagraphProperties?.Justification?.Val?.Value;
+            Assert.Equal(JustificationValues.Center, jc);
+
+            // Cover paragraph font size should remain 44 (not changed to 24)
+            var runFontSize = coverResult.Elements<Run>().FirstOrDefault()?
+                .RunProperties?.FontSize?.Val?.Value;
+            Assert.Equal("44", runFontSize);
+        }
+        finally
+        {
+            try { File.Delete(docxPath); } catch { }
+            try { File.Delete(outPath); } catch { }
+        }
+    }
+
+    [Fact]
+    public void AcademicFormat_HeuristicSkipsLargeCenteredUnindentedFirstPage()
+    {
+        // Simulate a hand-written cover: large font (44 half-pt), center, no indent
+        var docxPath = Path.Combine(Path.GetTempPath(), "af-heur-" + Guid.NewGuid().ToString("N")[..8] + ".docx");
+        var outPath = Path.Combine(Path.GetTempPath(), "af-heur-out-" + Guid.NewGuid().ToString("N")[..8] + ".docx");
+        try
+        {
+            using (var createDoc = WordprocessingDocument.Create(docxPath, WordprocessingDocumentType.Document))
+            {
+                createDoc.AddMainDocumentPart();
+                var coverTitle = new Paragraph(
+                    new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
+                    new Run(
+                        new RunProperties(new RunFonts { Ascii = "Times New Roman", EastAsia = "宋体" },
+                            new FontSize { Val = "44" }),
+                        new Text("English Course Paper")));
+
+                var coverSubtitle = new Paragraph(
+                    new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
+                    new Run(
+                        new RunProperties(new FontSize { Val = "36" }),
+                        new Text("Department of Horticulture")));
+
+                var bodyPara = new Paragraph(
+                    new ParagraphProperties(new Justification { Val = JustificationValues.Both }),
+                    new Run(new RunProperties(new FontSize { Val = "24" }),
+                        new Text("Introduction and background.")));
+
+                var body = new Body(coverTitle, coverSubtitle, bodyPara,
+                    new SectionProperties(new PageSize { Width = 11906, Height = 16838 }));
+                createDoc.MainDocumentPart!.Document = new Document(body);
+            }
+
+            WordAcademicFormatter.Apply(docxPath, outPath);
+
+            using var resultDoc = WordprocessingDocument.Open(outPath, false);
+            var paras = resultDoc.MainDocumentPart!.Document.Body!.Elements<Paragraph>().ToList();
+
+            // Cover paragraph 0: should retain center and 44pt
+            Assert.Equal(JustificationValues.Center,
+                paras[0].ParagraphProperties?.Justification?.Val?.Value);
+            Assert.Equal("44",
+                paras[0].Elements<Run>().First()?.RunProperties?.FontSize?.Val?.Value);
+
+            // Cover paragraph 1: should retain center and 36pt
+            Assert.Equal(JustificationValues.Center,
+                paras[1].ParagraphProperties?.Justification?.Val?.Value);
+            Assert.Equal("36",
+                paras[1].Elements<Run>().First()?.RunProperties?.FontSize?.Val?.Value);
+
+            // Body paragraph 2: should be reformatted to Both + 24pt
+            Assert.Equal(JustificationValues.Both,
+                paras[2].ParagraphProperties?.Justification?.Val?.Value);
+            Assert.Equal("24",
+                paras[2].Elements<Run>().First()?.RunProperties?.FontSize?.Val?.Value);
+        }
+        finally
+        {
+            try { File.Delete(docxPath); } catch { }
+            try { File.Delete(outPath); } catch { }
+        }
+    }
+
+    [Fact]
+    public void AcademicFormat_SkipFirstPageOption()
+    {
+        // Merged docx with section break between cover and body
+        var docxPath = Path.Combine(Path.GetTempPath(), "af-skip-" + Guid.NewGuid().ToString("N")[..8] + ".docx");
+        var outPath = Path.Combine(Path.GetTempPath(), "af-skip-out-" + Guid.NewGuid().ToString("N")[..8] + ".docx");
+        try
+        {
+            using (var createDoc = WordprocessingDocument.Create(docxPath, WordprocessingDocumentType.Document))
+            {
+                createDoc.AddMainDocumentPart();
+                // Cover page: large centered paragraphs
+                var coverTitle = new Paragraph(
+                    new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
+                    new Run(new RunProperties(new FontSize { Val = "44" }), new Text("Course Paper")));
+
+                // Section break paragraph (marks end of cover page, inserted by merge)
+                var sectionBreak = new Paragraph(
+                    new ParagraphProperties(new SectionProperties(
+                        new SectionType { Val = SectionMarkValues.NextPage })));
+
+                // Body: regular paragraph
+                var bodyPara = new Paragraph(
+                    new ParagraphProperties(new Justification { Val = JustificationValues.Both }),
+                    new Run(new RunProperties(new FontSize { Val = "24" }), new Text("Introduction text.")));
+
+                var body = new Body(coverTitle, sectionBreak, bodyPara,
+                    new SectionProperties(new PageSize { Width = 11906, Height = 16838 }));
+                createDoc.MainDocumentPart!.Document = new Document(body);
+            }
+
+            WordAcademicFormatter.Apply(docxPath, outPath, skipFirstPage: true);
+
+            using var resultDoc = WordprocessingDocument.Open(outPath, false);
+            var paras = resultDoc.MainDocumentPart!.Document.Body!.Elements<Paragraph>().ToList();
+
+            // Cover paragraph: should be untouched (skipped)
+            Assert.Equal(JustificationValues.Center,
+                paras[0].ParagraphProperties?.Justification?.Val?.Value);
+            Assert.Equal("44",
+                paras[0].Elements<Run>().First()?.RunProperties?.FontSize?.Val?.Value);
+
+            // Body paragraph: should be reformatted
+            Assert.Equal(JustificationValues.Both,
+                paras[2].ParagraphProperties?.Justification?.Val?.Value);
+            Assert.Equal("24",
+                paras[2].Elements<Run>().First()?.RunProperties?.FontSize?.Val?.Value);
+        }
+        finally
+        {
+            try { File.Delete(docxPath); } catch { }
+            try { File.Delete(outPath); } catch { }
+        }
+    }
+
+    // =========================================================================
     // Helpers
     // =========================================================================
 

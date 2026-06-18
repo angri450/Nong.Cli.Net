@@ -93,7 +93,7 @@ public static class WordAcademicFormatter
         int LatinParentheticalRunsItalicized,
         List<string> Warnings);
 
-    public static AcademicFormatResult Apply(string inputPath, string outputPath, bool keepTableBorders = false)
+    public static AcademicFormatResult Apply(string inputPath, string outputPath, bool keepTableBorders = false, bool skipFirstPage = false)
     {
         GuardDifferentPaths(inputPath, outputPath);
         File.Copy(inputPath, outputPath, true);
@@ -116,12 +116,28 @@ public static class WordAcademicFormatter
         foreach (var root in roots)
         {
             var bodyParagraphIndex = 0;
+            var firstPageSkipped = false; // V5.0.2: track whether we've passed first page
             foreach (var paragraph in root.Descendants<W.Paragraph>())
             {
                 paragraphs++;
                 var styleId = paragraph.ParagraphProperties?.ParagraphStyleId?.Val?.Value;
                 var styleName = WordHeadingStyles.GetStyleName(mainPart, styleId);
                 var role = ClassifyParagraph(paragraph, styleId, styleName, bodyParagraphIndex);
+
+                // V5.0.2: --skip-first-page skips all paragraphs before the first section break
+                if (skipFirstPage && !firstPageSkipped)
+                {
+                    if (IsSectionBreak(paragraph))
+                        firstPageSkipped = true;
+                    // Still process the section break paragraph itself (it's empty/structural)
+                    // but skip all formatting for content paragraphs before it
+                    if (!firstPageSkipped && role.Kind != ParagraphKind.Empty)
+                    {
+                        bodyParagraphIndex++;
+                        continue;
+                    }
+                }
+
                 FormatParagraph(paragraph, role);
 
                 var paragraphRuns = paragraph.Elements<W.Run>().ToList();
@@ -288,6 +304,10 @@ public static class WordAcademicFormatter
                 SetOrReplace(paragraph.ParagraphProperties, new W.SpacingBetweenLines { Before = "0", After = "0", Line = BodyLineAtLeast, LineRule = W.LineSpacingRuleValues.AtLeast });
                 paragraph.ParagraphProperties.RemoveAllChildren<W.KeepNext>();
                 break;
+            case ParagraphKind.CoverBlock:
+                // V5.0.2: CoverBlock paragraphs are left completely untouched.
+                // Their formatting (font, size, alignment, spacing) is preserved as-is.
+                break;
             case ParagraphKind.Title:
                 SetParagraphStyle(paragraph.ParagraphProperties, "Title");
                 paragraph.ParagraphProperties.RemoveAllChildren<W.Indentation>();
@@ -359,6 +379,10 @@ public static class WordAcademicFormatter
 
     static void FormatRun(W.Run run, ParagraphRole role, ItalicMode italicMode = ItalicMode.Preserve)
     {
+        // V5.0.2: CoverBlock runs are left untouched.
+        if (role.Kind == ParagraphKind.CoverBlock)
+            return;
+
         run.RunProperties ??= new W.RunProperties();
         RemoveChildrenByLocalName(run.RunProperties, "snapToGrid");
         if (role.Kind == ParagraphKind.TableCaption)
@@ -810,8 +834,15 @@ public static class WordAcademicFormatter
             if (styleId.Equals("Caption", StringComparison.OrdinalIgnoreCase))
                 return ParagraphRole.TableCaption;
             if (styleId.Equals("CoverBlock", StringComparison.OrdinalIgnoreCase))
-                return ParagraphRole.Empty; // V5.0.1: cover-block paragraphs untouched
+                return ParagraphRole.CoverBlock; // V5.0.1: cover-block marker → skip
         }
+
+        // V5.0.2: heuristic cover detection — large centered non-indented early paragraphs
+        // are likely cover elements (hand-written or merged from external tools).
+        // fontSize ≥ 36 half-pt (18pt) + center + no firstLineIndent + very early (index ≤ 3) → skip.
+        // Thresholds are intentionally narrow to avoid false positives on regular document titles.
+        // NOTE: existing Chinese title/subtitle patterns take priority — the heuristic only
+        // catches covers that don't match 方案书/论文/编制日期 etc. (e.g. English papers).
 
         if (paragraphIndex <= 2 && LooksLikeCoverTitle(text))
             return ParagraphRole.Title;
@@ -824,6 +855,9 @@ public static class WordAcademicFormatter
 
         if (LooksLikeKeywordLine(text))
             return ParagraphRole.Keyword;
+
+        if (paragraphIndex <= 3 && LooksLikeCoverParagraph(paragraph))
+            return ParagraphRole.CoverBlock;
 
         if (ChineseSectionHeadingRegex.IsMatch(text))
             return ParagraphRole.Heading(1);
@@ -856,6 +890,41 @@ public static class WordAcademicFormatter
         || text.Contains("大学", StringComparison.Ordinal)
         || text.Contains("集团", StringComparison.Ordinal);
 
+    /// <summary>
+    /// V5.0.2: heuristic cover detection — a paragraph is likely a cover element if
+    /// it has large font (≥32 half-pt ≈ 16pt), center alignment, no first-line indent,
+    /// and appears early in the document (checked by caller via paragraphIndex ≤ 5).
+    /// This catches hand-written covers and covers generated by external tools
+    /// that don't use the CoverBlock style marker.
+    /// </summary>
+    static bool LooksLikeCoverParagraph(W.Paragraph paragraph)
+    {
+        var props = paragraph.ParagraphProperties;
+        if (props == null)
+            return false;
+
+        // Check font size from the first run's run properties
+        var firstRun = paragraph.Elements<W.Run>().FirstOrDefault();
+        var runProps = firstRun?.RunProperties;
+        var fontSize = runProps?.FontSize?.Val?.Value;
+        if (fontSize == null || !int.TryParse(fontSize, out var fsz) || fsz < 36)
+            return false;
+
+        // Center alignment
+        if (props.Justification?.Val?.Value != W.JustificationValues.Center)
+            return false;
+
+        // No first-line indent
+        if (props.Indentation?.FirstLine?.Value != null)
+            return false;
+
+        // Has text (not empty)
+        if (string.IsNullOrWhiteSpace(paragraph.InnerText))
+            return false;
+
+        return true;
+    }
+
     static bool LooksLikeKeywordLine(string text) =>
         (text.StartsWith("关键词", StringComparison.Ordinal) && (text.Contains('：') || text.Contains(':')))
         || (text.StartsWith("Keywords", StringComparison.OrdinalIgnoreCase) && text.Contains(':'));
@@ -866,6 +935,15 @@ public static class WordAcademicFormatter
 
     static bool LooksLikeTableCaption(string text) =>
         TableCaptionRegex.IsMatch(text);
+
+    /// <summary>
+    /// V5.0.2: detects a section-break paragraph — a paragraph whose properties contain
+    /// a SectionProperties with SectionType NextPage (inserted by merge or explicit page break).
+    /// These mark the boundary between cover and body content.
+    /// </summary>
+    static bool IsSectionBreak(W.Paragraph paragraph) =>
+        paragraph.ParagraphProperties?.GetFirstChild<W.SectionProperties>()?
+            .GetFirstChild<W.SectionType>()?.Val?.Value == W.SectionMarkValues.NextPage;
 
     static bool ShouldLeftAlignTableText(string text) =>
         text.Length >= 12
@@ -897,6 +975,7 @@ public static class WordAcademicFormatter
         ParagraphKind.Heading when role.HeadingLevel == 2 => Heading2FontSize,
         ParagraphKind.Heading => Heading3FontSize,
         ParagraphKind.TableCaption => TableFontSize,
+        ParagraphKind.CoverBlock => TitleFontSize, // V5.0.2: not used (runs skipped) but kept for compile safety
         _ => BodyFontSize,
     };
 
@@ -910,6 +989,7 @@ public static class WordAcademicFormatter
         public static ParagraphRole TableCaption => new(ParagraphKind.TableCaption, 0);
         public static ParagraphRole Heading(int level) => new(ParagraphKind.Heading, level);
         public static ParagraphRole Keyword => new(ParagraphKind.Keyword, 0);
+        public static ParagraphRole CoverBlock => new(ParagraphKind.CoverBlock, 0);
 
         public bool UsesHeadingFont => Kind is ParagraphKind.Title or ParagraphKind.Heading;
         public bool Bold => Kind is ParagraphKind.Title or ParagraphKind.Heading;
@@ -925,6 +1005,7 @@ public static class WordAcademicFormatter
         Heading,
         TableCaption,
         Keyword,
+        CoverBlock,
     }
 
     enum ItalicMode

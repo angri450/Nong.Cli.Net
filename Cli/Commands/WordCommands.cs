@@ -2126,8 +2126,9 @@ public static class WordCommands
         var fileArg = new Argument<string>("file", "Path to .docx file");
         var outOpt = new Option<string>("-o", "Output .docx path") { IsRequired = true };
         var keepBordersOpt = new Option<bool>("--keep-table-borders", () => false, "Preserve original table borders (e.g. for form documents). Default: three-line academic table style.");
-        var cmd = new Command("academic-format", "Visible academic Word formatting repair for headings, body text, tables, fonts, and spacing") { fileArg, outOpt, keepBordersOpt };
-        cmd.SetHandler((string file, string output, bool keepTableBorders, bool json) =>
+        var skipFirstPageOpt = new Option<bool>("--skip-first-page", () => false, "Skip first-page content (cover, abstract, etc.), applying format only after the first section break.");
+        var cmd = new Command("academic-format", "Visible academic Word formatting repair for headings, body text, tables, fonts, and spacing") { fileArg, outOpt, keepBordersOpt, skipFirstPageOpt };
+        cmd.SetHandler((string file, string output, bool keepTableBorders, bool skipFirstPage, bool json) =>
         {
             const string command = "word academic-format";
             var err = CliHelpers.ValidateDocxFile(file);
@@ -2150,7 +2151,7 @@ public static class WordCommands
                 CliHelpers.EnsureParentDir(output);
                 var (r, e) = CliHelpers.Time(() =>
                 {
-                    var formatted = WordAcademicFormatter.Apply(file, output, keepTableBorders);
+                    var formatted = WordAcademicFormatter.Apply(file, output, keepTableBorders, skipFirstPage);
                     FixOrderInPlace(output);
                     return formatted;
                 });
@@ -2175,7 +2176,7 @@ public static class WordCommands
             {
                 CliHelpers.WriteError(command, ErrorCodes.InternalError with { Message = ex.Message }, json);
             }
-        }, fileArg, outOpt, keepBordersOpt, jsonOpt);
+        }, fileArg, outOpt, keepBordersOpt, skipFirstPageOpt, jsonOpt);
         return cmd;
     }
 
