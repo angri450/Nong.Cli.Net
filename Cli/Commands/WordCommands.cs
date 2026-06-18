@@ -95,6 +95,9 @@ public static class WordCommands
         cmd.AddCommand(CreateDbBlocks(jsonOpt));
         cmd.AddCommand(CreateDbImages(jsonOpt));
 
+        // === V5: tab stops ===
+        cmd.AddCommand(CreateTabStops(jsonOpt));
+
         return cmd;
     }
 
@@ -3355,6 +3358,115 @@ public static class WordCommands
             Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
         }, idArg, typeArg, limitArg, jsonOpt);
         return cmd;
+    }
+
+    static Command CreateTabStops(Option<bool> jsonOpt)
+    {
+        var cmd = new Command("tab-stops", "Read or set paragraph tab stops (V5)");
+        var inputOpt = new Option<FileInfo>("--input", "Input .docx file") { IsRequired = true };
+        var paragraphOpt = new Option<string>("--paragraph", "Paragraph index (0-based) or block ID") { IsRequired = true };
+        var setOpt = new Option<string?>("--set", "Set tab stops (e.g. \"4cm dot,15cm right\")");
+        var outputOpt = new Option<FileInfo?>("--output", "Output .docx file (required when --set)");
+        cmd.AddOption(inputOpt);
+        cmd.AddOption(paragraphOpt);
+        cmd.AddOption(setOpt);
+        cmd.AddOption(outputOpt);
+        cmd.AddOption(jsonOpt);
+
+        cmd.SetHandler((FileInfo input, string paragraph, string? set, FileInfo? output, bool json) =>
+        {
+            var fi = input.FullName;
+            if (!File.Exists(fi)) { Console.WriteLine(JsonOutput.Fail("File not found: " + fi, [])); return; }
+
+            // If --output specified, work on a copy
+            var workPath = fi;
+            if (output != null)
+            {
+                workPath = output.FullName;
+                File.Copy(fi, workPath, true);
+            }
+
+            using var doc = WordprocessingDocument.Open(workPath, true);
+            var body = doc.MainDocumentPart?.Document?.Body;
+            if (body == null) { Console.WriteLine(JsonOutput.Fail("No document body", [])); return; }
+
+            var paragraphs = body.Elements<Paragraph>().ToList();
+            if (!int.TryParse(paragraph, out var idx) || idx < 0 || idx >= paragraphs.Count)
+            {
+                Console.WriteLine(JsonOutput.Fail("Invalid paragraph index: " + paragraph, []));
+                return;
+            }
+
+            var p = paragraphs[idx];
+            var pPr = p.ParagraphProperties ?? new ParagraphProperties();
+
+            if (set != null)
+            {
+                // Parse --set like "4cm dot,15cm right"
+                var tabs = new DocxTabStops();
+                foreach (var part in set.Split(','))
+                {
+                    var spec = ParseTabStopSpec(part.Trim());
+                    if (spec != null) tabs.Add(spec);
+                }
+                tabs.ApplyTo(pPr);
+
+                // Ensure paragraph has the properties
+                if (p.ParagraphProperties == null) p.PrependChild(pPr);
+
+                doc.Save();
+                Console.WriteLine(JsonOutput.Ok("word tab-stops", $"Set {tabs.Stops.Count} tab stops", new { count = tabs.Stops.Count }));
+            }
+            else
+            {
+                // Read mode
+                var tabs = DocxTabStops.ReadFrom(pPr);
+                var items = tabs.Stops.Select(s => new
+                {
+                    positionCm = s.PositionCm,
+                    alignment = s.Alignment.ToString(),
+                    leader = s.Leader.ToString()
+                }).ToList();
+                Console.WriteLine(JsonSerializer.Serialize(new { status = "ok", count = items.Count, stops = items }, CliHelpers.JsonOpts));
+            }
+        }, inputOpt, paragraphOpt, setOpt, outputOpt, jsonOpt);
+        return cmd;
+    }
+
+    static TabStopSpec? ParseTabStopSpec(string part)
+    {
+        // Format: "{number}cm [{alignment}] [{leader}]"  e.g. "4cm dot", "15cm right", "8cm center dot"
+        var parts = part.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0) return null;
+
+        // First part must be "{number}cm"
+        var posStr = parts[0];
+        if (!posStr.EndsWith("cm") || !double.TryParse(posStr[..^2], out var posCm)) return null;
+
+        var alignment = TabAlignment.Left;
+        var leader = TabLeader.None;
+
+        for (int i = 1; i < parts.Length; i++)
+        {
+            var token = parts[i].ToLowerInvariant();
+            switch (token)
+            {
+                case "left": alignment = TabAlignment.Left; break;
+                case "center": alignment = TabAlignment.Center; break;
+                case "right": alignment = TabAlignment.Right; break;
+                case "decimal": alignment = TabAlignment.Decimal; break;
+                case "bar": alignment = TabAlignment.Bar; break;
+                case "num": alignment = TabAlignment.Num; break;
+                case "dot": leader = TabLeader.Dot; break;
+                case "hyphen": leader = TabLeader.Hyphen; break;
+                case "underscore": leader = TabLeader.Underscore; break;
+                case "heavy": leader = TabLeader.Heavy; break;
+                case "middledot": leader = TabLeader.MiddleDot; break;
+                case "none": leader = TabLeader.None; break;
+            }
+        }
+
+        return new TabStopSpec(posCm, alignment, leader);
     }
 
     static Command CreateDbImages(Option<bool> jsonOpt)
