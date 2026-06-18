@@ -63,4 +63,21 @@ public class DocxTabStopsTests
         Assert.Equal(8.0, read.Stops[0].PositionCm);
         Assert.Equal(TabAlignment.Center, read.Stops[0].Alignment);
     }
+
+    [Fact]
+    public void ParagraphBuilder_TabStop_AddsToParagraphProperties()
+    {
+        var p = new ParagraphBuilder()
+            .Text("标题\t页码")
+            .TabStop(15.0, TabAlignment.Right, TabLeader.Dot)
+            .Build();
+
+        var pPr = p.ParagraphProperties;
+        Assert.NotNull(pPr);
+        var tabs = DocxTabStops.ReadFrom(pPr!);
+        Assert.Single(tabs.Stops);
+        Assert.Equal(15.0, tabs.Stops[0].PositionCm);
+        Assert.Equal(TabAlignment.Right, tabs.Stops[0].Alignment);
+        Assert.Equal(TabLeader.Dot, tabs.Stops[0].Leader);
+    }
 }

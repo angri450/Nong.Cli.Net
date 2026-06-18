@@ -9,6 +9,7 @@ public class ParagraphBuilder
     readonly Paragraph _p = new();
     ParagraphProperties? _ppr;
     readonly List<Run> _runs = new();
+    readonly DocxTabStops _tabStops = new();
 
     public ParagraphBuilder Style(string id) { Ppr().ParagraphStyleId = new ParagraphStyleId { Val = id }; return this; }
     public ParagraphBuilder Align(JustificationValues v) { Ppr().Justification = new Justification { Val = v }; return this; }
@@ -28,8 +29,15 @@ public class ParagraphBuilder
     public ParagraphBuilder Sup(string t) => Run(t, r => { r.VerticalTextAlignment = new VerticalTextAlignment { Val = VerticalPositionValues.Superscript }; r.FontSize = new FontSize { Val = "18" }; });
     public ParagraphBuilder Bold(string t) => Run(t, r => { r.Bold = new Bold(); });
 
+    public ParagraphBuilder TabStop(double positionCm, TabAlignment alignment, TabLeader leader = TabLeader.None)
+    {
+        _tabStops.Add(new TabStopSpec(positionCm, alignment, leader));
+        return this;
+    }
+
     public Paragraph Build()
     {
+        _tabStops.ApplyTo(Ppr());
         if (_ppr != null) _p.Append(_ppr);
         foreach (var r in _runs) _p.Append(r);
         return _p;
