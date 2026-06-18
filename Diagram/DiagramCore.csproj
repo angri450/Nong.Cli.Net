@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>DiagramCore</RootNamespace>
     <IsPackable>false</IsPackable>
-    <Version>5.0.1</Version>
+    <Version>5.0.2</Version>
     <Authors>angri450</Authors>
     <Description>Scientific diagram generator — flowcharts, network graphs, phylogenetic trees, mechanism diagrams. Pure .NET with MSAGL layout and SkiaSharp rendering, merged via ThirdParty.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>

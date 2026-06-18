@@ -2,5 +2,5 @@ namespace Nong.Cli.Common;
 
 public static class CliVersion
 {
-    public const string Current = "5.0.1";
+    public const string Current = "5.0.2";
 }

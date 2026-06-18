@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>MultiModalCore</RootNamespace>
     <IsPackable>false</IsPackable>
-    <Version>5.0.1</Version>
+    <Version>5.0.2</Version>
     <Authors>angri450</Authors>
     <Description>Pure .NET ONNX Runtime OCR engine (PP-OCRv6). SkiaSharp image loading, no Python/PaddleInference/OpenCV.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
