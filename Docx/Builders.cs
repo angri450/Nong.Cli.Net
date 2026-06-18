@@ -52,8 +52,10 @@ public class TableBuilder
     readonly TableGrid _grid = new();
     readonly List<TableRow> _rows = new();
     readonly List<HorizontalMerge> _pendingMerges = new();
+    readonly List<VMerge> _pendingVMerges = new();
 
     record HorizontalMerge(int Row, int Col1, int Col2);
+    record VMerge(int Col, int Row1, int Row2);
 
     public TableBuilder WidthPct(int pct = 100) { _tpr.Append(new TableWidth { Type = TableWidthUnitValues.Pct, Width = (pct * 50).ToString() }); return this; }
     public TableBuilder AutoWidth() { _tpr.Append(new TableLayout { Type = TableLayoutValues.Fixed }); return this; }
@@ -84,6 +86,80 @@ public class TableBuilder
         return this;
     }
 
+    /// <summary>Merge cells vertically: merge rows row1 through row2 (inclusive) on the given column.</summary>
+    public TableBuilder MergeVertical(int col, int row1, int row2)
+    {
+        _pendingVMerges.Add(new VMerge(col, row1, row2));
+        return this;
+    }
+
+    /// <summary>Merge a rectangular range of cells.</summary>
+    public TableBuilder MergeRange(int row1, int col1, int row2, int col2)
+    {
+        MergeHorizontal(row1, col1, col2);
+        if (row2 > row1)
+        {
+            for (int c = col1; c <= col2; c++)
+                MergeVertical(c, row1, row2);
+        }
+        return this;
+    }
+
+    /// <summary>Split a merged cell back into individual cells.</summary>
+    public TableBuilder SplitAt(int row, int col)
+    {
+        if (row >= 0 && row < _rows.Count)
+        {
+            var cells = _rows[row].Elements<TableCell>().ToList();
+            if (col >= 0 && col < cells.Count)
+            {
+                var cell = cells[col];
+                var tcPr = cell.TableCellProperties;
+                int span = 1;
+                if (tcPr != null)
+                {
+                    span = tcPr.GridSpan?.Val?.Value ?? 1;
+                    tcPr.GridSpan?.Remove();
+                    tcPr.VerticalMerge?.Remove();
+                }
+                // Insert additional cells to fill the span
+                for (int i = 1; i < span; i++)
+                {
+                    var newCell = MakeCell("", false, false);
+                    _rows[row].InsertAfter(newCell, cell);
+                    cell = newCell;
+                }
+            }
+        }
+        return this;
+    }
+
+    /// <summary>Reconstruct a TableBuilder from an existing table for editing.</summary>
+    public static TableBuilder FromExisting(Table table)
+    {
+        var builder = new TableBuilder();
+        // Copy table properties
+        var existingTpr = table.GetFirstChild<TableProperties>();
+        if (existingTpr != null)
+        {
+            foreach (var child in existingTpr.CloneNode(true).ChildElements)
+                builder._tpr.Append(child.CloneNode(true));
+        }
+        // Copy grid
+        var existingGrid = table.GetFirstChild<TableGrid>();
+        if (existingGrid != null)
+        {
+            foreach (var gc in existingGrid.Elements<GridColumn>())
+                builder._grid.Append(new GridColumn { Width = gc.Width?.Value?.ToString() });
+        }
+        // Copy rows
+        foreach (var row in table.Elements<TableRow>())
+        {
+            builder._rows.Add((TableRow)row.CloneNode(true));
+        }
+        return builder;
+    }
+
     public Table Build()
     {
         // Process pending horizontal merges
@@ -105,6 +181,27 @@ public class TableBuilder
                     // Remove merged cells
                     for (int c = m.Col2; c > m.Col1; c--)
                         cells[c].Remove();
+                }
+            }
+        }
+
+        // Process pending vertical merges
+        foreach (var vm in _pendingVMerges)
+        {
+            if (vm.Row1 >= 0 && vm.Row2 < _rows.Count && vm.Row1 < vm.Row2)
+            {
+                for (int r = vm.Row1; r <= vm.Row2; r++)
+                {
+                    var cells = _rows[r].Elements<TableCell>().ToList();
+                    if (vm.Col >= 0 && vm.Col < cells.Count)
+                    {
+                        var tcPr = cells[vm.Col].TableCellProperties;
+                        if (tcPr == null) { tcPr = new TableCellProperties(); cells[vm.Col].PrependChild(tcPr); }
+                        if (r == vm.Row1)
+                            tcPr.VerticalMerge = new DocumentFormat.OpenXml.Wordprocessing.VerticalMerge { Val = MergedCellValues.Restart };
+                        else
+                            tcPr.VerticalMerge = new DocumentFormat.OpenXml.Wordprocessing.VerticalMerge(); // continue
+                    }
                 }
             }
         }
