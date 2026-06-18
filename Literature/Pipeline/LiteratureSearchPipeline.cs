@@ -143,10 +143,41 @@ public sealed class LiteratureSearchPipeline
 
         var filtered = _filter.Filter(records, query, request.FilterMode, out var filterIssues);
         issues.AddRange(filterIssues);
+
+        // V5.0.1: fallback — if strict filtering returned 0 but candidates exist, retry with recall
+        var usedFallback = false;
+        if (filtered.Count == 0 && records.Count > 0
+            && string.Equals(request.FilterMode, "strict", StringComparison.OrdinalIgnoreCase))
+        {
+            var recallFiltered = _filter.Filter(records, query, "recall", out var recallIssues);
+            issues.AddRange(recallIssues);
+            if (recallFiltered.Count > 0)
+            {
+                issues.Add(new LiteratureIssue
+                {
+                    Id = "fallback_recall",
+                    Severity = "Warning",
+                    Message = $"Strict filter returned 0 of {records.Count} candidates; auto-fallback to recall mode returned {recallFiltered.Count}."
+                });
+                filtered = recallFiltered;
+                usedFallback = true;
+            }
+        }
+
         var merged = _merger.Merge(filtered);
         var ranked = _ranker.Rank(merged, query, request.Profile)
             .Take(Math.Clamp(request.Limit <= 0 ? 50 : request.Limit, 1, 500))
             .ToArray();
+
+        if (usedFallback)
+        {
+            issues.Add(new LiteratureIssue
+            {
+                Id = "fallback_applied",
+                Severity = "Warning",
+                Message = "Results may include less relevant papers due to recall-mode fallback."
+            });
+        }
 
         return new LiteratureSearchResult
         {
@@ -158,7 +189,8 @@ public sealed class LiteratureSearchPipeline
                 ["candidates"] = records.Count,
                 ["filtered"] = filtered.Count,
                 ["merged"] = merged.Count,
-                ["returned"] = ranked.Length
+                ["returned"] = ranked.Length,
+                ["fallback"] = usedFallback ? "recall" : "none"
             }
         };
     }
