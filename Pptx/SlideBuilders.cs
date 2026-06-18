@@ -46,6 +46,9 @@ public sealed class ChartSlideBuilder
     internal string ChartText { get; private set; } = "";
     internal Dictionary<string, double>? PieData { get; private set; }
     internal Dictionary<string, double>? BarData { get; private set; }
+    internal Dictionary<double, double>? ScatterData { get; private set; }
+    internal IReadOnlyList<(double X, double Y, double Size)>? BubbleData { get; private set; }
+    internal IDictionary<string, IList<double>>? StackedData { get; private set; }
     internal string BarSeriesName { get; private set; } = "";
     internal string BackgroundHex { get; private set; } = "";
 
@@ -54,6 +57,9 @@ public sealed class ChartSlideBuilder
     public ChartSlideBuilder Background(string c) { BackgroundHex = c; return this; }
     public ChartSlideBuilder PieChart(Dictionary<string, double> data) { PieData = data; return this; }
     public ChartSlideBuilder BarChart(Dictionary<string, double> data, string seriesName = "") { BarData = data; BarSeriesName = seriesName; return this; }
+    public ChartSlideBuilder ScatterChart(Dictionary<double, double> data, string seriesName = "") { ScatterData = data; BarSeriesName = seriesName; return this; }
+    public ChartSlideBuilder BubbleChart(IReadOnlyList<(double X, double Y, double Size)> data, string seriesName = "") { BubbleData = data; BarSeriesName = seriesName; return this; }
+    public ChartSlideBuilder StackedColumnChart(IDictionary<string, IList<double>> data, string seriesName = "") { StackedData = data; BarSeriesName = seriesName; return this; }
 }
 
 public sealed class PictureSlideBuilder

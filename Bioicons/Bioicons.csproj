@@ -5,7 +5,7 @@
     <RootNamespace>Bioicons</RootNamespace>
     <AssemblyName>Bioicons</AssemblyName>
     <PackageId>Angri450.Nong.Bioicons</PackageId>
-    <Version>5.0.2</Version>
+    <Version>6.0.0</Version>
     <Authors>angri450</Authors>
     <Description>40 SVG scientific icons for biology, chemistry, medical, and lab equipment diagrams.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>

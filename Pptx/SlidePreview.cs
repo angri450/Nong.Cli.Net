@@ -124,7 +124,6 @@ public static class SlidePreview
                     }
                 }
                 catch (Exception ex) { Console.Error.WriteLine($"[SlidePreview] shape-map: {ex.GetType().Name}"); }
-                // ShapeCrawler 0.79.2 doesn't expose X/Y directly — use SDK element as fallback
                 shapes.Add(new ShapeMapShape(
                     Name: shape.Name,
                     Type: shape.ContentType.ToString(),
@@ -132,8 +131,8 @@ public static class SlidePreview
                     Text: shape.TextBox?.Text ?? "",
                     FontSize: fontSize,
                     FontName: fontName,
-                    X: 0,
-                    Y: 0,
+                    X: (int)shape.X,
+                    Y: (int)shape.Y,
                     W: (int)shape.Width,
                     H: (int)shape.Height
                 ));

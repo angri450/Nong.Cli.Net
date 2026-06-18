@@ -145,6 +145,7 @@ public sealed class RawAccessor : IDisposable
     /// <summary>Moves a slide from one position to another.</summary>
     public void MoveSlide(int fromIndex, int toIndex)
     {
+        // Reorder presentation.xml sldIdLst
         if (_entries.TryGetValue("ppt/presentation.xml", out var presXml))
         {
             var doc = System.Xml.Linq.XDocument.Parse(presXml);
@@ -160,6 +161,24 @@ public sealed class RawAccessor : IDisposable
                     items[toIndex].AddBeforeSelf(item);
             }
             _entries["ppt/presentation.xml"] = doc.ToString(SaveOptions);
+        }
+        // Reorder relationships accordingly
+        if (_entries.TryGetValue("ppt/_rels/presentation.xml.rels", out var relsXml))
+        {
+            var rdoc = System.Xml.Linq.XDocument.Parse(relsXml);
+            var rNs = System.Xml.Linq.XNamespace.Get("http://schemas.openxmlformats.org/package/2006/relationships");
+            var rels = rdoc.Descendants(rNs + "Relationship")
+                .Where(r => r.Attribute("Target")?.Value.StartsWith("slides/slide") == true).ToList();
+            if (fromIndex < rels.Count && toIndex < rels.Count)
+            {
+                var rel = rels[fromIndex];
+                rel.Remove();
+                if (toIndex >= rels.Count - 1)
+                    rdoc.Root?.Add(rel);
+                else
+                    rels[toIndex].AddBeforeSelf(rel);
+            }
+            _entries["ppt/_rels/presentation.xml.rels"] = rdoc.ToString(SaveOptions);
         }
     }
 

@@ -61,6 +61,10 @@ public sealed class ThemePreset : IEquatable<ThemePreset>
             "minimal" => Minimal,
             "warm" => Warm,
             "cool" => Cool,
+            "midnightexecutive" or "midnight-executive" or "midnight" => MidnightExecutive,
+            "coralenergy" or "coral-energy" or "coral" => CoralEnergy,
+            "tealtrust" or "teal-trust" or "teal" => TealTrust,
+            "cherrybold" or "cherry-bold" or "cherry" => CherryBold,
             _ => null
         };
     }
@@ -105,6 +109,34 @@ public sealed class ThemePreset : IEquatable<ThemePreset>
         Accent1 = "2980B9", Accent2 = "1ABC9C", Accent3 = "16A085",
         Dark1 = "1A2836", Light1 = "FFFFFF", Dark2 = "2C3E50", Light2 = "F4F8FB",
         BodyFont = "Calibri", HeadFont = "Calibri", BodyCJK = "微软雅黑", HeadCJK = "微软雅黑"
+    };
+
+    public static ThemePreset MidnightExecutive => new()
+    {
+        Accent1 = "1C2833", Accent2 = "2E4053", Accent3 = "5D6D7E",
+        Dark1 = "0E1621", Light1 = "FFFFFF", Dark2 = "1B2631", Light2 = "EAEDED",
+        BodyFont = "Segoe UI", HeadFont = "Segoe UI Light", BodyCJK = "微软雅黑", HeadCJK = "微软雅黑"
+    };
+
+    public static ThemePreset CoralEnergy => new()
+    {
+        Accent1 = "E74C3C", Accent2 = "F39C12", Accent3 = "F1C40F",
+        Dark1 = "2C3E50", Light1 = "FFFFFF", Dark2 = "4A4A4A", Light2 = "FDF2F2",
+        BodyFont = "Calibri", HeadFont = "Calibri", BodyCJK = "微软雅黑", HeadCJK = "微软雅黑"
+    };
+
+    public static ThemePreset TealTrust => new()
+    {
+        Accent1 = "0E6655", Accent2 = "148F77", Accent3 = "1ABC9C",
+        Dark1 = "17202A", Light1 = "FFFFFF", Dark2 = "2C3E50", Light2 = "E8F8F5",
+        BodyFont = "Segoe UI", HeadFont = "Segoe UI", BodyCJK = "微软雅黑", HeadCJK = "微软雅黑"
+    };
+
+    public static ThemePreset CherryBold => new()
+    {
+        Accent1 = "C0392B", Accent2 = "E74C3C", Accent3 = "F1948A",
+        Dark1 = "1A1A1A", Light1 = "FFFFFF", Dark2 = "333333", Light2 = "FDEDEC",
+        BodyFont = "Georgia", HeadFont = "Georgia", BodyCJK = "黑体", HeadCJK = "黑体"
     };
 
     // --- JSON loader ---

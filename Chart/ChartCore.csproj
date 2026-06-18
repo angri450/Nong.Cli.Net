@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>ChartCore</RootNamespace>
     <IsPackable>false</IsPackable>
-    <Version>5.0.2</Version>
+    <Version>6.0.0</Version>
     <Authors>angri450</Authors>
     <Description>Statistical chart generation for academic papers — ANOVA, Duncan MRT, publication-quality figures. ClosedXML, OpenXml SDK, ScottPlot, SkiaSharp and all dependencies merged via ThirdParty.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>

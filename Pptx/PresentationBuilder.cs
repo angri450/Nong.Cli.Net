@@ -9,6 +9,8 @@ public sealed class PresentationBuilder : IDisposable
     private readonly List<string> _errors = new();
     private ThemePreset? _theme;
     private bool _showPageNumbers = true;
+    private bool _preserveLayout = false;
+    private bool _preserveOriginalTheme = false;
     private readonly Dictionary<int, List<ShapeStyle>> _pendingStyles = new();
     private bool _disposed;
 
@@ -24,6 +26,8 @@ public sealed class PresentationBuilder : IDisposable
 
     public PresentationBuilder Theme(ThemePreset theme) { _theme = theme; return this; }
     public PresentationBuilder PageNumbers(bool show = true) { _showPageNumbers = show; return this; }
+    public PresentationBuilder PreserveLayout(bool preserve = true) { _preserveLayout = preserve; return this; }
+    public PresentationBuilder PreserveOriginalTheme(bool preserve = true) { _preserveOriginalTheme = preserve; return this; }
     public PresentationBuilder Notes(params string[] lines)
     {
         var slideIdx = _pres.Slides.Count - 1;
@@ -39,7 +43,7 @@ public sealed class PresentationBuilder : IDisposable
     {
         _pres.Slides.Add(1);
         var slide = _pres.Slides[_pres.Slides.Count - 1];
-        RemoveAllPlaceholders(slide);
+        if (!_preserveLayout) RemoveAllPlaceholders(slide);
         return new SlideHelper(slide, this) { Theme = _theme };
     }
 
@@ -133,9 +137,15 @@ public sealed class PresentationBuilder : IDisposable
         StyleHeading(slide.Shapes[slide.Shapes.Count - 1], LayoutSystem.FontSizes.H2, null);
 
         if (opt.PieData != null)
-            slide.Shapes.AddPieChart(LayoutSystem.Margin_X, LayoutSystem.Chart.ChartY, LayoutSystem.Chart.ChartWidth, LayoutSystem.Chart.ChartHeight, opt.PieData, "Series 1");
+            slide.Shapes.AddPieChart(LayoutSystem.Margin_X, LayoutSystem.Chart.ChartY, LayoutSystem.Chart.ChartWidth, LayoutSystem.Chart.ChartHeight, opt.PieData, opt.BarSeriesName.Length > 0 ? opt.BarSeriesName : "Series 1");
         else if (opt.BarData != null)
-            slide.Shapes.AddBarChart(LayoutSystem.Margin_X, LayoutSystem.Chart.ChartY, LayoutSystem.Chart.ChartWidth, LayoutSystem.Chart.ChartHeight, opt.BarData, "Series 1");
+            slide.Shapes.AddBarChart(LayoutSystem.Margin_X, LayoutSystem.Chart.ChartY, LayoutSystem.Chart.ChartWidth, LayoutSystem.Chart.ChartHeight, opt.BarData, opt.BarSeriesName.Length > 0 ? opt.BarSeriesName : "Series 1");
+        else if (opt.ScatterData != null)
+            slide.Shapes.AddScatterChart(LayoutSystem.Margin_X, LayoutSystem.Chart.ChartY, LayoutSystem.Chart.ChartWidth, LayoutSystem.Chart.ChartHeight, opt.ScatterData, opt.BarSeriesName.Length > 0 ? opt.BarSeriesName : "Series 1");
+        else if (opt.BubbleData != null)
+            slide.Shapes.AddBubbleChart(LayoutSystem.Margin_X, LayoutSystem.Chart.ChartY, LayoutSystem.Chart.ChartWidth, LayoutSystem.Chart.ChartHeight, opt.BubbleData, opt.BarSeriesName.Length > 0 ? opt.BarSeriesName : "Series 1");
+        else if (opt.StackedData != null)
+            slide.Shapes.AddStackedColumnChart(LayoutSystem.Margin_X, LayoutSystem.Chart.ChartY, LayoutSystem.Chart.ChartWidth, LayoutSystem.Chart.ChartHeight, opt.StackedData, new[] { opt.BarSeriesName.Length > 0 ? opt.BarSeriesName : "Series 1" });
 
         if (_showPageNumbers) AddPageNumber(slide);
         return this;
@@ -164,7 +174,7 @@ public sealed class PresentationBuilder : IDisposable
     public string Save(string path)
     {
         if (_pres.Slides.Count == 0) _pres.Slides.Add(1);
-        if (_theme != null && _pres.MasterSlides.Any()) _theme.ApplyToMasterSlide(_pres.MasterSlides[0]);
+        if (_theme != null && _pres.MasterSlides.Any() && !_preserveOriginalTheme) _theme.ApplyToMasterSlide(_pres.MasterSlides[0]);
         foreach (var kv in _notes)
         {
             if (kv.Key < _pres.Slides.Count)
@@ -180,17 +190,32 @@ public sealed class PresentationBuilder : IDisposable
         try
         {
             var a = System.Xml.Linq.XNamespace.Get("http://schemas.openxmlformats.org/drawingml/2006/main");
-            var cjk = _theme?.BodyCJK;
+            var bodyCjk = _theme?.BodyCJK;
+            var headCjk = _theme?.HeadCJK;
             using var zip = System.IO.Compression.ZipFile.Open(path, System.IO.Compression.ZipArchiveMode.Update);
             foreach (var entry in zip.Entries.Where(e => e.FullName.StartsWith("ppt/slides/slide", StringComparison.OrdinalIgnoreCase) && e.FullName.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)).ToList())
             {
                 string xml; using (var r = new System.IO.StreamReader(entry.Open())) xml = r.ReadToEnd();
                 var doc = System.Xml.Linq.XDocument.Parse(xml); bool changed = false;
 
-                if (cjk != null)
-                    foreach (var rPr in doc.Descendants(a + "rPr"))
-                        if (rPr.Element(a + "ea") == null)
-                        { rPr.Add(new System.Xml.Linq.XElement(a + "ea", new System.Xml.Linq.XAttribute("typeface", cjk))); changed = true; }
+                // Inject CJK fonts and complex script marker
+                var allRuns = doc.Descendants(a + "rPr").ToList();
+                for (int i = 0; i < allRuns.Count; i++)
+                {
+                    var rPr = allRuns[i];
+                    var isFirstParagraph = rPr.Ancestors(a + "p").FirstOrDefault()?.ElementsBeforeSelf().Any() == false;
+                    var cjkFont = isFirstParagraph && headCjk != null ? headCjk : bodyCjk;
+                    if (cjkFont != null && rPr.Element(a + "ea") == null)
+                    {
+                        rPr.Add(new System.Xml.Linq.XElement(a + "ea", new System.Xml.Linq.XAttribute("typeface", cjkFont)));
+                        changed = true;
+                    }
+                    if (rPr.Element(a + "cs") == null)
+                    {
+                        rPr.Add(new System.Xml.Linq.XElement(a + "cs", new System.Xml.Linq.XAttribute("typeface", cjkFont ?? bodyCjk ?? "")));
+                        changed = true;
+                    }
+                }
 
                 var m = System.Text.RegularExpressions.Regex.Match(entry.Name, @"\d+");
                 if (m.Success && _pendingStyles.TryGetValue(int.Parse(m.Value) - 1, out var styles))
