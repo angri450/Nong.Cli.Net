@@ -51,6 +51,9 @@ public class TableBuilder
     readonly TableProperties _tpr = new();
     readonly TableGrid _grid = new();
     readonly List<TableRow> _rows = new();
+    readonly List<HorizontalMerge> _pendingMerges = new();
+
+    record HorizontalMerge(int Row, int Col1, int Col2);
 
     public TableBuilder WidthPct(int pct = 100) { _tpr.Append(new TableWidth { Type = TableWidthUnitValues.Pct, Width = (pct * 50).ToString() }); return this; }
     public TableBuilder AutoWidth() { _tpr.Append(new TableLayout { Type = TableLayoutValues.Fixed }); return this; }
@@ -71,8 +74,46 @@ public class TableBuilder
     public TableBuilder Columns(params int[] widths) { foreach (var w in widths) _grid.Append(new GridColumn { Width = w.ToString() }); return this; }
     public TableBuilder HeaderRow(params string[] cells) { var row = new TableRow(); foreach (var c in cells) row.Append(MakeCell(c, true, true)); _rows.Add(row); return this; }
     public TableBuilder DataRow(params string[] cells) { var row = new TableRow(); foreach (var c in cells) row.Append(MakeCell(c, false, false)); _rows.Add(row); return this; }
+    public TableBuilder Headers(params string[] cells) => HeaderRow(cells);
+    public TableBuilder Row(params string[] cells) => DataRow(cells);
 
-    public Table Build() { _t.Append(_tpr); _t.Append(_grid); foreach (var r in _rows) _t.Append(r); return _t; }
+    /// <summary>Merge cells horizontally: merge columns col1 through col2 (inclusive) on the given row.</summary>
+    public TableBuilder MergeHorizontal(int row, int col1, int col2)
+    {
+        _pendingMerges.Add(new HorizontalMerge(row, col1, col2));
+        return this;
+    }
+
+    public Table Build()
+    {
+        // Process pending horizontal merges
+        foreach (var m in _pendingMerges)
+        {
+            if (m.Row >= 0 && m.Row < _rows.Count)
+            {
+                var row = _rows[m.Row];
+                var cells = row.Elements<TableCell>().ToList();
+                if (m.Col1 >= 0 && m.Col2 < cells.Count && m.Col1 < m.Col2)
+                {
+                    var targetCell = cells[m.Col1];
+                    var tcPr = targetCell.TableCellProperties;
+                    if (tcPr == null) { tcPr = new TableCellProperties(); targetCell.PrependChild(tcPr); }
+                    var existingSpan = tcPr.GridSpan;
+                    if (existingSpan != null) existingSpan.Remove();
+                    tcPr.Append(new GridSpan { Val = m.Col2 - m.Col1 + 1 });
+
+                    // Remove merged cells
+                    for (int c = m.Col2; c > m.Col1; c--)
+                        cells[c].Remove();
+                }
+            }
+        }
+
+        _t.Append(_tpr);
+        _t.Append(_grid);
+        foreach (var r in _rows) _t.Append(r);
+        return _t;
+    }
 
     static TableCell MakeCell(string tx, bool isHeader, bool bottomBorder)
     {
