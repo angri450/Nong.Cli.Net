@@ -90,6 +90,11 @@ public interface IUserSlideShapeCollection : IShapeCollection
     void AddPicture(Stream imageStream);
 
     /// <summary>
+    ///     Adds picture with specified position and size (in points).
+    /// </summary>
+    void AddPicture(int x, int y, int w, int h, Stream imageStream);
+
+    /// <summary>
     ///     Adds Pie Chart.
     /// </summary>
     void AddPieChart(double x, double y, double width, double height, Dictionary<string, double> categoryValues, string seriesName);

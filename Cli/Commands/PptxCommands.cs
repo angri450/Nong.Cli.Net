@@ -17,6 +17,10 @@ public static class PptxCommands
         cmd.AddCommand(CreateSlides(jsonOpt));
         cmd.AddCommand(CreateDissect(jsonOpt));
         cmd.AddCommand(CreateCreatePptx(jsonOpt));
+        cmd.AddCommand(CreateAddImage(jsonOpt));
+        cmd.AddCommand(CreateEditSlide(jsonOpt));
+        cmd.AddCommand(CreateRemoveSlide(jsonOpt));
+        cmd.AddCommand(CreateMoveSlide(jsonOpt));
         cmd.AddCommand(CreateDbImport(jsonOpt));
         cmd.AddCommand(CreateDbList(jsonOpt));
         cmd.AddCommand(CreateDbBlocks(jsonOpt));
@@ -258,7 +262,7 @@ public static class PptxCommands
                 else { Console.WriteLine($"Created: {Path.GetFullPath(output)} ({slideCount} slides)"); }
             }
             catch (JsonException jex) { CliHelpers.WriteError("pptx create", ErrorCodes.ValidationFailed with { Message = $"Invalid JSON: {jex.Message}" }, json); }
-            catch (Exception ex) { CliHelpers.WriteError("pptx create", ErrorCodes.InternalError with { Message = ex.Message }, json); }
+            catch (Exception ex) { CliHelpers.WriteError("pptx create", ErrorCodes.InternalError with { Message = $"{ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}" }, json); }
         }, fileArg, outOpt, jsonOpt);
         return cmd;
     }
@@ -347,15 +351,17 @@ public static class PptxCommands
 
     static void ApplyPictureSlide(PresentationBuilder builder, PptxSlideSpec s, ThemePreset theme)
     {
-        // AddPictureSlide not yet implemented in PresentationBuilder (V6-2 Task 5)
-        // Fallback: create a placeholder slide with picture path as text
         var pic = s.Picture!;
-        builder.AddSlide()
-            .TextBox(s.Title ?? "Picture", LayoutSystem.Margin_X, LayoutSystem.Content.TitleY,
-                LayoutSystem.ContentWidth, LayoutSystem.Content.TitleHeight, fontSize: 32, bold: true)
-            .TextBox($"Picture: {pic.Path}", LayoutSystem.Margin_X, LayoutSystem.Content.BodyY,
-                LayoutSystem.ContentWidth, 40, fontSize: 16)
-            .EndSlide();
+        if (!string.IsNullOrEmpty(pic.Path) && File.Exists(pic.Path))
+        {
+            builder.AddPictureSlide(psb =>
+            {
+                psb.Image(pic.Path);
+                psb.Position(pic.X ?? 100, pic.Y ?? 100);
+                psb.Size(pic.W ?? 400, pic.H ?? 300);
+                if (!string.IsNullOrEmpty(pic.Caption)) psb.Description(pic.Caption);
+            });
+        }
     }
 
     static void ApplyLayoutSlide(PresentationBuilder builder, PptxSlideSpec s, ThemePreset theme, string layout)
@@ -374,7 +380,7 @@ public static class PptxCommands
                 break;
             case "TwoColumns":
                 {
-                    var items = s.Items ?? Array.Empty<string>();
+                    var items = s.Items?.ToArray() ?? Array.Empty<string>();
                     builder.AddSlide()
                         .TwoColumns(s.Title ?? "",
                             items.Length > 0 ? items[0] : "",
@@ -384,7 +390,7 @@ public static class PptxCommands
                 break;
             case "ThreeColumn":
                 {
-                    var items = s.Items ?? Array.Empty<string>();
+                    var items = s.Items?.ToArray() ?? Array.Empty<string>();
                     builder.AddSlide()
                         .ThreeColumn(
                             items.Length > 0 ? items[0] : "", items.Length > 1 ? items[1] : "",
@@ -395,7 +401,7 @@ public static class PptxCommands
                 break;
             case "BigNumber":
                 {
-                    var items = s.Items ?? Array.Empty<string>();
+                    var items = s.Items?.ToArray() ?? Array.Empty<string>();
                     builder.AddSlide()
                         .BigNumber(items.Length > 0 ? items[0] : "", s.Title ?? "", s.Subtitle)
                         .EndSlide();
@@ -403,7 +409,7 @@ public static class PptxCommands
                 break;
             case "Symmetric":
                 {
-                    var items = s.Items ?? Array.Empty<string>();
+                    var items = s.Items?.ToArray() ?? Array.Empty<string>();
                     builder.AddSlide()
                         .Symmetric(s.Title ?? "", items.Length > 0 ? items[0] : "",
                             s.Subtitle ?? "", items.Length > 1 ? items[1] : "")
@@ -412,7 +418,7 @@ public static class PptxCommands
                 break;
             case "Cards":
                 {
-                    var cards = (s.Items ?? Array.Empty<string>())
+                    var cards = (s.Items?.ToArray() ?? Array.Empty<string>())
                         .Select((text, i) => (cardTitle: $"Card {i + 1}", cardBody: text))
                         .ToArray();
                     builder.AddSlide()
@@ -452,6 +458,196 @@ public static class PptxCommands
         if (ext != ".pptx")
             return ErrorCodes.UnsupportedFormat with { Message = $"Expected .pptx file, got: {ext}" };
         return null;
+    }
+
+    // ===== pptx add-image =====
+
+    static Command CreateAddImage(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .pptx file");
+        var imgOpt = new Option<string>("--image", "Path to image file") { IsRequired = true };
+        var slideOpt = new Option<int>("--slide", () => 1, "Slide index (1-based)");
+        var xOpt = new Option<int>("--x", () => 100, "X position in points");
+        var yOpt = new Option<int>("--y", () => 100, "Y position in points");
+        var cmd = new Command("add-image", "Add image to a slide") { fileArg, imgOpt, slideOpt, xOpt, yOpt };
+
+        cmd.SetHandler((string file, string image, int slide, int x, int y, bool json) =>
+        {
+            var err = ValidatePptxFile(file);
+            if (err != null) { CliHelpers.WriteError("pptx add-image", err, json); return; }
+            if (!File.Exists(image)) { CliHelpers.WriteError("pptx add-image", ErrorCodes.FileNotFound with { Message = $"Image not found: {image}" }, json); return; }
+
+            try
+            {
+                using var pres = new ShapeCrawler.Presentation(file);
+                if (slide < 1 || slide > pres.Slides.Count)
+                {
+                    CliHelpers.WriteError("pptx add-image",
+                        ErrorCodes.ValidationFailed with { Message = $"Slide index {slide} out of range (1-{pres.Slides.Count})" }, json);
+                    return;
+                }
+                var target = pres.Slides[slide - 1];
+                using var stream = File.OpenRead(image);
+                target.Shapes.AddPicture(x, y, 0, 0, stream);
+                pres.Save(file);
+
+                if (json)
+                {
+                    var o = JsonOutput.Ok("pptx add-image", $"Added image to slide {slide}",
+                        new { slide, x, y });
+                    o.Artifacts["pptx"] = Path.GetFullPath(file);
+                    Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+                }
+                else { Console.WriteLine($"Image added to slide {slide} at ({x},{y})"); }
+            }
+            catch (Exception ex) { CliHelpers.WriteError("pptx add-image", ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        }, fileArg, imgOpt, slideOpt, xOpt, yOpt, jsonOpt);
+        return cmd;
+    }
+
+    // ===== pptx edit-slide =====
+
+    static Command CreateEditSlide(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .pptx file");
+        var indexOpt = new Option<int>("--index", "Slide index (1-based)") { IsRequired = true };
+        var replaceOpt = new Option<string>("--replace-text", "Replace text: \"old|new\"") { IsRequired = true };
+        var cmd = new Command("edit-slide", "Edit slide text") { fileArg, indexOpt, replaceOpt };
+
+        cmd.SetHandler((string file, int index, string replaceText, bool json) =>
+        {
+            var err = ValidatePptxFile(file);
+            if (err != null) { CliHelpers.WriteError("pptx edit-slide", err, json); return; }
+
+            try
+            {
+                var parts = replaceText.Split('|', 2);
+                if (parts.Length != 2)
+                {
+                    CliHelpers.WriteError("pptx edit-slide",
+                        ErrorCodes.ValidationFailed with { Message = "--replace-text must be \"old|new\"" }, json);
+                    return;
+                }
+
+                using var pres = new ShapeCrawler.Presentation(file);
+                if (index < 1 || index > pres.Slides.Count)
+                {
+                    CliHelpers.WriteError("pptx edit-slide",
+                        ErrorCodes.ValidationFailed with { Message = $"Slide index {index} out of range (1-{pres.Slides.Count})" }, json);
+                    return;
+                }
+                var slide = pres.Slides[index - 1];
+                bool replaced = false;
+                foreach (var shape in slide.Shapes)
+                {
+                    if (shape.TextBox != null && shape.TextBox.Text.Contains(parts[0]))
+                    {
+                        shape.SetText(shape.TextBox.Text.Replace(parts[0], parts[1]));
+                        replaced = true;
+                    }
+                }
+                pres.Save(file);
+
+                if (json)
+                {
+                    var o = JsonOutput.Ok("pptx edit-slide", replaced ? "Text replaced" : "Text not found",
+                        new { slide = index, replaced });
+                    o.Artifacts["pptx"] = Path.GetFullPath(file);
+                    Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+                }
+                else { Console.WriteLine($"{(replaced ? "Text replaced" : "Text not found")} on slide {index}"); }
+            }
+            catch (Exception ex) { CliHelpers.WriteError("pptx edit-slide", ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        }, fileArg, indexOpt, replaceOpt, jsonOpt);
+        return cmd;
+    }
+
+    // ===== pptx remove-slide =====
+
+    static Command CreateRemoveSlide(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .pptx file");
+        var indexOpt = new Option<int>("--index", "Slide index (1-based)") { IsRequired = true };
+        var cmd = new Command("remove-slide", "Remove a slide") { fileArg, indexOpt };
+
+        cmd.SetHandler((string file, int index, bool json) =>
+        {
+            var err = ValidatePptxFile(file);
+            if (err != null) { CliHelpers.WriteError("pptx remove-slide", err, json); return; }
+
+            try
+            {
+                // Backup
+                var bak = file + ".bak";
+                File.Copy(file, bak, true);
+
+                using var raw = new PptxCore.RawAccessor(file);
+                var slideCount = raw.ListParts().Count(p => p.StartsWith("ppt/slides/slide") && p.EndsWith(".xml") && !p.Contains("_rels"));
+                if (index < 1 || index > slideCount)
+                {
+                    CliHelpers.WriteError("pptx remove-slide",
+                        ErrorCodes.ValidationFailed with { Message = $"Slide index {index} out of range (1-{slideCount})" }, json);
+                    return;
+                }
+                raw.RemoveSlide(index - 1);
+                raw.SaveAs(file);
+
+                if (json)
+                {
+                    var o = JsonOutput.Ok("pptx remove-slide", $"Removed slide {index}",
+                        new { slide = index, remainingSlides = slideCount - 1 });
+                    o.Artifacts["pptx"] = Path.GetFullPath(file);
+                    Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+                }
+                else { Console.WriteLine($"Removed slide {index}. Backup saved to {bak}"); }
+            }
+            catch (Exception ex) { CliHelpers.WriteError("pptx remove-slide", ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        }, fileArg, indexOpt, jsonOpt);
+        return cmd;
+    }
+
+    // ===== pptx move-slide =====
+
+    static Command CreateMoveSlide(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .pptx file");
+        var fromOpt = new Option<int>("--from", "Source slide index (1-based)") { IsRequired = true };
+        var toOpt = new Option<int>("--to", "Destination slide index (1-based)") { IsRequired = true };
+        var cmd = new Command("move-slide", "Reorder slides") { fileArg, fromOpt, toOpt };
+
+        cmd.SetHandler((string file, int from, int to, bool json) =>
+        {
+            var err = ValidatePptxFile(file);
+            if (err != null) { CliHelpers.WriteError("pptx move-slide", err, json); return; }
+
+            try
+            {
+                var bak = file + ".bak";
+                File.Copy(file, bak, true);
+
+                using var raw = new PptxCore.RawAccessor(file);
+                var slideCount = raw.ListParts().Count(p => p.StartsWith("ppt/slides/slide") && p.EndsWith(".xml") && !p.Contains("_rels"));
+                if (from < 1 || from > slideCount || to < 1 || to > slideCount)
+                {
+                    CliHelpers.WriteError("pptx move-slide",
+                        ErrorCodes.ValidationFailed with { Message = $"Slide index out of range (1-{slideCount})" }, json);
+                    return;
+                }
+                raw.MoveSlide(from - 1, to - 1);
+                raw.SaveAs(file);
+
+                if (json)
+                {
+                    var o = JsonOutput.Ok("pptx move-slide", $"Moved slide {from} → {to}",
+                        new { from, to, totalSlides = slideCount });
+                    o.Artifacts["pptx"] = Path.GetFullPath(file);
+                    Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+                }
+                else { Console.WriteLine($"Moved slide {from} → {to}. Backup saved to {bak}"); }
+            }
+            catch (Exception ex) { CliHelpers.WriteError("pptx move-slide", ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        }, fileArg, fromOpt, toOpt, jsonOpt);
+        return cmd;
     }
 
     // ════════════════════════════════════════════════════════════

@@ -216,6 +216,9 @@
     <EmbeddedResource Include="..\PdfPig\src\UglyToad.PdfPig.Fonts\Resources\GlyphList\*">
       <LogicalName>UglyToad.PdfPig.Fonts.Resources.GlyphList.%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\ShapeCrawler\Assets\*">
+      <LogicalName>ShapeCrawler.Assets.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <!-- NuGet dependencies -->

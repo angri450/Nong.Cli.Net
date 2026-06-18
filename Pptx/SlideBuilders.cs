@@ -55,3 +55,19 @@ public sealed class ChartSlideBuilder
     public ChartSlideBuilder PieChart(Dictionary<string, double> data) { PieData = data; return this; }
     public ChartSlideBuilder BarChart(Dictionary<string, double> data, string seriesName = "") { BarData = data; BarSeriesName = seriesName; return this; }
 }
+
+public sealed class PictureSlideBuilder
+{
+    internal Stream ImageStream { get; private set; } = Stream.Null;
+    internal int X { get; private set; } = 100;
+    internal int Y { get; private set; } = 100;
+    internal int W { get; private set; } = 400;
+    internal int H { get; private set; } = 300;
+    internal string Caption { get; private set; } = "";
+
+    public PictureSlideBuilder Image(Stream stream) { ImageStream = stream; return this; }
+    public PictureSlideBuilder Image(string path) { ImageStream = File.OpenRead(path); return this; }
+    public PictureSlideBuilder Position(int x, int y) { X = x; Y = y; return this; }
+    public PictureSlideBuilder Size(int w, int h) { W = w; H = h; return this; }
+    public PictureSlideBuilder Description(string c) { Caption = c; return this; }
+}

@@ -59,6 +59,63 @@ public sealed class SlideHelper
 
     public SlideHelper Background(string colorHex) { try { _slide.Fill.SetColor(colorHex); } catch (Exception ex) { Console.Error.WriteLine($"[SlideHelper] background: {ex.GetType().Name}"); } return this; }
 
+    // ── Edit methods ──
+
+    public SlideHelper RemoveShape(int shapeIndex)
+    {
+        try { _slide.Shapes[shapeIndex].Remove(); }
+        catch (Exception ex) { Console.Error.WriteLine($"[SlideHelper] remove: {ex.GetType().Name}"); }
+        return this;
+    }
+
+    public SlideHelper MoveTo(int shapeIndex, int x, int y)
+    {
+        try { var s = _slide.Shapes[shapeIndex]; s.X = x; s.Y = y; }
+        catch (Exception ex) { Console.Error.WriteLine($"[SlideHelper] move: {ex.GetType().Name}"); }
+        return this;
+    }
+
+    public SlideHelper Resize(int shapeIndex, int w, int h)
+    {
+        try { var s = _slide.Shapes[shapeIndex]; s.Width = w; s.Height = h; }
+        catch (Exception ex) { Console.Error.WriteLine($"[SlideHelper] resize: {ex.GetType().Name}"); }
+        return this;
+    }
+
+    public SlideHelper DuplicateShape(int shapeIndex)
+    {
+        try { _slide.Shapes[shapeIndex].Duplicate(); }
+        catch (Exception ex) { Console.Error.WriteLine($"[SlideHelper] duplicate: {ex.GetType().Name}"); }
+        return this;
+    }
+
+    public SlideHelper ReplaceText(int shapeIndex, string newText)
+    {
+        try { _slide.Shapes[shapeIndex].SetText(newText); }
+        catch (Exception ex) { Console.Error.WriteLine($"[SlideHelper] replace-text: {ex.GetType().Name}"); }
+        return this;
+    }
+
+    public SlideHelper Picture(Stream imageStream, int x, int y, int w, int h)
+    {
+        try
+        {
+            _slide.Shapes.AddPicture(x, y, w, h, imageStream);
+        }
+        catch (Exception ex) { Console.Error.WriteLine($"[SlideHelper] picture: {ex.GetType().Name}"); }
+        return this;
+    }
+
+    public SlideHelper Picture(string imagePath, int x, int y, int w, int h)
+    {
+        if (File.Exists(imagePath))
+        {
+            using var stream = File.OpenRead(imagePath);
+            return Picture(stream, x, y, w, h);
+        }
+        return this;
+    }
+
     // ── Decoration helpers ──
 
     public SlideHelper HorizontalLine(int x, int y, int w, int h = 2, string? color = null)
