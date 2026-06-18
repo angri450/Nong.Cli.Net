@@ -97,6 +97,8 @@ public static class WordCommands
 
         // === V5: tab stops ===
         cmd.AddCommand(CreateTabStops(jsonOpt));
+        // === V5: field listing ===
+        cmd.AddCommand(CreateFields(jsonOpt));
 
         return cmd;
     }
@@ -3431,6 +3433,74 @@ public static class WordCommands
             }
         }, inputOpt, paragraphOpt, setOpt, outputOpt, jsonOpt);
         return cmd;
+    }
+
+    static Command CreateFields(Option<bool> jsonOpt)
+    {
+        var cmd = new Command("fields", "List fields with their cached results (V5)");
+        var inputOpt = new Option<FileInfo>("--input", "Input .docx file") { IsRequired = true };
+        cmd.AddOption(inputOpt);
+        cmd.AddOption(jsonOpt);
+
+        cmd.SetHandler((FileInfo input, bool json) =>
+        {
+            var fi = input.FullName;
+            if (!File.Exists(fi)) { Console.WriteLine(JsonOutput.Fail("File not found: " + fi, [])); return; }
+
+            using var doc = WordprocessingDocument.Open(fi, false);
+            var body = doc.MainDocumentPart?.Document?.Body;
+            if (body == null) { Console.WriteLine(JsonOutput.Fail("No document body", [])); return; }
+
+            var fields = new List<object>();
+            foreach (var para in body.Elements<Paragraph>())
+            {
+                var fieldCode = ExtractFieldCode(para);
+                if (fieldCode == null) continue;
+
+                var cachedResult = ExtractCachedFieldResult(para);
+                var fieldChars = para.Descendants<FieldChar>().ToList();
+
+                fields.Add(new
+                {
+                    fieldKind = fieldCode.Trim().Split(' ')[0],
+                    instruction = fieldCode.Trim(),
+                    cachedResult,
+                    hasSeparate = fieldChars.Any(fc => fc.FieldCharType?.Value == FieldCharValues.Separate)
+                });
+            }
+
+            var o = JsonOutput.Ok("word fields", $"{fields.Count} fields", new { count = fields.Count, fields });
+            Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+        }, inputOpt, jsonOpt);
+        return cmd;
+    }
+
+    static string? ExtractFieldCode(Paragraph para)
+    {
+        var codes = para.Descendants<FieldCode>().Select(fc => fc.InnerText).ToList();
+        return codes.Count > 0 ? string.Join(" ", codes) : null;
+    }
+
+    static string? ExtractCachedFieldResult(Paragraph para)
+    {
+        bool inResult = false;
+        var sb = new System.Text.StringBuilder();
+        foreach (var run in para.Elements<Run>())
+        {
+            var fc = run.GetFirstChild<FieldChar>();
+            if (fc != null)
+            {
+                if (fc.FieldCharType?.Value == FieldCharValues.Separate) { inResult = true; continue; }
+                if (fc.FieldCharType?.Value == FieldCharValues.End) { inResult = false; continue; }
+            }
+            if (inResult)
+            {
+                var text = run.GetFirstChild<Text>();
+                if (text != null && !string.IsNullOrEmpty(text.Text))
+                    sb.Append(text.Text);
+            }
+        }
+        return sb.Length > 0 ? sb.ToString() : null;
     }
 
     static TabStopSpec? ParseTabStopSpec(string part)

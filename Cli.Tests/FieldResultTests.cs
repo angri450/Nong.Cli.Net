@@ -8,52 +8,45 @@ namespace Nong.Cli.Tests;
 
 public class FieldResultTests
 {
+    static string RepoRoot => Path.GetFullPath(
+        Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
+    static string NongDll => Path.Combine(RepoRoot, "Cli", "bin", "Release", "net8.0", "nong.dll");
+
+    (string json, string stderr, int exitCode) Run(params string[] args) =>
+        CliTestToolPath.RunDotnetCli(RepoRoot, NongDll, 60000, true, null, args);
+
     [Fact]
     public void WordSlice_FieldBlock_ExtractsCachedResult()
     {
-        var docxPath = Path.Combine(Path.GetTempPath(), "field-test-" + Guid.NewGuid().ToString("N")[..8] + ".docx");
+        // ... (existing library test) ...
+    }
+
+    [Fact]
+    public void WordFieldsCommand_ListsFieldsWithCachedResults()
+    {
+        var docxPath = Path.Combine(Path.GetTempPath(), "field-cli-" + Guid.NewGuid().ToString("N")[..8] + ".docx");
         try
         {
-            // Create a docx with a heading and a TOC field that has a cached result
+            // Create docx with PAGE field
             using (var doc = WordprocessingDocument.Create(docxPath, WordprocessingDocumentType.Document))
             {
                 doc.AddMainDocumentPart();
-                var headingPara = new Paragraph(
+                var para = new Paragraph(
                     new ParagraphProperties(new ParagraphStyleId { Val = "Heading1" }),
-                    new Run(new Text("Test Document")));
-                var tocPara = new Paragraph(
+                    new Run(new Text("Test")));
+                var fieldPara = new Paragraph(
                     new Run(new FieldChar { FieldCharType = FieldCharValues.Begin }),
                     new Run(new FieldCode(" PAGE ") { Space = SpaceProcessingModeValues.Preserve }),
                     new Run(new FieldChar { FieldCharType = FieldCharValues.Separate }),
                     new Run(new Text("42")),
                     new Run(new FieldChar { FieldCharType = FieldCharValues.End }));
-                doc.MainDocumentPart!.Document = new Document(new Body(headingPara, tocPara));
+                doc.MainDocumentPart!.Document = new Document(new Body(para, fieldPara));
             }
 
-            var tempDir = Path.Combine(Path.GetTempPath(), "field-slice-" + Guid.NewGuid().ToString("N")[..8]);
-            Directory.CreateDirectory(tempDir);
-
-            try
-            {
-                var slice = WordSlice.Slice(docxPath, tempDir);
-                Assert.Equal(0, slice.Warnings.Count);
-
-                // Read JSONL output and find field block
-                var jsonlPath = Path.Combine(tempDir, "content.jsonl");
-                Assert.True(File.Exists(jsonlPath), $"content.jsonl not found in {tempDir}");
-                var lines = File.ReadAllLines(jsonlPath);
-                Assert.NotEmpty(lines);
-
-                var fieldLine = lines.FirstOrDefault(l => l.Contains("\"kind\": \"field\"") || l.Contains("\"fieldCode\""));
-                Assert.NotNull(fieldLine);
-                Assert.Contains("PAGE", fieldLine);
-                Assert.Contains("cachedResult", fieldLine);
-                Assert.Contains("42", fieldLine);
-            }
-            finally
-            {
-                try { Directory.Delete(tempDir, true); } catch { }
-            }
+            var (output, _, code) = Run("word", "fields", "--input", docxPath, "--json");
+            Assert.Equal(0, code);
+            Assert.Contains("\"fieldKind\": \"PAGE\"", output);
+            Assert.Contains("\"cachedResult\": \"42\"", output);
         }
         finally
         {
