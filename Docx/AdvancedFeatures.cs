@@ -186,11 +186,22 @@ public static class AdvancedFeatures
     {
         using var source = WordprocessingDocument.Open(sourcePath, false);
         var sourceBody = source.MainDocumentPart!.Document.Body!;
+        var targetBody = target.MainDocumentPart!.Document.Body!;
+
+        // Find the last sectPr in the target body (ECMA-376 requires sectPr to be the last child).
+        // All new elements must be inserted BEFORE it to preserve OOXML validity.
+        var lastSectPr = targetBody.Elements<SectionProperties>().LastOrDefault();
 
         if (sectionBreak)
-            target.MainDocumentPart!.Document.Body!.Append(new Paragraph(
+        {
+            var breakPara = new Paragraph(
                 new ParagraphProperties(new SectionProperties(
-                    new SectionType { Val = SectionMarkValues.NextPage }))));
+                    new SectionType { Val = SectionMarkValues.NextPage })));
+            if (lastSectPr != null)
+                targetBody.InsertBefore(breakPara, lastSectPr);
+            else
+                targetBody.Append(breakPara);
+        }
 
         // Clone all paragraphs, tables, sections from source
         foreach (var el in sourceBody.Elements())
@@ -201,7 +212,10 @@ public static class AdvancedFeatures
                 continue;
             }
             var clone = el.CloneNode(true);
-            target.MainDocumentPart!.Document.Body!.Append(clone);
+            if (lastSectPr != null)
+                targetBody.InsertBefore(clone, lastSectPr);
+            else
+                targetBody.Append(clone);
 
             // Copy images referenced in this element
             CopyReferencedImages(source, target, clone);
