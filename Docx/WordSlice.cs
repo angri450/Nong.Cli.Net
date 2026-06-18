@@ -2262,8 +2262,8 @@ public static class WordSlice
                 {
                     format.Page = new NongPageInfo
                     {
-                        DefaultWidth = sec.PageWidth,
-                        DefaultHeight = sec.PageHeight,
+                        DefaultWidth = sec.PageWidth.HasValue ? $"{sec.PageWidth}_dxa" : null,
+                        DefaultHeight = sec.PageHeight.HasValue ? $"{sec.PageHeight}_dxa" : null,
                         DefaultOrientation = sec.Orientation,
                     };
                 }

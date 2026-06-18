@@ -1078,10 +1078,10 @@ public sealed record NongTableFormatInfo
 public sealed record NongPageInfo
 {
     [JsonPropertyName("defaultWidth")]
-    public int? DefaultWidth { get; set; }
+    public string? DefaultWidth { get; set; }
 
     [JsonPropertyName("defaultHeight")]
-    public int? DefaultHeight { get; set; }
+    public string? DefaultHeight { get; set; }
 
     [JsonPropertyName("defaultOrientation")]
     public string? DefaultOrientation { get; set; }
