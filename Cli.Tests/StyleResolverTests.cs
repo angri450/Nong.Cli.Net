@@ -57,4 +57,45 @@ public class StyleResolverTests
             try { File.Delete(path); } catch { }
         }
     }
+
+    [Fact]
+    public void StyleResolver_ResolveCell_UsesTableStyle()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "cell-style-test-" + Guid.NewGuid().ToString("N")[..8] + ".docx");
+        try
+        {
+            using var doc = WordprocessingDocument.Create(path, WordprocessingDocumentType.Document);
+            doc.AddMainDocumentPart();
+
+            var stylesPart = doc.MainDocumentPart!.AddNewPart<StyleDefinitionsPart>();
+            stylesPart.Styles = new Styles(
+                new Style(
+                    new StyleName { Val = "MyTableStyle" },
+                    new StyleParagraphProperties(
+                        new Justification { Val = JustificationValues.Center }))
+                {
+                    StyleId = "MyTableStyle",
+                    Type = StyleValues.Table
+                });
+            stylesPart.Styles.Save();
+
+            var table = new Table(
+                new TableProperties(new TableStyle { Val = "MyTableStyle" }),
+                new TableGrid(new GridColumn(), new GridColumn()),
+                new TableRow(new TableCell(new Paragraph(new Run(new Text("A"))))));
+
+            doc.MainDocumentPart.Document = new Document(new Body(table));
+
+            var resolver = new StyleResolver(doc);
+            var cell = table.Elements<TableRow>().First().Elements<TableCell>().First();
+            var resolved = resolver.ResolveCell(cell);
+
+            Assert.Equal(JustificationValues.Center, resolved.Alignment);
+            Assert.True(resolved.IsFromStyle);
+        }
+        finally
+        {
+            try { File.Delete(path); } catch { }
+        }
+    }
 }
