@@ -34,6 +34,8 @@ public sealed class NongMarkDocumentBuilder
     // Bug 8: format specs and style→block mappings from frontmatter
     readonly Dictionary<string, NongMarkFormatSpec> _formats = new(StringComparer.Ordinal);
     readonly Dictionary<string, List<string>> _styleToBlocks = new(StringComparer.Ordinal);
+    // V5.0.1: frontmatter metadata (title, author, date, lang) for docProps
+    readonly Dictionary<string, string> _frontmatterMetadata = new(StringComparer.OrdinalIgnoreCase);
     // Maps blockId → Paragraph reference for style application
     readonly Dictionary<string, W.Paragraph> _blockIdToParagraph = new(StringComparer.Ordinal);
     int _blockSeq;
@@ -93,6 +95,9 @@ public sealed class NongMarkDocumentBuilder
         // Bug 8: apply format styles from frontmatter to matching paragraphs
         ApplyFormatStyles();
 
+        // V5.0.1: write frontmatter metadata to docProps (core.xml)
+        WriteDocProps(doc);
+
         AppendSectionProperties();
         _mainPart.Document.Save();
 
@@ -116,7 +121,7 @@ public sealed class NongMarkDocumentBuilder
         if (lines.Length == 0 || lines[0].Trim() != "---")
             return 0;
 
-        var metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        _frontmatterMetadata.Clear();
         var frontLines = new List<string>();
         var i = 1;
         for (; i < lines.Length; i++)
@@ -131,16 +136,28 @@ public sealed class NongMarkDocumentBuilder
         }
 
         // Parse frontmatter with indent-aware parsing (Bug 8)
-        ParseFrontMatterBlock(frontLines, metadata, _formats, _styleToBlocks);
-
-        if (metadata.TryGetValue("title", out var title) && !string.IsNullOrWhiteSpace(title))
-            AppendTitle(title);
-        if (metadata.TryGetValue("author", out var author) && !string.IsNullOrWhiteSpace(author))
-            AppendCentered(author, "BodyTextNoIndent");
-        if (metadata.TryGetValue("date", out var date) && !string.IsNullOrWhiteSpace(date))
-            AppendCentered(date, "BodyTextNoIndent");
+        ParseFrontMatterBlock(frontLines, _frontmatterMetadata, _formats, _styleToBlocks);
 
         return i;
+    }
+
+    /// <summary>
+    /// V5.0.1: Write frontmatter metadata (title, author, date, lang) to docProps/core.xml.
+    /// These are document-level metadata, not body content.
+    /// </summary>
+    void WriteDocProps(WordprocessingDocument doc)
+    {
+        if (_frontmatterMetadata.Count == 0) return;
+
+        var props = doc.PackageProperties;
+        if (_frontmatterMetadata.TryGetValue("title", out var title) && !string.IsNullOrWhiteSpace(title))
+            props.Title = title;
+        if (_frontmatterMetadata.TryGetValue("author", out var author) && !string.IsNullOrWhiteSpace(author))
+            props.Creator = author;
+        if (_frontmatterMetadata.TryGetValue("date", out var date) && !string.IsNullOrWhiteSpace(date))
+            props.Created = DateTime.TryParse(date, out var dt) ? dt : null;
+        if (_frontmatterMetadata.TryGetValue("lang", out var lang) && !string.IsNullOrWhiteSpace(lang))
+            props.Language = lang;
     }
 
     /// <summary>

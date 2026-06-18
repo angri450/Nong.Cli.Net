@@ -220,4 +220,56 @@ public class DebugRemediationTests
             try { File.Delete(docxPath); } catch { }
         }
     }
+
+    // =========================================================================
+    // #1 — frontmatter title/date not rendered to body, # heading1 is the title
+    // =========================================================================
+
+    [Fact]
+    public void NongMark_FrontmatterTitle_NotRenderedInBody()
+    {
+        var nongmarkPath = Path.Combine(Path.GetTempPath(), "front-" + Guid.NewGuid().ToString("N")[..8] + ".nmk");
+        var docxPath = Path.Combine(Path.GetTempPath(), "front-" + Guid.NewGuid().ToString("N")[..8] + ".docx");
+        try
+        {
+            File.WriteAllText(nongmarkPath, """
+---
+title: "乙烯调控"
+date: "2025-06-18"
+lang: zh-CN
+---
+
+# 乙烯调控
+
+正文内容
+""");
+
+            var result = NongMarkDocumentBuilder.Build(nongmarkPath, docxPath);
+            Assert.Empty(result.Warnings);
+
+            using var doc = WordprocessingDocument.Open(docxPath, false);
+            var body = doc.MainDocumentPart!.Document.Body!;
+            var allTexts = body.Descendants<Text>().Select(t => t.Text).ToList();
+            var fullText = string.Join("", allTexts);
+
+            // frontmatter title "乙烯调控" should appear exactly ONCE (from # heading1, not from frontmatter)
+            var titleCount = allTexts.Count(t => t.Contains("乙烯调控"));
+            Assert.Equal(1, titleCount);
+
+            // frontmatter date should NOT appear in body at all
+            Assert.DoesNotContain("2025-06-18", fullText);
+
+            // # heading1 should still be rendered as the first heading
+            var headings = body.Elements<Paragraph>()
+                .Where(p => p.ParagraphProperties?.ParagraphStyleId?.Val?.Value?.StartsWith("Heading") == true)
+                .Select(p => p.InnerText)
+                .ToList();
+            Assert.Contains(headings, h => h.Contains("乙烯调控"));
+        }
+        finally
+        {
+            try { File.Delete(nongmarkPath); } catch { }
+            try { File.Delete(docxPath); } catch { }
+        }
+    }
 }

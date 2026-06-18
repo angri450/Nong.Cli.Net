@@ -144,8 +144,8 @@ tabs: [4cm dot, 15cm right]
             var (createOut, createCode) = Run("word", "create", nmkPath, "-o", docxPath);
             Assert.Equal(0, createCode);
 
-            // Read back tab stops from the body paragraph (index 2: after title + heading)
-            var (readOut, readCode) = Run("word", "tab-stops", "--input", docxPath, "--paragraph", "2", "--json");
+            // Read back tab stops from the body paragraph (index 1: heading "标题段" is para 0, tab-paragraph is para 1; frontmatter title is docProps, not body)
+            var (readOut, readCode) = Run("word", "tab-stops", "--input", docxPath, "--paragraph", "1", "--json");
             Assert.Equal(0, readCode);
             Assert.Contains("\"positionCm\": 15", readOut);
             Assert.Contains("\"alignment\": \"Right\"", readOut);
