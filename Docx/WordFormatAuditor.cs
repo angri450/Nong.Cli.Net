@@ -388,8 +388,10 @@ public static class WordFormatAuditor
     const string BodyFontSize = "24";
     const string BodyFirstLineIndent = "480";
 
+    // V5.0.1: strict binomial pattern — genus Capitalized + species all-lowercase.
+    // Excludes common English phrases like "This review", "Yang cycle", "Postharvest physiology".
     static readonly Regex LatinSpeciesRegex = new(
-        @"\b[A-Z][a-z]+(?:\s+x)?\s+(?!(?:et|al)\b)[a-z][a-z-]{2,}(?:\s+f\.\s*sp\.?)?",
+        @"\b[A-Z][a-z]+(?:\s+x)?\s+(?!(?:et|al)\b)[a-z]{3,}(?:\s+f\.\s*sp\.?)?\b",
         RegexOptions.Compiled);
 
     static readonly Regex ChemicalFormulaCandidateRegex = new(
@@ -921,6 +923,12 @@ public static class WordFormatAuditor
                 var asciiFont = run.RunProperties?.RunFonts?.Ascii?.Value
                     ?? run.RunProperties?.RunFonts?.HighAnsi?.Value;
                 var insideParentheses = IsInsideParentheses(paragraph.InnerText, match.Value);
+
+                // V5.0.1: only flag as latin name if inside parentheses — reduces false
+                // positives on English phrases like "This review", "Yang cycle", etc.
+                if (!insideParentheses)
+                    continue;
+
                 samples.Add(new WordFormatLatinNameSample
                 {
                     BlockId = blockId,
