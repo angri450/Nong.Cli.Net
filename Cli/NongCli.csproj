@@ -56,7 +56,7 @@
     <Compile Remove="Adapters\WordImageAnalyzerAdapter.cs" />
   </ItemGroup>
 
-  <!-- Ensure onnxruntime native DLL is published to tool root for dotnet-tool loading -->
+  <!-- Copy onnxruntime native DLL to tool root (needed for NativeLibrary.Load at runtime) -->
   <Target Name="IncludeOnnxRuntimeNativeInToolPackage" BeforeTargets="_GetToolPackageFiles">
     <ItemGroup>
       <_ToolPackageFiles Include="$(OutputPath)onnxruntime.dll" Condition="Exists('$(OutputPath)onnxruntime.dll')">
@@ -66,5 +66,15 @@
         <PackagePath>tools/$(TargetFramework)/any/onnxruntime_providers_shared.dll</PackagePath>
       </_ToolPackageFiles>
     </ItemGroup>
+  </Target>
+
+  <!-- After pack: strip non-current-platform onnxruntime native files from nupkg.
+       Detects current RID automatically (win-x64, linux-x64, osx-x64, etc.)
+       so users only download native DLLs for their platform (~13MB saved per platform). -->
+  <Target Name="TrimOnnxRuntimeNupkg" AfterTargets="Pack">
+    <PropertyGroup>
+      <_TrimNupkg>$([System.IO.Path]::Combine('$(PackageOutputPath)', 'Angri450.Nong.Cli.$(Version).nupkg'))</_TrimNupkg>
+    </PropertyGroup>
+    <Exec Command="powershell -NoProfile -File &quot;$(MSBuildProjectDirectory)\trim-onnx-nupkg.ps1&quot; -NupkgPath &quot;$(_TrimNupkg)&quot;" />
   </Target>
 </Project>

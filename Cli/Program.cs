@@ -2,6 +2,7 @@ using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
 using System.Text.Json;
+using Angri450.Nong.Data;
 using Nong.Cli.Commands;
 using Nong.Cli.Common;
 

@@ -2,17 +2,9 @@
   "version": 1,
   "dependencies": {
     "net8.0": {
-      "Microsoft.ML.OnnxRuntime": {
+      "Microsoft.ML.OnnxRuntime.Managed": {
         "type": "Direct",
         "requested": "[1.21.0, )",
-        "resolved": "1.21.0",
-        "contentHash": "1IN5rz0W7SFiVKblydIcCh0TVXDVbgTHdFGchjrH+vEtneRED7PL8RDcQOXE4FO3y10vvjg03LNubFTX74FCpA==",
-        "dependencies": {
-          "Microsoft.ML.OnnxRuntime.Managed": "1.21.0"
-        }
-      },
-      "Microsoft.ML.OnnxRuntime.Managed": {
-        "type": "Transitive",
         "resolved": "1.21.0",
         "contentHash": "Pp4PFhCELCMO8dWNbGK9Ge+Zh09xPVknmjvAgXIrLsfAgmv1It5aATP3UJTG/GBVzcvshDL/UI+KV9O8YQzkkQ==",
         "dependencies": {
