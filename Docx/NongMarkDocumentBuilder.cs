@@ -844,20 +844,104 @@ public sealed class NongMarkDocumentBuilder
             grid.Append(new W.GridColumn());
         table.Append(grid);
 
+        // V5: track vertical merge continue cells to insert later
+        var verticalContinueCells = new Dictionary<(int row, int col), (int spanRows, string text)>();
+
         for (var rowIndex = 0; rowIndex < rows.Count; rowIndex++)
         {
             var row = new W.TableRow();
             for (var col = 0; col < colCount; col++)
             {
+                // Skip cells consumed by previous colspan
+                if (col > 0 && row.Elements<W.TableCell>().Count() > col)
+                    continue;
+
                 var value = col < rows[rowIndex].Length ? rows[rowIndex][col] : "";
-                row.Append(MakeCell(value, rowIndex == 0));
+
+                // V5: parse [colspan=N] and [rowspan=N] prefixes
+                int colspan = 1, rowspan = 1;
+                value = StripMergePrefix(value, out colspan, out rowspan);
+
+                var cell = MakeCell(value, rowIndex == 0);
+
+                // Apply colspan (gridSpan)
+                if (colspan > 1)
+                {
+                    var tcPr = cell.GetFirstChild<W.TableCellProperties>();
+                    if (tcPr == null) { tcPr = new W.TableCellProperties(); cell.PrependChild(tcPr); }
+                    tcPr.Append(new W.GridSpan { Val = colspan });
+                    // Add empty placeholder cells for the merged columns
+                    for (int c = 1; c < colspan && col + c < colCount; c++)
+                        row.Append(MakeCell("", false));
+                }
+
+                // Apply rowspan (vMerge)
+                if (rowspan > 1)
+                {
+                    var tcPr = cell.GetFirstChild<W.TableCellProperties>();
+                    if (tcPr == null) { tcPr = new W.TableCellProperties(); cell.PrependChild(tcPr); }
+                    tcPr.Append(new W.VerticalMerge { Val = W.MergedCellValues.Restart });
+                    // Record continue cells for later rows
+                    for (int r = 1; r < rowspan && rowIndex + r < rows.Count; r++)
+                    {
+                        verticalContinueCells[(rowIndex + r, col)] = (r, value);
+                    }
+                }
+
+                row.Append(cell);
             }
+
+            // Insert vertical continue cells
+            foreach (var kvp in verticalContinueCells.Where(x => x.Key.row == rowIndex).ToList())
+            {
+                var (r, c) = kvp.Key;
+                var (spanRows, text) = kvp.Value;
+                var continueCell = MakeCell("", false);
+                var tcPr = continueCell.GetFirstChild<W.TableCellProperties>();
+                if (tcPr == null) { tcPr = new W.TableCellProperties(); continueCell.PrependChild(tcPr); }
+                tcPr.Append(new W.VerticalMerge()); // continue
+                // Insert at correct position
+                var existingCells = row.Elements<W.TableCell>().ToList();
+                if (c < existingCells.Count)
+                    row.InsertAfter(continueCell, existingCells[c]);
+                else
+                    row.Append(continueCell);
+                verticalContinueCells.Remove((r, c));
+            }
+
             table.Append(row);
         }
 
         AppendBeforeSectPr(table);
         AppendBeforeSectPr(new W.Paragraph());
         _tables++;
+    }
+
+    static string StripMergePrefix(string cellText, out int colspan, out int rowspan)
+    {
+        colspan = 1;
+        rowspan = 1;
+        var text = cellText.Trim();
+        while (text.StartsWith('['))
+        {
+            var close = text.IndexOf(']');
+            if (close < 0) break;
+            var tag = text[1..close];
+            if (tag.StartsWith("colspan=", StringComparison.OrdinalIgnoreCase) &&
+                int.TryParse(tag[8..], out var cs) && cs > 0)
+            {
+                colspan = cs;
+                text = text[(close + 1)..].Trim();
+            }
+            else if (tag.StartsWith("rowspan=", StringComparison.OrdinalIgnoreCase) &&
+                     int.TryParse(tag[8..], out var rs) && rs > 0)
+            {
+                rowspan = rs;
+                text = text[(close + 1)..].Trim();
+            }
+            else break;
+        }
+        return text;
     }
 
     W.TableCell MakeCell(string text, bool header)

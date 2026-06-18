@@ -1,4 +1,7 @@
+using System.IO.Compression;
 using DocxCore;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Xunit;
 
@@ -86,5 +89,41 @@ public class TableMergeTests
         var rebuilt = builder.Build();
         var firstRow = rebuilt.Elements<TableRow>().First();
         Assert.Equal(3, firstRow.Elements<TableCell>().Count());
+    }
+
+    [Fact]
+    public void NongMark_TableColspan_ParsesAndApplies()
+    {
+        var nongmark = """
+---
+title: test
+---
+| [colspan=3] Total | | | Grand |
+| ---- | ---- | ---- | ---- |
+| 1 | 2 | 3 | 6 |
+""";
+        var nmkPath = Path.Combine(Path.GetTempPath(), "colspan-test-" + Guid.NewGuid().ToString("N")[..8] + ".nmk");
+        var docxPath = nmkPath + ".docx";
+
+        try
+        {
+            File.WriteAllText(nmkPath, nongmark);
+            var result = NongMarkDocumentBuilder.Build(nmkPath, docxPath);
+            Assert.Empty(result.Warnings);
+            Assert.True(File.Exists(docxPath));
+
+            // Check raw XML for gridSpan inside the docx ZIP
+            using var zip = System.IO.Compression.ZipFile.OpenRead(docxPath);
+            var docEntry = zip.GetEntry("word/document.xml");
+            Assert.NotNull(docEntry);
+            using var reader = new System.IO.StreamReader(docEntry.Open());
+            var docXml = reader.ReadToEnd();
+            Assert.Contains("gridSpan", docXml, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            try { File.Delete(nmkPath); } catch { }
+            try { File.Delete(docxPath); } catch { }
+        }
     }
 }
