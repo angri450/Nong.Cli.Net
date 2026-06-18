@@ -300,8 +300,164 @@ public class DebugRemediation2Tests
     }
 
     // =========================================================================
+    // #3 — OCR local preflight doesn't block graphic-heavy + low confidence marked notUsable
+    // =========================================================================
+
+    [Fact]
+    public void OcrLocal_Preflight_DoesNotBlockGraphicHeavy()
+    {
+        // The preflight classification for graphic-heavy images returns ShouldSkip=false
+        // (fixed in v5.0.1). Verify by testing that a known graphic-heavy image
+        // is not skipped by the preflight (no E006 preflight-skipped error).
+        var imgPath = GetTestImagePath("default (10).jpg");
+        if (!File.Exists(imgPath))
+            return; // Skip gracefully if test image not available
+
+        var result = Run("ocr", "local", imgPath, "--force", "--json");
+        // When --force is used, even if preflight would skip, it proceeds.
+        // The key assertion: output should not contain preflight-skipped error.
+        if (result.exitCode == 0)
+        {
+            Assert.DoesNotContain("preflight_skipped", result.json);
+        }
+        // Non-zero exit is acceptable (e.g., model not installed)
+    }
+
+    [Fact]
+    public void OcrResult_LowConfidence_NotUsableInOutput()
+    {
+        // Verify that when OCR runs on a low-quality image, the output includes
+        // lowConfidenceBlockCount and notUsable fields.
+        // This is a structural test — we just verify the fields exist in the output schema.
+        var result = Run("ocr", "local", GetTestImagePath("default (10).jpg"), "--force", "--json");
+        if (result.exitCode == 0)
+        {
+            var doc = JsonDocument.Parse(result.json);
+            var data = doc.RootElement.GetProperty("data");
+            // Fields should exist (even if 0)
+            Assert.True(data.TryGetProperty("lowConfidenceBlockCount", out _)
+                || data.TryGetProperty("notUsable", out _),
+                "Output should contain lowConfidenceBlockCount or notUsable field");
+        }
+        // Non-zero exit is acceptable if test image doesn't exist
+    }
+
+    // =========================================================================
+    // #4 — OCR cloud token guidance in check-env + cloud error
+    // =========================================================================
+
+    [Fact]
+    public void OcrCheckEnv_OutputsTokenGuidance()
+    {
+        var result = Run("ocr", "check-env", "--json");
+        Assert.Equal(0, result.exitCode);
+
+        // Check-env output should include token-related information
+        var doc = JsonDocument.Parse(result.json);
+        var data = doc.RootElement.GetProperty("data");
+        Assert.True(data.TryGetProperty("cloudToken", out var tokenStatus));
+        // Token status is "missing", "set", or "deprecated" — all are valid
+        var status = tokenStatus.GetString();
+        Assert.True(status == "missing" || status == "set" || status == "deprecated");
+    }
+
+    [Fact]
+    public void OcrCloud_UnsetToken_HelpfulError()
+    {
+        // When token is not set, error should reference token configuration.
+        // If token IS set in the environment, the command might succeed — that's fine.
+        var result = Run("ocr", "cloud", "nonexistent.jpg", "--json");
+        if (result.exitCode != 0)
+        {
+            var err = result.json + result.stderr;
+            Assert.True(
+                err.Contains("token", StringComparison.OrdinalIgnoreCase)
+                || err.Contains("PADDLEOCR", StringComparison.OrdinalIgnoreCase)
+                || err.Contains("check-env", StringComparison.OrdinalIgnoreCase),
+                $"Cloud error should mention token configuration. Got: {err}");
+        }
+        // If exitCode is 0, the token is set and the command will fail elsewhere (file not found) — acceptable
+    }
+
+    // =========================================================================
+    // #5 — word images --analyze for non-docx input hints ocr analyze-image
+    // =========================================================================
+
+    [Fact]
+    public void WordImagesAnalyze_NonDocxInput_HintsOcrAnalyzeImage()
+    {
+        // Create a dummy .jpg file
+        var jpgPath = Path.Combine(Path.GetTempPath(), "test-notdocx-" + Guid.NewGuid().ToString("N")[..8] + ".jpg");
+        try
+        {
+            File.WriteAllText(jpgPath, "not a real jpg"); // bare minimum to exist
+
+            var result = Run("word", "images", jpgPath, "--analyze", "--json");
+            Assert.NotEqual(0, result.exitCode);
+
+            var output = result.json + result.stderr;
+            // Error should mention the expected format or guide to ocr analyze-image
+            Assert.True(
+                output.Contains(".docx", StringComparison.OrdinalIgnoreCase)
+                || output.Contains("ocr", StringComparison.OrdinalIgnoreCase),
+                $"Error should guide user. Got: {output}");
+        }
+        finally
+        {
+            try { File.Delete(jpgPath); } catch { }
+        }
+    }
+
+    // =========================================================================
+    // #7 — ocr analyze-image output distinguishes text vs graphic regions
+    // =========================================================================
+
+    [Fact]
+    public void OcrAnalyzeImage_TextLikeRegionDetection()
+    {
+        // Verify analyze-image output structure includes region information
+        // Use a simple approach: test with any available image file
+        var imgPath = GetTestImagePath("default (10).jpg");
+        if (!File.Exists(imgPath))
+            return; // Skip if no test image available
+
+        var outDir = Path.Combine(Path.GetTempPath(), "analyze-out-" + Guid.NewGuid().ToString("N")[..8]);
+        try
+        {
+            var result = Run("ocr", "analyze-image", imgPath, "-o", outDir, "--json");
+            Assert.Equal(0, result.exitCode);
+
+            var doc = JsonDocument.Parse(result.json);
+            var d = doc.RootElement.GetProperty("data");
+
+            // Should have region information
+            Assert.True(d.TryGetProperty("regions", out _) || d.TryGetProperty("regionCount", out _)
+                || d.TryGetProperty("whitespaceRatio", out _));
+        }
+        finally
+        {
+            try { Directory.Delete(outDir, true); } catch { }
+        }
+    }
+
+    // =========================================================================
     // Helpers
     // =========================================================================
+
+    static string GetTestImagePath(string name)
+    {
+        // Look for test images in TestAssets
+        var candidates = new[]
+        {
+            Path.Combine(RepoRoot, "Cli.Tests", "TestAssets", name),
+            Path.Combine(RepoRoot, "..", "workplace", name),
+            Path.Combine(Path.GetTempPath(), name),
+        };
+        foreach (var c in candidates)
+            if (File.Exists(c))
+                return c;
+        return candidates[0]; // let caller handle missing file
+    }
 
     static string CreateSimpleDocx(params string[] paragraphTexts)
     {

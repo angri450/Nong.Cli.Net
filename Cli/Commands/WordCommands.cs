@@ -1459,7 +1459,16 @@ public static class WordCommands
         cmd.SetHandler((string file, string? output, bool analyze, bool crop, bool json) =>
         {
             var err = CliHelpers.ValidateDocxFile(file);
-            if (err != null) { CliHelpers.WriteError("word images", err, json); return; }
+            if (err != null)
+            {
+                // V5.0.2: guide non-docx users to ocr analyze-image for image analysis
+                var ext = Path.GetExtension(file).ToLowerInvariant();
+                if (analyze && (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".pdf"))
+                {
+                    err = err with { Message = $"word images --analyze requires a .docx file, got: {ext}. For image structure analysis of standalone image files, use: nong ocr analyze-image <file> -o <output-dir>" };
+                }
+                CliHelpers.WriteError("word images", err, json); return;
+            }
             try
             {
                 if (analyze)

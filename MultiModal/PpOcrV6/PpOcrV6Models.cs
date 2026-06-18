@@ -22,6 +22,9 @@ public sealed record PpOcrV5Result
     public bool HasNumericIssues => NumericIssueCount > 0;
     public int BlockCount => Pages.Sum(p => p.Blocks.Count);
     public int TextLength => Pages.Sum(p => p.Blocks.Sum(b => b.Text.Length));
+    /// <summary>V5.0.2: blocks with confidence below 0.5 — results are likely unreliable.</summary>
+    public int LowConfidenceBlockCount => Pages.Sum(p => p.Blocks.Count(b => b.Confidence.HasValue && b.Confidence.Value < 0.5));
+    public bool NotUsable => LowConfidenceBlockCount > 0 && BlockCount > 0 && LowConfidenceBlockCount == BlockCount;
 }
 
 public sealed record PpOcrV5Page

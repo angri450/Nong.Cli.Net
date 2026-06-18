@@ -38,9 +38,10 @@ public static class OcrCommands
         var fileArg = new Argument<string>("file", "Path to image or PDF file");
         var outOpt = new Option<string>("-o", "Output directory") { IsRequired = true };
         var ingestOpt = new Option<bool>("--ingest", () => false, "Ingest OCR text into NongDb for semantic search");
-        var cmd = new Command("cloud", "Cloud PaddleOCR-VL-1.6 via PADDLEOCR_ACCESS_TOKEN") { fileArg, outOpt, ingestOpt };
+        var tokenOpt = new Option<string>("--token", "PaddleOCR access token (overrides PADDLEOCR_ACCESS_TOKEN env var)");
+        var cmd = new Command("cloud", "Cloud PaddleOCR-VL-1.6 via PADDLEOCR_ACCESS_TOKEN") { fileArg, outOpt, ingestOpt, tokenOpt };
 
-        cmd.SetHandler((string file, string outputDir, bool ingest, bool json) =>
+        cmd.SetHandler((string file, string outputDir, bool ingest, string? tokenArg, bool json) =>
         {
             if (string.IsNullOrWhiteSpace(file))
             {
@@ -53,11 +54,14 @@ public static class OcrCommands
                 return;
             }
 
-            var token = ResolveCloudToken();
+            var token = tokenArg ?? ResolveCloudToken();
             if (token == null)
             {
                 CliHelpers.WriteError("ocr cloud",
-                    ErrorCodes.DependencyMissing with { Message = "PaddleOCR access token not found. Set PADDLEOCR_ACCESS_TOKEN environment variable." }, json);
+                    ErrorCodes.DependencyMissing with
+                    {
+                        Message = "PaddleOCR access token not found. Set PADDLEOCR_ACCESS_TOKEN environment variable, use --token flag, or run 'nong ocr check-env' for setup guidance. Get a token at https://www.paddleocr.com/ (register → API keys)."
+                    }, json);
                 return;
             }
 
@@ -157,7 +161,7 @@ public static class OcrCommands
                 WriteCloudError(ex, json);
             }
 
-        }, fileArg, outOpt, ingestOpt, jsonOpt);
+        }, fileArg, outOpt, ingestOpt, tokenOpt, jsonOpt);
 
         return cmd;
     }
@@ -329,6 +333,8 @@ public static class OcrCommands
                         preflight,
                         width = page?.Width,
                         height = page?.Height,
+                        lowConfidenceBlockCount = result.LowConfidenceBlockCount,
+                        notUsable = result.NotUsable,
                         blocks = blocks.Select((b, i) => new
                         {
                             id = b.Id,
@@ -347,10 +353,24 @@ public static class OcrCommands
                     output.Metrics["blocks"] = blocks.Count;
                     output.Metrics["invalidConfidenceBlocks"] = invalidConfidenceBlocks;
                     output.Metrics["invalidGeometryBlocks"] = invalidGeometryBlocks;
+                    output.Metrics["lowConfidenceBlockCount"] = result.LowConfidenceBlockCount;
                     output.Metrics["preflightSkipped"] = 0;
                     output.Meta.DurationMs = elapsed;
 
                     AddLocalOcrNumericIssues(output, result, invalidConfidenceBlocks, invalidGeometryBlocks);
+
+                    // V5.0.2: low confidence warning — results may be unusable
+                    if (result.LowConfidenceBlockCount > 0)
+                    {
+                        output.Issues.Add(new Issue
+                        {
+                            Id = "local_ocr_low_confidence",
+                            Severity = result.NotUsable ? "Warning" : "Info",
+                            Message = result.NotUsable
+                                ? $"All {result.LowConfidenceBlockCount} block(s) have confidence below 0.5 — OCR result is not usable. Consider cloud OCR for better accuracy."
+                                : $"{result.LowConfidenceBlockCount} of {blocks.Count} block(s) have confidence below 0.5."
+                        });
+                    }
                     // Preflight heuristic warning as JSON issue (already printed to stderr in text mode)
                     if (!string.IsNullOrEmpty(preflight.Classification) && preflight.Classification != "text_candidate")
                     {
@@ -687,6 +707,9 @@ public static class OcrCommands
                 {
                     imageAnalyzer = imageAnalyzerOk ? "ok" : "error",
                     cloudToken = tokenStatus,
+                    cloudTokenHelp = tokenStatus == "missing"
+                        ? "Set PADDLEOCR_ACCESS_TOKEN env var or use --token flag. Get a token at https://www.paddleocr.com/"
+                        : null,
                     ocrV6Onnx = new
                     {
                         status = v6Status,
@@ -726,6 +749,8 @@ public static class OcrCommands
             {
                 Console.WriteLine($"ImageAnalyzer: {(imageAnalyzerOk ? "ok" : "error")}");
                 Console.WriteLine($"Cloud token: {tokenStatus}");
+                if (tokenStatus != "set")
+                    Console.WriteLine("  Get a token at https://www.paddleocr.com/ (register → API keys)");
                 Console.WriteLine($"PP-OCRv6 ONNX: {v6Status}" + (v6Available ? $" ({v6Size})" : " (not installed, run: nong ocr install-model pp-ocrv6-medium)"));
             }
         }, jsonOpt);
