@@ -23,6 +23,23 @@
           "Microsoft.Win32.SystemEvents": "9.0.0"
         }
       },
+      "Microsoft.ML.OnnxRuntime": {
+        "type": "Transitive",
+        "resolved": "1.27.0",
+        "contentHash": "QdVsm9tkp1M7lmI5F3uLn/Ruc8I4FCMtFVD0ohmWo7JvC7YsZgAu1S3CEEJhZr1YB+lCPWXa7tpBDbQLCZGPTg==",
+        "dependencies": {
+          "Microsoft.ML.OnnxRuntime.Managed": "1.27.0"
+        }
+      },
+      "Microsoft.ML.OnnxRuntime.Managed": {
+        "type": "Transitive",
+        "resolved": "1.27.0",
+        "contentHash": "9HZjUh9j/gIe4SN/9e4sg/GeTy+JWaPDGzLgz01FQRaj3/SzwjGFc76DMW+wb3ZU7mwfT4lx8GUqwIDgAaHCpw==",
+        "dependencies": {
+          "System.Memory": "4.5.5",
+          "System.Numerics.Tensors": "9.0.0"
+        }
+      },
       "Microsoft.NETCore.Platforms": {
         "type": "Transitive",
         "resolved": "1.1.0",
@@ -122,6 +139,11 @@
         "type": "Transitive",
         "resolved": "4.6.3",
         "contentHash": "qdcDOgnFZY40+Q9876JUHnlHu7bosOHX8XISRoH94fwk6hgaeQGSgfZd8srWRZNt5bV9ZW2TljcegDNxsf+96A=="
+      },
+      "System.Numerics.Tensors": {
+        "type": "Transitive",
+        "resolved": "9.0.0",
+        "contentHash": "hyJB4UlpAi19Xr9AXzu2NuagKC4lPfHObNMEAA0HmqFz2rX7wKgzeYzO/jM/eBHDhnUGFFEjk5cOoJaxqg5J4A=="
       },
       "System.Reflection": {
         "type": "Transitive",
@@ -264,11 +286,18 @@
         "resolved": "16.3.0",
         "contentHash": "SgMOdxbz8X65z8hraIs6hOEdnkH6hESTAIUa7viEngHOYaH+6q5XJmwr1+yb9vJpNQ19hCQY69xbFsLtXpobQA=="
       },
+      "Angri450.Nong.Data": {
+        "type": "Project",
+        "dependencies": {
+          "Angri450.Nong.ThirdParty": "[4.5.0, )",
+          "Microsoft.ML.OnnxRuntime": "[1.27.0, )"
+        }
+      },
       "Angri450.Nong.Docx": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.Pandoc": "[4.1.2, )",
-          "Angri450.Nong.ThirdParty": "[4.1.2, )"
+          "Angri450.Nong.Pandoc": "[4.5.0, )",
+          "Angri450.Nong.ThirdParty": "[4.5.0, )"
         }
       },
       "Angri450.Nong.OcrModels": {
@@ -288,8 +317,8 @@
       "multimodalcore": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.Docx": "[4.1.2, )",
-          "Angri450.Nong.OcrModels": "[4.1.2, )",
+          "Angri450.Nong.Docx": "[4.5.0, )",
+          "Angri450.Nong.OcrModels": "[4.5.0, )",
           "Sdcb.PaddleOCR": "[3.3.1, )"
         }
       }

@@ -2,6 +2,7 @@ using System.CommandLine;
 using System.Text.Json;
 using System.IO.Compression;
 using System.Globalization;
+using Angri450.Nong.Data;
 using MultiModalCore;
 using OpenCvSharp;
 using System.Drawing;
@@ -226,9 +227,10 @@ public static class OcrCommands
     {
         var imageArg = new Argument<string>("image", "Path to image file");
         var forceOpt = new Option<bool>("--force", "Run local OCR even if image preflight flags QR/code/graphic-heavy input");
-        var cmd = new Command("local", "Local PP-OCRv6 recognition with pure .NET runtime (no Python)") { imageArg, forceOpt };
+        var ingestOpt = new Option<bool>("--ingest", () => false, "Ingest OCR text into NongDb for semantic search");
+        var cmd = new Command("local", "Local PP-OCRv6 recognition with pure .NET runtime (no Python)") { imageArg, forceOpt, ingestOpt };
 
-        cmd.SetHandler((string image, bool force, bool json) =>
+        cmd.SetHandler((string image, bool force, bool ingest, bool json) =>
         {
             if (string.IsNullOrWhiteSpace(image))
             {
@@ -341,6 +343,17 @@ public static class OcrCommands
                         Console.WriteLine($"{b.Text}\t{FormatConfidence(b.Confidence)}");
                     WriteLocalOcrNumericWarningsToStderr(result, invalidConfidenceBlocks, invalidGeometryBlocks);
                 }
+
+                if (ingest && blocks.Count > 0)
+                {
+                    try
+                    {
+                        var texts = blocks.Select(b => b.Text ?? "").Where(t => !string.IsNullOrWhiteSpace(t));
+                        var count = IngestHelper.IngestTexts(texts, image, "ocr", "local");
+                        if (!json) Console.Error.WriteLine($"[ingest] {count} OCR text blocks saved to nong.db");
+                    }
+                    catch (Exception ex) { if (!json) Console.Error.WriteLine($"[ingest] warning: {ex.Message}"); }
+                }
             }
             catch (PaddleOcrException ex)
             {
@@ -382,7 +395,7 @@ public static class OcrCommands
                 CliHelpers.WriteError("ocr local",
                     ErrorCodes.InternalError with { Message = $"Local OCR failed: {ex.Message}" }, json);
             }
-        }, imageArg, forceOpt, jsonOpt);
+        }, imageArg, forceOpt, ingestOpt, jsonOpt);
 
         return cmd;
     }

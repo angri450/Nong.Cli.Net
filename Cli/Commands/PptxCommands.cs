@@ -1,6 +1,7 @@
 using System.CommandLine;
 using System.IO.Compression;
 using System.Text.Json;
+using Angri450.Nong.Data;
 using Nong.Cli.Common;
 using PptxCore;
 
@@ -149,9 +150,10 @@ public static class PptxCommands
     {
         var fileArg = new Argument<string>("file", "Path to .pptx file");
         var outOpt = new Option<string>(new[] { "-o", "--output" }, "Output directory for NongPandoc slice") { IsRequired = true };
-        var cmd = new Command("dissect", "Slice pptx into a NongPandoc package") { fileArg, outOpt };
+        var ingestOpt = new Option<bool>("--ingest", () => false, "Auto-import dissect output into NongDb for semantic search");
+        var cmd = new Command("dissect", "Slice pptx into a NongPandoc package") { fileArg, outOpt, ingestOpt };
 
-        cmd.SetHandler((string file, string output, bool json) =>
+        cmd.SetHandler((string file, string output, bool ingest, bool json) =>
         {
             var err = ValidatePptxFile(file);
             if (err != null) { CliHelpers.WriteError("pptx dissect", err, json); return; }
@@ -178,6 +180,16 @@ public static class PptxCommands
                     foreach (var warning in result.Warnings)
                         Console.Error.WriteLine($"[WARN] {warning}");
                 }
+                if (ingest)
+                {
+                    try
+                    {
+                        using var ctx = new IngestionContext();
+                        var ir = ctx.IngestSlice(file, output, "pptx", "dissect");
+                        if (!json) Console.Error.WriteLine($"[ingest] {ir.Blocks} blocks imported to nong.db");
+                    }
+                    catch (Exception ex) { if (!json) Console.Error.WriteLine($"[ingest] warning: {ex.Message}"); }
+                }
             }
             catch (FileNotFoundException ex)
             {
@@ -192,7 +204,7 @@ public static class PptxCommands
                 CliHelpers.WriteError("pptx dissect", ErrorCodes.ReadFailed with { Message = ex.Message }, json);
             }
 
-        }, fileArg, outOpt, jsonOpt);
+        }, fileArg, outOpt, ingestOpt, jsonOpt);
 
         return cmd;
     }

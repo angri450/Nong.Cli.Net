@@ -147,9 +147,12 @@ public static class SearchCommands
                 {
                     var hint = "No documents ingested. First run:\n" +
                                "  nong word dissect paper.docx -o slice --ingest\n" +
-                               "  nong pdf dissect guide.pdf -o slice --ingest\n" +
-                               "  nong inspect diagnose paper.docx --ingest\n" +
-                               "  nong lit search \"query\" --ingest";
+                               "  nong pdf dissect paper.pdf -o slice --ingest\n" +
+                               "  nong excel dissect data.xlsx -o slice --ingest\n" +
+                               "  nong pptx dissect slides.pptx -o slice --ingest\n" +
+                               "  nong inspect diagnose paper.txt --ingest\n" +
+                               "  nong lit search \"query\" --ingest\n" +
+                               "  nong ocr local image.png --ingest";
                     if (json)
                     {
                         var issues = new List<Issue> { new() { Id = "empty_index", Severity = "Info", Message = hint } };

@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MultiModalCore.csproj" />
     <ProjectReference Include="..\..\OcrModels\OcrModels.csproj" />
+    <ProjectReference Include="..\..\Data\Nong.Data.csproj" />
     <ProjectReference Include="..\..\ThirdParty\ThirdParty.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -2,6 +2,7 @@ using System.Globalization;
 using System.CommandLine;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Angri450.Nong.Data;
 using ClosedXML.Excel;
 using ExcelCore;
 using Nong.Cli.Common;
@@ -332,9 +333,10 @@ public static class ExcelCommands
     {
         var fileArg = new Argument<string>("file", "Path to .xlsx file");
         var outOpt = new Option<string>(new[] { "-o", "--output" }, "Output directory for NongPandoc slice") { IsRequired = true };
-        var cmd = new Command("dissect", "Slice xlsx into a NongPandoc package") { fileArg, outOpt };
+        var ingestOpt = new Option<bool>("--ingest", () => false, "Auto-import dissect output into NongDb for semantic search");
+        var cmd = new Command("dissect", "Slice xlsx into a NongPandoc package") { fileArg, outOpt, ingestOpt };
 
-        cmd.SetHandler((string file, string output, bool json) =>
+        cmd.SetHandler((string file, string output, bool ingest, bool json) =>
         {
             var err = ValidateXlsx(file);
             if (err != null) { CliHelpers.WriteError("excel dissect", err, json); return; }
@@ -361,6 +363,16 @@ public static class ExcelCommands
                     foreach (var warning in result.Warnings)
                         Console.Error.WriteLine($"[WARN] {warning}");
                 }
+                if (ingest)
+                {
+                    try
+                    {
+                        using var ctx = new IngestionContext();
+                        var ir = ctx.IngestSlice(file, output, "excel", "dissect");
+                        if (!json) Console.Error.WriteLine($"[ingest] {ir.Blocks} blocks imported to nong.db");
+                    }
+                    catch (Exception ex) { if (!json) Console.Error.WriteLine($"[ingest] warning: {ex.Message}"); }
+                }
             }
             catch (FileNotFoundException ex)
             {
@@ -374,7 +386,7 @@ public static class ExcelCommands
             {
                 CliHelpers.WriteError("excel dissect", ErrorCodes.InternalError with { Message = ex.Message }, json);
             }
-        }, fileArg, outOpt, jsonOpt);
+        }, fileArg, outOpt, ingestOpt, jsonOpt);
 
         return cmd;
     }

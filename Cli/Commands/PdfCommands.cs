@@ -72,9 +72,10 @@ public static class PdfCommands
         var modeOpt = new Option<string>("--mode", () => "auto", "Mode: auto, text, hybrid, ocr");
         var dpiOpt = new Option<int>("--dpi", () => 200, "Render DPI for OCR mode");
         var extractorOpt = new Option<string>("--extractor", () => "auto", "Text extractor: auto, pdftotext");
-        var cmd = new Command("dissect", "Slice PDF into nongpdf/nongmark streams") { fileArg, outOpt, modeOpt, dpiOpt, extractorOpt };
+        var ingestOpt = new Option<bool>("--ingest", () => false, "Auto-import dissect output into NongDb for semantic search");
+        var cmd = new Command("dissect", "Slice PDF into nongpdf/nongmark streams") { fileArg, outOpt, modeOpt, dpiOpt, extractorOpt, ingestOpt };
 
-        cmd.SetHandler((string file, string outputDir, string mode, int dpi, string extractor, bool json) =>
+        cmd.SetHandler((string file, string outputDir, string mode, int dpi, string extractor, bool ingest, bool json) =>
         {
             try
             {
@@ -94,12 +95,23 @@ public static class PdfCommands
                 output.Meta.DurationMs = elapsed;
                 AddWarnings(output, result.Warnings, "pdf_slice");
                 Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
+
+                if (ingest)
+                {
+                    try
+                    {
+                        using var ctx = new IngestionContext();
+                        var ir = ctx.IngestSlice(file, outputDir, "pdf", "dissect");
+                        if (!json) Console.Error.WriteLine($"[ingest] {ir.Blocks} blocks + {ir.Images} images imported to nong.db");
+                    }
+                    catch (Exception ex) { if (!json) Console.Error.WriteLine($"[ingest] warning: {ex.Message}"); }
+                }
             }
             catch (Exception ex)
             {
                 WritePdfError("pdf dissect", ex, json);
             }
-        }, fileArg, outOpt, modeOpt, dpiOpt, extractorOpt, jsonOpt);
+        }, fileArg, outOpt, modeOpt, dpiOpt, extractorOpt, ingestOpt, jsonOpt);
         return cmd;
     }
 
