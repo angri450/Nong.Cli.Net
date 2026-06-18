@@ -128,7 +128,27 @@ public static class LitCommands
                 {
                     ctx.Db.Link("literature-list", list.Id.ToString(), "contains", "paper", paper.Id.ToString());
                 }
-                
+
+                // Also write searchable text blocks for nong search
+                var docId = $"lit-{hash}";
+                int idx = 0;
+                foreach (var paper in dbPapers)
+                {
+                    var blockText = string.Join("\n", new[] { paper.Title, paper.Abstract }.Where(s => !string.IsNullOrWhiteSpace(s)));
+                    if (string.IsNullOrWhiteSpace(blockText)) continue;
+                    ctx.Db.Blocks.Insert(new DbBlock
+                    {
+                        DocumentId = docId,
+                        BlockId = Guid.NewGuid().ToString("N")[..12],
+                        BlockType = "paper",
+                        Text = blockText,
+                        Index = idx++,
+                        Json = JsonSerializer.Serialize(new { title = paper.Title, doi = paper.NormalizedDoi, source = "lit", ingestedAt = DateTime.UtcNow })
+                    });
+                }
+                ctx.Db.Blocks.EnsureIndex(b => b.DocumentId);
+                ctx.Db.Blocks.EnsureIndex(b => b.BlockType);
+
                 listId = list.Id.ToString();
             }
 

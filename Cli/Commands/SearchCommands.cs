@@ -52,13 +52,17 @@ public static class SearchCommands
                 // Get query embedding
                 var queryVec = engine.EmbedQuery(query);
 
-                // Read all blocks from NongDb
+                // Read all blocks from NongDb (both dissected docs and --ingest results)
                 using var ctx = new IngestionContext();
-                var allDocs = ctx.QueryDocuments(format);
                 var allResults = new List<(string DocName, string BlockId, string BlockType, string Text, float Score)>();
+
+                // Query via both paths: registered documents + virtual ingest documents
+                var allDocs = ctx.QueryDocuments(format);
+                var docIds = new HashSet<string>();
 
                 foreach (var doc in allDocs)
                 {
+                    docIds.Add(doc.Id.ToString());
                     var blocks = ctx.QueryBlocks(doc.Id.ToString());
                     foreach (var block in blocks)
                     {
@@ -68,6 +72,22 @@ public static class SearchCommands
                         allResults.Add((doc.FileName, block.BlockId ?? block.Id.ToString(),
                             block.BlockType, block.Text, score));
                     }
+                }
+
+                // Also search blocks from --ingest (non-document sources like lit/aminer/metaso/inspect)
+                var allBlocks = ctx.Db.Blocks.FindAll().ToList();
+                foreach (var block in allBlocks)
+                {
+                    if (docIds.Contains(block.DocumentId)) continue; // Already processed
+                    if (string.IsNullOrWhiteSpace(block.Text)) continue;
+                    if (format != null && !string.Equals(format, block.BlockType, StringComparison.OrdinalIgnoreCase)
+                        && !string.Equals(format, "docx", StringComparison.OrdinalIgnoreCase)
+                        && !string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    var blockVec = engine.EmbedPassage(block.Text);
+                    var score = EmbeddingEngine.Cosine(queryVec, blockVec);
+                    allResults.Add((block.DocumentId, block.BlockId ?? block.Id.ToString(),
+                        block.BlockType, block.Text, score));
                 }
 
                 // Sort and take top K
