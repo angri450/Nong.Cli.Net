@@ -154,4 +154,70 @@ public class DebugRemediationTests
             try { File.Delete(docxPath); } catch { }
         }
     }
+
+    // =========================================================================
+    // #9 — Normal style isDefault = true per OOXML spec
+    // =========================================================================
+
+    [Fact]
+    public void FormatJson_NormalStyle_IsDefaultTrue()
+    {
+        var outDir = Path.Combine(Path.GetTempPath(), "slice-default-" + Guid.NewGuid().ToString("N")[..8]);
+        var docxPath = Path.Combine(Path.GetTempPath(), "default-test-" + Guid.NewGuid().ToString("N")[..8] + ".docx");
+        try
+        {
+            using (var doc = WordprocessingDocument.Create(docxPath, WordprocessingDocumentType.Document))
+            {
+                doc.AddMainDocumentPart();
+                var stylesPart = doc.MainDocumentPart!.AddNewPart<StyleDefinitionsPart>();
+                stylesPart.Styles = new Styles(
+                    new DocDefaults(
+                        new ParagraphPropertiesDefault(
+                            new ParagraphProperties(
+                                new SpacingBetweenLines { Line = "240", LineRule = LineSpacingRuleValues.Auto }))));
+                // Normal style WITHOUT explicit w:default — but it IS the default per OOXML
+                stylesPart.Styles.Append(new Style(
+                    new StyleName { Val = "Normal" })
+                {
+                    StyleId = "Normal",
+                    Type = StyleValues.Paragraph
+                    // Note: no Default = true set explicitly
+                });
+                stylesPart.Styles.Save();
+                doc.MainDocumentPart.Document = new Document(new Body(
+                    new Paragraph(new Run(new Text("Hello")))));
+            }
+
+            var result = WordSlice.Slice(docxPath, outDir);
+            Assert.Empty(result.Warnings);
+
+            var formatPath = Path.Combine(outDir, "format.json");
+            Assert.True(File.Exists(formatPath));
+            var formatJson = JsonDocument.Parse(File.ReadAllText(formatPath)).RootElement;
+            var styles = formatJson.GetProperty("styles");
+
+            // Find Normal style
+            JsonElement normalStyle = default;
+            bool found = false;
+            foreach (var s in styles.EnumerateArray())
+            {
+                if (s.GetProperty("id").GetString() == "Normal")
+                {
+                    normalStyle = s;
+                    found = true;
+                    break;
+                }
+            }
+            Assert.True(found, "Normal style should exist in format.json");
+
+            // isDefault should be true — Normal is the default paragraph style
+            Assert.True(normalStyle.GetProperty("isDefault").GetBoolean(),
+                "Normal style isDefault should be true per OOXML spec");
+        }
+        finally
+        {
+            try { Directory.Delete(outDir, true); } catch { }
+            try { File.Delete(docxPath); } catch { }
+        }
+    }
 }

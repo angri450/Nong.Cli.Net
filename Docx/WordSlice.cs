@@ -2176,7 +2176,9 @@ public static class WordSlice
                     Name = style.StyleName?.Val?.Value,
                     Type = style.Type?.InnerText ?? "",
                     BasedOn = style.BasedOn?.Val?.Value,
-                    IsDefault = style.Default?.Value ?? false,
+                    IsDefault = style.Default?.Value ?? false
+                        || style.StyleId?.Value == "Normal"
+                        || style.StyleId?.Value == "DefaultParagraphFont",
                     IsCustom = style.CustomStyle?.Value ?? false,
                 });
             }
