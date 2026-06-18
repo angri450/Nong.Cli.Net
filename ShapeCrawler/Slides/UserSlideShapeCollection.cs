@@ -85,6 +85,8 @@ internal sealed class UserSlideShapeCollection : IUserSlideShapeCollection
 
     public void AddPicture(Stream imageStream) => this.pictureShapes.AddPicture(imageStream);
 
+    internal void AddPicture(int x, int y, int w, int h, Stream imageStream) => this.pictureShapes.AddPicture(x, y, w, h, imageStream);
+
     public void AddPieChart(
         double x,
         double y,
