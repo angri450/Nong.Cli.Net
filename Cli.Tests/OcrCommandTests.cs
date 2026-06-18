@@ -111,23 +111,8 @@ public class OcrCommandTests
 
     // ===== Test 3: local OCR native runtime internals =====
 
-    [Fact]
-    public void LocalOcrConfidenceSanitizer_RejectsNonFiniteValues()
-    {
-        RequireCli();
-        Assert.True(File.Exists(MultiModalDll), $"MultiModal assembly not found: {MultiModalDll}");
-
-        var asm = Assembly.LoadFrom(MultiModalDll);
-        var type = asm.GetType("MultiModalCore.PpOcrV6Client", throwOnError: true)!;
-        var method = type.GetMethod("ToFiniteConfidence", BindingFlags.NonPublic | BindingFlags.Static)!;
-
-        Assert.Null(method.Invoke(null, new object[] { double.NaN }));
-        Assert.Null(method.Invoke(null, new object[] { double.PositiveInfinity }));
-        Assert.Null(method.Invoke(null, new object[] { double.NegativeInfinity }));
-
-        var finite = Assert.IsType<double>(method.Invoke(null, new object[] { 0.875d }));
-        Assert.Equal(0.875d, finite);
-    }
+    [Fact(Skip = "ONNX migration — old PpOcrV6Client deleted")]
+    public void LocalOcrConfidenceSanitizer_RejectsNonFiniteValues() { }
 
     // ===== Test 4: cloud with missing file returns E001 =====
 
@@ -188,16 +173,8 @@ public class OcrCommandTests
         Assert.Contains("No Python", data.GetProperty("note").GetString());
     }
 
-    [Fact]
-    public void InstallModel_FirstPartyRuntimeVersion_DoesNotUseCliVersion()
-    {
-        var source = File.ReadAllText(OcrCommandsSource);
-
-        Assert.Contains("OcrRuntimeVersion.Current", source);
-        Assert.DoesNotMatch(
-            "Angri450\\.Nong\\.OcrRuntime\\.[^\"]+\",\\s*CliVersion\\.Current",
-            source);
-    }
+    [Fact(Skip = "ONNX migration — old install-model deleted")]
+    public void InstallModel_FirstPartyRuntimeVersion_DoesNotUseCliVersion() { }
 
     // ===== Test 7: install-model can explicitly enable upstream fallback =====
 
@@ -217,55 +194,8 @@ public class OcrCommandTests
 
     // ===== Test 8: native extraction handles Windows/Linux/macOS files =====
 
-    [Fact]
-    public void NativeRuntimeExtraction_AcceptsDllSoVersionedSoAndDylib()
-    {
-        RequireCli();
-        var tempDir = Path.Combine(Path.GetTempPath(), "nong-native-extract-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(tempDir);
-        var nupkg = Path.Combine(tempDir, "runtime.nupkg");
-        var outputDir = Path.Combine(tempDir, "out");
-        Directory.CreateDirectory(outputDir);
-
-        try
-        {
-            using (var archive = ZipFile.Open(nupkg, ZipArchiveMode.Create))
-            {
-                foreach (var name in new[]
-                {
-                    "runtimes/linux-x64/native/a.dll",
-                    "runtimes/linux-x64/native/liba.so",
-                    "runtimes/linux-x64/native/libb.so.1.2.3",
-                    "runtimes/linux-x64/native/libc.dylib",
-                    "runtimes/linux-x64/native/readme.txt",
-                    "runtimes/osx-arm64/native/other.dylib"
-                })
-                {
-                    var entry = archive.CreateEntry(name);
-                    using var stream = entry.Open();
-                    using var writer = new StreamWriter(stream);
-                    writer.Write("native");
-                }
-            }
-
-            var asm = Assembly.LoadFrom(OcrToolDll);
-            var type = asm.GetType("Nong.Cli.Commands.OcrCommands", throwOnError: true)!;
-            var method = type.GetMethod("ExtractNativeFiles", BindingFlags.NonPublic | BindingFlags.Static)!;
-            var files = (List<string>)method.Invoke(null, new object[] { nupkg, "runtimes/linux-x64/native/", outputDir })!;
-
-            Assert.Contains("a.dll", files);
-            Assert.Contains("liba.so", files);
-            Assert.Contains("libb.so.1.2.3", files);
-            Assert.Contains("libc.dylib", files);
-            Assert.DoesNotContain("readme.txt", files);
-            Assert.DoesNotContain("other.dylib", files);
-            Assert.True(File.Exists(Path.Combine(outputDir, "libb.so.1.2.3")));
-        }
-        finally
-        {
-            try { Directory.Delete(tempDir, recursive: true); } catch { }
-        }
-    }
+    [Fact(Skip = "ONNX migration — old native runtime extraction deleted")]
+    public void NativeRuntimeExtraction_AcceptsDllSoVersionedSoAndDylib() { }
 
     // ===== Test 9: first-party local runtime bundle installs from directory source when present =====
 
