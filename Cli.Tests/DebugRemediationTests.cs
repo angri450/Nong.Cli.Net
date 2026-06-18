@@ -336,4 +336,37 @@ lang: zh-CN
         Assert.True(relevantScore > irrelevantScore,
             $"Relevant paper ({relevantScore:F3}) should outscore irrelevant paper ({irrelevantScore:F3})");
     }
+
+    // =========================================================================
+    // #3 — English spaces around parentheses/colons preserved in DOCX
+    // =========================================================================
+
+    [Fact]
+    public void NongMark_EnglishSpacesAroundParenthesisColon_PreservedInDocx()
+    {
+        var nongmarkPath = Path.Combine(Path.GetTempPath(), "space-" + Guid.NewGuid().ToString("N")[..8] + ".nmk");
+        var docxPath = Path.Combine(Path.GetTempPath(), "space-" + Guid.NewGuid().ToString("N")[..8] + ".docx");
+        try
+        {
+            File.WriteAllText(nongmarkPath, "Banana (Musa spp.) is one of the most traded fruits.\n\nKeywords: Banana; Postharvest");
+
+            var result = NongMarkDocumentBuilder.Build(nongmarkPath, docxPath);
+            Assert.Empty(result.Warnings);
+
+            using var doc = WordprocessingDocument.Open(docxPath, false);
+            var fullText = string.Join("", doc.MainDocumentPart!.Document.Body!
+                .Descendants<Text>().Select(t => t.Text));
+
+            Assert.Contains("Banana (Musa spp.) is", fullText);   // spaces around () preserved
+            Assert.Contains("Keywords: Banana", fullText);         // colon space preserved
+            Assert.DoesNotContain("Banana(Musa", fullText);        // no merged
+            Assert.DoesNotContain(")is", fullText);                // no merged
+            Assert.DoesNotContain("Keywords:Banana", fullText);    // no merged
+        }
+        finally
+        {
+            try { File.Delete(nongmarkPath); } catch { }
+            try { File.Delete(docxPath); } catch { }
+        }
+    }
 }

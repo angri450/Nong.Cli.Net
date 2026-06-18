@@ -453,7 +453,8 @@ public sealed class NongMarkDocumentBuilder
         foreach (var line in paragraph)
         {
             var trimmed = line.Trim();
-            if (TryParseFrontmatterLine(trimmed, out var key, out var value))
+            if (TryParseFrontmatterLine(trimmed, out var key, out var value)
+                && IsKnownParagraphAttr(key))
             {
                 if (key == "tabs")
                     _pendingTabStops = ParseTabsFrontmatter(value);
@@ -479,6 +480,16 @@ public sealed class NongMarkDocumentBuilder
         if (key.Contains(' ')) return false;
         value = line[(colon + 1)..].Trim();
         return key.Length > 0 && value.Length > 0;
+    }
+
+    /// <summary>
+    /// V5.0.1: Only treat known paragraph-level attribute keys as frontmatter.
+    /// Unknown keys (like "Keywords") should remain as paragraph text.
+    /// </summary>
+    static bool IsKnownParagraphAttr(string key)
+    {
+        return key is "tabs" or "font" or "fontAscii" or "size" or "sizeHalfPt"
+            or "style" or "alignment" or "bold" or "italic" or "color";
     }
 
     static DocxTabStops? ParseTabsFrontmatter(string value)
