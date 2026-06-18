@@ -941,7 +941,6 @@ public sealed class NongMarkDocumentBuilder
         }
 
         AppendBeforeSectPr(table);
-        AppendBeforeSectPr(new W.Paragraph());
         _tables++;
     }
 

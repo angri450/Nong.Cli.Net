@@ -403,4 +403,43 @@ lang: zh-CN
             try { File.Delete(docxPath); } catch { }
         }
     }
+
+    // =========================================================================
+    // #7 — empty line after table not rendered as empty paragraph
+    // =========================================================================
+
+    [Fact]
+    public void NongMark_EmptyLineAfterTable_NotRenderedAsParagraph()
+    {
+        var nongmarkPath = Path.Combine(Path.GetTempPath(), "emptab-" + Guid.NewGuid().ToString("N")[..8] + ".nmk");
+        var docxPath = Path.Combine(Path.GetTempPath(), "emptab-" + Guid.NewGuid().ToString("N")[..8] + ".docx");
+        try
+        {
+            File.WriteAllText(nongmarkPath, "| A | B |\n|---|---|\n| 1 | 2 |\n\n## 标题");
+
+            var result = NongMarkDocumentBuilder.Build(nongmarkPath, docxPath);
+            Assert.Empty(result.Warnings);
+
+            using var doc = WordprocessingDocument.Open(docxPath, false);
+            var body = doc.MainDocumentPart!.Document.Body!;
+            var elements = body.Elements().ToList();
+
+            // After the table, the next element should be a heading paragraph, not an empty paragraph
+            var tableIndex = elements.FindIndex(e => e is Table);
+            Assert.True(tableIndex >= 0, "should have a table");
+            var nextElement = elements.Skip(tableIndex + 1).FirstOrDefault();
+            Assert.NotNull(nextElement);
+            Assert.IsType<Paragraph>(nextElement);
+            var para = (Paragraph)nextElement;
+            // Should be a heading with text "标题", not an empty paragraph
+            Assert.True(para.InnerText.Contains("标题")
+                || (para.ParagraphProperties?.ParagraphStyleId?.Val?.Value?.StartsWith("Heading") == true),
+                $"Element after table should be heading, got: '{para.InnerText}'");
+        }
+        finally
+        {
+            try { File.Delete(nongmarkPath); } catch { }
+            try { File.Delete(docxPath); } catch { }
+        }
+    }
 }
