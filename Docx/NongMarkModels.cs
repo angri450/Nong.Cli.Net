@@ -589,6 +589,10 @@ public sealed record FieldBlock : NongBlock
 
     [JsonPropertyName("fieldResult")]
     public string? FieldResult { get; set; }
+
+    /// <summary>Cached result between fldChar separate and end (V5).</summary>
+    [JsonPropertyName("cachedResult")]
+    public string? CachedResult { get; set; }
 }
 
 // --- Raw OpenXML reference block --------------------------------------------

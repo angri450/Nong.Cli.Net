@@ -489,6 +489,7 @@ public static class WordSlice
                 Kind = "field",
                 FieldCode = ExtractFieldCode(para),
                 FieldResult = para.InnerText,
+                CachedResult = ExtractCachedFieldResult(para),
             });
             return result;
         }
@@ -2525,6 +2526,40 @@ public static class WordSlice
         foreach (var fc in para.Descendants<FieldCode>())
             codes.Add(fc.InnerText);
         return codes.Count > 0 ? string.Join(" ", codes) : null;
+    }
+
+    /// <summary>Extract cached field result between separate and end markers (V5).</summary>
+    private static string? ExtractCachedFieldResult(Paragraph para)
+    {
+        var fieldChars = para.Descendants<FieldChar>().ToList();
+        bool inResult = false;
+        var sb = new StringBuilder();
+
+        foreach (var run in para.Elements<Run>())
+        {
+            var fc = run.GetFirstChild<FieldChar>();
+            if (fc != null)
+            {
+                if (fc.FieldCharType?.Value == FieldCharValues.Separate)
+                {
+                    inResult = true;
+                    continue;
+                }
+                if (fc.FieldCharType?.Value == FieldCharValues.End)
+                {
+                    inResult = false;
+                    continue;
+                }
+            }
+            if (inResult)
+            {
+                var text = run.GetFirstChild<Text>();
+                if (text != null && !string.IsNullOrEmpty(text.Text))
+                    sb.Append(text.Text);
+            }
+        }
+
+        return sb.Length > 0 ? sb.ToString() : null;
     }
 
     // ========================================================================
