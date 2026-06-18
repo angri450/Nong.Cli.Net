@@ -17,6 +17,7 @@
     <ProjectReference Include="..\Pandoc\PandocCore.csproj" />
     <ProjectReference Include="..\Pptx\PptxCore.csproj" />
     <ProjectReference Include="..\ThirdParty\ThirdParty.csproj" />
+    <ProjectReference Include="..\Docx\DocxCore.csproj" />
     <PackageReference Include="xunit" Version="2.9.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
