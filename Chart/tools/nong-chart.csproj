@@ -26,6 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ChartCore.csproj" />
+    <ProjectReference Include="..\..\Data\Nong.Data.csproj" />
     <ProjectReference Include="..\..\ThirdParty\ThirdParty.csproj" />
   </ItemGroup>
   <ItemGroup>

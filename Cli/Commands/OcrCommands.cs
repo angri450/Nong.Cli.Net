@@ -37,9 +37,10 @@ public static class OcrCommands
     {
         var fileArg = new Argument<string>("file", "Path to image or PDF file");
         var outOpt = new Option<string>("-o", "Output directory") { IsRequired = true };
-        var cmd = new Command("cloud", "Cloud PaddleOCR-VL-1.6 via PADDLEOCR_ACCESS_TOKEN") { fileArg, outOpt };
+        var ingestOpt = new Option<bool>("--ingest", () => false, "Ingest OCR text into NongDb for semantic search");
+        var cmd = new Command("cloud", "Cloud PaddleOCR-VL-1.6 via PADDLEOCR_ACCESS_TOKEN") { fileArg, outOpt, ingestOpt };
 
-        cmd.SetHandler((string file, string outputDir, bool json) =>
+        cmd.SetHandler((string file, string outputDir, bool ingest, bool json) =>
         {
             if (string.IsNullOrWhiteSpace(file))
             {
@@ -122,6 +123,17 @@ public static class OcrCommands
                     foreach (var p in ocrResult.Pages)
                         Console.WriteLine($"  Page {p.PageNumber}: {p.Blocks.Count} blocks");
                 }
+
+                if (ingest && ocrResult.Pages.Count > 0)
+                {
+                    try
+                    {
+                        var texts = ocrResult.Pages.SelectMany(p => p.Blocks).Select(b => b.BlockContent ?? "").Where(t => !string.IsNullOrWhiteSpace(t));
+                        var count = IngestHelper.IngestTexts(texts, file, "ocr", "cloud");
+                        if (!json) Console.Error.WriteLine($"[ingest] {count} OCR blocks saved to nong.db");
+                    }
+                    catch (Exception ex) { if (!json) Console.Error.WriteLine($"[ingest] warning: {ex.Message}"); }
+                }
             }
             catch (AggregateException ae) when (ae.InnerException != null)
             {
@@ -132,7 +144,7 @@ public static class OcrCommands
                 WriteCloudError(ex, json);
             }
 
-        }, fileArg, outOpt, jsonOpt);
+        }, fileArg, outOpt, ingestOpt, jsonOpt);
 
         return cmd;
     }

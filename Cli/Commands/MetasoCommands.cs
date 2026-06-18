@@ -119,15 +119,16 @@ public static class MetasoCommands
         var streamOpt = new Option<bool>("--stream", () => false, "Enable SSE streaming output (real-time)");
         var conciseOpt = new Option<bool>("--concise", () => true, "Return concise original-text match snippets");
         var outOpt = new Option<string?>("-o", "Save answer to file");
+        var ingestOpt = new Option<bool>("--ingest", () => false, "Ingest answer into NongDb for nong search");
 
-        var cmd = new Command("chat", "Metaso RAG — AI-powered research with citations") { queryOpt, modelOpt, scopeOpt, streamOpt, conciseOpt, outOpt };
-        cmd.SetHandler(async (string q, string model, string scope, bool stream, bool concise, string? outFile, bool json) =>
+        var cmd = new Command("chat", "Metaso RAG — AI-powered research with citations") { queryOpt, modelOpt, scopeOpt, streamOpt, conciseOpt, outOpt, ingestOpt };
+        cmd.SetHandler(async (string q, string model, string scope, bool stream, bool concise, string? outFile, bool ingest, bool json) =>
         {
             var client = new MetasoClient();
+            string? fullAnswer = null;
 
             if (stream)
             {
-                // Streaming mode: print chunks as they arrive
                 Console.Error.WriteLine($"[streaming {model}/{scope}]");
                 var answer = new System.Text.StringBuilder();
 
@@ -140,9 +141,10 @@ public static class MetasoCommands
                     });
 
                 Console.Error.WriteLine($"\n[stream finished — {answer.Length} chars]");
+                fullAnswer = answer.ToString();
 
                 if (outFile != null && result.Success)
-                    await File.WriteAllTextAsync(outFile, answer.ToString(), System.Text.Encoding.UTF8);
+                    await File.WriteAllTextAsync(outFile, fullAnswer, System.Text.Encoding.UTF8);
 
                 if (json)
                 {
@@ -150,7 +152,7 @@ public static class MetasoCommands
                     {
                         result.Success, result.Model, result.Id, result.Streamed,
                         errorCode = result.ErrorCode, errorMessage = result.ErrorMessage,
-                        answer = answer.ToString()
+                        answer = fullAnswer
                     });
                     if (outFile != null) output.Artifacts["file"] = outFile;
                     Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
@@ -159,20 +161,34 @@ public static class MetasoCommands
             else
             {
                 var result = await client.ChatAsync(q, model, scope);
+                fullAnswer = result.Answer;
 
-                if (outFile != null && result.Success)
-                    await File.WriteAllTextAsync(outFile, result.Answer, System.Text.Encoding.UTF8);
+                if (outFile != null && result.Success && fullAnswer != null)
+                    await File.WriteAllTextAsync(outFile, fullAnswer, System.Text.Encoding.UTF8);
 
-                var output = JsonOutput.Ok("metaso chat", "RAG answer", new
+                if (json)
                 {
-                    result.Success, result.Model, result.Id, result.Streamed,
-                    errorCode = result.ErrorCode, errorMessage = result.ErrorMessage,
-                    answer = result.Answer
-                });
-                if (outFile != null) output.Artifacts["file"] = outFile;
-                Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
+                    var output = JsonOutput.Ok("metaso chat", $"Answer ({fullAnswer?.Length ?? 0} chars)", new
+                    {
+                        result.Success, result.Model, result.Id,
+                        errorCode = result.ErrorCode, errorMessage = result.ErrorMessage,
+                        answer = fullAnswer
+                    });
+                    if (outFile != null) output.Artifacts["file"] = outFile;
+                    Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
+                }
+                else
+                {
+                    Console.WriteLine(fullAnswer);
+                }
             }
-        }, queryOpt, modelOpt, scopeOpt, streamOpt, conciseOpt, outOpt, jsonOpt);
+
+            if (ingest && !string.IsNullOrWhiteSpace(fullAnswer))
+            {
+                try { IngestHelper.IngestText(fullAnswer, q, "metaso", "chat"); }
+                catch { }
+            }
+        }, queryOpt, modelOpt, scopeOpt, streamOpt, conciseOpt, outOpt, ingestOpt, jsonOpt);
         return cmd;
     }
 }

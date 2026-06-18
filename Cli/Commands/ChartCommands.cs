@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.CommandLine;
 using System.Text.Json;
+using Angri450.Nong.Data;
 using ChartCore;
 using Nong.Cli.Common;
 
@@ -183,9 +184,10 @@ public static class ChartCommands
     {
         var fileArg = new Argument<string>("file", "Path to data file (.json)");
         var alphaOpt = new Option<double>("--alpha", () => 0.05, "Significance level");
-        var cmd = new Command("analyze", "Full statistical analysis (ANOVA + Duncan + descriptive stats)") { fileArg, alphaOpt };
+        var ingestOpt = new Option<bool>("--ingest", () => false, "Ingest stats summary into NongDb for semantic search");
+        var cmd = new Command("analyze", "Full statistical analysis (ANOVA + Duncan + descriptive stats)") { fileArg, alphaOpt, ingestOpt };
 
-        cmd.SetHandler((string file, double alpha, bool json) =>
+        cmd.SetHandler((string file, double alpha, bool ingest, bool json) =>
         {
             var err = CliHelpers.ValidateTextFile(file);
             if (err != null) { CliHelpers.WriteError("chart analyze", err, json); return; }
@@ -240,6 +242,19 @@ public static class ChartCommands
                 {
                     result.Print();
                 }
+
+                if (ingest)
+                {
+                    try
+                    {
+                        var summary = $"ANOVA: F={result.Anova.F:F2}, P={result.Anova.P:F4}. " +
+                            $"Duncan groups: {string.Join(", ", result.Duncan.Groups.Select(g => $"{g.Label}{g.Significance}({g.Mean:F2}+-{g.SD:F2})"))}. " +
+                            $"Group stats: {string.Join("; ", result.Anova.GroupStats.Select(g => $"{g.Key}: n={g.Value.N}, mean={g.Value.Mean:F2}, sd={g.Value.SD:F2}"))}";
+                        IngestHelper.IngestText(summary, Path.GetFileName(file), "chart", "analyze");
+                        if (!json) Console.Error.WriteLine($"[ingest] stats summary saved to nong.db");
+                    }
+                    catch (Exception ex) { if (!json) Console.Error.WriteLine($"[ingest] warning: {ex.Message}"); }
+                }
             }
             catch (Exception ex)
             {
@@ -247,8 +262,7 @@ public static class ChartCommands
                     ErrorCodes.InternalError with { Message = ex.Message }, json);
             }
 
-
-        }, fileArg, alphaOpt, jsonOpt);
+        }, fileArg, alphaOpt, ingestOpt, jsonOpt);
 
         return cmd;
     }
