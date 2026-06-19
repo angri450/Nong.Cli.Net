@@ -23,18 +23,11 @@ public static class Manifest
         bool Required = false
     );
 
+    /// <summary>Primary manifest source: auto-generated (AOT compatible). Regenerate via: nong commands --json | convert to .cs</summary>
     public static List<CommandInfo> All(System.CommandLine.Command? root = null)
     {
-        // Primary: hand-written manifest (complete, curated)
-        var list = HandWritten();
-        // Augment with reflection for any commands not in hand-written list
-        if (root != null)
-        {
-            var reflected = ManifestBuilder.Build(root);
-            var writtenNames = new HashSet<string>(list.Select(c => c.Name));
-            list.AddRange(reflected.Where(c => !writtenNames.Contains(c.Name)));
-        }
-        return list;
+        // V12.1: Use generated source (AOT-ready, no reflection)
+        return ManifestGenerated.All();
     }
 
     static List<CommandInfo> HandWritten()
