@@ -126,6 +126,7 @@ class Program
         root.AddCommand(NongCliCommands.Create(jsonOpt));
         root.AddCommand(SearchCommands.Create(jsonOpt));
         root.AddCommand(ExportCommands.Create(jsonOpt));
+        root.AddCommand(MarkdownCommands.Create(jsonOpt));
         // Heavy modules dispatched to external tools:
         root.AddCommand(CreateExternalGroup("chart"));
         root.AddCommand(CreateExternalGroup("diagram"));
