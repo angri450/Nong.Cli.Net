@@ -5,7 +5,7 @@
     <RootNamespace>Angri450.Nong.Data</RootNamespace>
     <AssemblyName>Angri450.Nong.Data</AssemblyName>
     <PackageId>Angri450.Nong.Data</PackageId>
-    <Version>7.0.0</Version>
+    <Version>9.0.0</Version>
     <Authors>angri450</Authors>
     <Description>Unified Nong data layer: NongDb (LiteDB-backed document store) and NongWorkplace (rooted workspace path management with traversal protection).</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
