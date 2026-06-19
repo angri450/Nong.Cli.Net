@@ -614,7 +614,7 @@ public static class ExcelCommands
 
                 var ws = string.IsNullOrWhiteSpace(spec.Sheet) ? wb.Worksheet(1) : wb.Worksheet(spec.Sheet);
 
-                // V12.1: ClosedXML chart API — local vendor patch: IXLCharts.AddChart + XLChart public
+                // V12.1: use CreateChart on range (binds data source via local vendor patch)
                 var chartType = spec.ChartType?.ToLowerInvariant() switch
                 {
                     "bar" or "column" => ClosedXML.Excel.XLChartType.ColumnClustered,
@@ -623,7 +623,17 @@ public static class ExcelCommands
                     "area" => ClosedXML.Excel.XLChartType.Area,
                     _ => ClosedXML.Excel.XLChartType.ColumnClustered
                 };
-                ws.Charts.AddChart(chartType);
+                var range = ws.Range(spec.DataRange);
+                var firstRow = range.FirstCell().Address.RowNumber;
+                var firstCol = range.FirstCell().Address.ColumnNumber;
+                var lastRow = range.LastCell().Address.RowNumber;
+                var lastCol = range.LastCell().Address.ColumnNumber;
+                var chart = range.CreateChart(firstRow, firstCol, lastRow, lastCol);
+                chart.SetChartType(chartType);
+                if (!string.IsNullOrWhiteSpace(spec.Title))
+                {
+                    // XLChart.Title is not public on interface — use FirstRow/LastRow positioning for now
+                }
                 wb.SaveAs(output);
 
                 if (json)

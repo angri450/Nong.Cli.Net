@@ -26,7 +26,7 @@ namespace ClosedXML.Excel
             Initialize();
         }
 
-        internal void CopyFrom(IXLDataValidation dataValidation)
+        public void CopyFrom(IXLDataValidation dataValidation)
         {
             if (dataValidation == this) return;
 
@@ -48,6 +48,10 @@ namespace ClosedXML.Excel
             MaxValue = dataValidation.MaxValue;
         }
 
+        public void Delete()
+        {
+            _worksheet.DataValidations.Delete(this);
+        }
         public Boolean IsDirty()
         {
             return

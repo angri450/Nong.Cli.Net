@@ -47,8 +47,8 @@ namespace ClosedXML.Excel
 
         Boolean ShowErrorMessage { get; set; }
 
-        //void Delete();
-        //void CopyFrom(IXLDataValidation dataValidation);
+        void Delete();
+        void CopyFrom(IXLDataValidation dataValidation);
         Boolean ShowInputMessage { get; set; }
 
         XLTextLengthCriteria TextLength { get; }

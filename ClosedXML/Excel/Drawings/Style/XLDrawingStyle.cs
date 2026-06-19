@@ -6,8 +6,8 @@ namespace ClosedXML.Excel
     {
         public XLDrawingStyle()
         {
-            //Font = new XLDrawingFont(this);
-            Alignment = new XLDrawingAlignment(this);
+	            Font = new XLDrawingFont(this);
+	            Alignment = new XLDrawingAlignment(this);
             ColorsAndLines = new XLDrawingColorsAndLines(this);
             Size = new XLDrawingSize(this);
             Protection = new XLDrawingProtection(this);
@@ -16,7 +16,7 @@ namespace ClosedXML.Excel
             Web = new XLDrawingWeb(this);
         }
 
-        //public IXLDrawingFont Font { get; private set; }
+        public IXLDrawingFont Font { get; private set; }
         public IXLDrawingAlignment Alignment { get; private set; }
 
         public IXLDrawingColorsAndLines ColorsAndLines { get; private set; }

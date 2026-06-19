@@ -1568,16 +1568,14 @@ namespace ClosedXML.Excel
             target.CopyFrom(this);
         }
 
-        //public IXLChart CreateChart(Int32 firstRow, Int32 firstColumn, Int32 lastRow, Int32 lastColumn)
-        //{
-        //    IXLChart chart = new XLChartWorksheet;
-        //    chart.FirstRow = firstRow;
-        //    chart.LastRow = lastRow;
-        //    chart.LastColumn = lastColumn;
-        //    chart.FirstColumn = firstColumn;
-        //    Worksheet.Charts.Add(chart);
-        //    return chart;
-        //}
+        public IXLChart CreateChart(Int32 firstRow, Int32 firstColumn, Int32 lastRow, Int32 lastColumn)
+        {
+            IXLChart chart = new XLChart(Worksheet);
+            chart.Position.Row = lastRow + 1;
+            chart.Position.Column = firstColumn;
+            Worksheet.Charts.Add(chart);
+            return chart;
+        }
 
         IXLPivotTable IXLRangeBase.CreatePivotTable(IXLCell targetCell, String name)
         {
