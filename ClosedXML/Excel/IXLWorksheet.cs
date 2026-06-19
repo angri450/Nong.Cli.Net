@@ -381,7 +381,7 @@ namespace ClosedXML.Excel
 
         IXLRange SortLeftToRight(XLSortOrder sortOrder = XLSortOrder.Ascending, Boolean matchCase = false, Boolean ignoreBlanks = true);
 
-        //IXLCharts Charts { get; }
+        IXLCharts Charts { get; }
 
         Boolean ShowFormulas { get; set; }
 

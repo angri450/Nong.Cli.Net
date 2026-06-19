@@ -7,19 +7,23 @@ namespace ClosedXML.Excel
     internal class XLCharts: IXLCharts
     {
         private List<IXLChart> charts = new List<IXLChart>();
-        public IEnumerator<IXLChart> GetEnumerator()
+        private XLWorksheet worksheet;
+
+        public XLCharts(XLWorksheet ws)
         {
-            return charts.GetEnumerator();
+            worksheet = ws;
         }
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        public IEnumerator<IXLChart> GetEnumerator() => charts.GetEnumerator();
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public void Add(IXLChart chart)
+        public void Add(IXLChart chart) => charts.Add(chart);
+
+        public IXLChart AddChart(XLChartType chartType)
         {
+            var chart = new XLChart(worksheet) { ChartType = chartType };
             charts.Add(chart);
+            return chart;
         }
     }
 }

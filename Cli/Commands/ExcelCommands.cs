@@ -614,7 +614,7 @@ public static class ExcelCommands
 
                 var ws = string.IsNullOrWhiteSpace(spec.Sheet) ? wb.Worksheet(1) : wb.Worksheet(spec.Sheet);
 
-                // V12.1: ClosedXML 0.104.1 — XLWorksheet+XLChart internal, use reflection
+                // V12.1: ClosedXML chart API — local vendor patch: IXLCharts.AddChart + XLChart public
                 var chartType = spec.ChartType?.ToLowerInvariant() switch
                 {
                     "bar" or "column" => ClosedXML.Excel.XLChartType.ColumnClustered,
@@ -623,16 +623,7 @@ public static class ExcelCommands
                     "area" => ClosedXML.Excel.XLChartType.Area,
                     _ => ClosedXML.Excel.XLChartType.ColumnClustered
                 };
-                var chartObj = typeof(ClosedXML.Excel.IXLChart).Assembly.GetType("ClosedXML.Excel.XLChart");
-                // XLWorksheet is internal → get Charts via reflection
-                var chartsProp = ws.GetType().GetProperty("Charts",
-                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-                if (chartObj != null && chartsProp?.GetValue(ws) is ClosedXML.Excel.IXLCharts charts)
-                {
-                    var chart = (ClosedXML.Excel.IXLChart)Activator.CreateInstance(chartObj)!;
-                    chart.SetChartType(chartType);
-                    charts.Add(chart);
-                }
+                ws.Charts.AddChart(chartType);
                 wb.SaveAs(output);
 
                 if (json)
