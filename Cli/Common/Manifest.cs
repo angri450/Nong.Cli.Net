@@ -23,7 +23,14 @@ public static class Manifest
         bool Required = false
     );
 
-    public static List<CommandInfo> All()
+    public static List<CommandInfo> All(System.CommandLine.Command? root = null)
+    {
+        if (root != null)
+            return ManifestBuilder.Build(root);
+        return HandWritten(); // fallback
+    }
+
+    static List<CommandInfo> HandWritten()
     {
         var list = new List<CommandInfo>();
 

@@ -41,7 +41,7 @@ class Program
         var commandsCmd = new Command("commands", "List available commands") { allOpt, formatOpt };
         commandsCmd.SetHandler((bool json, bool all, string format) =>
         {
-            var manifest = Manifest.All();
+            var manifest = Manifest.All(root);
             var filtered = all ? manifest : manifest.Where(c => c.Status == "implemented").ToList();
 
             if (string.Equals(format, "openai-tools", StringComparison.OrdinalIgnoreCase))
