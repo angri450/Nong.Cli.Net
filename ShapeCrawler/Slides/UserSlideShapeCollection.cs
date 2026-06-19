@@ -172,6 +172,12 @@ internal sealed class UserSlideShapeCollection : IUserSlideShapeCollection
         string chartName
     ) => this.chartShapes.AddClusteredBarChart(x, y, width, height, categories, seriesData, chartName);
 
+    public void AddLineChart(int x, int y, int w, int h, Dictionary<string, double> categoryValues, string seriesName)
+        => this.chartShapes.AddLineChart(x, y, w, h, categoryValues, seriesName);
+
+    public void AddAreaChart(int x, int y, int w, int h, Dictionary<string, double> categoryValues, string seriesName)
+        => this.chartShapes.AddAreaChart(x, y, w, h, categoryValues, seriesName);
+
     public IShape AddSmartArt(
         int x,
         int y,

@@ -227,4 +227,14 @@ public interface IUserSlideShapeCollection : IShapeCollection
     /// Thrown when the slide already contains slide number placeholder.
     /// </exception>
     IShape AddSlideNumber();
+
+    /// <summary>
+    ///     Adds a line chart.
+    /// </summary>
+    void AddLineChart(int x, int y, int w, int h, Dictionary<string, double> categoryValues, string seriesName);
+
+    /// <summary>
+    ///     Adds an area chart.
+    /// </summary>
+    void AddAreaChart(int x, int y, int w, int h, Dictionary<string, double> categoryValues, string seriesName);
 }

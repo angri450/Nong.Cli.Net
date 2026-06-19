@@ -121,6 +121,22 @@ internal sealed class ChartShapeCollection(SlidePart slidePart)
         this.InsertChartGraphicFrame(chartPart, x, y, width, height, chartName);
     }
 
+    internal void AddLineChart(int x, int y, int w, int h, Dictionary<string, double> data, string seriesName)
+    {
+        var rId = new SCOpenXmlPart(slidePart).NextRelationshipId();
+        var chartPart = slidePart.AddNewPart<ChartPart>(rId);
+        new LineChartGenerator(chartPart, data, seriesName).Generate();
+        this.InsertChartGraphicFrame(chartPart, x, y, w, h, "Line Chart");
+    }
+
+    internal void AddAreaChart(int x, int y, int w, int h, Dictionary<string, double> data, string seriesName)
+    {
+        var rId = new SCOpenXmlPart(slidePart).NextRelationshipId();
+        var chartPart = slidePart.AddNewPart<ChartPart>(rId);
+        new AreaChartGenerator(chartPart, data, seriesName).Generate();
+        this.InsertChartGraphicFrame(chartPart, x, y, w, h, "Area Chart");
+    }
+
     private void InsertChartGraphicFrame(ChartPart chartPart, double x, double y, double width, double height, string chartName)
     {
         var graphicFrame = new GraphicFrame
