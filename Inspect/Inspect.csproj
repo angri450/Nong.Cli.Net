@@ -6,7 +6,7 @@
     <RootNamespace>Nong.Inspect</RootNamespace>
     <AssemblyName>Angri450.Nong.Inspect</AssemblyName>
     <PackageId>Angri450.Nong.Inspect</PackageId>
-    <Version>9.0.0</Version>
+    <Version>10.0.0</Version>
     <Authors>angri450</Authors>
     <Description>AI-generated content inspection toolkit. Reviews academic papers, official documents, letters, charts, and diagrams for formatting, structure, and content quality issues. Built on Angri450.Nong.Docx.</Description>
     <DebugType>embedded</DebugType>

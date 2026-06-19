@@ -5,7 +5,7 @@
     <RootNamespace>ThirdParty</RootNamespace>
     <AssemblyName>Angri450.Nong.ThirdParty</AssemblyName>
     <PackageId>Angri450.Nong.ThirdParty</PackageId>
-    <Version>9.0.0</Version>
+    <Version>10.0.0</Version>
     <Authors>angri450</Authors>
     <Description>Merged source of ClosedXML, DocumentFormat.OpenXml, ScottPlot, MSAGL, SkiaSharp, HarfBuzzSharp, SixLabors.Fonts, ZXing.Net, PdfPig and sub-dependencies — compiled into a single assembly. Low-external-dependency foundation for the Angri450.Nong document toolkit.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
