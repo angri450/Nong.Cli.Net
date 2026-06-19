@@ -1,0 +1,14 @@
+{
+  "themes": [
+    { "name": "Professional", "accent1": "4472C4", "accent2": "ED7D31", "dark1": "44546A", "light1": "FFFFFF", "bodyFont": "Calibri", "headFont": "Calibri Light", "bodyCJK": "微软雅黑", "headCJK": "微软雅黑" },
+    { "name": "Academic", "accent1": "1F4E79", "accent2": "2E75B6", "dark1": "2D3748", "light1": "FFFFFF", "bodyFont": "Times New Roman", "headFont": "Times New Roman", "bodyCJK": "宋体", "headCJK": "黑体" },
+    { "name": "Modern", "accent1": "0078D4", "accent2": "00B7C3", "dark1": "1E1E1E", "light1": "FFFFFF", "bodyFont": "Segoe UI", "headFont": "Segoe UI Light", "bodyCJK": "微软雅黑", "headCJK": "微软雅黑" },
+    { "name": "Minimal", "accent1": "333333", "accent2": "666666", "dark1": "1A1A1A", "light1": "FFFFFF", "bodyFont": "Arial", "headFont": "Arial", "bodyCJK": "宋体", "headCJK": "宋体" },
+    { "name": "Warm", "accent1": "C0392B", "accent2": "E67E22", "dark1": "2C3E50", "light1": "FFF9F0", "bodyFont": "Georgia", "headFont": "Georgia", "bodyCJK": "楷体", "headCJK": "黑体" },
+    { "name": "Cool", "accent1": "2980B9", "accent2": "1ABC9C", "dark1": "1A2836", "light1": "FFFFFF", "bodyFont": "Calibri", "headFont": "Calibri", "bodyCJK": "微软雅黑", "headCJK": "微软雅黑" },
+    { "name": "MidnightExecutive", "accent1": "1C2833", "accent2": "2E4053", "dark1": "0E1621", "light1": "FFFFFF", "bodyFont": "Segoe UI", "headFont": "Segoe UI Light", "bodyCJK": "微软雅黑", "headCJK": "微软雅黑" },
+    { "name": "CoralEnergy", "accent1": "E74C3C", "accent2": "F39C12", "dark1": "2C3E50", "light1": "FFFFFF", "bodyFont": "Calibri", "headFont": "Calibri", "bodyCJK": "微软雅黑", "headCJK": "微软雅黑" },
+    { "name": "TealTrust", "accent1": "0E6655", "accent2": "148F77", "dark1": "17202A", "light1": "FFFFFF", "bodyFont": "Segoe UI", "headFont": "Segoe UI", "bodyCJK": "微软雅黑", "headCJK": "微软雅黑" },
+    { "name": "CherryBold", "accent1": "C0392B", "accent2": "E74C3C", "dark1": "1A1A1A", "light1": "FFFFFF", "bodyFont": "Georgia", "headFont": "Georgia", "bodyCJK": "黑体", "headCJK": "黑体" }
+  ]
+}
