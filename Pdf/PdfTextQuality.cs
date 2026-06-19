@@ -132,6 +132,11 @@ internal static class PdfTextQuality
             return true;
 
         var cat = char.GetUnicodeCategory(c);
+        // CJK Unified Ideographs + Extensions A-F whitelist: skip PUA false positives
+        if (c >= 0x4E00 && c <= 0x9FFF) return false;  // CJK Unified Ideographs
+        if (c >= 0x3400 && c <= 0x4DBF) return false;  // CJK Extension A
+        if (c >= 0x20000 && c <= 0x2A6DF) return false; // CJK Extension B
+        if (c >= 0xF900 && c <= 0xFAFF) return false;  // CJK Compatibility Ideographs
         return cat switch
         {
             UnicodeCategory.PrivateUse => true,

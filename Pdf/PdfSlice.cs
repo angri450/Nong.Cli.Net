@@ -63,8 +63,18 @@ public static class PdfSlice
         }
         else
         {
-            // ── Poppler pdftotext is the sole text extraction engine ──
-            model = PdfPopplerExtractor.ExtractTextModel(pdfPath, check);
+            // ── Extractor selection (V7): poppler (default) or pdfpig ──
+            var extractor = options.Extractor?.ToLowerInvariant() ?? "auto";
+            if (extractor == "pdfpig")
+            {
+                model = PdfTextExtractor.ExtractTextModel(pdfPath, check);
+                model.Warnings.Add("Using PdfPig text extractor (tables, columns, headers/footers, noise filtering).");
+            }
+            else
+            {
+                // ── Poppler pdftotext is the sole text extraction engine ──
+                model = PdfPopplerExtractor.ExtractTextModel(pdfPath, check);
+            }
             model.Warnings.AddRange(warnings.Where(w => !model.Warnings.Contains(w)));
 
             if (effectiveMode == "hybrid")

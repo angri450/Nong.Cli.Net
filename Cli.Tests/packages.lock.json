@@ -169,6 +169,13 @@
           "Microsoft.ML.OnnxRuntime": "[1.21.0, )"
         }
       },
+      "Angri450.Nong.Docx": {
+        "type": "Project",
+        "dependencies": {
+          "Angri450.Nong.Pandoc": "[4.5.0, )",
+          "Angri450.Nong.ThirdParty": "[4.5.0, )"
+        }
+      },
       "Angri450.Nong.Literature": {
         "type": "Project",
         "dependencies": {

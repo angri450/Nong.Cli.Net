@@ -224,6 +224,14 @@ public static class PdfPopplerExtractor
                         },
                         Confidence = "high",
                     });
+                    // V7: compute dynamic confidence (update in-place)
+                    if (model.Blocks[^1].Runs.Count > 0)
+                    {
+                        var quality = PdfTextQuality.AnalyzeRuns(model.Blocks[^1].Runs);
+                        var conf = quality.SuspiciousRatio < 0.1 ? "high" :
+                                   quality.SuspiciousRatio < 0.3 ? "medium" : "low";
+                        model.Blocks[^1].Confidence = conf;
+                    }
                 }
             }
         }

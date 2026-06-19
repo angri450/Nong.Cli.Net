@@ -122,7 +122,6 @@
           "System.Collections.Immutable": "[10.0.8, )"
         }
       }
-    },
-    ".NETStandard,Version=v2.0/win-x64": {}
+    }
   }
 }

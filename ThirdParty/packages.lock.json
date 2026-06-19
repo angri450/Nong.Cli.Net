@@ -50,7 +50,6 @@
           "System.Collections.Immutable": "9.0.0"
         }
       }
-    },
-    "net8.0/win-x64": {}
+    }
   }
 }

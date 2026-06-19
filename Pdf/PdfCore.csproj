@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>PdfCore</RootNamespace>
     <IsPackable>false</IsPackable>
-    <Version>6.0.0</Version>
+    <Version>7.0.0</Version>
     <Authors>angri450</Authors>
     <Description>Local PDF document slicing engine for Nong: PDF classification, text extraction, rendering, assets, OCR bridge, and NongMark/Pandoc-enhanced text projection.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
