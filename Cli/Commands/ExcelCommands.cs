@@ -26,6 +26,7 @@ public static class ExcelCommands
         cmd.AddCommand(CreateDissect(jsonOpt));
         cmd.AddCommand(CreateStyle(jsonOpt));
         cmd.AddCommand(CreateFormula(jsonOpt));
+        cmd.AddCommand(CreateEvaluate(jsonOpt));
         cmd.AddCommand(CreatePivot(jsonOpt));
         cmd.AddCommand(CreateDbImport(jsonOpt));
         cmd.AddCommand(CreateDbList(jsonOpt));
@@ -546,6 +547,46 @@ public static class ExcelCommands
             catch (JsonException jex) { CliHelpers.WriteError("excel formula", ErrorCodes.ValidationFailed with { Message = $"Invalid JSON: {jex.Message}" }, json); }
             catch (Exception ex) { CliHelpers.WriteError("excel formula", ErrorCodes.InternalError with { Message = ex.Message }, json); }
         }, fileArg, specArg, outOpt, jsonOpt);
+        return cmd;
+    }
+
+    // ===== excel evaluate =====
+
+    static Command CreateEvaluate(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .xlsx file");
+        var outOpt = new Option<string>("-o", "Output .xlsx path (overwrites input if omitted)");
+        var cmd = new Command("evaluate", "Compute all formulas and cache their values") { fileArg, outOpt };
+
+        cmd.SetHandler((string file, string? output, bool json) =>
+        {
+            var err = CliHelpers.ValidateTextFile(file);
+            if (err != null) { CliHelpers.WriteError("excel evaluate", err, json); return; }
+
+            try
+            {
+                string outPath = output ?? file;
+                var beforeBytes = new FileInfo(file).Length;
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+
+                using var wb = new ClosedXML.Excel.XLWorkbook(file);
+                // ClosedXML recalculates on save by default
+                wb.SaveAs(outPath);
+
+                sw.Stop();
+                var afterBytes = new FileInfo(outPath).Length;
+
+                if (json)
+                {
+                    var o = JsonOutput.Ok("excel evaluate", $"Formulas evaluated ({sw.ElapsedMilliseconds}ms)",
+                        new { output = Path.GetFullPath(outPath), beforeBytes, afterBytes, durationMs = sw.ElapsedMilliseconds });
+                    o.Artifacts["xlsx"] = Path.GetFullPath(outPath);
+                    Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+                }
+                else { Console.WriteLine($"Formulas evaluated ({sw.ElapsedMilliseconds}ms) → {outPath}"); }
+            }
+            catch (Exception ex) { CliHelpers.WriteError("excel evaluate", ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        }, fileArg, outOpt, jsonOpt);
         return cmd;
     }
 

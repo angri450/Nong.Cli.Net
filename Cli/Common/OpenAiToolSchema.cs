@@ -12,6 +12,9 @@ public sealed class OpenAiToolSchema
         ParameterDef Parameters
     );
 
+    /// <summary>Example input/output pair for agent function-calling guidance. V10.</summary>
+    public sealed record Example(string Input, string Output);
+
     public sealed record ParameterDef(
         string Type,
         Dictionary<string, PropertyDef>? Properties,

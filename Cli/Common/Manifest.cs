@@ -25,9 +25,16 @@ public static class Manifest
 
     public static List<CommandInfo> All(System.CommandLine.Command? root = null)
     {
+        // Primary: hand-written manifest (complete, curated)
+        var list = HandWritten();
+        // Augment with reflection for any commands not in hand-written list
         if (root != null)
-            return ManifestBuilder.Build(root);
-        return HandWritten(); // fallback
+        {
+            var reflected = ManifestBuilder.Build(root);
+            var writtenNames = new HashSet<string>(list.Select(c => c.Name));
+            list.AddRange(reflected.Where(c => !writtenNames.Contains(c.Name)));
+        }
+        return list;
     }
 
     static List<CommandInfo> HandWritten()
