@@ -19,9 +19,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="libSkiaSharp.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PdfCore.csproj" />
@@ -37,8 +35,4 @@
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
-  <!-- Copy libSkiaSharp.dll to publish output (None+CopyToOutputDirectory covers build, but not publish) -->
-  <Target Name="CopySkiaSharpToPublish" AfterTargets="AfterPublish">
-    <Copy SourceFiles="libSkiaSharp.dll" DestinationFolder="$(PublishDir)" SkipUnchangedFiles="true" />
-  </Target>
 </Project>

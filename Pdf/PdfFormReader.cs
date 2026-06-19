@@ -14,7 +14,7 @@ public static class PdfFormReader
 
         try
         {
-            using var reader = DocNet.DocLib.Instance.GetDocReader(pdfPath);
+            using var reader = Docnet.Core.DocLib.Instance.GetDocReader(pdfPath, new Docnet.Core.Models.PageDimensions(1.0));
             int pageCount = reader.GetPageCount();
 
             for (int i = 1; i <= pageCount; i++)

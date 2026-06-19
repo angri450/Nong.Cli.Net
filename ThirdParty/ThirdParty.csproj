@@ -35,10 +35,7 @@
     <Compile Include="..\common\System\IO\StreamReadExtensions.cs" Link="Shims\StreamReadExtensions.cs" />
   </ItemGroup>
 
-  <!-- SkiaSharp / HarfBuzzSharp shared bindings — exclude original with conditional namespace and polyfills -->
-  <ItemGroup>
-    <Compile Include="..\Binding.Shared\**\*.cs" Exclude="..\Binding.Shared\DelegateProxies.shared.cs;..\Binding.Shared\HashCode.cs" Link="Binding.Shared\%(RecursiveDir)%(Filename)%(Extension)" />
-  </ItemGroup>
+  <!-- SkiaSharp / HarfBuzzSharp shared bindings — removed; now via NuGet PackageReference -->
 
   <!-- UnicodeTrieGenerator (used by SixLabors.Fonts — only 3 specific files) -->
   <ItemGroup>
@@ -66,14 +63,11 @@
     <Compile Include="..\DocumentFormat.OpenXml\**\*.cs" Exclude="..\DocumentFormat.OpenXml\bin\**\*;..\DocumentFormat.OpenXml\obj\**\*;..\DocumentFormat.OpenXml\common\**\*" />
     <Compile Include="..\DocumentFormat.OpenXml.Framework\**\*.cs" Exclude="..\DocumentFormat.OpenXml.Framework\bin\**\*;..\DocumentFormat.OpenXml.Framework\obj\**\*" />
     <Compile Include="..\ExcelNumberFormat\**\*.cs" Exclude="..\ExcelNumberFormat\bin\**\*;..\ExcelNumberFormat\obj\**\*" />
-    <Compile Include="..\HarfBuzzSharp\**\*.cs" Exclude="..\HarfBuzzSharp\bin\**\*;..\HarfBuzzSharp\obj\**\*" />
-    <Compile Include="..\MSAGL\**\*.cs" Exclude="..\MSAGL\bin\**\*;..\MSAGL\obj\**\*" />
-    <Compile Include="..\MSAGL.Drawing\**\*.cs" Exclude="..\MSAGL.Drawing\bin\**\*;..\MSAGL.Drawing\obj\**\*" />
     <Compile Include="..\RBush\**\*.cs" Exclude="..\RBush\bin\**\*;..\RBush\obj\**\*" />
     <Compile Include="..\ScottPlot\**\*.cs" Exclude="..\ScottPlot\bin\**\*;..\ScottPlot\obj\**\*;..\ScottPlot\Testing\**\*;..\ScottPlot\Statistics\Tests\**\*" />
     <Compile Include="..\SixLabors.Fonts\**\*.cs" Exclude="..\SixLabors.Fonts\bin\**\*;..\SixLabors.Fonts\obj\**\*;..\SixLabors.Fonts\shared-infrastructure\**\*" />
-    <Compile Include="..\SkiaSharp\**\*.cs" Exclude="..\SkiaSharp\bin\**\*;..\SkiaSharp\obj\**\*" />
-    <Compile Include="..\SkiaSharp.HarfBuzz\**\*.cs" Exclude="..\SkiaSharp.HarfBuzz\bin\**\*;..\SkiaSharp.HarfBuzz\obj\**\*" />
+    <Compile Include="..\MSAGL\**\*.cs" Exclude="..\MSAGL\bin\**\*;..\MSAGL\obj\**\*" />
+    <Compile Include="..\MSAGL.Drawing\**\*.cs" Exclude="..\MSAGL.Drawing\bin\**\*;..\MSAGL.Drawing\obj\**\*" />
     <Compile Include="..\ClippitPowerTools\**\*.cs" Exclude="..\ClippitPowerTools\bin\**\*;..\ClippitPowerTools\obj\**\*;..\ClippitPowerTools\Excel\**\*;..\ClippitPowerTools\PowerPoint\**\*;..\ClippitPowerTools\Html\**\*;..\ClippitPowerTools\Internal\**\*;..\ClippitPowerTools\MetricsGetter.cs" />
     <Compile Include="..\ShapeCrawler\**\*.cs" Exclude="..\ShapeCrawler\bin\**\*;..\ShapeCrawler\obj\**\*;..\ShapeCrawler\Slides\XmlPicture.cs" />
   </ItemGroup>
@@ -139,7 +133,6 @@
     <Compile Remove="..\ClosedXML\Properties\**\*" />
     <Compile Remove="..\MSAGL.Drawing\AssemblyInfo.cs" />
     <Compile Remove="..\MSAGL\AssemblyInfo.cs" />
-    <Compile Remove="..\HarfBuzzSharp\DelegateProxies.cs" />
     <Compile Remove="..\ClippitPowerTools\Properties\**\*" />
     <Compile Remove="..\ShapeCrawler\Properties\**\*" />
     <Compile Remove="..\PdfPig\src\UglyToad.PdfPig.Fonts\Util\StringExtensions.cs" />
@@ -149,12 +142,8 @@
   <Import Project="..\OpenXmlData\OpenXmlData.targets" />
 
   <ItemGroup>
-    <ProjectReference Include="..\DocumentFormat.OpenXml.Generator\DocumentFormat.OpenXml.Generator.csproj"
-                      OutputItemType="Analyzer" ReferenceOutputAssembly="false"
-                      SkipGetTargetFrameworkProperties="true" GlobalPropertiesToRemove="TargetFramework" />
-    <ProjectReference Include="..\DocumentFormat.OpenXml.Generator.Models\DocumentFormat.OpenXml.Generator.Models.csproj"
-                      OutputItemType="Analyzer" ReferenceOutputAssembly="false"
-                      SkipGetTargetFrameworkProperties="true" GlobalPropertiesToRemove="TargetFramework" />
+    <ProjectReference Include="..\DocumentFormat.OpenXml.Generator\DocumentFormat.OpenXml.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" GlobalPropertiesToRemove="TargetFramework" />
+    <ProjectReference Include="..\DocumentFormat.OpenXml.Generator.Models\DocumentFormat.OpenXml.Generator.Models.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" GlobalPropertiesToRemove="TargetFramework" />
   </ItemGroup>
 
   <ItemGroup>
@@ -223,6 +212,9 @@
 
   <!-- NuGet dependencies -->
   <ItemGroup>
+    <PackageReference Include="HarfBuzzSharp" Version="8.3.1.5" />
+    <PackageReference Include="SkiaSharp" Version="3.119.2" />
+    <PackageReference Include="SkiaSharp.HarfBuzz" Version="3.119.2" />
     <PackageReference Include="System.IO.Packaging" Version="10.0.2" />
     <PackageReference Include="System.IO.Hashing" Version="9.0.0" />
     <PackageReference Include="System.Resources.Extensions" Version="9.0.0" />
