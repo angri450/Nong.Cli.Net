@@ -11,6 +11,11 @@ using Xunit;
 
 namespace Nong.Cli.Tests;
 
+// Same collection as PdfCommandTests: many of these contract tests dispatch
+// `nong.exe pdf ...` which forwards to the nong-pdf dotnet tool. Running them
+// in parallel with PdfCommandTests races on the shared global tool binary and
+// on EnsureToolInstalled's install step, producing intermittent failures.
+[Collection("PdfCommandTests")]
 public class CliContractTests
 {
     static string RepoRoot => Path.GetFullPath(

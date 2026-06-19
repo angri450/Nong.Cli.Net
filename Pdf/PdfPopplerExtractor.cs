@@ -196,8 +196,20 @@ public static class PdfPopplerExtractor
             if (columnSplitX.HasValue)
                 model.Pages[^1].ColumnSplitX = columnSplitX.Value;
 
-            // ── V7: table detection ──
-            var tableStrings = DetectTableRegions(allPageLines, pageW);
+            // ── V7: table detection (skip when a column split was detected:
+            //       two-column body text looks identical to a 2-cell table under
+            //       the baseline-Y row clustering heuristic, so column detection
+            //       must win over table detection on ambiguous pages) ──
+            var tableStrings = columnSplitX.HasValue
+                ? new List<string>()
+                : DetectTableRegions(allPageLines, pageW);
+
+            // Collect the canonical text of every cell consumed by table detection
+            // so the main XML-block loop below can skip emitting duplicate paragraph
+            // blocks for the same lines. Without this dedup a document gets one
+            // "table" block per row AND a duplicate "paragraph"/"heading" block per
+            // cell, which breaks downstream consumers expecting one block per region.
+            var tableCellTexts = new HashSet<string>(StringComparer.Ordinal);
             foreach (var trow in tableStrings)
             {
                 model.Blocks.Add(new PdfContentBlock
@@ -211,6 +223,15 @@ public static class PdfPopplerExtractor
                     Text = trow,
                     Confidence = "high",
                 });
+                // trow is a markdown table row like "| Left column 1 | Right column 1 |"
+                // (or "|---|---|" for the separator). Split on the pipe to get cells.
+                foreach (var raw in trow.Split('|'))
+                {
+                    var cell = raw.Trim();
+                    // Skip the separator row cells (---) and empties.
+                    if (cell.Length == 0 || cell.All(c => c == '-')) continue;
+                    tableCellTexts.Add(cell);
+                }
             }
 
             // ── V7: header/footer removal (compare with previous page) ──
@@ -245,6 +266,13 @@ public static class PdfPopplerExtractor
                     if (texts.Count == 0) continue;
 
                     string fullText = string.Join(" ", texts);
+
+                    // V7 dedup: skip blocks whose text exactly matches a table cell
+                    // already emitted as part of a table block above. Without this,
+                    // every table cell also appears as a duplicate paragraph/heading.
+                    if (tableCellTexts.Count > 0 && tableCellTexts.Contains(fullText))
+                        continue;
+
                     double left = double.MaxValue, bottom = double.MaxValue, right = double.MinValue, top = double.MinValue;
                     foreach (XmlNode w in blockWords)
                     {
@@ -316,11 +344,11 @@ public static class PdfPopplerExtractor
         var blockLeft = ParseDouble(block, "xMin");
         var blockRight = ParseDouble(block, "xMax");
 
-        // V7: improved heading detection
+        // First non-empty block on first page → heading (document title / heading1).
         if (hIdx == 0 && pIdx == 0 && text.Length <= 80)
             return "heading";
-        
-        // Check for numeric prefixes (1., 1.1, Chapter, etc)
+
+        // Numeric prefix (1., 1.1, Chapter, I., A.) → heading
         if (System.Text.RegularExpressions.Regex.IsMatch(text, @"^[\dIVX]+[\.\)]\s") && text.Length <= 100)
             return "heading";
 
@@ -328,7 +356,7 @@ public static class PdfPopplerExtractor
         var lines = block.SelectNodes("*[local-name()='line']", null);
         if (lines != null && lines.Count > 0)
         {
-            var firstWord = lines[0]?.SelectSingleNode("*[local-name()='word']", null) 
+            var firstWord = lines[0]?.SelectSingleNode("*[local-name()='word']", null)
                           ?? lines[0]?.SelectNodes("*[local-name()='word']", null)?.Item(0);
             if (firstWord != null)
             {
@@ -442,7 +470,11 @@ public static class PdfPopplerExtractor
     /// <summary>Detect column split X in a two-column layout. Returns null if single column.</summary>
     static double? DetectColumnSplit(List<PopplerLine> lines, double pageW)
     {
-        if (lines.Count < 10) return null;
+        // Need at least 6 lines to confidently claim two columns (≥3 lines per side
+        // is the minimum useful sample; below that, a sparse page looks columnar
+        // by accident). Original threshold of 10 rejected valid short two-column
+        // pages like the test fixture (4 rows × 2 cols + 1 title = 9 lines).
+        if (lines.Count < 6) return null;
         // Find gaps in the center 40% of page
         double center = pageW / 2;
         double leftThird = pageW * 0.30;

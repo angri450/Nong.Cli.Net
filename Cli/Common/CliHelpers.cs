@@ -202,24 +202,30 @@ public static class CliHelpers
     static string? FindTool(string toolName)
     {
         var exeName = OperatingSystem.IsWindows() ? $"{toolName}.exe" : toolName;
-        var candidates = new List<string>
-        {
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".dotnet", "tools", exeName),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "dotnet", "tools", exeName)
-        };
 
+        // PATH takes precedence over the global tools dir: callers that explicitly
+        // inject a tool bin dir into PATH (tests, local dev builds, CI) always win
+        // over a globally-installed tool that may be stale or on a different version.
         var path = Environment.GetEnvironmentVariable("PATH") ?? "";
         foreach (var dir in path.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries))
         {
             try
             {
-                candidates.Add(Path.Combine(dir, exeName));
+                var candidate = Path.Combine(dir, exeName);
+                if (File.Exists(candidate))
+                    return candidate;
             }
             catch { }
         }
 
-        foreach (var candidate in candidates)
+        // Fallback: dotnet global tool install locations.
+        foreach (var baseDir in new[]
         {
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".dotnet", "tools"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "dotnet", "tools")
+        })
+        {
+            var candidate = Path.Combine(baseDir, exeName);
             if (File.Exists(candidate))
                 return candidate;
         }

@@ -5,6 +5,12 @@ using Xunit;
 
 namespace Nong.Cli.Tests;
 
+// Serialize all tests in this class: they spawn `nong.exe pdf dissect` which
+// forwards to the nong-pdf dotnet tool. When xUnit runs tests in parallel,
+// multiple dissect processes race on the shared global tool binary and on
+// EnsureToolInstalled's install step, producing intermittent
+// DirectoryNotFoundException / wrong-version results. Run sequentially.
+[Collection("PdfCommandTests")]
 public class PdfCommandTests
 {
     static string RepoRoot => Path.GetFullPath(
