@@ -615,19 +615,18 @@ public static class ExcelCommands
                 var ws = string.IsNullOrWhiteSpace(spec.Sheet) ? wb.Worksheet(1) : wb.Worksheet(spec.Sheet);
                 var range = ws.Range(spec.DataRange);
 
-                // V9: ClosedXML chart API is AddChart<T>(data, position) — vendor version
-                // doesn't expose it cleanly.  Generate chart via the XLCharts collection when
-                // the vendor is upgraded.
-                ws.Cell(range.RowCount() + 3, 1).Value = $"[Chart: {spec.ChartType}] — upgrade ClosedXML vendor for full chart rendering";
+                // V12.1: ClosedXML 0.104.x chart API is internal — vendor upgrade needed for chart rendering
+                ws.Cell(range.RowCount() + 3, 1).Value = $"[Chart: {spec.ChartType}] — ClosedXML vendor upgrade needed (charts API internal in 0.104.x)";
                 wb.SaveAs(output);
 
                 if (json)
                 {
-                    var o = JsonOutput.Ok("excel chart", "Chart placeholder created (upgrade vendor for rendering)", new { output = Path.GetFullPath(output), type = spec.ChartType });
+                    var o = JsonOutput.Ok("excel chart", "Chart placeholder (vendor upgrade needed)",
+                        new { output = Path.GetFullPath(output), type = spec.ChartType });
                     o.Artifacts["xlsx"] = output;
                     Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
                 }
-                else Console.WriteLine($"Chart placeholder -> {output}");
+                else Console.WriteLine($"Chart placeholder ({spec.ChartType}) -> {output}");
             }
             catch (Exception ex) { CliHelpers.WriteError("excel chart", ErrorCodes.InternalError with { Message = ex.Message }, json); }
         }, fileArg, specArg, outOpt, jsonOpt);
@@ -639,6 +638,8 @@ public static class ExcelCommands
         public string? Sheet { get; set; }
         public string DataRange { get; set; } = "A1:B10";
         public string? ChartType { get; set; }
+        public string? Title { get; set; }
+        public string? Legend { get; set; }
     }
 
     // ===== excel pivot =====

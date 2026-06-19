@@ -29,6 +29,8 @@ public static class PdfCommands
         cmd.AddCommand(CreateSplit(jsonOpt));
         cmd.AddCommand(CreateOcrPdf(jsonOpt));
         cmd.AddCommand(CreateCompress(jsonOpt));
+        cmd.AddCommand(CreateFormFields(jsonOpt));
+        cmd.AddCommand(CreatePdfCreate(jsonOpt));
         cmd.AddCommand(CreateToWord(jsonOpt));
         cmd.AddCommand(CreateDbImport(jsonOpt));
         cmd.AddCommand(CreateDbList(jsonOpt));
@@ -463,6 +465,87 @@ public static class PdfCommands
         }, fileArg, outOpt, qualityOpt, jsonOpt);
         return cmd;
     }
+
+    // ===== pdf form-fields (V12.1) =====
+
+    static Command CreateFormFields(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .pdf file");
+        var cmd = new Command("form-fields", "Extract form fields from PDF") { fileArg };
+
+        cmd.SetHandler((string file, bool json) =>
+        {
+            var err = CliHelpers.ValidateTextFile(file);
+            if (err != null) { CliHelpers.WriteError("pdf form-fields", err, json); return; }
+
+            try
+            {
+                var result = PdfCore.PdfFormReader.ReadFields(file);
+
+                if (json)
+                {
+                    var o = JsonOutput.Ok("pdf form-fields", $"{result.Fields.Count} field(s) found",
+                        new { fields = result.Fields, warnings = result.Warnings });
+                    Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+                }
+                else
+                {
+                    Console.WriteLine($"{result.Fields.Count} form field(s):");
+                    foreach (var f in result.Fields)
+                        Console.WriteLine($"  p{f.Page} {f.Type}: {f.Name}");
+                    foreach (var w in result.Warnings) Console.Error.WriteLine($"[warn] {w}");
+                }
+            }
+            catch (Exception ex) { CliHelpers.WriteError("pdf form-fields", ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        }, fileArg, jsonOpt);
+        return cmd;
+    }
+
+    // ===== pdf create (V12.1) =====
+
+    static Command CreatePdfCreate(Option<bool> jsonOpt)
+    {
+        var specArg = new Argument<string>("spec", "Path to JSON spec: {pages: [{text: string, heading: bool}...]}");
+        var outOpt = new Option<string>("-o", "Output .pdf path") { IsRequired = true };
+        var cmd = new Command("create", "Generate PDF from text spec (SkiaSharp)") { specArg, outOpt };
+
+        cmd.SetHandler((string specPath, string output, bool json) =>
+        {
+            if (!File.Exists(specPath)) { CliHelpers.WriteError("pdf create", ErrorCodes.FileNotFound with { Message = $"Spec not found: {specPath}" }, json); return; }
+            try
+            {
+                var spec = JsonSerializer.Deserialize<PdfCreateSpec>(File.ReadAllText(specPath), CliHelpers.JsonOpts);
+                if (spec?.Pages == null || spec.Pages.Length == 0)
+                { CliHelpers.WriteError("pdf create", ErrorCodes.ValidationFailed with { Message = "pages array must be non-empty" }, json); return; }
+
+                var blocks = new List<PdfCore.PdfTextBlock>();
+                foreach (var page in spec.Pages)
+                {
+                    if (blocks.Count > 0) blocks.Add(new PdfCore.PdfTextBlock("\f", false)); // page break marker
+                    foreach (var item in page.Items ?? [])
+                        blocks.Add(new PdfCore.PdfTextBlock(item.Text ?? "", item.Heading));
+                }
+
+                CliHelpers.EnsureParentDir(output);
+                PdfCore.PdfGenerator.CreateTextPdf(output, blocks);
+
+                if (json)
+                {
+                    var o = JsonOutput.Ok("pdf create", $"PDF generated: {blocks.Count} blocks",
+                        new { output = Path.GetFullPath(output), blocks = blocks.Count });
+                    o.Artifacts["pdf"] = output;
+                    Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+                }
+                else Console.WriteLine($"PDF generated: {blocks.Count} blocks -> {output}");
+            }
+            catch (Exception ex) { CliHelpers.WriteError("pdf create", ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        }, specArg, outOpt, jsonOpt);
+        return cmd;
+    }
+
+    sealed class PdfCreateSpec { public PdfCreatePage[]? Pages { get; set; } }
+    sealed class PdfCreatePage { public PdfCreateItem[]? Items { get; set; } }
+    sealed class PdfCreateItem { public string? Text { get; set; } public bool Heading { get; set; } }
 
     // ===== pdf to-word (PDF → DOCX via Slice) =====
 
