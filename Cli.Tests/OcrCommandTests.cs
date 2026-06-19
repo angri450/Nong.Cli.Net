@@ -110,11 +110,6 @@ public class OcrCommandTests
         Assert.Equal("E001", doc.RootElement.GetProperty("errors")[0].GetProperty("code").GetString());
     }
 
-    // ===== Test 3: local OCR native runtime internals =====
-
-    [Fact(Skip = "ONNX migration — old PpOcrV6Client deleted")]
-    public void LocalOcrConfidenceSanitizer_RejectsNonFiniteValues() { }
-
     // ===== Test 4: cloud with missing file returns E001 =====
 
     [Fact]
@@ -171,24 +166,6 @@ public class OcrCommandTests
         Assert.Contains("det_onnx", det.GetProperty("url").GetString());
         Assert.Equal("ONNX Runtime (Microsoft.ML.OnnxRuntime, already included in nong CLI)", data.GetProperty("runtime").GetString());
     }
-
-    [Fact(Skip = "ONNX migration — old install-model deleted")]
-    public void InstallModel_FirstPartyRuntimeVersion_DoesNotUseCliVersion() { }
-
-    // ===== Test 7: install-model can explicitly enable upstream fallback (skip — old path deleted) =====
-
-    [Fact(Skip = "ONNX migration — old --allow-upstream-fallback deleted")]
-    public void InstallModel_DryRun_ReportsExplicitUpstreamFallback() { }
-
-    // ===== Test 8: native extraction (skip — old code deleted) =====
-
-    [Fact(Skip = "ONNX migration — old native runtime extraction deleted")]
-    public void NativeRuntimeExtraction_AcceptsDllSoVersionedSoAndDylib() { }
-
-    // ===== Test 9: first-party nupkg bundle (skip — old code deleted) =====
-
-    [Fact(Skip = "ONNX migration — old NuGet/runtime bundle deleted")]
-    public void InstallModel_LocalNupkgSource_UsesFirstPartyBundleWhenPresent() { }
 
     // ===== Test 10: install-model invalid-id returns E006 =====
 

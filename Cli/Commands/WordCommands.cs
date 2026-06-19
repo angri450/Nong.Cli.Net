@@ -269,10 +269,9 @@ public static class WordCommands
     {
         var fileArg = new Argument<string>("file", "Path to .doc or .docx file");
         var outOpt = new Option<string>("-o", "Output .docx path") { IsRequired = true };
-        var engineOpt = new Option<string>("--engine", () => "auto", "Conversion engine: auto, libreoffice, word");
-        var cmd = new Command("convert", "Convert legacy .doc to .docx as a boundary step") { fileArg, outOpt, engineOpt };
+        var cmd = new Command("convert", "If input is .docx: copy. If .doc: guide user to open in Word/WPS and save as .docx (no external dependency).") { fileArg, outOpt };
 
-        cmd.SetHandler((string file, string output, string engine, bool json) =>
+        cmd.SetHandler((string file, string output, bool json) =>
         {
             if (string.IsNullOrWhiteSpace(file))
             {
@@ -301,7 +300,7 @@ public static class WordCommands
             try
             {
                 CliHelpers.EnsureParentDir(output);
-                var (result, elapsed) = CliHelpers.Time(() => ConvertWord(file, output, engine));
+                var (result, elapsed) = CliHelpers.Time(() => ConvertWord(file, output));
                 var aerr = CliHelpers.CheckArtifact(output, "DOCX");
                 if (aerr != null) { CliHelpers.WriteError("word convert", aerr, json); return; }
 
@@ -325,12 +324,12 @@ public static class WordCommands
             {
                 CliHelpers.WriteError("word convert", ErrorCodes.InternalError with { Message = $"Conversion failed: {ex.Message}" }, json);
             }
-        }, fileArg, outOpt, engineOpt, jsonOpt);
+        }, fileArg, outOpt, jsonOpt);
 
         return cmd;
     }
 
-    static WordConvertResult ConvertWord(string file, string output, string engine)
+    static WordConvertResult ConvertWord(string file, string output)
     {
         var inputFull = Path.GetFullPath(file);
         var outputFull = Path.GetFullPath(output);
@@ -344,89 +343,13 @@ public static class WordCommands
             return new WordConvertResult(inputFull, outputFull, "copy", []);
         }
 
-        engine = engine.ToLowerInvariant();
-        if (engine is not "auto" and not "libreoffice" and not "word")
-            throw new InvalidOperationException("Unknown --engine. Supported: auto, libreoffice, word.");
-
-        var errors = new List<string>();
-        if (engine is "auto" or "libreoffice")
-        {
-            try
-            {
-                if (TryConvertWithLibreOffice(inputFull, outputFull, out var detail))
-                    return new WordConvertResult(inputFull, outputFull, "libreoffice", detail);
-                errors.Add("LibreOffice was not found on PATH or common install paths.");
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"LibreOffice failed: {ex.Message}");
-                if (engine == "libreoffice") throw new InvalidOperationException(errors[^1]);
-            }
-        }
-
-        if (engine is "auto" or "word")
-        {
-            try
-            {
-                if (TryConvertWithWordCom(inputFull, outputFull, out var detail))
-                    return new WordConvertResult(inputFull, outputFull, "word-com", detail);
-                errors.Add("Microsoft Word COM automation is unavailable.");
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"Word COM failed: {ex.Message}");
-                if (engine == "word") throw new InvalidOperationException(errors[^1]);
-            }
-        }
-
-        throw new InvalidOperationException("No .doc converter is available. Install LibreOffice or Microsoft Word, then rerun word convert. Details: " + string.Join(" | ", errors));
+        throw new InvalidOperationException(
+            "Legacy .doc files require Microsoft Word or WPS Office to convert. " +
+            "Nong CLI does not depend on external software. " +
+            "Please open this file in Word / WPS, save as .docx, then retry 'word convert' with the .docx file.");
     }
 
-    static bool TryConvertWithLibreOffice(string inputFull, string outputFull, out List<string> detail)
-    {
-        detail = new List<string>();
-        var soffice = FindExecutable("soffice") ?? FindLibreOfficeOnWindows();
-        if (soffice == null) return false;
-
-        var tempDir = Path.Combine(Path.GetTempPath(), "nong-word-convert-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(tempDir);
-        try
-        {
-            var psi = new ProcessStartInfo
-            {
-                FileName = soffice,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            };
-            foreach (var arg in new[] { "--headless", "--convert-to", "docx", "--outdir", tempDir, inputFull })
-                psi.ArgumentList.Add(arg);
-
-            using var proc = Process.Start(psi) ?? throw new InvalidOperationException("Cannot start LibreOffice.");
-            var stdout = proc.StandardOutput.ReadToEnd();
-            var stderr = proc.StandardError.ReadToEnd();
-            if (!proc.WaitForExit(120000))
-            {
-                try { proc.Kill(entireProcessTree: true); } catch { }
-                throw new TimeoutException("LibreOffice conversion timed out.");
-            }
-            if (proc.ExitCode != 0)
-                throw new InvalidOperationException($"LibreOffice exit code {proc.ExitCode}: {stderr}");
-
-            var converted = Directory.GetFiles(tempDir, "*.docx").FirstOrDefault();
-            if (converted == null)
-                throw new InvalidOperationException($"LibreOffice did not produce a .docx file. stdout: {stdout} stderr: {stderr}");
-
-            File.Copy(converted, outputFull, true);
-            detail.Add($"soffice={soffice}");
-            return true;
-        }
-        finally
-        {
-            try { Directory.Delete(tempDir, true); } catch { }
-        }
-    }
+    // ── engine methods removed (V12.1.1): no external dependency ──
 
     static string? FindExecutable(string name)
     {
@@ -453,66 +376,6 @@ public static class WordCommands
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "LibreOffice", "program", "soffice.exe"),
         };
         return candidates.FirstOrDefault(File.Exists);
-    }
-
-    static bool TryConvertWithWordCom(string inputFull, string outputFull, out List<string> detail)
-    {
-        detail = new List<string>();
-        if (!OperatingSystem.IsWindows()) return false;
-
-        var wordType = Type.GetTypeFromProgID("Word.Application");
-        if (wordType == null) return false;
-
-        object? word = null;
-        object? documents = null;
-        object? document = null;
-        try
-        {
-            word = Activator.CreateInstance(wordType);
-            if (word == null) return false;
-            dynamic dword = word;
-            dword.Visible = false;
-            dword.DisplayAlerts = 0;
-            documents = dword.Documents;
-            dynamic ddocs = documents;
-            document = ddocs.Open(inputFull, false, true, false);
-            dynamic ddoc = document;
-            ddoc.SaveAs2(outputFull, 16);
-            ddoc.Close(false);
-            document = null;
-            dword.Quit(false);
-            word = null;
-            detail.Add("Word COM SaveAs2 format=16");
-            return true;
-        }
-        finally
-        {
-            ReleaseWordComObject(document, closeDocument: true);
-            if (word != null)
-            {
-                try { ((dynamic)word).Quit(false); } catch { }
-            }
-            ReleaseWordComObject(documents);
-            ReleaseWordComObject(word);
-        }
-    }
-
-    static void ReleaseWordComObject(object? value, bool closeDocument = false)
-    {
-        if (value == null) return;
-        try
-        {
-            if (closeDocument) ((dynamic)value).Close(false);
-        }
-        catch { }
-        try
-        {
-            if (Marshal.IsComObject(value))
-#pragma warning disable CA1416 // Marshal.FinalReleaseComObject is Windows-only; this command is already Windows-only.
-                Marshal.FinalReleaseComObject(value);
-#pragma warning restore CA1416
-        }
-        catch { }
     }
 
     sealed record WordConvertResult(
