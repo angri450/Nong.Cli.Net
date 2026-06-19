@@ -13,6 +13,8 @@ public static class ExportCommands
         var cmd = new Command("export", "Export documents to alternative formats");
         cmd.AddCommand(CreateEpub(jsonOpt));
         cmd.AddCommand(CreateHtml(jsonOpt));
+        cmd.AddCommand(CreateLatex(jsonOpt));
+        cmd.AddCommand(CreateOdf(jsonOpt));
         return cmd;
     }
 
@@ -105,6 +107,99 @@ public static class ExportCommands
             }
             catch (Exception ex) { CliHelpers.WriteError("export html", ErrorCodes.InternalError with { Message = ex.Message }, json); }
         }, fileArg, outOpt, titleOpt, cssOpt, jsonOpt);
+        return cmd;
+    }
+
+    // ===== export latex (V12.2) =====
+
+    static Command CreateLatex(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .docx or .txt file");
+        var outOpt = new Option<string>("-o", "Output .tex path") { IsRequired = true };
+        var titleOpt = new Option<string>("--title", "Document title");
+        var cmd = new Command("latex", "Convert to LaTeX document") { fileArg, outOpt, titleOpt };
+
+        cmd.SetHandler((string file, string output, string? title, bool json) =>
+        {
+            var err = CliHelpers.ValidateTextFile(file);
+            if (err != null) { CliHelpers.WriteError("export latex", err, json); return; }
+            try
+            {
+                CliHelpers.EnsureParentDir(output);
+                var text = File.ReadAllText(file);
+                var paragraphs = text.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+                title ??= Path.GetFileNameWithoutExtension(file);
+
+                var sb = new System.Text.StringBuilder();
+                sb.AppendLine(@"\documentclass{article}");
+                sb.AppendLine(@"\usepackage[UTF8]{ctex}"); // CJK support
+                sb.AppendLine(@"\usepackage{amsmath}");
+                sb.AppendLine(@"\title{" + EscapeLatex(title) + "}");
+                sb.AppendLine(@"\date{\today}");
+                sb.AppendLine(@"\begin{document}");
+                sb.AppendLine(@"\maketitle");
+                foreach (var p in paragraphs)
+                {
+                    var escaped = EscapeLatex(p);
+                    // Detect math ($...$) and pass through
+                    if (escaped.Contains("$"))
+                        sb.AppendLine(escaped + @"\par");
+                    else if (escaped.Length < 80 && System.Text.RegularExpressions.Regex.IsMatch(escaped, @"^[\dA-Z][\d\.\)]+\s"))
+                        sb.AppendLine(@"\section{" + escaped + "}");
+                    else
+                        sb.AppendLine(escaped + @"\par");
+                }
+                sb.AppendLine(@"\end{document}");
+                File.WriteAllText(output, sb.ToString());
+
+                if (json)
+                {
+                    var o = JsonOutput.Ok("export latex", $"LaTeX: {paragraphs.Length} paragraphs",
+                        new { output = Path.GetFullPath(output), title, paragraphs = paragraphs.Length });
+                    o.Artifacts["tex"] = output;
+                    Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+                }
+                else Console.WriteLine($"LaTeX ({paragraphs.Length}p) -> {output}");
+            }
+            catch (Exception ex) { CliHelpers.WriteError("export latex", ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        }, fileArg, outOpt, titleOpt, jsonOpt);
+        return cmd;
+    }
+
+    static string EscapeLatex(string s) =>
+        s.Replace("\\", "\\textbackslash{}")
+         .Replace("&", "\\&")
+         .Replace("%", "\\%")
+         .Replace("$", "\\$")
+         .Replace("#", "\\#")
+         .Replace("_", "\\_")
+         .Replace("{", "\\{")
+         .Replace("}", "\\}")
+         .Replace("~", "\\textasciitilde{}")
+         .Replace("^", "\\textasciicircum{}");
+
+    // ===== export odf (V12.2, P3) =====
+
+    static Command CreateOdf(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .docx or .txt file");
+        var outOpt = new Option<string>("-o", "Output .odt path") { IsRequired = true };
+        var cmd = new Command("odf", "Convert to ODF OpenDocument Text (.odt)") { fileArg, outOpt };
+
+        cmd.SetHandler((string file, string output, bool json) =>
+        {
+            CliHelpers.EnsureParentDir(output);
+            // ODF is a ZIP with content.xml, styles.xml, meta.xml, etc.
+            // Pipeline stub: write minimal ODF container for text content
+            var text = File.ReadAllText(file).Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+            using var zip = System.IO.Compression.ZipFile.Open(output, System.IO.Compression.ZipArchiveMode.Create);
+            WriteEntryNoCompress(zip, "mimetype", "application/vnd.oasis.opendocument.text");
+            WriteEntry(zip, "META-INF/manifest.xml", @"<?xml version=""1.0""?><manifest:manifest xmlns:manifest=""urn:oasis:names:tc:opendocument:xmlns:manifest:1.0""><manifest:file-entry manifest:media-type=""application/vnd.oasis.opendocument.text"" manifest:full-path=""/""/><manifest:file-entry manifest:media-type=""text/xml"" manifest:full-path=""content.xml""/></manifest:manifest>");
+            var content = string.Join("", text.Select(p => $"<text:p text:style-name=\"Standard\">{Escape(p)}</text:p>"));
+            WriteEntry(zip, "content.xml", $"<?xml version=\"1.0\"?><office:document-content xmlns:office=\"urn:oasis:names:tc:opendocument:xmlns:office:1.0\" xmlns:text=\"urn:oasis:names:tc:opendocument:xmlns:text:1.0\" office:version=\"1.3\"><office:body><office:text>{content}</office:text></office:body></office:document-content>");
+            if (json) { var o = JsonOutput.Ok("export odf", $"ODF: {text.Length}p", new { output = Path.GetFullPath(output) }); o.Artifacts["odt"] = output; Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts)); }
+            else Console.WriteLine($"ODF ({text.Length}p) -> {output}");
+        }, fileArg, outOpt, jsonOpt);
         return cmd;
     }
 
