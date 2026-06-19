@@ -629,49 +629,50 @@ public static class WordCommands
     static Command CreateRead(Option<bool> jsonOpt)
     {
         var fileArg = new Argument<string>("file", "Path to .docx file");
-        var cmd = new Command("read", "Extract plain text from a .docx file") { fileArg };
+        var formatOpt = new Option<string>("--format", () => "plain", "Output: plain, nongmark");
+        var cmd = new Command("read", "Extract text from .docx") { fileArg, formatOpt };
 
-        cmd.SetHandler((string file, bool json) =>
+        cmd.SetHandler<string, string, bool>((file, format, json) =>
         {
             var err = CliHelpers.ValidateDocxFile(file);
-            if (err != null)
-            {
-                CliHelpers.WriteError("word read", err, json);
-                return;
-            }
+            if (err != null) { CliHelpers.WriteError("word read", err, json); return; }
 
             var (result, elapsed) = CliHelpers.Time(() => WordTextReader.Read(file));
+
+            if (format == "nongmark")
+            {
+                var sb = new System.Text.StringBuilder();
+                foreach (var text in result.Paragraphs)
+                {
+                    var isHeading = text.Length < 80 && System.Text.RegularExpressions.Regex.IsMatch(text, @"^[\dA-Z][\d\.\)]+\s");
+                    sb.AppendLine((isHeading ? "# " : "") + text);
+                    sb.AppendLine();
+                }
+                foreach (var t in result.Tables)
+                    sb.AppendLine(t);
+                if (json)
+                {
+                    var o = JsonOutput.Ok("word read", "NongMark extracted", new { nongmark = sb.ToString() });
+                    o.Meta.DurationMs = elapsed;
+                    Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+                }
+                else Console.Write(sb.ToString());
+                return;
+            }
 
             if (json)
             {
                 var data = new
                 {
                     text = result.Text,
-                    paragraphs = result.Paragraphs,
-                    tables = result.Tables,
-                    footnotes = result.Footnotes,
-                    endnotes = result.Endnotes
                 };
-                var metrics = new Dictionary<string, object>
-                {
-                    ["characters"] = result.Text.Length,
-                    ["paragraphs"] = result.Paragraphs.Count,
-                    ["tables"] = result.Tables.Count,
-                    ["footnotes"] = result.Footnotes.Count,
-                    ["endnotes"] = result.Endnotes.Count
-                };
-                var output = JsonOutput.Ok("word read", $"Extracted {result.Paragraphs.Count} paragraphs, {result.Tables.Count} tables", data);
-                foreach (var kv in metrics) output.Metrics[kv.Key] = kv.Value;
+                var output = JsonOutput.Ok("word read", $"Extracted {result.Paragraphs.Count}p, {result.Tables.Count}t", data);
                 output.Meta.DurationMs = elapsed;
                 Console.WriteLine(JsonSerializer.Serialize(output, CliHelpers.JsonOpts));
             }
-            else
-            {
-                Console.Write(result.Text);
-            }
+            else Console.Write(result.Text);
 
-
-        }, fileArg, jsonOpt);
+        }, fileArg, formatOpt, jsonOpt);
 
         return cmd;
     }
