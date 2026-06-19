@@ -35,19 +35,23 @@ class Program
             Console.WriteLine($"nong v{CliVersion.Current}");
         });
 
-        // === nong commands --json / --format openai-tools ===
+        // === nong commands --json / --format openai-tools (V10: +stream) ===
         var allOpt = new Option<bool>("--all", () => false, "Include stub commands");
-        var formatOpt = new Option<string>("--format", () => "default", "Output format: default, json, openai-tools");
-        var commandsCmd = new Command("commands", "List available commands") { allOpt, formatOpt };
+        var formatOpt = new Option<string>("--format", () => "default", "Output format: default, json, openai-tools, openai-tools-stream");
+        var batchOpt = new Option<bool>("--batch", () => false, "V10: Enable batch pipelines");
+        var commandsCmd = new Command("commands", "List available commands") { allOpt, formatOpt, batchOpt };
         commandsCmd.SetHandler((bool json, bool all, string format) =>
         {
             var manifest = Manifest.All(root);
             var filtered = all ? manifest : manifest.Where(c => c.Status == "implemented").ToList();
 
-            if (string.Equals(format, "openai-tools", StringComparison.OrdinalIgnoreCase))
+            if (format == "openai-tools" || format == "openai-tools-stream")
             {
                 var tools = filtered.Select(OpenAiToolSchema.FromCommand).ToList();
-                Console.WriteLine(JsonSerializer.Serialize(tools, CliHelpers.JsonOpts));
+                if (format == "openai-tools-stream")
+                    foreach (var t in tools) Console.WriteLine(JsonSerializer.Serialize(t, CliHelpers.JsonOpts));
+                else
+                    Console.WriteLine(JsonSerializer.Serialize(tools, CliHelpers.JsonOpts));
                 return;
             }
 

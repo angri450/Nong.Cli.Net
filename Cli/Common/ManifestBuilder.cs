@@ -3,10 +3,15 @@ using System.CommandLine;
 namespace Nong.Cli.Common;
 
 /// <summary>
-/// Builds the command manifest by reflecting the System.CommandLine root command tree.
-/// Eliminates the hand-written manifest (554 lines in Manifest.cs).
-/// V8: Reflections-based manifest generation — single source of truth.
+/// V8: Reflections-based manifest generation. Walks the command tree.
+/// Uses [CommandCategory] attribute on command classes for grouping.
 /// </summary>
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+public sealed class CommandCategoryAttribute(string group) : Attribute
+{
+    public string Group { get; } = group;
+}
+
 public static class ManifestBuilder
 {
     /// <summary>Build manifest from a root command by reflecting its subcommand tree.</summary>

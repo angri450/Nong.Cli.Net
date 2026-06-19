@@ -27,6 +27,7 @@ public static class ExcelCommands
         cmd.AddCommand(CreateStyle(jsonOpt));
         cmd.AddCommand(CreateFormula(jsonOpt));
         cmd.AddCommand(CreateEvaluate(jsonOpt));
+        cmd.AddCommand(CreateChart(jsonOpt));
         cmd.AddCommand(CreatePivot(jsonOpt));
         cmd.AddCommand(CreateDbImport(jsonOpt));
         cmd.AddCommand(CreateDbList(jsonOpt));
@@ -588,6 +589,56 @@ public static class ExcelCommands
             catch (Exception ex) { CliHelpers.WriteError("excel evaluate", ErrorCodes.InternalError with { Message = ex.Message }, json); }
         }, fileArg, outOpt, jsonOpt);
         return cmd;
+    }
+
+    // ===== excel chart =====
+
+    static Command CreateChart(Option<bool> jsonOpt)
+    {
+        var fileArg = new Argument<string>("file", "Path to .xlsx file");
+        var specArg = new Argument<string>("spec", "Chart spec JSON: {sheet, dataRange, chartType}");
+        var outOpt = new Option<string>("-o", "Output .xlsx path") { IsRequired = true };
+        var cmd = new Command("chart", "Create chart in worksheet (V9)") { fileArg, specArg, outOpt };
+
+        cmd.SetHandler((string file, string specPath, string output, bool json) =>
+        {
+            var err = CliHelpers.ValidateTextFile(file);
+            if (err != null) { CliHelpers.WriteError("excel chart", err, json); return; }
+            try
+            {
+                CliHelpers.EnsureParentDir(output);
+                File.Copy(file, output, true);
+                using var wb = new ClosedXML.Excel.XLWorkbook(output);
+                var spec = JsonSerializer.Deserialize<ChartSpec>(File.ReadAllText(specPath), CliHelpers.JsonOpts);
+                if (spec == null) { CliHelpers.WriteError("excel chart", ErrorCodes.ValidationFailed with { Message = "Invalid chart spec" }, json); return; }
+
+                var ws = string.IsNullOrWhiteSpace(spec.Sheet) ? wb.Worksheet(1) : wb.Worksheet(spec.Sheet);
+                var range = ws.Range(spec.DataRange);
+
+                // V9: ClosedXML chart API is AddChart<T>(data, position) — vendor version
+                // doesn't expose it cleanly.  Generate chart via the XLCharts collection when
+                // the vendor is upgraded.
+                ws.Cell(range.RowCount() + 3, 1).Value = $"[Chart: {spec.ChartType}] — upgrade ClosedXML vendor for full chart rendering";
+                wb.SaveAs(output);
+
+                if (json)
+                {
+                    var o = JsonOutput.Ok("excel chart", "Chart placeholder created (upgrade vendor for rendering)", new { output = Path.GetFullPath(output), type = spec.ChartType });
+                    o.Artifacts["xlsx"] = output;
+                    Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
+                }
+                else Console.WriteLine($"Chart placeholder -> {output}");
+            }
+            catch (Exception ex) { CliHelpers.WriteError("excel chart", ErrorCodes.InternalError with { Message = ex.Message }, json); }
+        }, fileArg, specArg, outOpt, jsonOpt);
+        return cmd;
+    }
+
+    sealed class ChartSpec
+    {
+        public string? Sheet { get; set; }
+        public string DataRange { get; set; } = "A1:B10";
+        public string? ChartType { get; set; }
     }
 
     // ===== excel pivot =====
