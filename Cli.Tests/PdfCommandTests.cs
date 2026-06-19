@@ -1,8 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
-using UglyToad.PdfPig.Core;
-using UglyToad.PdfPig.Fonts.Standard14Fonts;
-using UglyToad.PdfPig.Writer;
+using SkiaSharp;
 using Xunit;
 
 namespace Nong.Cli.Tests;
@@ -37,79 +35,74 @@ public class PdfCommandTests
     static string CreateTextPdf()
     {
         var path = Path.Combine(Path.GetTempPath(), "nong-pdf-text-" + Guid.NewGuid().ToString("N")[..8] + ".pdf");
-        using var builder = new PdfDocumentBuilder();
-        var font = builder.AddStandard14Font(Standard14Font.Helvetica);
-        var bold = builder.AddStandard14Font(Standard14Font.HelveticaBold);
-        var page = builder.AddPage(595, 842);
-        page.AddText("Stage18 PDF Title", 18, new PdfPoint(72, 760), bold);
-        page.AddText("This is a deterministic text PDF for Nong PDF slicing.", 12, new PdfPoint(72, 720), font);
-        page.AddText("It has selectable text, coordinates, fonts, and reading order.", 12, new PdfPoint(72, 700), font);
-        page.AddText("Table A | Treatment | Yield", 12, new PdfPoint(72, 660), font);
-        page.AddText("Row 1 | Control | 12.5", 12, new PdfPoint(72, 640), font);
-        File.WriteAllBytes(path, builder.Build());
+        using var doc = SKDocument.CreatePdf(path);
+        var font = SKTypeface.FromFamilyName("Arial") ?? SKTypeface.Default;
+        var paint = new SKPaint { Typeface = font, TextSize = 12, IsAntialias = true };
+        var paintBold = new SKPaint { Typeface = font, TextSize = 18, IsAntialias = true, FakeBoldText = true };
+        var canvas = doc.BeginPage(595, 842);
+        canvas.DrawText("Stage18 PDF Title", 72, 72 + 18, paintBold);
+        canvas.DrawText("This is a deterministic text PDF for Nong PDF slicing.", 72, 110, paint);
+        canvas.DrawText("It has selectable text, coordinates, fonts, and reading order.", 72, 130, paint);
+        canvas.DrawText("Table A | Treatment | Yield", 72, 170, paint);
+        canvas.DrawText("Row 1 | Control | 12.5", 72, 190, paint);
+        doc.EndPage();
+        doc.Close();
         return path;
     }
 
     static string CreateTwoColumnPdf()
     {
         var path = Path.Combine(Path.GetTempPath(), "nong-pdf-columns-" + Guid.NewGuid().ToString("N")[..8] + ".pdf");
-        using var builder = new PdfDocumentBuilder();
-        var font = builder.AddStandard14Font(Standard14Font.Helvetica);
-        var bold = builder.AddStandard14Font(Standard14Font.HelveticaBold);
-        var page = builder.AddPage(595, 842);
-        page.AddText("Two Column Title", 18, new PdfPoint(210, 790), bold);
+        using var doc = SKDocument.CreatePdf(path);
+        var font = SKTypeface.FromFamilyName("Arial") ?? SKTypeface.Default;
+        var paint = new SKPaint { Typeface = font, TextSize = 12, IsAntialias = true };
+        var paintBold = new SKPaint { Typeface = font, TextSize = 18, IsAntialias = true, FakeBoldText = true };
+        var canvas = doc.BeginPage(595, 842);
+        canvas.DrawText("Two Column Title", 210, 52 + 18, paintBold);
         for (var i = 0; i < 4; i++)
         {
-            var y = 740 - (i * 24);
-            page.AddText($"Left column {i + 1}", 12, new PdfPoint(72, y), font);
-            page.AddText($"Right column {i + 1}", 12, new PdfPoint(330, y), font);
+            var y = 102 + (i * 24);
+            canvas.DrawText($"Left column {i + 1}", 72, y, paint);
+            canvas.DrawText($"Right column {i + 1}", 330, y, paint);
         }
-        File.WriteAllBytes(path, builder.Build());
+        doc.EndPage();
+        doc.Close();
         return path;
     }
 
     static string CreateTablePdf()
     {
         var path = Path.Combine(Path.GetTempPath(), "nong-pdf-table-" + Guid.NewGuid().ToString("N")[..8] + ".pdf");
-        using var builder = new PdfDocumentBuilder();
-        var font = builder.AddStandard14Font(Standard14Font.Helvetica);
-        var bold = builder.AddStandard14Font(Standard14Font.HelveticaBold);
-        var page = builder.AddPage(595, 842);
-        page.AddText("Table Test", 18, new PdfPoint(72, 790), bold);
-
-        var rows = new[]
-        {
-            new[] { "Treatment", "Yield", "Protein" },
-            new[] { "Control", "12.5", "8.1" },
-            new[] { "Nitrogen", "18.2", "9.4" },
-            new[] { "Compost", "17.1", "9.0" },
-        };
+        using var doc = SKDocument.CreatePdf(path);
+        var font = SKTypeface.FromFamilyName("Arial") ?? SKTypeface.Default;
+        var paint = new SKPaint { Typeface = font, TextSize = 12, IsAntialias = true };
+        var paintBold = new SKPaint { Typeface = font, TextSize = 18, IsAntialias = true, FakeBoldText = true };
+        var canvas = doc.BeginPage(595, 842);
+        canvas.DrawText("Table Test", 72, 52 + 18, paintBold);
+        var rows = new[] { "Treatment | Yield | Protein", "Control | 12.5 | 8.1", "Nitrogen | 18.2 | 9.4", "Compost | 17.1 | 9.0" };
         for (var r = 0; r < rows.Length; r++)
-        {
-            var y = 740 - (r * 24);
-            page.AddText(rows[r][0], 12, new PdfPoint(72, y), font);
-            page.AddText(rows[r][1], 12, new PdfPoint(240, y), font);
-            page.AddText(rows[r][2], 12, new PdfPoint(380, y), font);
-        }
-
-        File.WriteAllBytes(path, builder.Build());
+            canvas.DrawText(rows[r], 72, 102 + (r * 24), paint);
+        doc.EndPage();
+        doc.Close();
         return path;
     }
 
     static string CreateRepeatingHeaderPdf()
     {
         var path = Path.Combine(Path.GetTempPath(), "nong-pdf-header-" + Guid.NewGuid().ToString("N")[..8] + ".pdf");
-        using var builder = new PdfDocumentBuilder();
-        var font = builder.AddStandard14Font(Standard14Font.Helvetica);
-        var bold = builder.AddStandard14Font(Standard14Font.HelveticaBold);
+        using var doc = SKDocument.CreatePdf(path);
+        var font = SKTypeface.FromFamilyName("Arial") ?? SKTypeface.Default;
+        var paint = new SKPaint { Typeface = font, TextSize = 12, IsAntialias = true };
+        var paintBold = new SKPaint { Typeface = font, TextSize = 10, IsAntialias = true, FakeBoldText = true };
         for (var p = 1; p <= 3; p++)
         {
-            var page = builder.AddPage(595, 842);
-            page.AddText("Nong Trial Header", 10, new PdfPoint(72, 820), bold);
-            page.AddText($"Unique body page {p}", 12, new PdfPoint(72, 700), font);
-            page.AddText("Confidential Footer", 10, new PdfPoint(72, 40), font);
+            var canvas = doc.BeginPage(595, 842);
+            canvas.DrawText("Nong Trial Header", 72, 22 + 10, paintBold);
+            canvas.DrawText($"Unique body page {p}", 72, 142, paint);
+            canvas.DrawText("Confidential Footer", 72, 802, paint);
+            doc.EndPage();
         }
-        File.WriteAllBytes(path, builder.Build());
+        doc.Close();
         return path;
     }
 

@@ -8,7 +8,8 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using DocxCore;
 using Nong.Cli.Common;
 using Nong.Inspect;
-using UglyToad.PdfPig.Writer;
+using SkiaSharp;
+// PdfPig removed: word to-pdf migrated to SkiaSharp per V7 Task 14b
 using A = DocumentFormat.OpenXml.Drawing;
 
 namespace Nong.Cli.Commands;
@@ -3246,38 +3247,54 @@ public static class WordCommands
                 if (paragraphs.Count == 0)
                 { CliHelpers.WriteError(command, ErrorCodes.ValidationFailed with { Message = "No text content found." }, json); return; }
 
-                // 2. Build PDF with CJK font
-                var margin = 60d; var pageW = 595d; var pageH = 842d;
-                var usableH = pageH - 2 * margin; var lineHeight = 14d;
-                var linesPerPage = (int)(usableH / lineHeight);
+                // 2. Build PDF via SkiaSharp (V7 Task 14b: migrated from PdfPig)
+                var margin = 60f; var pageW = 595f; var pageH = 842f;
+                var lineHeight = 14f;
                 int headingCount = 0, paraCount = 0, totalPages = 1;
 
-                using var builder = new PdfDocumentBuilder();
-                var font = builder.AddStandard14Font(UglyToad.PdfPig.Fonts.Standard14Fonts.Standard14Font.Helvetica);
-                var fontBold = builder.AddStandard14Font(UglyToad.PdfPig.Fonts.Standard14Fonts.Standard14Font.HelveticaBold);
+                using var skDoc = SKDocument.CreatePdf(output);
+                // Try to get a CJK-capable typeface; fall back to default
+                var typeface = SKTypeface.FromFamilyName("Microsoft YaHei") 
+                            ?? SKTypeface.FromFamilyName("SimSun")
+                            ?? SKTypeface.FromFamilyName("Arial")
+                            ?? SKTypeface.Default;
+                var paintNormal = new SKPaint { Typeface = typeface, TextSize = 10, IsAntialias = true, Color = SKColors.Black };
+                var paintHeading = new SKPaint { Typeface = typeface, TextSize = 14, IsAntialias = true, Color = SKColors.Black, FakeBoldText = true };
+                var paintPageNum = new SKPaint { Typeface = typeface, TextSize = 8, IsAntialias = true, Color = SKColors.Gray };
 
-                var page = builder.AddPage(pageW, pageH);
-                var y = pageH - margin; int lineOnPage = 0;
+                var canvas = skDoc.BeginPage(pageW, pageH);
+                var y = margin;
+                int lineOnPage = 0;
+                int currentPage = 1;
+                var activePageHeight = pageH - 2 * margin;
+                var maxLinesPerPage = (int)(activePageHeight / lineHeight);
+                var maxCharsPerLine = 80;
 
                 foreach (var (text, isHeading) in paragraphs)
                 {
-                    var useFont = isHeading ? fontBold : font;
-                    var fs = isHeading ? 14d : 10d;
-                    var maxChars = 70;
-
                     if (isHeading) headingCount++; else paraCount++;
+                    var paint = isHeading ? paintHeading : paintNormal;
 
-                    foreach (var line in WrapText(text, maxChars))
+                    foreach (var line in WrapText(text, maxCharsPerLine))
                     {
-                        if (lineOnPage >= linesPerPage)
-                        { page = builder.AddPage(pageW, pageH); y = pageH - margin; lineOnPage = 0; totalPages++; }
-                        if (isHeading) y -= 8;
-                        page.AddText(line, fs, new UglyToad.PdfPig.Core.PdfPoint(margin, y), useFont);
-                        y -= lineHeight + 2; lineOnPage++;
+                        if (lineOnPage >= maxLinesPerPage)
+                        {
+                            // Draw page number on current page
+                            canvas.DrawText($"{currentPage}", margin, pageH - margin + 10, paintPageNum);
+                            skDoc.EndPage();
+                            currentPage++; totalPages++;
+                            canvas = skDoc.BeginPage(pageW, pageH);
+                            y = margin; lineOnPage = 0;
+                        }
+                        if (isHeading && lineOnPage > 0) y += 8;
+                        canvas.DrawText(line, margin, y + paint.TextSize, paint);
+                        y += lineHeight + 2; lineOnPage++;
                     }
                 }
-
-                File.WriteAllBytes(output, builder.Build());
+                // Draw last page number
+                canvas.DrawText($"{currentPage}", margin, pageH - margin + 10, paintPageNum);
+                skDoc.EndPage();
+                skDoc.Close();
                 var info = new FileInfo(output);
                 var o = JsonOutput.Ok(command,
                     $"Converted: {paragraphs.Count} paragraphs → PDF ({info.Length} bytes, {totalPages} page(s))",

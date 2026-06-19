@@ -7,9 +7,6 @@ using ClosedXML.Excel;
 using D = DocumentFormat.OpenXml.Drawing;
 using P = DocumentFormat.OpenXml.Presentation;
 using PandocCore;
-using UglyToad.PdfPig.Core;
-using UglyToad.PdfPig.Fonts.Standard14Fonts;
-using UglyToad.PdfPig.Writer;
 using Xunit;
 
 namespace Nong.Cli.Tests;
@@ -874,15 +871,19 @@ public class CliContractTests
 
     static void CreateContractPdf(string path)
     {
-        using var builder = new PdfDocumentBuilder();
-        var font = builder.AddStandard14Font(Standard14Font.Helvetica);
-        var bold = builder.AddStandard14Font(Standard14Font.HelveticaBold);
-        var page = builder.AddPage(595, 842);
-        page.AddText("Nong PDF Contract Title", 18, new PdfPoint(72, 760), bold);
-        page.AddText("This PDF has selectable text and stable coordinates.", 12, new PdfPoint(72, 720), font);
-        page.AddText("Table A | Treatment | Yield", 12, new PdfPoint(72, 680), font);
-        page.AddText("Row 1 | Control | 12.5", 12, new PdfPoint(72, 660), font);
-        File.WriteAllBytes(path, builder.Build());
+        using var doc = SkiaSharp.SKDocument.CreatePdf(path);
+        var font = SkiaSharp.SKTypeface.FromFamilyName("Arial") ?? SkiaSharp.SKTypeface.Default;
+        var paint = new SkiaSharp.SKPaint { IsAntialias = true };
+        var paintBold = new SkiaSharp.SKPaint { IsAntialias = true };
+        paint.SetTypeface(font); paint.SetTextSize(12);
+        paintBold.SetTypeface(font); paintBold.SetTextSize(18);
+        var canvas = doc.BeginPage(595, 842);
+        canvas.DrawText("Nong PDF Contract Title", 72, 72 + 18, paintBold);
+        canvas.DrawText("This PDF has selectable text and stable coordinates.", 72, 110, paint);
+        canvas.DrawText("Table A | Treatment | Yield", 72, 150, paint);
+        canvas.DrawText("Row 1 | Control | 12.5", 72, 170, paint);
+        doc.EndPage();
+        doc.Close();
     }
 
     static void WriteSyntheticPackage(string sliceDir, string format, string text, bool includeProvenance = true)
@@ -1279,11 +1280,13 @@ public class CliContractTests
 
     static string CreateSinglePagePdf(string path, string text)
     {
-        using var builder = new UglyToad.PdfPig.Writer.PdfDocumentBuilder();
-        var font = builder.AddStandard14Font(UglyToad.PdfPig.Fonts.Standard14Fonts.Standard14Font.Helvetica);
-        var page = builder.AddPage(595, 842);
-        page.AddText(text, 12, new UglyToad.PdfPig.Core.PdfPoint(72, 760), font);
-        File.WriteAllBytes(path, builder.Build());
+        using var doc = SkiaSharp.SKDocument.CreatePdf(path);
+        var font = SkiaSharp.SKTypeface.FromFamilyName("Arial") ?? SkiaSharp.SKTypeface.Default;
+        var paint = new SkiaSharp.SKPaint { Typeface = font, TextSize = 12, IsAntialias = true };
+        var canvas = doc.BeginPage(595, 842);
+        canvas.DrawText(text, 72, 72 + 12, paint);
+        doc.EndPage();
+        doc.Close();
         return path;
     }
 

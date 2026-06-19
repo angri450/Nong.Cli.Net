@@ -434,32 +434,13 @@ public static class PdfCommands
                 var beforeBytes = new FileInfo(file).Length;
                 var sw = Stopwatch.StartNew();
 
-                // True compress: read + re-write via PdfPig (auto-flate streams, strip unused)
-                try
-                {
-                    using var pdfIn = UglyToad.PdfPig.PdfDocument.Open(file);
-                    var builder = new UglyToad.PdfPig.Writer.PdfDocumentBuilder();
-                    for (int i = 1; i <= pdfIn.NumberOfPages; i++)
-                    {
-                        var page = pdfIn.GetPage(i);
-                        builder.AddPage(page.Width, page.Height, pb =>
-                        {
-                            foreach (var word in page.GetWords())
-                            {
-                                pb.AddText(word.Letters[0].GlyphRectangle.Left,
-                                    page.Height - word.Letters[0].GlyphRectangle.Top,
-                                    word.Letters[0].FontSize, word.Text);
-                            }
-                        });
-                    }
-                    using var outStream = File.Create(outPath);
-                    File.WriteAllBytes(outPath, builder.Build());
-                }
-                catch
-                {
-                    // Fallback: copy original
-                    File.Copy(file, outPath, true);
-                }
+                // True compress: PDFium FPDF_SaveWithVersion via Docnet (V7 Task 8)
+                // Docnet's Merge triggers object re-pack and stream compression
+                var raw = File.ReadAllBytes(file);
+                var merged = DocLib.Instance.Merge(raw, raw); // self-merge forces re-pack
+                var check = PdfPopplerInspector.Check(file);
+                var compressed = DocLib.Instance.Split(merged, 0, check.PageCount > 0 ? check.PageCount - 1 : 0);
+                File.WriteAllBytes(outPath, compressed);
 
                 sw.Stop();
                 var afterBytes = new FileInfo(outPath).Length;

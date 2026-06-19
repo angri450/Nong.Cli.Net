@@ -1,5 +1,4 @@
 using System.Globalization;
-using UglyToad.PdfPig.Content;
 
 namespace PdfCore;
 
@@ -63,52 +62,6 @@ internal static class PdfTextQuality
         };
     }
 
-    /// <summary>
-    /// Backward-compatible: analyze PdfPig Words. Kept for Nong.Cli.Net fallback compatibility.
-    /// </summary>
-    internal static PdfTextQualitySummary AnalyzeWords(IEnumerable<Word> words)
-    {
-        var byFont = new Dictionary<string, FontStats>(StringComparer.OrdinalIgnoreCase);
-        var totalChars = 0;
-        var suspiciousChars = 0;
-
-        foreach (var word in words)
-        {
-            var font = string.IsNullOrWhiteSpace(word.FontName) ? "__unknown__" : word.FontName;
-            if (!byFont.TryGetValue(font, out var stats))
-            {
-                stats = new FontStats();
-                byFont[font] = stats;
-            }
-
-            foreach (var ch in word.Text ?? "")
-            {
-                stats.Total++;
-                totalChars++;
-                if (LooksSuspicious(ch))
-                {
-                    stats.Suspicious++;
-                    suspiciousChars++;
-                }
-            }
-        }
-
-        var suspectFonts = byFont
-            .Where(kvp => kvp.Value.Suspicious > kvp.Value.Total * 0.15)
-            .Select(kvp => kvp.Key)
-            .OrderBy(f => f)
-            .ToList();
-
-        return new PdfTextQualitySummary
-        {
-            Characters = totalChars,
-            SuspiciousCharacters = suspiciousChars,
-            SuspiciousRatio = totalChars == 0 ? 0 : (double)suspiciousChars / totalChars,
-            SuspectFonts = suspectFonts,
-        };
-    }
-
-    /// <summary>
     /// Score a single block's text. Used as a simpler alternative to the full run-based analysis.
     /// </summary>
     internal static double ScoreText(string text, string? font, ICollection<string> suspectFonts)
