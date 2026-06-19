@@ -12,9 +12,12 @@ namespace PdfCore;
 /// </summary>
 public static class PdfPopplerExtractor
 {
+    [ThreadStatic] private static List<PopplerLine>? _previousPageLines;
+
     /// <summary>Extract a PdfDocumentModel using Poppler pdftotext -bbox-layout.</summary>
     public static PdfDocumentModel ExtractTextModel(string pdfPath, PdfCheckResult check)
     {
+        _previousPageLines = null;
         var toolPath = ResolveRequired("pdftotext");
 
         var fullPath = Path.GetFullPath(pdfPath);
@@ -150,6 +153,72 @@ public static class PdfPopplerExtractor
             var headingThreshold = new PopplerHeadingThreshold(fontSizes);
             var lastY = double.NegativeInfinity;
 
+            // ── V7: collect all lines for layout analysis ──
+            var allPageLines = new List<PopplerLine>();
+            if (flows != null)
+            {
+                foreach (XmlNode flow in flows)
+                {
+                    var fblocks = flow.SelectNodes("*[local-name()='block']", nsmgr);
+                    if (fblocks == null) continue;
+                    foreach (XmlNode blk in fblocks)
+                    {
+                        var blines = blk.SelectNodes("*[local-name()='line']", nsmgr);
+                        if (blines == null) continue;
+                        foreach (XmlNode ln in blines)
+                        {
+                            var wrds = ln.SelectNodes("*[local-name()='word']", nsmgr);
+                            if (wrds == null || wrds.Count == 0) continue;
+                            var txt = string.Join(" ", wrds.Cast<XmlNode>().Select(w => w.InnerText.Trim()).Where(t => t.Length > 0));
+                            if (txt.Length == 0) continue;
+                            double? fs = ParseFontSize(wrds[0]);
+                            double l = ParseDouble(ln, "xMin") ?? 0;
+                            double t = ParseDouble(ln, "yMin") ?? 0;
+                            double r = ParseDouble(ln, "xMax") ?? 0;
+                            double b = ParseDouble(ln, "yMax") ?? 0;
+                            allPageLines.Add(new PopplerLine
+                            {
+                                X = l, Y = pageH - b, // flip Y to top-down
+                                W = r - l, H = b - t,
+                                BaselineY = pageH - b + (fs ?? 10),
+                                Text = txt, FontSize = fs ?? 10,
+                                PageNum = pageNum
+                            });
+                        }
+                    }
+                }
+            }
+            allPageLines = FilterNoiseLines(allPageLines, pageW, pageH);
+            var columnSplitX = DetectColumnSplit(allPageLines, pageW);
+            if (columnSplitX.HasValue)
+                allPageLines = OrderTwoColumns(allPageLines, columnSplitX.Value);
+            // Store for page model
+            if (columnSplitX.HasValue)
+                model.Pages[^1].ColumnSplitX = columnSplitX.Value;
+
+            // ── V7: table detection ──
+            var tableStrings = DetectTableRegions(allPageLines, pageW);
+            foreach (var trow in tableStrings)
+            {
+                model.Blocks.Add(new PdfContentBlock
+                {
+                    Id = $"t{model.Blocks.Count}",
+                    BlockId = $"t{model.Blocks.Count}",
+                    Index = blockIndex++,
+                    Kind = "table",
+                    Page = pageNum,
+                    Source = "pdftotext",
+                    Text = trow,
+                    Confidence = "high",
+                });
+            }
+
+            // ── V7: header/footer removal (compare with previous page) ──
+            if (pageNum > 1 && _previousPageLines != null)
+                RemoveRepeatedHeadersFooters(_previousPageLines, allPageLines, pageH);
+            _previousPageLines = allPageLines;
+            // ── end V7 layout preprocessing ──
+
             if (flows == null) continue;
             foreach (XmlNode flow in flows)
             {
@@ -247,15 +316,20 @@ public static class PdfPopplerExtractor
         var blockLeft = ParseDouble(block, "xMin");
         var blockRight = ParseDouble(block, "xMax");
 
-        if (hIdx == 0 && pIdx == 0 && text.Length <= 60)
+        // V7: improved heading detection
+        if (hIdx == 0 && pIdx == 0 && text.Length <= 80)
             return "heading";
-        if (text.Length <= 60 && wordCount >= 2)
+        
+        // Check for numeric prefixes (1., 1.1, Chapter, etc)
+        if (System.Text.RegularExpressions.Regex.IsMatch(text, @"^[\dIVX]+[\.\)]\s") && text.Length <= 100)
             return "heading";
 
+        // Large font relative to median
         var lines = block.SelectNodes("*[local-name()='line']", null);
         if (lines != null && lines.Count > 0)
         {
-            var firstWord = lines[0]?.SelectSingleNode("*[local-name()='word']", null) ?? lines[0]?.SelectNodes("*[local-name()='word']", null)?.Item(0);
+            var firstWord = lines[0]?.SelectSingleNode("*[local-name()='word']", null) 
+                          ?? lines[0]?.SelectNodes("*[local-name()='word']", null)?.Item(0);
             if (firstWord != null)
             {
                 double? fs = ParseFontSize(firstWord);
@@ -264,7 +338,8 @@ public static class PdfPopplerExtractor
             }
         }
 
-        if (text.Length <= 50 && blockLeft.HasValue && blockRight.HasValue)
+        // Centered + short = heading
+        if (text.Length <= 60 && blockLeft.HasValue && blockRight.HasValue)
         {
             double center = pageW / 2;
             double blockCenter = (blockLeft.Value + blockRight.Value) / 2;
@@ -348,5 +423,182 @@ public static class PdfPopplerExtractor
             Median = sorted[sorted.Count / 2];
             HasVariation = sorted.Count >= 3 && sorted[^1] > sorted[0] * 1.08;
         }
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // V7 layout algorithms (ported from PdfPig patterns to Poppler bbox-layout)
+    // ════════════════════════════════════════════════════════════
+
+    struct PopplerLine
+    {
+        public double X, Y, W, H;
+        public double BaselineY; // Y + H (bottom of text)
+        public string Text;
+        public double FontSize;
+        public bool IsHeading;
+        public int PageNum;
+    }
+
+    /// <summary>Detect column split X in a two-column layout. Returns null if single column.</summary>
+    static double? DetectColumnSplit(List<PopplerLine> lines, double pageW)
+    {
+        if (lines.Count < 10) return null;
+        // Find gaps in the center 40% of page
+        double center = pageW / 2;
+        double leftThird = pageW * 0.30;
+        double rightThird = pageW * 0.70;
+
+        // Collect line center X positions
+        var centers = lines.Select(l => l.X + l.W / 2).OrderBy(c => c).ToList();
+        // Find largest gap in center region
+        double bestGap = 0, bestSplit = 0;
+        for (int i = 1; i < centers.Count; i++)
+        {
+            if (centers[i - 1] < leftThird || centers[i] > rightThird) continue;
+            double gap = centers[i] - centers[i - 1];
+            if (gap > bestGap && gap > pageW * 0.08) // require ≥8% page width gap
+            {
+                bestGap = gap;
+                bestSplit = (centers[i - 1] + centers[i]) / 2;
+            }
+        }
+        return bestGap > 0 ? bestSplit : null;
+    }
+
+    /// <summary>Reorder lines for two-column reading: left column top-to-bottom, then right column.</summary>
+    static List<PopplerLine> OrderTwoColumns(List<PopplerLine> lines, double splitX)
+    {
+        var left = new List<PopplerLine>();
+        var right = new List<PopplerLine>();
+        var spanning = new List<PopplerLine>();
+        foreach (var l in lines)
+        {
+            if (l.X < splitX - 8 && l.X + l.W < splitX + 4)
+                left.Add(l);
+            else if (l.X > splitX - 4 && l.X + l.W > splitX + 8)
+                right.Add(l);
+            else
+                spanning.Add(l); // spans both columns or centered
+        }
+        // Sort each column by Y descending (top first)
+        left.Sort((a, b) => a.Y.CompareTo(b.Y));
+        right.Sort((a, b) => a.Y.CompareTo(b.Y));
+        spanning.Sort((a, b) => a.Y.CompareTo(b.Y));
+
+        var result = new List<PopplerLine>();
+        result.AddRange(spanning);
+        result.AddRange(left);
+        result.AddRange(right);
+        return result;
+    }
+
+    /// <summary>Remove annotation noise: small text at page edges, single characters, etc.</summary>
+    static List<PopplerLine> FilterNoiseLines(List<PopplerLine> lines, double pageW, double pageH)
+    {
+        return lines.Where(l =>
+        {
+            // Remove tiny text at extreme edges (page numbers, running headers)
+            if (l.FontSize < 5) return false;
+            if (l.Text.Length <= 1 && (l.Y < 20 || l.Y > pageH - 20)) return false;
+            // Remove very wide single chars (watermarks)
+            if (l.Text.Length <= 2 && l.W > pageW * 0.6) return false;
+            return true;
+        }).ToList();
+    }
+
+    /// <summary>Detect table regions and convert to markdown table blocks.</summary>
+    static List<string> DetectTableRegions(List<PopplerLine> lines, double pageW)
+    {
+        // Cluster lines into visual rows by baseline Y proximity
+        var rows = new List<List<PopplerLine>>();
+        foreach (var line in lines.OrderBy(l => l.BaselineY).ThenBy(l => l.X))
+        {
+            var matched = false;
+            foreach (var row in rows)
+            {
+                if (Math.Abs(row[0].BaselineY - line.BaselineY) < Math.Max(4, row[0].FontSize * 0.6))
+                { row.Add(line); matched = true; break; }
+            }
+            if (!matched) rows.Add(new List<PopplerLine> { line });
+        }
+
+        // For each row, build cells by X-clustering
+        var tableRows = new List<List<string>>();
+        var tableLines = new HashSet<PopplerLine>();
+        foreach (var row in rows.OrderBy(r => r[0].BaselineY))
+        {
+            var sorted = row.OrderBy(l => l.X).ToList();
+            var cells = new List<string>();
+            var current = new List<PopplerLine>();
+            double lastRight = double.MinValue;
+            foreach (var l in sorted)
+            {
+                if (current.Count > 0 && l.X - lastRight > 8)
+                {
+                    cells.Add(string.Join(" ", current.Select(c => c.Text)));
+                    current.Clear();
+                }
+                current.Add(l);
+                lastRight = l.X + l.W;
+            }
+            if (current.Count > 0) cells.Add(string.Join(" ", current.Select(c => c.Text)));
+            if (cells.Count >= 2) { tableRows.Add(cells); foreach (var l in row) tableLines.Add(l); }
+        }
+
+        // Require ≥4 rows with consistent column counts to be a table
+        if (tableRows.Count < 4) return new List<string>();
+        var colCounts = tableRows.Select(r => r.Count).ToList();
+        var mostCommon = colCounts.GroupBy(c => c).OrderByDescending(g => g.Count()).First().Key;
+        if (mostCommon < 2 || mostCommon > 12) return new List<string>();
+
+        var aligned = tableRows.Where(r => r.Count == mostCommon).ToList();
+        if (aligned.Count < 4) return new List<string>();
+
+        // Build markdown table and remove original lines
+        lines.RemoveAll(l => tableLines.Contains(l));
+        var tableText = new List<string>();
+        tableText.Add("| " + string.Join(" | ", aligned[0]) + " |");
+        tableText.Add("|" + string.Join("|", aligned[0].Select(_ => "---")) + "|");
+        for (int i = 1; i < aligned.Count; i++)
+            tableText.Add("| " + string.Join(" | ", aligned[i]) + " |");
+        return tableText;
+    }
+
+    /// <summary>Remove repeated headers/footers by fingerprinting top/bottom lines.</summary>
+    static void RemoveRepeatedHeadersFooters(List<PopplerLine> firstPage, List<PopplerLine> currentPage,
+        double pageH, double tolerance = 6)
+    {
+        if (firstPage.Count < 2 || currentPage.Count < 2) return;
+        // Top 15% = header zone, bottom 15% = footer zone
+        var firstHeaders = firstPage.Where(l => l.Y < pageH * 0.15).ToList();
+        var firstFooters = firstPage.Where(l => l.Y > pageH * 0.85).ToList();
+        // Remove current page lines that match by text + position
+        if (firstHeaders.Any())
+            currentPage.RemoveAll(l =>
+                l.Y < pageH * 0.15 &&
+                firstHeaders.Any(f => f.Text == l.Text && Math.Abs(f.X - l.X) < tolerance * 2));
+        if (firstFooters.Any())
+            currentPage.RemoveAll(l =>
+                l.Y > pageH * 0.85 &&
+                firstFooters.Any(f => f.Text == l.Text && Math.Abs(f.X - l.X) < tolerance * 2));
+    }
+
+    /// <summary>Infer block kind (heading/paragraph) with improved heuristics.</summary>
+    static string InferLineKind(PopplerLine line, double pageW, double medianFontSize, bool isFirstBlock, int blockIdx)
+    {
+        // Title page first block → heading
+        if (isFirstBlock && blockIdx == 0 && line.Text.Length <= 80)
+            return "heading";
+        // Large font relative to median
+        if (medianFontSize > 0 && line.FontSize > medianFontSize * 1.25 && line.Text.Length <= 120)
+            return "heading";
+        // Centered short text → heading
+        double center = line.X + line.W / 2;
+        if (line.Text.Length <= 60 && Math.Abs(center - pageW / 2) < pageW * 0.1)
+            return "heading";
+        // Numeric prefix (1., 1.1, A., etc) → heading
+        if (System.Text.RegularExpressions.Regex.IsMatch(line.Text, @"^[\dA-Za-z]+\.\s"))
+            return "heading";
+        return "paragraph";
     }
 }

@@ -71,7 +71,7 @@ public static class PdfCommands
         var outOpt = new Option<string>(new[] { "-o", "--output" }, "Output directory for PDF one-cut three-stream slice") { IsRequired = true };
         var modeOpt = new Option<string>("--mode", () => "auto", "Mode: auto, text, hybrid, ocr");
         var dpiOpt = new Option<int>("--dpi", () => 200, "Render DPI for OCR mode");
-        var extractorOpt = new Option<string>("--extractor", () => "auto", "Text extractor: auto, pdftotext, pdfpig");
+        var extractorOpt = new Option<string>("--extractor", () => "poppler", "Text extractor: poppler (PdfPig deprecated in v7)");
         var ingestOpt = new Option<bool>("--ingest", () => false, "Auto-import dissect output into NongDb for semantic search");
         var cmd = new Command("dissect", "Slice PDF into nongpdf/nongmark streams") { fileArg, outOpt, modeOpt, dpiOpt, extractorOpt, ingestOpt };
 
