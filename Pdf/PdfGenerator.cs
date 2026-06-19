@@ -14,10 +14,8 @@ public static class PdfGenerator
     {
         using var doc = SKDocument.CreatePdf(outputPath);
         var typeface = GetCjkTypeface();
-        var paintNormal = new SKPaint { IsAntialias = true, Color = SKColors.Black, TextSize = 10 };
-        paintNormal.SetTypeface(typeface);
-        var paintBold = new SKPaint { IsAntialias = true, Color = SKColors.Black, TextSize = 14 };
-        paintBold.SetTypeface(typeface);
+        var paintNormal = new SKPaint { IsAntialias = true, Color = SKColors.Black, TextSize = 10, Typeface = typeface };
+        var paintBold = new SKPaint { IsAntialias = true, Color = SKColors.Black, TextSize = 14, Typeface = typeface };
 
         var canvas = doc.BeginPage(pageW, pageH);
         float y = margin;
@@ -71,7 +69,7 @@ public static class PdfGenerator
     static void DrawPageNumber(SKCanvas canvas, int page, float margin, float pageH)
     {
         var paint = new SKPaint { IsAntialias = true, Color = SKColors.Gray, TextSize = 8 };
-        paint.SetTypeface(SKTypeface.FromFamilyName("Arial") ?? SKTypeface.Default);
+        paint.Typeface = SKTypeface.FromFamilyName("Arial") ?? SKTypeface.Default;
         canvas.DrawText($"{page}", margin, pageH - margin + 10, paint);
     }
 }

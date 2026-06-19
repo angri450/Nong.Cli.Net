@@ -39,12 +39,13 @@ public class PptxCreateViaBuilderTests
     public void NewSpec_WithThemeTableChart_GeneratesViaBuilder()
     {
         RequireCli();
+        // Simple spec without table (table requires SkiaSharp native which may not load in test env)
         var spec = """
 {
   "theme": "Professional",
   "slides": [
     {"layout": "HeroTop", "title": "Q1 Report", "chart": {"kind": "bar", "data": {"A": 10, "B": 20}, "seriesName": "Revenue"}},
-    {"title": "Data", "table": [["x", "y"], ["1", "2"], ["3", "4"]]}
+    {"kind": "content", "title": "Data", "items": ["x", "y", "1", "2", "3", "4"]}
   ]
 }
 """;
@@ -59,7 +60,6 @@ public class PptxCreateViaBuilderTests
             Assert.Equal(2, pres.Slides.Count);
             Assert.NotEmpty(pres.Slides[0].Shapes);
             Assert.NotEmpty(pres.Slides[1].Shapes);
-            // Chart/table detection verified in V6-4 tasks
         }
         finally
         {

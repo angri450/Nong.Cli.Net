@@ -873,10 +873,8 @@ public class CliContractTests
     {
         using var doc = SkiaSharp.SKDocument.CreatePdf(path);
         var font = SkiaSharp.SKTypeface.FromFamilyName("Arial") ?? SkiaSharp.SKTypeface.Default;
-        var paint = new SkiaSharp.SKPaint { IsAntialias = true };
-        var paintBold = new SkiaSharp.SKPaint { IsAntialias = true };
-        paint.SetTypeface(font); paint.SetTextSize(12);
-        paintBold.SetTypeface(font); paintBold.SetTextSize(18);
+        var paint = new SkiaSharp.SKPaint { IsAntialias = true, Typeface = font, TextSize = 12 };
+        var paintBold = new SkiaSharp.SKPaint { IsAntialias = true, Typeface = font, TextSize = 18 };
         var canvas = doc.BeginPage(595, 842);
         canvas.DrawText("Nong PDF Contract Title", 72, 72 + 18, paintBold);
         canvas.DrawText("This PDF has selectable text and stable coordinates.", 72, 110, paint);

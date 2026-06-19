@@ -93,92 +93,88 @@ public sealed class RawAccessor : IDisposable
         }
     }
 
-    /// <summary>Removes a slide by index and updates all references.</summary>
+    /// <summary>Removes a slide by index and updates all references. Uses string replacement to preserve original namespace declarations.</summary>
     public void RemoveSlide(int index)
     {
         var slidePath = $"ppt/slides/slide{index + 1}.xml";
         var relsPath = $"ppt/slides/_rels/slide{index + 1}.xml.rels";
+        var bundlePath = $"ppt/slides/slide{index + 1}.xml.bundle";
         RemovePart(slidePath);
         if (_entries.ContainsKey(relsPath)) RemovePart(relsPath);
+        if (_entries.ContainsKey(bundlePath)) RemovePart(bundlePath);
 
-        // Update presentation.xml's sldIdLst — remove the sldId element
+        // Remove Nth sldId element from ppt/presentation.xml (by position, not rId)
         if (_entries.TryGetValue("ppt/presentation.xml", out var presXml))
         {
-            var doc = System.Xml.Linq.XDocument.Parse(presXml);
-            var ns = System.Xml.Linq.XNamespace.Get("http://schemas.openxmlformats.org/presentationml/2006/main");
-            var items = doc.Descendants(ns + "sldId").ToList();
-            if (index < items.Count)
-                items[index].Remove();
-            _entries["ppt/presentation.xml"] = doc.ToString(SaveOptions);
+            var sldIdPattern = @"<p:sldId[^>]*?/>";
+            var matches = System.Text.RegularExpressions.Regex.Matches(presXml, sldIdPattern);
+            if (index < matches.Count)
+            {
+                var m = matches[index];
+                presXml = presXml.Remove(m.Index, m.Length);
+            }
+            _entries["ppt/presentation.xml"] = presXml;
         }
 
-        // Update presentation.xml.rels — remove the slide relationship
+        // Remove relationship for slideN.xml from ppt/_rels/presentation.xml.rels
         if (_entries.TryGetValue("ppt/_rels/presentation.xml.rels", out var relsXml))
         {
-            var rdoc = System.Xml.Linq.XDocument.Parse(relsXml);
-            var rNs = System.Xml.Linq.XNamespace.Get("http://schemas.openxmlformats.org/package/2006/relationships");
-            var rels = rdoc.Descendants(rNs + "Relationship").ToList();
             var target = $"slides/slide{index + 1}.xml";
-            foreach (var rel in rels)
-            {
-                if (rel.Attribute("Target")?.Value == target)
-                    rel.Remove();
-            }
-            _entries["ppt/_rels/presentation.xml.rels"] = rdoc.ToString(SaveOptions);
+            var pattern = $@"<Relationship[^>]*?\bTarget=""{target}""[^>]*?/>";
+            relsXml = System.Text.RegularExpressions.Regex.Replace(relsXml, pattern, "");
+            _entries["ppt/_rels/presentation.xml.rels"] = relsXml;
         }
 
-        // Update [Content_Types].xml — remove the Override for the deleted slide
+        // Remove Override from [Content_Types].xml
         if (_entries.TryGetValue("[Content_Types].xml", out var ctXml))
         {
-            var cdoc = System.Xml.Linq.XDocument.Parse(ctXml);
-            var ctNs = System.Xml.Linq.XNamespace.Get("http://schemas.openxmlformats.org/package/2006/content-types");
             var partName = $"/ppt/slides/slide{index + 1}.xml";
-            foreach (var ov in cdoc.Descendants(ctNs + "Override").ToList())
-            {
-                if (ov.Attribute("PartName")?.Value == partName)
-                    ov.Remove();
-            }
-            _entries["[Content_Types].xml"] = cdoc.ToString(SaveOptions);
+            var pattern = $@"<Override[^>]*?\bPartName=""{System.Text.RegularExpressions.Regex.Escape(partName)}""[^>]*?/>";
+            ctXml = System.Text.RegularExpressions.Regex.Replace(ctXml, pattern, "");
+            _entries["[Content_Types].xml"] = ctXml;
         }
     }
 
-    /// <summary>Moves a slide from one position to another.</summary>
+    /// <summary>Moves a slide from one position to another using position-based string replacement.</summary>
     public void MoveSlide(int fromIndex, int toIndex)
     {
-        // Reorder presentation.xml sldIdLst
         if (_entries.TryGetValue("ppt/presentation.xml", out var presXml))
         {
-            var doc = System.Xml.Linq.XDocument.Parse(presXml);
-            var ns = System.Xml.Linq.XNamespace.Get("http://schemas.openxmlformats.org/presentationml/2006/main");
-            var items = doc.Descendants(ns + "sldId").ToList();
-            if (fromIndex < items.Count && toIndex < items.Count)
+            var sldIdPattern = @"<p:sldId[^>]*?/>";
+            var matches = System.Text.RegularExpressions.Regex.Matches(presXml, sldIdPattern);
+            if (fromIndex < matches.Count && toIndex < matches.Count)
             {
-                var item = items[fromIndex];
-                item.Remove();
-                if (toIndex >= items.Count - 1)
-                    doc.Descendants(ns + "sldIdLst").First().Add(item);
-                else
-                    items[toIndex].AddBeforeSelf(item);
+                var fromStr = matches[fromIndex].Value;
+                // Remove from original position
+                var removeIdx = matches[fromIndex].Index;
+                presXml = presXml.Remove(removeIdx, fromStr.Length);
+                // Re-find target position (indexes shift after removal)
+                var newMatches = System.Text.RegularExpressions.Regex.Matches(presXml, sldIdPattern);
+                if (toIndex >= fromIndex) toIndex--; // shift down since we removed one before it
+                if (toIndex < newMatches.Count)
+                {
+                    var insertIdx = newMatches[toIndex].Index;
+                    presXml = presXml.Insert(insertIdx, fromStr);
+                }
             }
-            _entries["ppt/presentation.xml"] = doc.ToString(SaveOptions);
+            _entries["ppt/presentation.xml"] = presXml;
         }
-        // Reorder relationships accordingly
         if (_entries.TryGetValue("ppt/_rels/presentation.xml.rels", out var relsXml))
         {
-            var rdoc = System.Xml.Linq.XDocument.Parse(relsXml);
-            var rNs = System.Xml.Linq.XNamespace.Get("http://schemas.openxmlformats.org/package/2006/relationships");
-            var rels = rdoc.Descendants(rNs + "Relationship")
-                .Where(r => r.Attribute("Target")?.Value.StartsWith("slides/slide") == true).ToList();
-            if (fromIndex < rels.Count && toIndex < rels.Count)
+            var fromTarget = $"slides/slide{fromIndex + 1}.xml";
+            var toTarget = $"slides/slide{toIndex + 1}.xml";
+            var fromPat = $@"<Relationship[^>]*?\bTarget=""{fromTarget}""[^>]*?/>";
+            var toPat = $@"<Relationship[^>]*?\bTarget=""{toTarget}""[^>]*?/>";
+            var fromMatch = System.Text.RegularExpressions.Regex.Match(relsXml, fromPat);
+            if (fromMatch.Success)
             {
-                var rel = rels[fromIndex];
-                rel.Remove();
-                if (toIndex >= rels.Count - 1)
-                    rdoc.Root?.Add(rel);
-                else
-                    rels[toIndex].AddBeforeSelf(rel);
+                var fromStr = fromMatch.Value;
+                relsXml = System.Text.RegularExpressions.Regex.Replace(relsXml, fromPat, "");
+                var toMatch = System.Text.RegularExpressions.Regex.Match(relsXml, toPat);
+                if (toMatch.Success)
+                    relsXml = relsXml.Insert(toIndex >= fromIndex ? toMatch.Index + toMatch.Length : toMatch.Index, fromStr);
             }
-            _entries["ppt/_rels/presentation.xml.rels"] = rdoc.ToString(SaveOptions);
+            _entries["ppt/_rels/presentation.xml.rels"] = relsXml;
         }
     }
 
