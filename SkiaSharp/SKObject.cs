@@ -38,7 +38,7 @@ namespace SkiaSharp
 
 		static SKObject ()
 		{
-			SkiaSharpVersion.CheckNativeLibraryCompatible (true);
+				SkiaSharpVersion.CheckNativeLibraryCompatible (false); // V12.1: vendor tolerance
 
 			SKColorSpace.EnsureStaticInstanceAreInitialized ();
 			SKData.EnsureStaticInstanceAreInitialized ();
