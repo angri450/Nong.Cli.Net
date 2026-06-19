@@ -18,7 +18,20 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.0">
+      <IncludeAssets>native</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" Version="8.3.0">
+      <IncludeAssets>native</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
+  <Target Name="CopySkiaNative" AfterTargets="Publish">
+    <ItemGroup>
+      <SkiaNative Include="$(NuGetPackageRoot)skiasharp.nativeassets.win32\3.119.0\runtimes\win-x64\native\*.dll" />
+      <HarfBuzzNative Include="$(NuGetPackageRoot)harfbuzzsharp.nativeassets.win32\8.3.0\runtimes\win-x64\native\*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SkiaNative);@(HarfBuzzNative)" DestinationFolder="$(PublishDir)" />
+  </Target>
   <ItemGroup>
     <ProjectReference Include="..\PptxCore.csproj" />
     <ProjectReference Include="..\..\Data\Nong.Data.csproj" />

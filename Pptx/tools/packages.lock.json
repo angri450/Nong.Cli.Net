@@ -2,6 +2,18 @@
   "version": 1,
   "dependencies": {
     "net8.0": {
+      "HarfBuzzSharp.NativeAssets.Win32": {
+        "type": "Direct",
+        "requested": "[8.3.0, )",
+        "resolved": "8.3.0",
+        "contentHash": "L9ofGZosAaFeIViyGDLsySqWSRW+nTLh3LeU9SS2xB3a3yaUs1Kzph7hleIx0yjznS4USf8Ybl15ROCtqdpgvQ=="
+      },
+      "SkiaSharp.NativeAssets.Win32": {
+        "type": "Direct",
+        "requested": "[3.119.0, )",
+        "resolved": "3.119.0",
+        "contentHash": "IwC9yx36lOdXVT2DjgmWHl1qkVspfj8ctd4+li8CNnvqdfaTolXCOh6TLznURcPAvzatx9K/tLOB7zT6T8EA9w=="
+      },
       "System.CommandLine": {
         "type": "Direct",
         "requested": "[2.0.0-beta4.22272.1, )",
@@ -77,7 +89,7 @@
       "Angri450.Nong.Data": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.ThirdParty": "[4.5.0, )",
+          "Angri450.Nong.ThirdParty": "[12.1.0, )",
           "Microsoft.ML.OnnxRuntime": "[1.21.0, )"
         }
       },
@@ -95,8 +107,8 @@
       "pptxcore": {
         "type": "Project",
         "dependencies": {
-          "Angri450.Nong.Pandoc": "[4.5.0, )",
-          "Angri450.Nong.ThirdParty": "[4.5.0, )"
+          "Angri450.Nong.Pandoc": "[12.1.0, )",
+          "Angri450.Nong.ThirdParty": "[12.1.0, )"
         }
       }
     }

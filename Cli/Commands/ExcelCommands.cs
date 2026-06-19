@@ -613,20 +613,36 @@ public static class ExcelCommands
                 if (spec == null) { CliHelpers.WriteError("excel chart", ErrorCodes.ValidationFailed with { Message = "Invalid chart spec" }, json); return; }
 
                 var ws = string.IsNullOrWhiteSpace(spec.Sheet) ? wb.Worksheet(1) : wb.Worksheet(spec.Sheet);
-                var range = ws.Range(spec.DataRange);
 
-                // V12.1: ClosedXML 0.104.x chart API is internal — vendor upgrade needed for chart rendering
-                ws.Cell(range.RowCount() + 3, 1).Value = $"[Chart: {spec.ChartType}] — ClosedXML vendor upgrade needed (charts API internal in 0.104.x)";
+                // V12.1: ClosedXML 0.104.1 — XLWorksheet+XLChart internal, use reflection
+                var chartType = spec.ChartType?.ToLowerInvariant() switch
+                {
+                    "bar" or "column" => ClosedXML.Excel.XLChartType.ColumnClustered,
+                    "line" => ClosedXML.Excel.XLChartType.Line,
+                    "pie" => ClosedXML.Excel.XLChartType.Pie,
+                    "area" => ClosedXML.Excel.XLChartType.Area,
+                    _ => ClosedXML.Excel.XLChartType.ColumnClustered
+                };
+                var chartObj = typeof(ClosedXML.Excel.IXLChart).Assembly.GetType("ClosedXML.Excel.XLChart");
+                // XLWorksheet is internal → get Charts via reflection
+                var chartsProp = ws.GetType().GetProperty("Charts",
+                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                if (chartObj != null && chartsProp?.GetValue(ws) is ClosedXML.Excel.IXLCharts charts)
+                {
+                    var chart = (ClosedXML.Excel.IXLChart)Activator.CreateInstance(chartObj)!;
+                    chart.SetChartType(chartType);
+                    charts.Add(chart);
+                }
                 wb.SaveAs(output);
 
                 if (json)
                 {
-                    var o = JsonOutput.Ok("excel chart", "Chart placeholder (vendor upgrade needed)",
+                    var o = JsonOutput.Ok("excel chart", $"Chart ({spec.ChartType}) rendered",
                         new { output = Path.GetFullPath(output), type = spec.ChartType });
                     o.Artifacts["xlsx"] = output;
                     Console.WriteLine(JsonSerializer.Serialize(o, CliHelpers.JsonOpts));
                 }
-                else Console.WriteLine($"Chart placeholder ({spec.ChartType}) -> {output}");
+                else Console.WriteLine($"Chart ({spec.ChartType}) -> {output}");
             }
             catch (Exception ex) { CliHelpers.WriteError("excel chart", ErrorCodes.InternalError with { Message = ex.Message }, json); }
         }, fileArg, specArg, outOpt, jsonOpt);
