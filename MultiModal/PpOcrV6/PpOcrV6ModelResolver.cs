@@ -74,15 +74,15 @@ public static class PpOcrV6ModelResolver
         return (false, null, null);
     }
 
-    /// <summary>Extract dictionary from OcrModels embedded resource.</summary>
+    /// <summary>Extract dictionary from OcrDictionary embedded resource.</summary>
     public static void ExtractDict(string size, string destPath)
     {
         var resourceName = size switch
         {
-            "tiny" => "OcrModels.ppocrv6_tiny_dict.txt",
-            _ => "OcrModels.ppocrv6_dict.txt",
+            "tiny" => "OcrDictionary.ppocrv6_tiny_dict.txt",
+            _ => "OcrDictionary.ppocrv6_dict.txt",
         };
-        var assembly = typeof(OcrModels.Placeholder).Assembly;
+        var assembly = typeof(OcrDictionary.Placeholder).Assembly;
         using var stream = assembly.GetManifestResourceStream(resourceName)
             ?? throw new FileNotFoundException($"Embedded dict not found: {resourceName}");
         using var fs = File.Create(destPath);

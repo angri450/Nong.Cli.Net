@@ -3,15 +3,15 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>Angri450.Nong.OcrModels</AssemblyName>
-    <PackageId>Angri450.Nong.OcrModels</PackageId>
+    <AssemblyName>Angri450.Nong.OcrDictionary</AssemblyName>
+    <PackageId>Angri450.Nong.OcrDictionary</PackageId>
     <Version>12.1.0</Version>
     <Authors>angri450</Authors>
-    <Description>PP-OCRv6 model assets — dictionaries for medium/small/tiny tiers. Consumed by Nong CLI OCR commands. No native binaries.</Description>
+    <Description>PP-OCRv6 character dictionaries — label-index to Chinese character mapping. No model weights for medium/small/tiny tiers. Consumed by Nong CLI OCR commands. No native binaries.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
-    <PackageTags>nong ocr ppocrv6 dictionary model</PackageTags>
+    <PackageTags>nong ocr dictionary charmap</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="ppocrv6_dict.txt" />
