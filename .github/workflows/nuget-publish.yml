@@ -13,6 +13,9 @@ permissions:
 jobs:
   publish:
     runs-on: windows-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -21,7 +24,7 @@ jobs:
       - name: Build
         run: dotnet build Cli/NongCli.csproj -c Release
 
-      - name: Pack & Push
+      - name: Pack
         run: |
           mkdir nupkg
           dotnet pack Cli/NongCli.csproj -c Release --no-build -o nupkg/
@@ -43,4 +46,14 @@ jobs:
           dotnet pack Pptx/tools/nong-pptx.csproj -c Release --no-build -o nupkg/
           dotnet pack MultiModal/tools/nong-ocr.csproj -c Release --no-build -o nupkg/
           dotnet pack NongRuntime/tools/nong-runtime.csproj -c Release --no-build -o nupkg/
-          dotnet nuget push nupkg\*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Get OIDC token
+        id: token
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const token = await core.getIDToken('https://api.nuget.org/v3/index.json');
+            core.setOutput('id_token', token);
+
+      - name: Push
+        run: dotnet nuget push nupkg\*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate --api-key ${{ steps.token.outputs.id_token }}
