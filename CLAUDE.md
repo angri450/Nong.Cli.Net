@@ -31,12 +31,13 @@ Nong.Cli.Net/
   Inspect/                ← AI 审查
   Bioicons/               ← 40 个科学 SVG 图标
   Pandoc/                 ← 文档 AST/NongMark 投影
-  OcrModels/              ← PP-OCRv6 字典
+  OcrDictionary/          ← PP-OCRv6 字符字典
   ThirdParty/             ← 第三方源码（LiteDB + ClosedXML + SkiaSharp 等）
   Data/                   ← NongDb 统一数据库 + NongWorkplace（独立包 Angri450.Nong.Data）
   OpenXmlData/            ← OpenXml 源生成器数据（namespaces/schemas/parts，自动生成勿改）
   Common/                 ← .NET polyfill shims（给 ThirdParty 用）
   SkillManagerCore/       ← skill 管理器
+  skills/                 ← 17 个 Toolkit.Net skill（SKILL.md + plugin.json + references）—— 原 Nong.Toolkit.Net 单一真源，迁入本仓库
   */tools/                ← 外部 dotnet tool 项目
 
 ## 外圈 tool 施工提醒（PdfDissect 三测试修复 780ef2c 的血训，详见 ../../.claude/guidance/2026-06-19-pdfdissect-postmortem.md）
