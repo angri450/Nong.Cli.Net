@@ -17,12 +17,6 @@
         "resolved": "4.11.0.20250507",
         "contentHash": "3PxMXyzR+pkL9UOx2PiBjZm+/iyCIu5D6OlA1sq9MH7oWrfvVnCXJlUYhIJv67F7SLUwUuGwXDIQBfdsL/54lg=="
       },
-      "SkiaSharp.NativeAssets.Win32": {
-        "type": "Direct",
-        "requested": "[3.119.2, )",
-        "resolved": "3.119.2",
-        "contentHash": "uYe+da6+GXVgPKkCopzvIZ83DmC8SXXKeUAPrNcztJNsg0SjPQAxfKMOPZqmVjbzznrq/QUIjLUlJSZV/e0IPA=="
-      },
       "System.CommandLine": {
         "type": "Direct",
         "requested": "[2.0.0-beta4.22272.1, )",
@@ -102,6 +96,11 @@
         "resolved": "3.119.2",
         "contentHash": "I2jMGQ/26KOnc6iAoR+Mxh9vSJJ2vioJyj9aJ9OL5yEZyXothXJxf4vBMqnSaiXMqiiU1scG7KqtT0CLkmMmWA=="
       },
+      "SkiaSharp.NativeAssets.Win32": {
+        "type": "Transitive",
+        "resolved": "3.119.2",
+        "contentHash": "uYe+da6+GXVgPKkCopzvIZ83DmC8SXXKeUAPrNcztJNsg0SjPQAxfKMOPZqmVjbzznrq/QUIjLUlJSZV/e0IPA=="
+      },
       "System.Collections.Immutable": {
         "type": "Transitive",
         "resolved": "9.0.0",
@@ -165,7 +164,7 @@
           "Angri450.Nong.ThirdParty": "[12.1.0, )"
         }
       },
-      "Angri450.Nong.OcrModels": {
+      "Angri450.Nong.OcrDictionary": {
         "type": "Project"
       },
       "Angri450.Nong.Pandoc": {
@@ -186,7 +185,7 @@
         "type": "Project",
         "dependencies": {
           "Angri450.Nong.Docx": "[12.1.0, )",
-          "Angri450.Nong.OcrModels": "[12.1.0, )",
+          "Angri450.Nong.OcrDictionary": "[12.1.0, )",
           "Microsoft.ML.OnnxRuntime": "[1.21.0, )"
         }
       }

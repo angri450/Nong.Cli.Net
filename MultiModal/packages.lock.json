@@ -123,7 +123,7 @@
           "Angri450.Nong.ThirdParty": "[12.1.0, )"
         }
       },
-      "Angri450.Nong.OcrModels": {
+      "Angri450.Nong.OcrDictionary": {
         "type": "Project"
       },
       "Angri450.Nong.Pandoc": {
