@@ -6,14 +6,14 @@
       "rules": [
         "HOME_PATH_REFERENCE"
       ],
-      "reason": "~/Documents/Nong Toolkit Workspace/output/ is the standard output path."
+      "reason": ".nong/output/ is the standard output path."
     },
     {
       "file": "references/workspace-setup.md",
       "rules": [
         "HOME_PATH_REFERENCE"
       ],
-      "reason": "~/Documents/Nong Toolkit Workspace/chart/ is standard workspace path."
+      "reason": ".nong/chart/ is standard workspace path."
     }
   ]
 }

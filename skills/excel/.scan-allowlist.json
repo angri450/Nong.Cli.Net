@@ -6,7 +6,7 @@
       "rules": [
         "HOME_PATH_REFERENCE"
       ],
-      "reason": "~/Documents/Nong Toolkit Workspace/excel/ and ~/Documents/Nong Toolkit Workspace/output/ are standard workspace paths."
+      "reason": ".nong/excel/ and .nong/output/ are standard workspace paths."
     },
     {
       "file": "SKILL.md",

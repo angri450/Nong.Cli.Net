@@ -4,12 +4,12 @@
     {
       "file": "SKILL.md",
       "rules": ["HOME_PATH_REFERENCE"],
-      "reason": "Documentation: ~/Documents/Nong Toolkit Workspace/output/ is the standard output path for generated files."
+      "reason": "Documentation: .nong/output/ is the standard output path for generated files."
     },
     {
       "file": "references/workspace-setup.md",
       "rules": ["HOME_PATH_REFERENCE"],
-      "reason": "Documentation: ~/Documents/Nong Toolkit Workspace/pptx/ is the standard workspace location."
+      "reason": "Documentation: .nong/pptx/ is the standard workspace location."
     }
   ]
 }

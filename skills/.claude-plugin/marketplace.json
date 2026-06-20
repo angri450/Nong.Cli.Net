@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "nong-toolkit",
-  "description": "Nong.Toolkit.Net — 18 individual skills for agricultural document, literature, AMiner, Metaso, and paper workflows through the deterministic nong CLI. Modular architecture: light router + 6 auto-install external tools.",
+  "description": "Nong.Toolkit.Net — 17 individual skills for agricultural document, literature, AMiner, Metaso, and paper workflows through the deterministic nong CLI. Modular architecture: light router + 6 auto-install external tools.",
   "owner": {
     "name": "angri450"
   },
@@ -9,7 +9,7 @@
     {
       "name": "nong-toolkit",
       "source": "./",
-      "description": "Full bundle: all 18 Nong.Toolkit.Net skills. Install individual skills for lower token cost.",
+      "description": "Full bundle: all 17 Nong.Toolkit.Net skills. Install individual skills for lower token cost.",
       "author": { "name": "angri450" },
       "category": "document-tools"
     },

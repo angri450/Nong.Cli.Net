@@ -6,14 +6,14 @@
       "rules": [
         "HOME_PATH_REFERENCE"
       ],
-      "reason": "~/Documents/Nong Toolkit Workspace/word/ and ~/Documents/Nong Toolkit Workspace/output/ are standard workspace paths."
+      "reason": ".nong/word/ and .nong/output/ are standard workspace paths."
     },
     {
       "file": "SKILL.md",
       "rules": [
         "HOME_PATH_REFERENCE"
       ],
-      "reason": "~/Documents/Nong Toolkit Workspace/word/ is the standard output structure."
+      "reason": ".nong/word/ is the standard output structure."
     }
   ]
 }
