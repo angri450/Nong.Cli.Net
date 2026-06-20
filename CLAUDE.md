@@ -37,8 +37,45 @@ Nong.Cli.Net/
   OpenXmlData/            ← OpenXml 源生成器数据（namespaces/schemas/parts，自动生成勿改）
   Common/                 ← .NET polyfill shims（给 ThirdParty 用）
   SkillManagerCore/       ← skill 管理器
-  skills/                 ← 17 个 Toolkit.Net skill（SKILL.md + plugin.json + references）—— 原 Nong.Toolkit.Net 单一真源，迁入本仓库
+  skills/                 ← 17 个 Toolkit.Net skill（单一真源，详见下方 Skill 系统）
   */tools/                ← 外部 dotnet tool 项目
+
+## Skill 系统（Toolkit.Net 插件）
+
+`skills/` 是本仓库和 Nong.Toolkit.Net 分发仓库的**共同源头**。改 CLI 命令时，必须同步更新对应 skill。
+
+### 命令 → Skill 映射
+
+| CLI 命令组 | Skill 目录 | 说明 |
+|---|---|---|
+| word (+ add) | `skills/word/` | 文档引擎主力（125 条命令） |
+| excel | `skills/excel/` | 表格创建/图表/公式求值 |
+| pptx | `skills/pptx/` | 幻灯片创建/编辑 |
+| pdf | `skills/pdf/` | PDF 切片/生成/表单 |
+| chart | `skills/chart/` | 农业统计图 |
+| diagram | `skills/diagram/` | 流程图/网络图/树 |
+| ocr | `skills/ocr/` | OCR 识别/环境检测 |
+| lit | `skills/literature/` | 文献检索/缓存 |
+| aminer | `skills/aminer/` | AMiner API |
+| metaso | `skills/metaso/` | Metaso AI 搜索 |
+| inspect (+ genre) | `skills/inspect/` | 论文诊断 + 模板 |
+| icons | `skills/icons/` | Bioicons 科学图标 |
+| slice | `skills/slice/` | NongPandoc 切片检查 |
+| export | `skills/export/` | EPUB/LaTeX/HTML/ODF |
+| markdown | `skills/markdown/` | GFM ↔ NongMark |
+| nongcli (+ search) | `skills/nongcli/` | 工作区 + 语义搜索 |
+| skill | `skills/skill-grader/` | Skill 生命周期 |
+
+### 改命令时改什么
+
+1. 改 Cli.Net 代码 → 如果命令语法/参数变了 → **同步改 `skills/<对应skill>/SKILL.md` 的命令签名字段**
+2. 如果新增子命令 → 在 SKILL.md 的 Implemented Commands 表格里加一行
+3. 如果删子命令 → 两处都删
+4. 改完 Cli.Net 代码 + skills/ → **同一个 commit**
+
+### 同步到 Toolkit.Net
+
+`skills/` 目录通过 CI 或手动复制到 `../Nong.Toolkit.Net/`。Toolkit.Net 只做分发，不含开发文件（`sync-version.sh`、`.ps1` 不复制）。`skills/CLAUDE.md` 是插件自身的 agent 合约，两端都有。
 
 ## 外圈 tool 施工提醒（PdfDissect 三测试修复 780ef2c 的血训，详见 ../../.claude/guidance/2026-06-19-pdfdissect-postmortem.md）
 
