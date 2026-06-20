@@ -1,0 +1,41 @@
+{
+  "skill_name": "word",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Check if paper.docx is a valid Word document before editing.",
+      "expected_output": "word check",
+      "assertions": [
+        "nong word check <file.docx> --json returns status: ok or status: error with file_not_found",
+        "exit code is 0 when file exists, non-zero when file missing"
+      ],
+      "expectations": [
+        "AI should call nong word check paper.docx --json as the first step"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Read the plain text from contract.docx.",
+      "expected_output": "word read",
+      "assertions": [
+        "nong word read <file.docx> --json returns status: ok",
+        "data.text contains extracted text"
+      ],
+      "expectations": [
+        "AI should call nong word read, not try to open the file directly"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Create a new empty DOCX file.",
+      "expected_output": "word create",
+      "assertions": [
+        "nong word create document.nongmark -o out.docx --json returns status: ok",
+        "output file exists and has non-zero size"
+      ],
+      "expectations": [
+        "AI should write a .nongmark file and then call nong word create"
+      ]
+    }
+  ]
+}

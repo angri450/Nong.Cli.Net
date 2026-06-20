@@ -1,0 +1,18 @@
+{
+  "name": "Finance",
+  "colors": {
+    "headerBg": "1F4E79",
+    "headerFg": "FFFFFF",
+    "rowAlt": "FFF3E0",
+    "accent": "1F4E79",
+    "border": "D0D0D0"
+  },
+  "formats": {
+    "integer": "#,##0",
+    "decimal": "#,##0.00",
+    "currency": "\"¥\"#,##0.00",
+    "percent": "0.00%",
+    "date": "yyyy-mm-dd"
+  },
+  "notes": "深蓝表头，暖色交替行。适用于财务报表、预算分析。"
+}

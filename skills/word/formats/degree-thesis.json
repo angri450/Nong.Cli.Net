@@ -1,0 +1,34 @@
+{
+  "source": "通用学位论文格式规范（参照 GB/T 7714-2025）",
+  "extracted": "2026-05-23",
+  "category": "degree-thesis",
+  "formatName": "研究生学位论文",
+  "page": {
+    "size": "A4",
+    "marginTop": "3cm",
+    "marginBottom": "2.5cm",
+    "marginLeft": "3cm",
+    "marginRight": "2.5cm"
+  },
+  "styles": {
+    "Normal": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "24", "lineSpacing": "360" },
+    "Title": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "32", "bold": true, "alignment": "center" },
+    "Heading1": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "32", "bold": true, "alignment": "left" },
+    "Heading2": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "28", "bold": true, "alignment": "left" },
+    "Heading3": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "24", "bold": true, "alignment": "left" },
+    "Caption": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "21", "bold": true, "alignment": "center" },
+    "Footnote": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "18" }
+  },
+  "patterns": {
+    "tableStyle": "threeLine",
+    "tableBorders": { "topBottom": "0.75pt", "headerSeparator": "0.5pt" },
+    "referenceStyle": "numberedList",
+    "referenceFormat": "[1] [2] [3]",
+    "referenceFont": { "fontCJK": "宋体", "fontSize": "18" },
+    "citationStyle": "superscript",
+    "firstLineIndent": "2字符(420twips)",
+    "figureLabel": "图 1-1",
+    "tableLabel": "表 1-1"
+  },
+  "notes": "学位论文通用格式。正文小四号(24)宋体，行距360。各级标题黑体加粗。图表标题黑体五号，图注表注宋体小五号。参考文献小五号顺序编码制。含封面、目录、页眉页脚。"
+}

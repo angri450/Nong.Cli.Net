@@ -1,0 +1,16 @@
+{
+  "keywords": [
+    "nong",
+    "cli"
+  ],
+  "author": {
+    "name": "angri450"
+  },
+  "skills": [
+    "./"
+  ],
+  "description": "Skill lifecycle gates through nong skill — validate, scan, inventory, package",
+  "license": "Apache-2.0",
+  "version": "2.0",
+  "name": "skill-grader"
+}

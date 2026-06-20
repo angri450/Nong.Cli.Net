@@ -1,0 +1,16 @@
+{
+  "keywords": [
+    "nong",
+    "cli"
+  ],
+  "author": {
+    "name": "angri450"
+  },
+  "skills": [
+    "./"
+  ],
+  "description": "Excel operations through nong CLI — sheets, read, to-groups, create, restructure, dissect, style, formula, pivot",
+  "license": "Apache-2.0",
+  "version": "2.0",
+  "name": "excel"
+}

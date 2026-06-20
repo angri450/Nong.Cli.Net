@@ -1,0 +1,16 @@
+{
+  "keywords": [
+    "nong",
+    "cli"
+  ],
+  "author": {
+    "name": "angri450"
+  },
+  "skills": [
+    "./"
+  ],
+  "description": "OCR and image QA through nong ocr — local, cloud, check-env, analyze-image, models, install-model, to-word",
+  "license": "Apache-2.0",
+  "version": "2.0",
+  "name": "ocr"
+}

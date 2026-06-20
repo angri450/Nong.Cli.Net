@@ -1,0 +1,41 @@
+{
+  "skill_name": "inspect",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "诊断这篇论文的质量。",
+      "expected_output": "inspect diagnose",
+      "assertions": [
+        "nong inspect diagnose <paper.txt> --json returns status: ok",
+        "data.gapGrade is one of: 严重, 中等, 轻微"
+      ],
+      "expectations": [
+        "AI should run nong word read first if input is .docx, then nong inspect diagnose on the text"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "检查这篇论文的参考文献列表有没有问题。",
+      "expected_output": "inspect refs",
+      "assertions": [
+        "nong inspect refs <paper.txt> --json returns status: ok",
+        "data includes referenceCount and riskCount"
+      ],
+      "expectations": [
+        "AI should use inspect refs for internal citation checks, NOT lit search"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "从 JSON spec 生成一篇论文 DOCX。",
+      "expected_output": "inspect write-paper",
+      "assertions": [
+        "nong inspect write-paper <spec.json> -o <out.docx> --json returns status: ok",
+        "output DOCX exists with non-zero size"
+      ],
+      "expectations": [
+        "JSON spec must include title, sections with heading and body fields"
+      ]
+    }
+  ]
+}

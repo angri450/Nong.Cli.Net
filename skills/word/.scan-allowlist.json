@@ -1,0 +1,19 @@
+{
+  "_comment": "Scan allowlist for word skill. Documentation references only.",
+  "allowlist": [
+    {
+      "file": "references/workspace-setup.md",
+      "rules": [
+        "HOME_PATH_REFERENCE"
+      ],
+      "reason": "~/Documents/Nong Toolkit Workspace/word/ and ~/Documents/Nong Toolkit Workspace/output/ are standard workspace paths."
+    },
+    {
+      "file": "SKILL.md",
+      "rules": [
+        "HOME_PATH_REFERENCE"
+      ],
+      "reason": "~/Documents/Nong Toolkit Workspace/word/ is the standard output structure."
+    }
+  ]
+}

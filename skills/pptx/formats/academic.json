@@ -1,0 +1,14 @@
+{
+  "accent1": "8B0000",
+  "accent2": "B22222",
+  "accent3": "CD5C5C",
+  "dark1": "2F2F2F",
+  "light1": "FFFFFF",
+  "dark2": "444444",
+  "light2": "F8F8F8",
+  "bodyFont": "Times New Roman",
+  "headFont": "Times New Roman",
+  "bodyCJK": "宋体",
+  "headCJK": "黑体",
+  "notes": "学术红配色，适合论文答辩、学术报告。"
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Mono",
+  "colors": {
+    "headerBg": "333333",
+    "headerFg": "FFFFFF",
+    "rowAlt": "F5F5F5",
+    "accent": "0066CC",
+    "border": "D0D0D0"
+  },
+  "formats": {
+    "integer": "#,##0",
+    "decimal": "#,##0.00",
+    "currency": "\"¥\"#,##0.00",
+    "percent": "0.0%",
+    "date": "yyyy-mm-dd"
+  },
+  "notes": "深色表头白字，灰白交替行，蓝色强调。适用于一般报表、数据看板。"
+}

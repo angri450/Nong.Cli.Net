@@ -1,0 +1,7 @@
+{
+  "name": "nongcli",
+  "version": "2.0",
+  "description": "nongcli skill for nong-toolkit",
+  "author": { "name": "angri450" },
+  "skills": [ "nongcli" ]
+}

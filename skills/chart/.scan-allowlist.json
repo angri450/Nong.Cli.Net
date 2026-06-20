@@ -1,0 +1,19 @@
+{
+  "_comment": "Scan allowlist for chart skill. Documentation references only.",
+  "allowlist": [
+    {
+      "file": "SKILL.md",
+      "rules": [
+        "HOME_PATH_REFERENCE"
+      ],
+      "reason": "~/Documents/Nong Toolkit Workspace/output/ is the standard output path."
+    },
+    {
+      "file": "references/workspace-setup.md",
+      "rules": [
+        "HOME_PATH_REFERENCE"
+      ],
+      "reason": "~/Documents/Nong Toolkit Workspace/chart/ is standard workspace path."
+    }
+  ]
+}

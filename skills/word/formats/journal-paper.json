@@ -1,0 +1,36 @@
+{
+  "source": "GB/T 7714-2025 期刊论文格式规范",
+  "extracted": "2026-05-23",
+  "category": "journal-paper",
+  "formatName": "中文期刊学术论文",
+  "page": {
+    "size": "A4",
+    "marginTop": "3cm",
+    "marginBottom": "2.5cm",
+    "marginLeft": "2.5cm",
+    "marginRight": "2cm"
+  },
+  "styles": {
+    "Title": { "fontCJK": "黑体", "fontLatin": "Times New Roman", "fontSize": "36", "bold": true, "alignment": "center" },
+    "Author": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "28", "alignment": "center" },
+    "AbstractTitle": { "fontCJK": "黑体", "fontSize": "18", "bold": true },
+    "Abstract": { "fontCJK": "宋体", "fontSize": "18", "firstLineIndent": "420" },
+    "Heading1": { "fontCJK": "黑体", "fontSize": "32", "bold": true },
+    "Heading2": { "fontCJK": "黑体", "fontSize": "28", "bold": true },
+    "Heading3": { "fontCJK": "黑体", "fontSize": "24", "bold": true },
+    "Body": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "21", "firstLineIndent": "420", "lineSpacing": "312" },
+    "Caption": { "fontCJK": "黑体", "fontSize": "21", "bold": true, "alignment": "center" },
+    "FootnoteText": { "fontCJK": "宋体", "fontSize": "18" }
+  },
+  "patterns": {
+    "tableStyle": "threeLine",
+    "tableBorders": { "topBottom": "0.75pt(6)", "headerSeparator": "0.5pt(4)" },
+    "referenceStyle": "numberedList",
+    "referenceFormat": "[1] [2] [3] Word原生编号",
+    "referenceFont": { "fontCJK": "宋体", "fontSize": "18" },
+    "citationStyle": "superscript",
+    "firstLineIndent": "2字符(420twips)",
+    "bodyNoIndent": "表内文字、参考文献、标题不缩进"
+  },
+  "notes": "参考文献著录遵循 GB/T 7714-2025 顺序编码制。中文正文五号(21)宋体，英文 Times New Roman。各级标题黑体加粗，三线表顶底0.75pt表头下0.5pt。"
+}

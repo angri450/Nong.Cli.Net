@@ -1,0 +1,16 @@
+{
+  "keywords": [
+    "nong",
+    "cli"
+  ],
+  "author": {
+    "name": "angri450"
+  },
+  "skills": [
+    "./"
+  ],
+  "description": "NongPandoc slice package inspection through nong slice — inspect, blocks, block, assets",
+  "license": "Apache-2.0",
+  "version": "2.0",
+  "name": "slice"
+}

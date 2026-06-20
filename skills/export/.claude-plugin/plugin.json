@@ -1,0 +1,7 @@
+{
+  "name": "export",
+  "version": "2.0",
+  "description": "export skill for nong-toolkit",
+  "author": { "name": "angri450" },
+  "skills": [ "export" ]
+}

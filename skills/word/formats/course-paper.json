@@ -1,0 +1,35 @@
+{
+  "source": "通用课程论文格式规范",
+  "extracted": "2026-05-23",
+  "category": "course-paper",
+  "formatName": "本科课程论文",
+  "page": {
+    "size": "A4",
+    "marginTop": "2.5cm",
+    "marginBottom": "2.5cm",
+    "marginLeft": "2.5cm",
+    "marginRight": "2.5cm"
+  },
+  "styles": {
+    "Title": { "fontCJK": "黑体", "fontSize": "28", "bold": true, "alignment": "center" },
+    "Heading1": { "fontCJK": "黑体", "fontSize": "28", "bold": true, "alignment": "left" },
+    "Heading2": { "fontCJK": "黑体", "fontSize": "24", "bold": true, "alignment": "left" },
+    "Body": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "21", "firstLineIndent": "420", "lineSpacing": "312" },
+    "Abstract": { "fontCJK": "宋体", "fontSize": "18", "firstLineIndent": "420" },
+    "AbstractTitle": { "fontCJK": "黑体", "fontSize": "18", "bold": true },
+    "Caption": { "fontCJK": "宋体", "fontSize": "15" },
+    "ReferenceHeading": { "fontCJK": "黑体", "fontSize": "28", "bold": true, "alignment": "left" },
+    "Reference": { "fontCJK": "宋体", "fontLatin": "Times New Roman", "fontSize": "18" }
+  },
+  "patterns": {
+    "tableStyle": "threeLine",
+    "tableBorders": { "topBottom": "0.75pt", "headerSeparator": "0.5pt" },
+    "referenceFormat": "[1] [2] [3] 顺序编码制",
+    "referenceFont": { "fontCJK": "宋体", "fontSize": "18" },
+    "citationStyle": "superscript",
+    "firstLineIndent": "2字符(420twips)",
+    "figureLabel": "图 1",
+    "tableLabel": "表 1"
+  },
+  "notes": "本科课程论文通用格式。正文五号(21)宋体，首行缩进2字符。各级标题黑体加粗。参考文献小五号顺序编码制。三线表格式。"
+}

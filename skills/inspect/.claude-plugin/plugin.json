@@ -1,0 +1,16 @@
+{
+  "keywords": [
+    "nong",
+    "cli"
+  ],
+  "author": {
+    "name": "angri450"
+  },
+  "skills": [
+    "./"
+  ],
+  "description": "Agricultural paper inspection through nong inspect — diagnose, classify, structure, refs, evidence, data-req, gap, semantics, write-paper, write-official, official-check",
+  "license": "Apache-2.0",
+  "version": "2.0",
+  "name": "inspect"
+}

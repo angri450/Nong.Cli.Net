@@ -1,0 +1,31 @@
+{
+  "skill_name": "literature",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "搜索最近三年关于玉米抗旱性的文献。",
+      "expected_output": "lit search",
+      "assertions": [
+        "nong lit parse --query \"SU=玉米 AND SU=抗旱性 AND YE BETWEEN(2023,2026)\" --json returns status: ok",
+        "nong lit validate --query \"...\" --json returns status: ok with isValid: true",
+        "nong lit search --query \"...\" --json returns status: ok with results array"
+      ],
+      "expectations": [
+        "AI should use --query flag, not positional argument",
+        "Provider scope is OpenAlex, Crossref, Unpaywall only"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "通过 DOI 查找这篇文章的元数据。",
+      "expected_output": "lit search",
+      "assertions": [
+        "nong lit search --query \"DOI(10.1038/s41586-020-2649-2)\" --json returns status: ok",
+        "nong lit export --input results.json --format json --out refs.json --json returns status: ok"
+      ],
+      "expectations": [
+        "DOI lookup uses Crossref provider for metadata resolution"
+      ]
+    }
+  ]
+}

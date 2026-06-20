@@ -1,0 +1,16 @@
+{
+  "keywords": [
+    "nong",
+    "cli"
+  ],
+  "author": {
+    "name": "angri450"
+  },
+  "skills": [
+    "./"
+  ],
+  "description": "Metaso search workflows through nong metaso — search, reader, and citation-backed RAG chat",
+  "license": "Apache-2.0",
+  "version": "2.0",
+  "name": "metaso"
+}

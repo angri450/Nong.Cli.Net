@@ -1,0 +1,36 @@
+{
+  "name": "nong-toolkit",
+  "version": "2.0",
+  "description": "Nong.Toolkit.Net — Claude Code multi-skill plugin for Nong.Cli.Net v12.1.0. 22 installable skills cover pure .NET document work, unified nong.db workflows, AMiner, Metaso, agricultural paper inspection, Office formats, OCR, export (EPUB/LaTeX/HTML/ODF), Markdown↔NongMark, workspace management, semantic search, slices, skill lifecycle, and Bioicons.",
+  "author": {
+    "name": "angri450"
+  },
+  "homepage": "https://github.com/angri450/Nong.Toolkit.Net",
+  "repository": "https://gitee.com/angri450/Nong.Toolkit.Net.git",
+  "license": "Apache-2.0",
+  "keywords": [
+    "nong", "cli", "office", "word", "pdf", "literature", "openalex", "crossref",
+    "unpaywall", "aminer", "metaso", "excel", "chart", "diagram", "pptx", "ocr", "image-qa", "paper",
+    "inspect", "slice", "skill", "agriculture", "bioicons", "dotnet", "claude-code-plugin"
+  ],
+  "skills": [
+    "./word",
+    "./pdf",
+    "./literature",
+    "./aminer",
+    "./metaso",
+    "./inspect",
+    "./excel",
+    "./chart",
+    "./diagram",
+    "./pptx",
+    "./ocr",
+    "./genre",
+    "./icons",
+    "./slice",
+    "./skill-grader",
+    "./skill-breeder",
+    "./skill-tester",
+    "./skill-pruner"
+  ]
+}

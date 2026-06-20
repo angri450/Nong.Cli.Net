@@ -1,0 +1,143 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "nong-toolkit",
+  "description": "Nong.Toolkit.Net — 18 individual skills for agricultural document, literature, AMiner, Metaso, and paper workflows through the deterministic nong CLI. Modular architecture: light router + 6 auto-install external tools.",
+  "owner": {
+    "name": "angri450"
+  },
+  "plugins": [
+    {
+      "name": "nong-toolkit",
+      "source": "./",
+      "description": "Full bundle: all 18 Nong.Toolkit.Net skills. Install individual skills for lower token cost.",
+      "author": { "name": "angri450" },
+      "category": "document-tools"
+    },
+    {
+      "name": "word",
+      "source": "./word",
+      "description": "Word document workflows through nong CLI — check, create, read, dissect, db-import/list/blocks/images, render-preview, compare, to-pdf, format-gongwen, table-reflow, merge, protect",
+      "author": { "name": "angri450" },
+      "category": "document-tools"
+    },
+    {
+      "name": "pdf",
+      "source": "./pdf",
+      "description": "PDF slicing and editing through nong CLI — check, dissect, db-import/list/blocks/images, render, images, merge, split, ocr, compress",
+      "author": { "name": "angri450" },
+      "category": "document-tools"
+    },
+    {
+      "name": "literature",
+      "source": "./literature",
+      "description": "Literature retrieval through nong lit — parse, validate, plan, search, cache-import/query/stats/export, Word template fill with OpenAlex/Crossref/Unpaywall",
+      "author": { "name": "angri450" },
+      "category": "document-tools"
+    },
+    {
+      "name": "aminer",
+      "source": "./aminer",
+      "description": "AMiner research API through nong aminer — scholar, paper, patent, org, venue, recommendation, and paid detail analytics",
+      "author": { "name": "angri450" },
+      "category": "document-tools"
+    },
+    {
+      "name": "metaso",
+      "source": "./metaso",
+      "description": "Metaso search workflows through nong metaso — search, reader, and citation-backed RAG chat",
+      "author": { "name": "angri450" },
+      "category": "document-tools"
+    },
+    {
+      "name": "inspect",
+      "source": "./inspect",
+      "description": "Agricultural paper inspection through nong inspect — diagnose, classify, structure, refs, evidence, data-req, gap, semantics, write-paper, write-official, official-check",
+      "author": { "name": "angri450" },
+      "category": "document-tools"
+    },
+    {
+      "name": "excel",
+      "source": "./excel",
+      "description": "Excel operations through nong CLI — sheets, read, to-groups, create, restructure, dissect, style, formula, pivot",
+      "author": { "name": "angri450" },
+      "category": "document-tools"
+    },
+    {
+      "name": "chart",
+      "source": "./chart",
+      "description": "Agricultural statistics and charts through nong chart — analyze, anova, duncan, bar, line, scatter, pie, boxplot, histogram, heatmap, radar",
+      "author": { "name": "angri450" },
+      "category": "document-tools"
+    },
+    {
+      "name": "diagram",
+      "source": "./diagram",
+      "description": "Scientific diagrams through nong diagram — flowchart, network, tree",
+      "author": { "name": "angri450" },
+      "category": "document-tools"
+    },
+    {
+      "name": "pptx",
+      "source": "./pptx",
+      "description": "PPTX inspection and creation through nong CLI — read, slides, dissect, create",
+      "author": { "name": "angri450" },
+      "category": "document-tools"
+    },
+    {
+      "name": "ocr",
+      "source": "./ocr",
+      "description": "OCR and image QA through nong ocr — local, cloud, check-env, analyze-image, models, install-model, to-word",
+      "author": { "name": "angri450" },
+      "category": "document-tools"
+    },
+    {
+      "name": "genre",
+      "source": "./genre",
+      "description": "Writing template discovery through nong genre — list, show",
+      "author": { "name": "angri450" },
+      "category": "document-tools"
+    },
+    {
+      "name": "icons",
+      "source": "./icons",
+      "description": "Scientific icon discovery through nong icons and Bioicons — list, search",
+      "author": { "name": "angri450" },
+      "category": "document-tools"
+    },
+    {
+      "name": "slice",
+      "source": "./slice",
+      "description": "NongPandoc slice package inspection through nong slice — inspect, blocks, block, assets",
+      "author": { "name": "angri450" },
+      "category": "document-tools"
+    },
+    {
+      "name": "skill-grader",
+      "source": "./skill-grader",
+      "description": "Skill lifecycle gates through nong skill — validate, scan, inventory, package",
+      "author": { "name": "angri450" },
+      "category": "developer-tools"
+    },
+    {
+      "name": "skill-breeder",
+      "source": "./skill-breeder",
+      "description": "Skill authoring guide — templates, naming, reference structure",
+      "author": { "name": "angri450" },
+      "category": "developer-tools"
+    },
+    {
+      "name": "skill-tester",
+      "source": "./skill-tester",
+      "description": "Skill quality testing — trigger precision, description accuracy, feedback loops",
+      "author": { "name": "angri450" },
+      "category": "developer-tools"
+    },
+    {
+      "name": "skill-pruner",
+      "source": "./skill-pruner",
+      "description": "Skill lifecycle governance — merge, split, deprecate",
+      "author": { "name": "angri450" },
+      "category": "developer-tools"
+    }
+  ]
+}

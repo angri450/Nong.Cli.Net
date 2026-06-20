@@ -1,0 +1,30 @@
+{
+  "skill_name": "chart",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "四组处理的数据，做方差分析然后画柱状图。",
+      "expected_output": "chart anova → chart duncan → chart bar",
+      "assertions": [
+        "nong chart anova <groups.json> --json returns status: ok with F and P values",
+        "nong chart duncan <groups.json> --json returns status: ok with significance letters",
+        "nong chart bar <groups.json> -o <out.png> --json returns status: ok, PNG file exists"
+      ],
+      "expectations": [
+        "Input JSON format: {\"CK\":[5.2,5.1,...], \"N1\":[6.1,6.3,...]}"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "画个箱线图看四组数据的分布。",
+      "expected_output": "chart boxplot",
+      "assertions": [
+        "nong chart boxplot <groups.json> -o <out.png> --json returns status: ok",
+        "PNG output file exists with size > 100 bytes"
+      ],
+      "expectations": [
+        "Box plot does not need ANOVA first; it visualizes distribution directly"
+      ]
+    }
+  ]
+}
