@@ -39,112 +39,64 @@ nong search "your query"</code></pre>
 
 <hr>
 
-<h2>4.x Modular Line</h2>
+<h2>Architecture (v12.1.0, 332 commands, 24 csproj, 22 projects)</h2>
 
-<p>Nong.Cli.Net 4.x separates command routing from heavy native dependencies:</p>
+<h3>Project Dependency Map</h3>
+<pre><code>                    ┌─────────────┐
+                    │ NongCli     │ (main CLI, 332 commands)
+                    └──┬──────────┘
+         ┌─────────────┼─────────────┬──────────┐
+    ┌────▼───┐   ┌────▼───┐   ┌─────▼────┐     │
+    │ Docx   │   │ Excel  │   │ Inspect  │  ...│
+    │ Pptx   │   │ Pdf    │   │ Genre    │     │
+    │ Chart  │   │Diagram │   │ Bioicons │     │
+    │ Imaging│   │ OCR    │   │Lit/Aminer│     │
+    └──┬──┬──┘   └──┬──┬──┘   └────┬─────┘     │
+       │  │         │  │           │           │
+    ┌──▼──▼──┐  ┌──▼──▼──┐   ┌───▼────┐      │
+    │ThirdParty│ │Pandoc  │   │  Data  │      │
+    │(shared) │ │(AST)   │   │(nong.db)│     │
+    └─────────┘ └────────┘   └────────┘      │
+                                             │
+    ┌────────────────────────────────────────▼──┐
+    │  外圈 dotnet tools (独立进程，首次用自动装)  │
+    │  chart · diagram · pdf · pptx · ocr · imaging│
+    └─────────────────────────────────────────────┘</code></pre>
 
-<pre><code>nong (Angri450.Nong.Cli, 17MB)
-  built in: word / excel / inspect / lit / aminer / metaso / genre / icons / slice / skill / search
-  external: chart / diagram / pdf / pptx / ocr / imaging</code></pre>
-
+<h3>Command Group → Toolkit.Net Skill</h3>
 <table>
-  <tr><th>User surface</th><th>Tool command</th><th>PackageId</th><th>Size</th><th>Role</th></tr>
-  <tr><td><code>nong</code></td><td><code>nong</code></td><td><code>Angri450.Nong.Cli</code></td><td>17 MB</td><td>Light router, ONNX Runtime, pure .NET built-ins</td></tr>
-  <tr><td><code>nong chart ...</code></td><td><code>nong-chart</code></td><td><code>Angri450.Nong.Tool.Chart</code></td><td>26 MB</td><td>Statistics and charts</td></tr>
-  <tr><td><code>nong diagram ...</code></td><td><code>nong-diagram</code></td><td><code>Angri450.Nong.Tool.Diagram</code></td><td>26 MB</td><td>Scientific diagrams</td></tr>
-  <tr><td><code>nong pdf ...</code></td><td><code>nong-pdf</code></td><td><code>Angri450.Nong.Tool.Pdf</code></td><td>29 MB</td><td>PDF slicing, rendering, images, merge/split/OCR</td></tr>
-  <tr><td><code>nong pptx ...</code></td><td><code>nong-pptx</code></td><td><code>Angri450.Nong.Tool.Pptx</code></td><td>11 MB</td><td>PowerPoint read/write and slicing</td></tr>
-  <tr><td><code>nong ocr ...</code></td><td><code>nong-ocr</code></td><td><code>Angri450.Nong.Tool.Ocr</code></td><td>~15 MB</td><td>Cloud and local PP-OCRv6 (ONNX Runtime)</td></tr>
-  <tr><td><code>nong word images ...</code></td><td><code>nong-imaging</code></td><td><code>Angri450.Nong.Tool.Imaging</code></td><td>26 MB</td><td>Image analysis and crop support</td></tr>
+<tr><th>CLI Group</th><th>Commands</th><th>Skill</th><th>Notes</th></tr>
+<tr><td><code>word</code> (+ <code>add</code>)</td><td>125</td><td><span class="tag skill">word</span></td><td>Document engine: create, dissect, format, fill, convert, to-pdf</td></tr>
+<tr><td><code>aminer</code></td><td>44</td><td><span class="tag skill">aminer</span></td><td>AMiner scholar/paper/patent/org API</td></tr>
+<tr><td><code>excel</code></td><td>28</td><td><span class="tag skill">excel</span></td><td>XLSX create, chart, formula evaluate, pivot</td></tr>
+<tr><td><code>inspect</code> (+ <code>genre</code>)</td><td>28</td><td><span class="tag skill">inspect</span></td><td>Paper diagnosis &amp; template discovery</td></tr>
+<tr><td><code>lit</code></td><td>21</td><td><span class="tag skill">literature</span></td><td>Literature search, cache, export</td></tr>
+<tr><td><code>pdf</code></td><td>14</td><td><span class="tag skill">pdf</span></td><td>PDF dissect, create, form-fields, compress</td></tr>
+<tr><td><code>chart</code></td><td>12</td><td><span class="tag skill">chart</span></td><td>ANOVA, Duncan MRT, bar/line/pie/scatter</td></tr>
+<tr><td><code>ocr</code></td><td>12</td><td><span class="tag skill">ocr</span></td><td>Local ONNX OCR, cloud PaddleOCR, analyze-image</td></tr>
+<tr><td><code>pptx</code></td><td>9</td><td><span class="tag skill">pptx</span></td><td>PPTX create, edit-slide, remove-slide</td></tr>
+<tr><td><code>skill</code></td><td>8</td><td><span class="tag skill">skill-grader</span></td><td>Skill validate, scan, inventory, package</td></tr>
+<tr><td><code>slice</code></td><td>8</td><td><span class="tag skill">slice</span></td><td>NongPandoc package inspect</td></tr>
+<tr><td><code>nongcli</code> (+ <code>search</code>)</td><td>7</td><td><span class="tag skill">nongcli</span></td><td>Workspace init, embedding model, semantic search</td></tr>
+<tr><td><code>metaso</code></td><td>5</td><td><span class="tag skill">metaso</span></td><td>Metaso AI search, reader, chat</td></tr>
+<tr><td><code>diagram</code></td><td>4</td><td><span class="tag skill">diagram</span></td><td>Flowchart, network, tree</td></tr>
+<tr><td><code>icons</code></td><td>3</td><td><span class="tag skill">icons</span></td><td>Bioicons scientific icon search</td></tr>
+<tr><td><code>export</code></td><td>2</td><td><span class="tag skill">export</span></td><td>EPUB, LaTeX, HTML, ODF export</td></tr>
+<tr><td><code>markdown</code></td><td>2</td><td><span class="tag skill">markdown</span></td><td>GFM ↔ NongMark bidirectional</td></tr>
+<tr style="background:#FFF0E8"><td colspan="4"><b>Infrastructure (no Skill)</b></td></tr>
+<tr><td><code>commands</code></td><td>1</td><td>—</td><td>Command manifest export</td></tr>
+<tr><td><code>manifest-generate</code></td><td>1</td><td>—</td><td>Manifest source generator</td></tr>
 </table>
 
-<hr>
-
-<h2>Capability Overview (v4.5.0, 179 commands)</h2>
-
-<pre><code>nong commands --json
-nong commands --format openai-tools</code></pre>
-
+<h3>Key metrics</h3>
 <table>
-  <tr><th>Group</th><th>Count</th><th>Notes</th></tr>
-  <tr><td><code>word</code></td><td>56</td><td>DOCX creation, repair, formatting, dissect(--ingest), db import/list/block/image</td></tr>
-  <tr><td><code>inspect</code></td><td>12</td><td>Paper diagnostics(--ingest) and generation</td></tr>
-  <tr><td><code>excel</code></td><td>9</td><td>Read, restructure, create, style, formula, pivot, dissect(--ingest)</td></tr>
-  <tr><td><code>lit</code></td><td>11</td><td>CNKI-like DSL parse/validate/plan/search(--ingest)/export + local cache</td></tr>
-  <tr><td><code>aminer</code></td><td>22</td><td>Scholar, paper, patent, org, venue — all 22 commands with --ingest</td></tr>
-  <tr><td><code>metaso</code></td><td>3</td><td>Search, reader, chat (RAG) — all with --ingest</td></tr>
-  <tr><td><code>chart</code></td><td>11</td><td>ANOVA/Duncan + bar, line, scatter, pie, boxplot, histogram, heatmap, radar; analyze --ingest</td></tr>
-  <tr><td><code>diagram</code></td><td>3</td><td>Flowchart, network, phylogenetic tree</td></tr>
-  <tr><td><code>pdf</code></td><td>13</td><td>Check, dissect(--ingest), render, images, merge, split, OCR, compress, db import/list/block/image</td></tr>
-  <tr><td><code>pptx</code></td><td>4</td><td>Read, slides, dissect(--ingest), create</td></tr>
-  <tr><td><code>ocr</code></td><td>11</td><td>PP-OCRv6 ONNX local(--ingest), PaddleOCR-VL cloud(--ingest), model install, batch/video/screen/camera</td></tr>
-  <tr><td><code>search</code></td><td>1</td><td><strong>Semantic vector search across all ingested documents</strong> (jina-embeddings-v5-omni-nano Q4F16, 263MB)</td></tr>
-  <tr><td><code>slice</code></td><td>4</td><td>NongPandoc package inspection</td></tr>
-  <tr><td><code>genre</code></td><td>2</td><td>Template listing and inspection</td></tr>
-  <tr><td><code>icons</code></td><td>2</td><td>Scientific icon search and inventory</td></tr>
-  <tr><td><code>skill</code></td><td>4</td><td>Skill validation, scan, inventory, packaging</td></tr>
-  <tr><td><code>nongcli</code></td><td>2</td><td>CLI self-management: init, where</td></tr>
-  <tr><td><code>commands</code></td><td>1</td><td>List all commands (--json / --format openai-tools)</td></tr>
+<tr><th>Metric</th><th>Value</th></tr>
+<tr><td>All first-party + tool <code>&lt;Version&gt;</code></td><td><b>12.1.0</b> (24 csproj unified)</td></tr>
+<tr><td>Tests</td><td><b>216/216 PASS</b>, 0 skip, 0 fail</td></tr>
+<tr><td>NuGet packages</td><td>18 published to nuget.org</td></tr>
+<tr><td>Toolkit.Net skills</td><td>17 skills (plugin v2.0)</td></tr>
 </table>
 
-<h3>--ingest: Unified Ingestion (31 commands)</h3>
-
-<p>Every text-producing command supports <code>--ingest</code>. Results are written to NongDb and become searchable via <code>nong search</code>:</p>
-
-<pre><code>nong word dissect paper.docx -o slice --ingest
-nong lit search "drought tolerance" --ingest
-nong inspect diagnose paper.txt --ingest
-nong aminer scholar --name "John Smith" --ingest
-nong metaso reader --url "https://..." --ingest
-nong ocr local scan.png --ingest
-nong chart analyze data.json --ingest
-nong search "drought tolerance maize" --limit 5</code></pre>
-
-<hr>
-
-<h2>v4.5.0 Highlights</h2>
-
-<ul>
-  <li><strong>nong search</strong> — semantic vector search over all ingested document blocks. Uses jina-embeddings-v5-omni-nano Q4F16 (263MB, from ModelScope). 1511ms cold start.</li>
-  <li><strong>--ingest on 31 commands</strong> — word/excel/pdf/pptx dissect, ocr local/cloud, inspect diagnose, lit/aminer/metaso search, metaso reader/chat, aminer 22 commands, chart analyze.</li>
-  <li><strong>OCR ONNX unified</strong> — PP-OCRv6 runs on ONNX Runtime. PaddleInference retired. Nong.OcrRuntime repository archived. Models downloaded from ModelScope via git clone. No native runtime packages needed.</li>
-  <li><strong>Single inference engine</strong> — embedding search and OCR share <code>Microsoft.ML.OnnxRuntime</code>. Main nupkg is per-platform trimmed (17MB win-x64).</li>
-  <li><strong>179 commands</strong> — up from 167 in v4.3.0.</li>
-</ul>
-
-<hr>
-
-<h2>Core Workflows</h2>
-
-<h3>Semantic search (new in v4.5.0)</h3>
-<pre><code>nong word dissect paper.docx -o slice --ingest
-nong search "水稻产量影响因素" --limit 5 --json</code></pre>
-
-<h3>Experiment workbook restructure</h3>
-<pre><code>nong excel restructure experiment.spec.json -o experiment.restructured.xlsx --json
-nong excel sheets experiment.restructured.xlsx --json</code></pre>
-
-<h3>Excel to statistics to chart</h3>
-<pre><code>nong excel to-groups data.xlsx --group A --value B --raw &gt; groups.json
-nong chart analyze groups.json --json
-nong chart bar groups.json -o fig.png --json</code></pre>
-
-<h3>Paper generation and inspection</h3>
-<pre><code>nong inspect write-paper spec.json -o paper.docx --json
-nong word preview paper.docx --json
-nong word format-audit paper.docx --json</code></pre>
-
-<h3>Document package slicing + ingest</h3>
-<pre><code>nong word dissect paper.docx -o paper.slice --ingest --json
-nong slice inspect paper.slice --strict --json</code></pre>
-
-<h3>PDF one-cut package workflow</h3>
-<pre><code>nong pdf check guide.pdf --json
-nong pdf dissect guide.pdf --output guide.slice --mode auto --ingest --json</code></pre>
-
-<h3>Local OCR (ONNX Runtime)</h3>
-<pre><code>nong ocr models --json
-nong ocr install-model pp-ocrv6-medium --json
 nong ocr local scan.png --ingest --json</code></pre>
 
 <h3>Literature DSL retrieval</h3>
