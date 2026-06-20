@@ -20,7 +20,7 @@ public sealed class MetasoClient
     public MetasoClient(HttpClient client, Func<string, string?>? getEnv = null)
     {
         _client = client;
-        _client.DefaultRequestHeaders.UserAgent.ParseAdd("Nong-Metaso/4.3");
+        _client.DefaultRequestHeaders.UserAgent.ParseAdd("Nong-Metaso/12.1");
         _getEnv = getEnv ?? Environment.GetEnvironmentVariable;
     }
 

@@ -156,7 +156,7 @@ public static class SearchCommands
                     if (json)
                     {
                         var issues = new List<Issue> { new() { Id = "empty_index", Severity = "Info", Message = hint } };
-                        Console.Error.WriteLine(JsonSerializer.Serialize(new { status = "ok", command = "search", summary = "0 results", data = new { count = 0, items = Array.Empty<object>() }, issues, artifacts = new { }, metrics = new { totalBlocks = 0, durationMs = sw.ElapsedMilliseconds }, errors = Array.Empty<object>(), meta = new { durationMs = 0, version = "4.5.0" } }, CliHelpers.JsonOpts));
+                        Console.Error.WriteLine(JsonSerializer.Serialize(new { status = "ok", command = "search", summary = "0 results", data = new { count = 0, items = Array.Empty<object>() }, issues, artifacts = new { }, metrics = new { totalBlocks = 0, durationMs = sw.ElapsedMilliseconds }, errors = Array.Empty<object>(), meta = new { durationMs = 0, version = "12.1.0" } }, CliHelpers.JsonOpts));
                     }
                     else
                     {

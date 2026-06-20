@@ -117,7 +117,7 @@ nong lit search --query "SU=('采前'+'采前处理')*('保鲜'+'贮藏')*('果�
   "artifacts": { "docx": "out.docx" },
   "metrics": {},
   "errors": [],
-  "meta": { "durationMs": 42, "version": "4.5.0" }
+  "meta": { "durationMs": 42, "version": "12.1.0" }
 }</code></pre>
 
 <p>Error codes <code>E001</code> through <code>E009</code> cover file-not-found, unsupported format, missing argument, internal error, dependency missing, validation failed, read failed, write failed, and not implemented.</p>

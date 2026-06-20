@@ -21,7 +21,7 @@ public sealed class AminerClient
     public AminerClient(HttpClient? c = null, Func<string, string?>? env = null)
     {
         _c = c ?? new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
-        _c.DefaultRequestHeaders.UserAgent.ParseAdd("Nong-Aminer/4.3");
+        _c.DefaultRequestHeaders.UserAgent.ParseAdd("Nong-Aminer/12.1");
         _env = env ?? Environment.GetEnvironmentVariable;
         _cachedToken = _env("NONG_LIT_AMINER_KEY") ?? _env("AMINER_API_KEY");
     }

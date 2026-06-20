@@ -6,4 +6,4 @@ Pure .NET image analysis and content-aware cropping. Uses SkiaSharp for pixel-le
 - Uniform resize to consistent widths
 - No AI / cloud dependency — runs entirely offline
 
-Part of the Nong CLI 4.0.0 imaging pipeline. Apache-2.0.
+Part of the Nong CLI 12.1.0 imaging pipeline. Apache-2.0.

@@ -70,30 +70,6 @@ nong search "你的查询"</code></pre>
 
 <hr>
 
-<h2>v4.5.0 主要更新</h2>
-
-<ul>
-  <li><strong>nong search</strong> — 语义向量检索。对所有已入库文档块做语义搜索。模型：jina-embeddings-v5-omni-nano Q4F16 (263MB)，冷启动 1511ms。</li>
-  <li><strong>--ingest 统一入库 (31 命令)</strong> — 所有产文本的命令都支持 <code>--ingest</code>，入库后 <code>nong search</code> 可检索。</li>
-  <li><strong>OCR ONNX 统一</strong> — PP-OCRv6 迁移到 ONNX Runtime。PaddleInference 退役（不再需要 Nong.OcrRuntime 原生运行时包）。模型从魔搭社区 git clone 下载。</li>
-  <li><strong>单推理引擎</strong> — Embedding 搜索和 OCR 共用 <code>Microsoft.ML.OnnxRuntime</code>。nupkg 按平台裁剪（win-x64 17MB），不含多余原生库。</li>
-  <li><strong>179 命令</strong> — v4.3.0 的 167 个增加到 179 个。</li>
-</ul>
-
-<hr>
-
-<h2>能力概览 (v4.5.0, 179 命令)</h2>
-
-<p>当前 4.5.0 本地构建回读为 <code>179 commands available</code>。精确命令面以 CLI 实际输出为准：</p>
-
-<pre><code>nong commands --json
-nong commands --format openai-tools</code></pre>
-
-<h3>search — 语义检索 (v4.5.0 新增)</h3>
-<table>
-  <tr><td><code>nong search</code></td><td>跨所有已入库文档的语义向量搜索</td></tr>
-</table>
-
 <h3>--ingest 统一入库 (31 命令)</h3>
 <p>所有搜索结果、诊断结果、OCR 文本都可以通过 <code>--ingest</code> 写入 NongDb，然后被 <code>nong search</code> 检索：</p>
 <pre><code>nong word dissect paper.docx -o slice --ingest      # 文档切片入库
