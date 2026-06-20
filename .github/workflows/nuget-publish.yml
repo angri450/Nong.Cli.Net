@@ -1,11 +1,9 @@
-name: NuGet Publish (Trusted Publishing)
+name: NuGet Publish
 
 on:
   push:
     branches: [main]
-    paths:
-      - '**/*.csproj'
-      - '**/*.cs'
+    paths: ['**/*.csproj', '**/*.cs']
   workflow_dispatch:
 
 permissions:
@@ -13,32 +11,25 @@ permissions:
   contents: read
 
 jobs:
-  pack-and-push:
+  publish:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
+        with: { dotnet-version: '8.0.x' }
 
-      - name: Restore
-        run: dotnet restore
-
-      - name: Build
-        run: dotnet build -c Release --no-restore
-
-      - name: Test
-        run: dotnet test Cli.Tests/Cli.Tests.csproj -c Release --no-build
-
-      - name: Pack all first-party packages
+      - name: Build & Test
         run: |
+          dotnet build Cli/NongCli.csproj -c Release
+          dotnet test Cli.Tests/Cli.Tests.csproj -c Release --no-build
+
+      - name: Pack & Push
+        run: |
+          mkdir nupkg
           dotnet pack Cli/NongCli.csproj -c Release --no-build -o nupkg/
           dotnet pack Data/Nong.Data.csproj -c Release --no-build -o nupkg/
           dotnet pack Docx/DocxCore.csproj -c Release --no-build -o nupkg/
           dotnet pack Excel/ExcelCore.csproj -c Release --no-build -o nupkg/
-          dotnet pack Pdf/PdfCore.csproj -c Release --no-build -o nupkg/
-          dotnet pack Pptx/PptxCore.csproj -c Release --no-build -o nupkg/
           dotnet pack Pandoc/PandocCore.csproj -c Release --no-build -o nupkg/
           dotnet pack Literature/LiteratureCore.csproj -c Release --no-build -o nupkg/
           dotnet pack Aminer/Nong.Aminer.csproj -c Release --no-build -o nupkg/
@@ -47,13 +38,11 @@ jobs:
           dotnet pack Genre/Genre.csproj -c Release --no-build -o nupkg/
           dotnet pack Bioicons/Bioicons.csproj -c Release --no-build -o nupkg/
           dotnet pack OcrDictionary/OcrDictionary.csproj -c Release --no-build -o nupkg/
-          dotnet pack NongRuntime/tools/nong-runtime.csproj -c Release --no-build -o nupkg/
           dotnet pack Chart/tools/nong-chart.csproj -c Release --no-build -o nupkg/
           dotnet pack Diagram/tools/nong-diagram.csproj -c Release --no-build -o nupkg/
           dotnet pack Imaging/tools/nong-imaging.csproj -c Release --no-build -o nupkg/
           dotnet pack Pdf/tools/nong-pdf.csproj -c Release --no-build -o nupkg/
           dotnet pack Pptx/tools/nong-pptx.csproj -c Release --no-build -o nupkg/
           dotnet pack MultiModal/tools/nong-ocr.csproj -c Release --no-build -o nupkg/
-
-      - name: Push to nuget.org (Trusted Publishing)
-        run: dotnet nuget push nupkg\*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet pack NongRuntime/tools/nong-runtime.csproj -c Release --no-build -o nupkg/
+          dotnet nuget push nupkg\*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate
