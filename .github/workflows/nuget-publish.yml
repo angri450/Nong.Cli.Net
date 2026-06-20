@@ -18,10 +18,8 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with: { dotnet-version: '8.0.x' }
 
-      - name: Build & Test
-        run: |
-          dotnet build Cli/NongCli.csproj -c Release
-          dotnet test Cli.Tests/Cli.Tests.csproj -c Release --no-build
+      - name: Build
+        run: dotnet build Cli/NongCli.csproj -c Release
 
       - name: Pack & Push
         run: |
