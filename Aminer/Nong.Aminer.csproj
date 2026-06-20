@@ -13,7 +13,6 @@
     <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Literature\LiteratureCore.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="/" />
