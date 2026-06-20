@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\common\System\Diagnostics\CodeAnalysis\NullableAttributes.cs" Link="Shims\NullableAttributes.cs" />
+    <Compile Include="..\Shims\System\Diagnostics\CodeAnalysis\NullableAttributes.cs" Link="Shims\NullableAttributes.cs" />
   </ItemGroup>
 
 </Project>

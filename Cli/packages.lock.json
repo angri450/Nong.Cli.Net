@@ -141,10 +141,7 @@
         "contentHash": "ptHVgcYmLejGuWXV7RMFoEqFKYMXnieOlWLPzEslfDtzZ9ngMhjYwykfqjBN2+fMEAEyobozkj07lKEpR4dssA=="
       },
       "Angri450.Nong.Aminer": {
-        "type": "Project",
-        "dependencies": {
-          "Angri450.Nong.Literature": "[12.1.0, )"
-        }
+        "type": "Project"
       },
       "Angri450.Nong.Bioicons": {
         "type": "Project"
@@ -189,12 +186,9 @@
         }
       },
       "Angri450.Nong.Metaso": {
-        "type": "Project",
-        "dependencies": {
-          "Angri450.Nong.Literature": "[12.1.0, )"
-        }
+        "type": "Project"
       },
-      "Angri450.Nong.OcrModels": {
+      "Angri450.Nong.OcrDictionary": {
         "type": "Project"
       },
       "Angri450.Nong.Pandoc": {

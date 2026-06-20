@@ -7,7 +7,7 @@
     <PackageId>Angri450.Nong.ThirdParty</PackageId>
     <Version>12.1.0</Version>
     <Authors>angri450</Authors>
-    <Description>Merged source of ClosedXML, DocumentFormat.OpenXml, ScottPlot, MSAGL, SkiaSharp, HarfBuzzSharp, SixLabors.Fonts, ZXing.Net, PdfPig and sub-dependencies — compiled into a single assembly. Low-external-dependency foundation for the Angri450.Nong document toolkit.</Description>
+    <Description>Merged source of ClosedXML, DocumentFormat.OpenXml, ScottPlot, Microsoft.GraphLayout, SixLabors.Fonts, ZXing.Net, OpenXmlPowerTools and sub-dependencies — compiled into a single assembly. Low-external-dependency foundation for the Angri450.Nong document toolkit.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -29,10 +29,10 @@
 
   <!-- ===== Source files from all third-party libraries ===== -->
 
-  <!-- Specific common/ shim files needed by OpenXml (not polyfills) -->
+	  <!-- Specific Shims/ polyfill files needed by OpenXml -->
   <ItemGroup>
-    <Compile Include="..\common\System\EnumExtensions.cs" Link="Shims\EnumExtensions.cs" />
-    <Compile Include="..\common\System\IO\StreamReadExtensions.cs" Link="Shims\StreamReadExtensions.cs" />
+    <Compile Include="..\Shims\System\EnumExtensions.cs" Link="Shims\EnumExtensions.cs" />
+    <Compile Include="..\Shims\System\IO\StreamReadExtensions.cs" Link="Shims\StreamReadExtensions.cs" />
   </ItemGroup>
 
   <!-- SkiaSharp / HarfBuzzSharp shared bindings — removed; now via NuGet PackageReference -->
@@ -66,9 +66,9 @@
     <Compile Include="..\RBush\**\*.cs" Exclude="..\RBush\bin\**\*;..\RBush\obj\**\*" />
     <Compile Include="..\ScottPlot\**\*.cs" Exclude="..\ScottPlot\bin\**\*;..\ScottPlot\obj\**\*;..\ScottPlot\Testing\**\*;..\ScottPlot\Statistics\Tests\**\*" />
     <Compile Include="..\SixLabors.Fonts\**\*.cs" Exclude="..\SixLabors.Fonts\bin\**\*;..\SixLabors.Fonts\obj\**\*;..\SixLabors.Fonts\shared-infrastructure\**\*" />
-    <Compile Include="..\MSAGL\**\*.cs" Exclude="..\MSAGL\bin\**\*;..\MSAGL\obj\**\*" />
-    <Compile Include="..\MSAGL.Drawing\**\*.cs" Exclude="..\MSAGL.Drawing\bin\**\*;..\MSAGL.Drawing\obj\**\*" />
-    <Compile Include="..\ClippitPowerTools\**\*.cs" Exclude="..\ClippitPowerTools\bin\**\*;..\ClippitPowerTools\obj\**\*;..\ClippitPowerTools\Excel\**\*;..\ClippitPowerTools\PowerPoint\**\*;..\ClippitPowerTools\Html\**\*;..\ClippitPowerTools\Internal\**\*;..\ClippitPowerTools\MetricsGetter.cs" />
+    <Compile Include="..\Microsoft.GraphLayout\**\*.cs" Exclude="..\Microsoft.GraphLayout\bin\**\*;..\Microsoft.GraphLayout\obj\**\*" />
+    <Compile Include="..\Microsoft.GraphLayout.Drawing\**\*.cs" Exclude="..\Microsoft.GraphLayout.Drawing\bin\**\*;..\Microsoft.GraphLayout.Drawing\obj\**\*" />
+    <Compile Include="..\OpenXmlPowerTools\**\*.cs" Exclude="..\OpenXmlPowerTools\bin\**\*;..\OpenXmlPowerTools\obj\**\*;..\OpenXmlPowerTools\Excel\**\*;..\OpenXmlPowerTools\PowerPoint\**\*;..\OpenXmlPowerTools\Html\**\*;..\OpenXmlPowerTools\Internal\**\*;..\OpenXmlPowerTools\MetricsGetter.cs" />
     <Compile Include="..\ShapeCrawler\**\*.cs" Exclude="..\ShapeCrawler\bin\**\*;..\ShapeCrawler\obj\**\*;..\ShapeCrawler\Slides\XmlPicture.cs" />
   </ItemGroup>
 
@@ -131,9 +131,9 @@
     <Compile Remove="..\ScottPlot\Usings.cs" />
     <Compile Remove="..\ScottPlot\**\CompilerServices.cs" />
     <Compile Remove="..\ClosedXML\Properties\**\*" />
-    <Compile Remove="..\MSAGL.Drawing\AssemblyInfo.cs" />
-    <Compile Remove="..\MSAGL\AssemblyInfo.cs" />
-    <Compile Remove="..\ClippitPowerTools\Properties\**\*" />
+    <Compile Remove="..\Microsoft.GraphLayout.Drawing\AssemblyInfo.cs" />
+    <Compile Remove="..\Microsoft.GraphLayout\AssemblyInfo.cs" />
+    <Compile Remove="..\OpenXmlPowerTools\Properties\**\*" />
     <Compile Remove="..\ShapeCrawler\Properties\**\*" />
     <Compile Remove="..\PdfPig\src\UglyToad.PdfPig.Fonts\Util\StringExtensions.cs" />
   </ItemGroup>
