@@ -89,4 +89,15 @@ Nong.Cli.Net/
 
 5. **改代码后先验证你改的代码真的被执行到** — 加一条临时 `File.AppendAllText` 到被怀疑的函数入口，比反复改代码猜根因成本低得多。
 
-6. **当前测试基线：216/221 PASS, 0 FAIL, 5 skip**（OCR model install + LibreOffice 环境限制）。别让后续改动退化。
+6. **当前测试基线：216/216 PASS, 0 fail, 0 skip**。别让后续改动退化。
+
+## 开发工作流
+
+| 做什么 | 怎么干 |
+|---|---|
+| 改 CLI 命令 | 1. 改 `Cli/Commands/XxxCommands.cs` → 2. 如果语法变了，同步改 `skills/<对应skill>/SKILL.md` → 3. 同 commit |
+| 同步版本号 | `./sync-version.sh 12.x.0` — 一键更新所有 csproj + CliVersion + UserAgent + README |
+| 架构全景 | `nong-packages.html` — 包依赖树、vendor 目录、运行时架构 |
+| 改外圈 tool 代码 | 改 Pdf/Pptx/Chart 等源码 → `dotnet build <Tool>/tools/nong-<tool>.csproj -c Release` → 同步到 `~/.dotnet/tools/` |
+| 全量回归 | `dotnet test Cli.Tests/Cli.Tests.csproj -c Release`（期望 216/216） |
+| 清理编译垃圾 | `find . -name bin -o -name obj | xargs rm -rf` |

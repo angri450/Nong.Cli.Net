@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nong.Cli.Net v12.1.0 包依赖全景图</title>
+<style>
+:root{--bg:#FFF8F5;--card:#fff;--text:#2D2D2D;--muted:#6B6B6B;--accent:#FF6B35;--green:#4CAF50;--blue:#1976D2;--purple:#7B1FA2;--border:#E8D5CB;--code-bg:#FFF0E8;--shadow:0 2px 8px rgba(0,0,0,0.06)}
+[data-theme="dark"]{--bg:#1A1412;--card:#241E1B;--text:#E8D5CB;--accent:#FF8C42;--green:#66BB6A;--blue:#64B5F6;--purple:#CE93D8;--border:#3D322D;--code-bg:#2D1F18}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui;background:var(--bg);color:var(--text);line-height:1.7;padding:20px;max-width:1100px;margin:0 auto}
+h1{font-size:22px;margin-bottom:4px}h2{font-size:16px;margin:24px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--accent)}.sub{color:var(--muted);font-size:13px;margin-bottom:20px}
+.card{background:var(--card);border-radius:12px;padding:14px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:6px 10px;border-bottom:1px solid var(--border);text-align:left}th{color:var(--muted);font-size:12px}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;margin:1px}
+.tag.lib{background:#E3F2FD;color:var(--blue)}.tag.tool{background:#FFF3E0;color:#E65100}.tag.cli{background:#E8F5E9;color:#2E7D32}.tag.rt{background:#F3E5F5;color:var(--purple)}
+.tree{font-family:"Cascadia Code","Fira Code",monospace;font-size:12px;line-height:1.6;white-space:pre;background:var(--code-bg);padding:14px 18px;border-radius:8px;overflow-x:auto}
+.theme-btn{position:fixed;top:12px;right:20px;background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px;z-index:10}
+</style></head>
+<body><button class="theme-btn" onclick="toggleTheme()">🌓</button>
+<h1>Nong.Cli.Net v12.1.0 · 包依赖全景图</h1><div class="sub">19 NuGet 包 · 216/216 PASS · 12 个 library + 1 个 CLI 主程序 + 6 个外圈 tool + 1 个共享运行时</div>
+
+<div class="card">
+<h2>包类型分布</h2>
+<table>
+<tr><th>类型</th><th>数量</th><th>包名</th></tr>
+<tr><td><span class="tag cli">CLI 主程序</span></td><td>1</td><td><code>Angri450.Nong.Cli</code> — <code>nong</code> 命令</td></tr>
+<tr><td><span class="tag rt">共享运行时</span></td><td>1</td><td><code>Angri450.Nong.Runtime</code> — SkiaSharp + HarfBuzz + PDFium native dll 共享目录</td></tr>
+<tr><td><span class="tag tool">外圈 dotnet tool</span></td><td>6</td><td>Chart · Diagram · Imaging · Pdf · Pptx · Ocr</td></tr>
+<tr><td><span class="tag lib">引擎库</span></td><td>4</td><td>Docx · Excel · Pptx · Pdf（文档引擎）</td></tr>
+<tr><td><span class="tag lib">数据/管道</span></td><td>3</td><td>Data · Pandoc · OcrDictionary</td></tr>
+<tr><td><span class="tag lib">API 客户端</span></td><td>3</td><td>Aminer · Metaso · Literature</td></tr>
+<tr><td><span class="tag lib">工具库</span></td><td>3</td><td>Inspect · Genre · Bioicons</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>依赖全景</h2>
+<div class="tree">
+nong (Angri450.Nong.Cli)
+├── Data ───────────────────── ThirdParty
+├── Docx ────── Pandoc ─────── ThirdParty
+├── Excel ───── Pandoc ─────── ThirdParty
+├── Inspect ──── Genre ─────── ThirdParty
+│              └── Bioicons ── ThirdParty
+├── Literature ─────────────── ThirdParty + Data
+├── Aminer ─────────────────── (no deps — pure HTTP API)
+├── Metaso ─────────────────── (no deps — pure HTTP API)
+└── OcrDictionary ──────────── (embedded resources only)
+
+外圈 dotnet tools (独立进程，共享原生运行时):
+  nong-chart ───── ChartCore ── ThirdParty + Data
+  nong-diagram ─── DiagramCore ─ ThirdParty + Bioicons + Data
+  nong-imaging ─── ImagingCore ─ Docx + ThirdParty + Data
+  nong-pdf ─────── PdfCore ──── Pandoc + ThirdParty + Data
+  nong-pptx ────── PptxCore ─── Pandoc + ThirdParty + Data
+  nong-ocr ─────── MultiModalCore ─ Docx + OcrDictionary + Data
+  nong-runtime ── (shared native: SkiaSharp + HarfBuzz + PDFium)</div>
+</div>
+
+<div class="card">
+<h2>共享运行时架构（v12.1.0 新增）</h2>
+<table>
+<tr><th>之前</th><th>现在</th></tr>
+<tr><td>每个 tool 各打包一份 SkiaSharp (80M×6=480M)</td><td>6 个 tool 共用 ~/.dotnet/tools/nong-runtimes/ 里的同一份</td></tr>
+<tr><td>Pptx 含死 SkiaSharp 依赖（零使用）</td><td>已砍掉，Pptx 从 150M→25M</td></tr>
+<tr><td>PdfPig vendor 源码 9.3M（战略已取代）</td><td>已全删</td></tr>
+<tr><td>用户装 6 个 tool：710M</td><td>用户装 6 个 tool + 运行时：300M</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>Vendor 源码目录（编译进 ThirdParty.dll）</h2>
+<table>
+<tr><th>目录</th><th>上游项目</th><th>用途</th></tr>
+<tr><td><code>Shims/</code></td><td>自研</td><td>.NET 兼容补丁</td></tr>
+<tr><td><code>LiteDB/</code></td><td>LiteDB</td><td>嵌入式 NoSQL</td></tr>
+<tr><td><code>ClosedXML/</code> <code>ClosedXML.IO/</code> <code>ClosedXML.Parser/</code></td><td>ClosedXML</td><td>Excel 引擎</td></tr>
+<tr><td><code>DocumentFormat.OpenXml/</code> <code>DocumentFormat.OpenXml.Framework/</code></td><td>OpenXML SDK</td><td>OOXML 读写</td></tr>
+<tr><td><code>ShapeCrawler/</code></td><td>ShapeCrawler</td><td>PPTX 操作</td></tr>
+<tr><td><code>OpenXmlPowerTools/</code></td><td>OpenXML PowerTools</td><td>文档处理工具</td></tr>
+<tr><td><code>ScottPlot/</code></td><td>ScottPlot</td><td>统计绘图</td></tr>
+<tr><td><code>Microsoft.GraphLayout/</code> <code>Microsoft.GraphLayout.Drawing/</code></td><td>MSAGL</td><td>流程图布局</td></tr>
+<tr><td><code>SixLabors.Fonts/</code> <code>UnicodeTrieGenerator/</code></td><td>SixLabors</td><td>字体渲染</td></tr>
+<tr><td><code>ZXing.Net/</code></td><td>ZXing.Net</td><td>二维码/条形码</td></tr>
+<tr><td><code>ExcelNumberFormat/</code></td><td>ExcelNumberFormat</td><td>数字格式解析</td></tr>
+<tr><td><code>RBush/</code></td><td>RBush</td><td>R 树空间索引</td></tr>
+<tr><td><b style="color:var(--green)">✅ PdfPig/</b></td><td colspan="2" style="color:var(--muted)">已删（Poppler 彻底取代，2000+ 文件，9.3M）</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>一键操作</h2>
+<table>
+<tr><th>做什么</th><th>命令</th></tr>
+<tr><td>同步所有版本号</td><td><code>./sync-version.sh 12.2.0</code>（24 csproj + CliVersion + UserAgent + README）</td></tr>
+<tr><td>打包所有 NuGet</td><td><code>dotnet pack XXX.csproj -c Release -o nupkg/</code>（19 个包）</td></tr>
+<tr><td>推送 nuget.org</td><td><code>dotnet nuget push nupkg/*.nupkg --source nuget.org</code></td></tr>
+<tr><td>清理编译产物</td><td><code>find . -name bin -o -name obj | xargs rm -rf</code></td></tr>
+</table>
+</div>
+
+<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">2026-06-20 · Nong.Cli.Net v12.1.0</div>
+<script>function toggleTheme(){var h=document.documentElement;h.setAttribute('data-theme',h.getAttribute('data-theme')==='dark'?'light':'dark')};(function(){var s=localStorage.getItem('pkg-theme');if(s)document.documentElement.setAttribute('data-theme',s)})()</script>
+</body></html>

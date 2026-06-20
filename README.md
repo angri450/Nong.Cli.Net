@@ -135,6 +135,18 @@ nong lit search --query "SU=('采前'+'采前处理')*('保鲜'+'贮藏')*('果�
 
 <hr>
 
+<h2>Developer Workflows</h2>
+<table>
+<tr><th>做什么</th><th>命令</th></tr>
+<tr><td>同步全仓版本号</td><td><code>./sync-version.sh 12.2.0</code> — 24 csproj + CliVersion + UserAgent + README</td></tr>
+<tr><td>架构全景图</td><td><a href="nong-packages.html">nong-packages.html</a> — 包依赖树、vendor 目录、运行时共享架构</td></tr>
+<tr><td>同步 skills 到 Toolkit.Net</td><td><code>cp -r skills/* ../Nong.Toolkit.Net/</code>（不含 sync-version.sh）</td></tr>
+<tr><td>清理编译产物</td><td><code>find . -name bin -o -name obj | xargs rm -rf</code></td></tr>
+<tr><td>打包推送 NuGet</td><td><code>dotnet pack</code> 各项目 → <code>dotnet nuget push</code></td></tr>
+</table>
+
+<hr>
+
 <h2>License</h2>
 
 <p>Apache-2.0. See <a href="LICENSE">LICENSE</a> for details.</p>
