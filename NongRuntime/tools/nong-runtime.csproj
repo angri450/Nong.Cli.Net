@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>nong-runtime</AssemblyName>
+    <PackageId>Angri450.Nong.Runtime</PackageId>
+    <ToolCommandName>nong-runtime</ToolCommandName>
+    <PackAsTool>true</PackAsTool>
+    <Version>12.1.0</Version>
+    <Authors>angri450</Authors>
+    <Description>Nong shared native runtime — SkiaSharp + HarfBuzz + PDFium + ONNX + OpenCV. Install once, shared by all nong tools.</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/angri450/Nong.Cli.Net</RepositoryUrl>
+  </PropertyGroup>
+
+  <!-- Native dlls: bundled into the tool package, extracted to shared dir on install -->
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.2" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" Version="8.3.1.5" />
+  </ItemGroup>
+
+  <!-- PDFium — keep only win-x64 in the package (PdfPoppler handles text) -->
+  <ItemGroup>
+    <Content Include="..\runtimes\win-x64\native\pdfium.dll" Pack="true" PackagePath="runtimes/win-x64/native/" />
+  </ItemGroup>
+
+  <Target Name="CopyNativeToSharedDir" AfterTargets="Publish">
+    <ItemGroup>
+      <NativeFiles Include="$(PublishDir)runtimes\**\*.dll" />
+      <NativeFiles Include="$(PublishDir)runtimes\**\*.so" />
+      <NativeFiles Include="$(PublishDir)runtimes\**\*.dylib" />
+    </ItemGroup>
+    <Copy SourceFiles="@(NativeFiles)" DestinationFolder="$(NongSharedRuntime)" />
+  </Target>
+</Project>

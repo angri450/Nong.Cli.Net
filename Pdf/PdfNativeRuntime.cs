@@ -121,6 +121,8 @@ public static class PdfNativeRuntime
         {
             AppContext.BaseDirectory,
             Path.GetDirectoryName(typeof(PdfNativeRuntime).Assembly.Location) ?? AppContext.BaseDirectory,
+            // Shared runtime dir — install via: dotnet tool install Angri450.Nong.Runtime --global
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".dotnet", "tools", "nong-runtimes"),
         }.Where(d => !string.IsNullOrWhiteSpace(d)).Distinct(StringComparer.OrdinalIgnoreCase);
 
         foreach (var baseDir in baseDirs)

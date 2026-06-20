@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net8.0": {
+      "HarfBuzzSharp.NativeAssets.Win32": {
+        "type": "Direct",
+        "requested": "[8.3.1.5, )",
+        "resolved": "8.3.1.5",
+        "contentHash": "p95FW4SwP50qD4cq6e2/P5DP7As6c6aQU5qHvsdCKorX5GFLHUMIx/zQgiLvB871xQrhdN24sZyMbCufnTHvsQ=="
+      },
+      "SkiaSharp.NativeAssets.Win32": {
+        "type": "Direct",
+        "requested": "[3.119.2, )",
+        "resolved": "3.119.2",
+        "contentHash": "uYe+da6+GXVgPKkCopzvIZ83DmC8SXXKeUAPrNcztJNsg0SjPQAxfKMOPZqmVjbzznrq/QUIjLUlJSZV/e0IPA=="
+      }
+    }
+  }
+}
