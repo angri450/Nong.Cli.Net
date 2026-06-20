@@ -11,42 +11,45 @@ permissions:
   contents: read
 
 jobs:
-  publish:
+  build:
     runs-on: windows-latest
-    permissions:
-      id-token: write
-      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with: { dotnet-version: '8.0.x' }
-
       - name: Build
         run: dotnet build Cli/NongCli.csproj -c Release
 
-      - name: Pack
-        run: |
-          mkdir nupkg
-          dotnet pack Cli/NongCli.csproj -c Release --no-build -o nupkg/
-          dotnet pack Data/Nong.Data.csproj -c Release --no-build -o nupkg/
-          dotnet pack Docx/DocxCore.csproj -c Release --no-build -o nupkg/
-          dotnet pack Excel/ExcelCore.csproj -c Release --no-build -o nupkg/
-          dotnet pack Pandoc/PandocCore.csproj -c Release --no-build -o nupkg/
-          dotnet pack Literature/LiteratureCore.csproj -c Release --no-build -o nupkg/
-          dotnet pack Aminer/Nong.Aminer.csproj -c Release --no-build -o nupkg/
-          dotnet pack Metaso/Nong.Metaso.csproj -c Release --no-build -o nupkg/
-          dotnet pack Inspect/Inspect.csproj -c Release --no-build -o nupkg/
-          dotnet pack Genre/Genre.csproj -c Release --no-build -o nupkg/
-          dotnet pack Bioicons/Bioicons.csproj -c Release --no-build -o nupkg/
-          dotnet pack OcrDictionary/OcrDictionary.csproj -c Release --no-build -o nupkg/
-          dotnet pack Chart/tools/nong-chart.csproj -c Release --no-build -o nupkg/
-          dotnet pack Diagram/tools/nong-diagram.csproj -c Release --no-build -o nupkg/
-          dotnet pack Imaging/tools/nong-imaging.csproj -c Release --no-build -o nupkg/
-          dotnet pack Pdf/tools/nong-pdf.csproj -c Release --no-build -o nupkg/
-          dotnet pack Pptx/tools/nong-pptx.csproj -c Release --no-build -o nupkg/
-          dotnet pack MultiModal/tools/nong-ocr.csproj -c Release --no-build -o nupkg/
-          dotnet pack NongRuntime/tools/nong-runtime.csproj -c Release --no-build -o nupkg/
-
+  push:
+    needs: build
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - Cli/NongCli.csproj
+          - Data/Nong.Data.csproj
+          - Docx/DocxCore.csproj
+          - Excel/ExcelCore.csproj
+          - Pandoc/PandocCore.csproj
+          - Literature/LiteratureCore.csproj
+          - Aminer/Nong.Aminer.csproj
+          - Metaso/Nong.Metaso.csproj
+          - Inspect/Inspect.csproj
+          - Genre/Genre.csproj
+          - Bioicons/Bioicons.csproj
+          - OcrDictionary/OcrDictionary.csproj
+          - Chart/tools/nong-chart.csproj
+          - Diagram/tools/nong-diagram.csproj
+          - Imaging/tools/nong-imaging.csproj
+          - Pdf/tools/nong-pdf.csproj
+          - Pptx/tools/nong-pptx.csproj
+          - MultiModal/tools/nong-ocr.csproj
+          - NongRuntime/tools/nong-runtime.csproj
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: '8.0.x' }
       - name: Get OIDC token
         id: token
         uses: actions/github-script@v7
@@ -54,6 +57,7 @@ jobs:
           script: |
             const token = await core.getIDToken('https://api.nuget.org/v3/index.json');
             core.setOutput('id_token', token);
-
-      - name: Push
-        run: dotnet nuget push nupkg\*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate --api-key ${{ steps.token.outputs.id_token }}
+      - name: Pack & Push
+        run: |
+          dotnet pack ${{ matrix.project }} -c Release --no-build -o nupkg/
+          dotnet nuget push nupkg\*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate --api-key ${{ steps.token.outputs.id_token }}
