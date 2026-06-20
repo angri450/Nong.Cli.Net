@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "nong-pandoc/package/v1",
+  "source": {
+    "path": "thesis-final.docx",
+    "format": "docx",
+    "sha256": "18a3fb42a85d84b9f2f4c40355aaa5b8bf7dc58ddfb0e7fb31abc63a709239fa"
+  },
+  "createdAt": "2026-06-19T10:29:34.5970339Z",
+  "streams": {
+    "document": "document.json",
+    "contentJsonl": "content.jsonl",
+    "contentNongMark": "content.nongmark",
+    "structure": "structure.json",
+    "format": "format.json",
+    "diagnostics": "diagnostics.json",
+    "assets": "assets/manifest.json",
+    "textPreview": "preview/content.txt"
+  },
+  "metrics": {
+    "blocks": 191,
+    "paragraphs": 156,
+    "headings": 34,
+    "tables": 1,
+    "figures": 0,
+    "images": 0,
+    "references": 0,
+    "warnings": 0
+  },
+  "warnings": []
+}

@@ -1,0 +1,626 @@
+::: paragraph {#p0001 kind=paragraph style="Title"}
+基于人工智能的智慧农业关键技术研究与应用
+:::
+
+::: paragraph {#p0002 kind=paragraph style="BodyTextNoIndent"}
+XXX
+:::
+
+::: paragraph {#p0003 kind=paragraph style="BodyTextNoIndent"}
+2026年6月
+:::
+
+# 摘要 {#h0001 kind=heading level=1}
+
+::: paragraph {#p0004 kind=paragraph style="Normal"}
+智慧农业是信息技术与农业生产深度融合的产物，人工智能技术的快速发展为农业生产全链条的智能化转型提供了核心技术支撑。本文围绕人工智能在智慧农业中的关键应用展开系统研究。
+:::
+
+::: paragraph {#p0005 kind=paragraph style="Normal"}
+首先，本文梳理了智慧农业体系架构与关键技术基础，提出了感知层、传输层、平台层和应用层四层架构体系，分析了农业数据采集与处理的技术特点，综述了深度学习、时序分析、多模态学习和大语言模型等关键AI方法在农业中的应用现状。
+:::
+
+::: paragraph {#p0006 kind=paragraph style="Normal"}
+其次，在作物生长监测与产量预测方面，设计了融合卷积神经网络和长短期记忆网络的混合深度学习模型。该模型从多光谱影像、气象数据和土壤数据中提取特征，并引入时序注意力机制以关注关键生育期信息。实验结果表明，多源数据融合的混合模型显著优于单一数据源模型，水稻和冬小麦产量预测的R2分别达到0.87和0.84。
+:::
+
+::: paragraph {#p0007 kind=paragraph style="Normal"}
+再次，在农业病虫害智能识别与预警方面，基于改进YOLOv8设计了轻量化检测方法，通过GSConv卷积模块、自适应特征融合和解耦头结构在保持精度的同时大幅降低模型参数量。改进模型在稻田害虫检测中mAP@0.5达到91.3%，参数量仅为原始模型的62%。同时设计了融合环境监测与图像识别的病虫害预警系统，实现了监测、识别、预警、决策的全流程智能化。
+:::
+
+::: paragraph {#p0008 kind=paragraph style="Normal"}
+最后，在大语言模型应用于农技服务方面，构建了涵盖作物、病虫害、农药、肥料和农事操作的农业知识图谱，包含8万多个实体和50多万条关系。基于检索增强生成架构开发的农技智能问答系统，在150个测试问题上取得了86.7%的专家认可准确率。
+:::
+
+::: paragraph {#p0009 kind=paragraph style="Normal"}
+研究表明，人工智能技术能够有效提升农业生产效率、降低资源消耗、增强决策科学性。本文最后总结了智慧农业面临的数据质量、技术成本和人才短缺等挑战，并对多模态大模型、边缘计算、联邦学习和数字孪生等未来发展方向进行了展望。
+:::
+
+# 关键词 {#h0002 kind=heading level=1}
+
+::: paragraph {#p0010 kind=paragraph style="Normal"}
+智慧农业；人工智能；深度学习；作物监测；病虫害识别；产量预测；大语言模型
+:::
+
+::: paragraph {#p0011 kind=paragraph style="Normal"}
+---
+:::
+
+# Abstract {#h0003 kind=heading level=1}
+
+::: paragraph {#p0012 kind=paragraph style="Normal"}
+Smart agriculture represents a significant direction in modern agricultural development, with the rapid advancement of artificial intelligence technologies providing core technical support for the intelligent transformation of the entire agricultural production chain. This thesis conducts systematic research on the key applications of artificial intelligence in smart agriculture.
+:::
+
+::: paragraph {#p0013 kind=paragraph style="Normal"}
+First, this study outlines the architecture and key technical foundations of smart agriculture, proposing a four-layer framework comprising the perception layer, transmission layer, platform layer, and application layer. It analyzes the technical characteristics of agricultural data collection and processing, and reviews the current applications of key AI methods including deep learning, time-series analysis, multimodal learning, and large language models in agriculture.
+:::
+
+::: paragraph {#p0014 kind=paragraph style="Normal"}
+Second, in the area of crop growth monitoring and yield prediction, a hybrid deep learning model integrating convolutional neural networks and long short-term memory networks is designed. The model extracts features from multispectral imagery, meteorological data, and soil data, incorporating temporal attention mechanisms to focus on critical growth stage information. Experimental results demonstrate that the multi-source data fusion hybrid model significantly outperforms single-source models, achieving R2 values of 0.87 and 0.84 for rice and winter wheat yield prediction, respectively.
+:::
+
+::: paragraph {#p0015 kind=paragraph style="Normal"}
+Third, in the area of agricultural pest and disease intelligent recognition and early warning, a lightweight detection method based on improved YOLOv8 is developed. Through GSConv modules, adaptive feature fusion, and decoupled head structure, the model substantially reduces parameter count while maintaining accuracy, achieving 91.3% mAP@0.5 with only 62% of the original model parameters. An integrated early warning system combining environmental monitoring and image recognition is also designed.
+:::
+
+::: paragraph {#p0016 kind=paragraph style="Normal"}
+Finally, in applying large language models to agricultural technology services, an agricultural knowledge graph covering crops, pests, pesticides, fertilizers, and farming operations is constructed, containing over 80,000 entities and 500,000 relations. An intelligent agricultural Q&A system developed based on the Retrieval-Augmented Generation architecture achieved 86.7% expert approval accuracy on 150 test questions.
+:::
+
+::: paragraph {#p0017 kind=paragraph style="Normal"}
+The research demonstrates that AI technologies can effectively improve agricultural production efficiency, reduce resource consumption, and enhance scientific decision-making. The thesis concludes by summarizing current challenges including data quality, technology costs, and talent shortages, and provides future perspectives on multimodal large models, edge computing, federated learning, and digital twins.
+:::
+
+# Keywords {#h0004 kind=heading level=1}
+
+::: paragraph {#p0018 kind=paragraph style="Normal"}
+Smart Agriculture; Artificial Intelligence; Deep Learning; Crop Monitoring; Pest Recognition; Yield Prediction; Large Language Models
+:::
+
+::: paragraph {#p0019 kind=paragraph style="Normal"}
+---
+:::
+
+# 目录 {#h0005 kind=heading level=1}
+
+::: paragraph {#p0020 kind=paragraph style="Normal"}
+（自动生成）
+:::
+
+::: paragraph {#p0021 kind=paragraph style="Normal"}
+---
+:::
+
+# 第一章 绪论 {#h0006 kind=heading level=1}
+
+::: paragraph {#p0022 kind=paragraph style="Normal"}
+农业是国民经济的基础产业，粮食安全是国家安全的基石。随着全球人口持续增长和气候变化加剧，传统农业生产方式面临着资源约束趋紧、劳动力短缺、生产效率低下等多重挑战。据联合国粮食及农业组织预测，到2050年全球粮食产量需要增长70%才能满足人口需求，这要求农业生产方式必须实现根本性变革。在此背景下，智慧农业作为信息技术与农业生产深度融合的产物，成为推动农业现代化转型的关键路径。
+:::
+
+::: paragraph {#p0023 kind=paragraph style="Normal"}
+人工智能技术的快速发展为智慧农业注入了新的活力。深度学习、计算机视觉、自然语言处理等技术的突破性进展，使得农业数据的智能感知、精准分析和科学决策成为可能。从卫星遥感监测到无人机巡检，从土壤传感器到智能灌溉系统，从病虫害自动识别到农产品智能分级，人工智能正在重塑农业生产的每一个环节。
+:::
+
+::: paragraph {#p0024 kind=paragraph style="Normal"}
+本研究旨在系统分析人工智能技术在智慧农业中的关键应用，重点探讨作物生长监测与产量预测、病虫害智能识别与预警、基于大语言模型的农技服务三个核心方向，为构建智能化、精准化、可持续的现代农业生产体系提供理论支撑和技术参考。
+:::
+
+## 1.1 研究背景与意义 {#h0007 kind=heading level=2}
+
+::: paragraph {#p0025 kind=paragraph style="Normal"}
+中国是农业大国，但人均耕地面积仅为世界平均水平的40%，农业生产面临着资源约束和效率瓶颈的双重压力。传统农业依赖经验和人工操作，存在信息获取不及时、决策缺乏数据支撑、资源利用效率低等问题。智慧农业通过物联网感知、大数据分析和人工智能决策等技术手段，能够实现农业生产的精准化管理和智能化运营。
+:::
+
+::: paragraph {#p0026 kind=paragraph style="Normal"}
+从政策层面看，国家高度重视智慧农业发展。《数字乡村发展战略纲要》明确提出要推进农业数字化转型，《十四五全国农业农村信息化发展规划》将智慧农业列为重点发展方向。从技术层面看，5G网络的普及、边缘计算能力的提升、AI芯片成本的下降，为智慧农业技术落地创造了有利条件。从产业层面看，智慧农业市场规模持续扩大，2026年中国智慧农业市场规模预计超过2500亿元。
+:::
+
+::: paragraph {#p0027 kind=paragraph style="Normal"}
+本研究的理论意义在于系统梳理人工智能在智慧农业中的技术路线和应用框架，丰富智慧农业的理论研究体系。实践意义在于为农业生产者、技术开发者和政策制定者提供可参考的技术方案和实施路径，推动人工智能技术从实验室走向田间地头。
+:::
+
+## 1.2 国内外研究现状 {#h0008 kind=heading level=2}
+
+::: paragraph {#p0028 kind=paragraph style="Normal"}
+国际上，智慧农业研究起步较早。美国、以色列、荷兰、日本等发达国家在精准农业领域积累了丰富的实践经验。美国约七成农场已经实现触网，广泛采用GPS导航、变量施肥、智能灌溉等精准农业技术。欧盟通过Farm to Fork战略推动农业数字化转型，强调数据驱动的可持续农业发展。日本大力发展植物工厂和农业机器人技术，应对农业劳动力老龄化问题。
+:::
+
+::: paragraph {#p0029 kind=paragraph style="Normal"}
+在学术研究方面，深度学习技术在农业领域的应用取得了显著进展。Kamilaris等（2018）对深度学习在农业中的应用进行了全面综述，涵盖了杂草识别、病虫害检测、果实计数等任务。近年来，基于Transformer架构的模型在作物分类和产量预测中展现出优异性能。大语言模型如GPT系列和农业专用模型如AgriBERT的出现，为农业知识服务开辟了新途径。
+:::
+
+::: paragraph {#p0030 kind=paragraph style="Normal"}
+国内研究方面，中国农业大学、浙江大学、中国农业科学院等机构在智慧农业领域开展了大量研究。岳利峰等（2025）系统分析了精准农业技术在提高农作物产量与品质中的应用实践，指出物联网、大数据和人工智能技术的集成应用可实现土壤养分管理、病虫害监测与防治、水资源管理的精准化。金大为（2025）围绕人工智能在智慧农业中的应用展开分析，从种植、养殖、农产品检测分级三大场景深入探讨了具体应用。郑宗意等（2026）提出基于多模态大模型的智慧农业全链路数字化决策系统方案，构建了空天地一体化多维感知体系和感-算-控物理闭环。在病虫害识别领域，沈珈毅（2025）研究了基于YOLOv5增强注意力机制的水稻害虫检测性能，为轻量化田间部署提供了参考。
+:::
+
+::: paragraph {#p0031 kind=paragraph style="Normal"}
+尽管已有大量研究，但智慧农业领域仍存在以下不足：一是技术集成度不高，单点技术多而系统方案少；二是数据共享机制不完善，制约了模型训练和迁移能力；三是技术成本偏高，中小农户难以负担；四是农业领域专业知识与AI技术的深度融合不足，通用模型在农业场景中表现欠佳。本研究正是针对这些问题，从系统集成的视角出发，探索人工智能赋能智慧农业的可行技术路径。
+:::
+
+## 1.3 研究内容与技术路线 {#h0009 kind=heading level=2}
+
+::: paragraph {#p0032 kind=paragraph style="Normal"}
+本文围绕人工智能在智慧农业中的关键技术展开研究，主要内容包括以下四个方面：（1）智慧农业体系架构与关键AI技术基础，梳理感知层、传输层、平台层和应用层的技术组成；（2）基于深度学习的作物生长监测与产量预测，研究多源数据融合的作物生长参数提取方法和产量预测模型构建；（3）农业病虫害智能识别与预警系统，研究基于改进YOLO的轻量化检测算法和预警决策机制；（4）大语言模型在农技服务中的应用，探讨农业知识图谱构建和智能问答系统设计。
+:::
+
+::: paragraph {#p0033 kind=paragraph style="Normal"}
+技术路线遵循数据采集到模型构建到系统集成再到应用验证的逻辑主线。首先，通过文献调研和需求分析明确研究方向和关键技术问题；其次，针对作物监测、病虫害识别和农技服务三个核心场景分别开展技术研究；最后，从系统集成角度提出智慧农业综合解决方案，并对未来发展方向进行展望。
+:::
+
+# 第二章 智慧农业与人工智能技术基础 {#h0010 kind=heading level=1}
+
+::: paragraph {#p0034 kind=paragraph style="Normal"}
+智慧农业是信息技术与农业生产深度融合的产物，其核心在于通过数据驱动的方式实现农业生产的精准感知、智能决策和自动控制。本章从智慧农业体系架构、农业数据采集与处理技术、关键人工智能方法三个方面，系统介绍智慧农业的技术基础，为后续章节的深入研究奠定理论基础。
+:::
+
+## 2.1 智慧农业体系架构 {#h0011 kind=heading level=2}
+
+::: paragraph {#p0035 kind=paragraph style="Normal"}
+智慧农业体系架构通常采用分层设计思想，自下而上可分为感知层、传输层、平台层和应用层四个层次。感知层是智慧农业的感官系统，负责采集农业生产环境中的各类数据，包括土壤温度、湿度、pH值、光照强度等环境参数，以及作物生长状态、病虫害发生情况等生物信息。感知设备涵盖地面传感器网络、无人机多光谱相机、卫星遥感平台以及农业机器人视觉系统等。
+:::
+
+::: paragraph {#p0036 kind=paragraph style="Normal"}
+传输层是数据流通的神经系统，通过5G、LoRa、NB-IoT等通信技术将感知层采集的数据实时传输至平台层。5G网络的大带宽、低时延特性为高清视频监控和实时控制提供了基础保障；LoRa等低功耗广域网技术则适用于大面积农田的传感器数据传输。边缘计算节点的引入使得部分数据处理任务可以在靠近数据源的边缘侧完成，降低云端传输压力和响应时延。
+:::
+
+::: paragraph {#p0037 kind=paragraph style="Normal"}
+平台层是智慧农业的大脑，承担数据存储、处理、分析和决策的核心功能。云平台提供弹性计算和存储资源，支持大规模农业数据的汇聚和分析。数字孪生技术通过构建农业生产过程的虚拟映射，实现作物生长模拟、病虫害传播预测和农事方案优化。大数据平台整合气象数据、土壤数据、市场数据和农事记录，为AI模型训练和决策支持提供数据基础。
+:::
+
+::: paragraph {#p0038 kind=paragraph style="Normal"}
+应用层面向具体的农业生产场景，提供智能化的业务功能。典型应用包括精准施肥灌溉、病虫害智能识别与预警、作物生长监测与产量预测、农产品质量安全溯源、农机自动驾驶等。各应用模块之间通过统一的数据接口和业务中台实现协同联动，形成覆盖农业生产全链条的智能化解决方案。
+:::
+
+
+::: paragraph {#p0040 kind=paragraph style="BodyTextNoIndent"}
+图 1
+:::
+
+
+
+::: paragraph {#p0043 kind=paragraph style="BodyTextNoIndent"}
+图2-1 智慧农业四层体系架构
+:::
+
+
+## 2.2 农业数据采集与处理技术 {#h0012 kind=heading level=2}
+
+::: paragraph {#p0045 kind=paragraph style="Normal"}
+农业数据的多样性和复杂性是智慧农业面临的基础性挑战。农业数据类型主要包括环境数据（温度、湿度、光照、降雨量等）、土壤数据（养分含量、有机质、pH值、水分等）、作物数据（品种、生育期、株高、叶面积指数、生物量等）和遥感数据（多光谱影像、高光谱影像、热红外影像等）。不同类型数据的采集频率、精度和格式各不相同，给数据融合和分析带来了困难。
+:::
+
+::: paragraph {#p0046 kind=paragraph style="Normal"}
+传感器技术是农业数据采集的主要手段。土壤传感器可实时监测土壤温度、含水量和电导率；气象站记录空气温度、湿度、风速和降雨量；植物生理传感器测量叶面温度、茎秆直径变化和果实生长速率。无人机搭载多光谱和热红外相机，可获取高分辨率的作物冠层影像，用于反演叶面积指数、叶绿素含量和氮素营养状况等关键生长参数。卫星遥感提供大范围的作物长势监测和灾害评估能力，常用的遥感数据源包括Landsat、Sentinel-2和国产高分系列卫星。
+:::
+
+::: paragraph {#p0047 kind=paragraph style="Normal"}
+数据预处理是保证分析质量的关键环节，主要包括数据清洗（去除异常值和缺失值填补）、数据对齐（统一时空分辨率）、数据标准化（消除量纲差异）和特征工程（构建有效的输入特征）。在农业场景中，数据预处理还需要考虑作物生长模型的物候约束和农学先验知识，以提高数据质量和分析可靠性。
+:::
+
+## 2.3 关键人工智能方法 {#h0013 kind=heading level=2}
+
+::: paragraph {#p0048 kind=paragraph style="Normal"}
+深度学习是当前智慧农业中应用最广泛的人工智能方法。卷积神经网络在图像识别任务中表现优异，被广泛应用于作物病害识别、杂草检测和果实计数等场景。ResNet、EfficientNet等经典网络架构为农业图像分类提供了坚实的基础模型，而YOLO系列、Faster R-CNN等目标检测框架则在病虫害定位和果实计数中发挥了重要作用。
+:::
+
+::: paragraph {#p0049 kind=paragraph style="Normal"}
+时序数据分析方法在农业生产中具有重要应用价值。长短期记忆网络和门控循环单元等循环神经网络架构，能够捕捉农业数据的时序依赖性，用于作物生长过程建模、病虫害发生趋势预测和灌溉需求预测。近年来，基于注意力机制的Transformer架构在时序预测中展现出更优的性能，特别是对长序列依赖关系的建模能力使其在产量预测和气象预报中具有显著优势。
+:::
+
+::: paragraph {#p0050 kind=paragraph style="Normal"}
+多模态学习是智慧农业技术发展的重要趋势。农业生产涉及文本、图像、传感器数据、气象数据等多种模态的信息，单一模态难以全面刻画农业生产系统。多模态融合方法可以将遥感影像、气象数据、土壤数据和农事记录进行联合建模，提升作物生长监测和产量预测的精度。郑宗意等（2026）提出的基于多模态大模型的智慧农业决策系统，通过融合视觉、时序和文本信息，实现了从环境感知到农事决策的全链路智能化。
+:::
+
+::: paragraph {#p0051 kind=paragraph style="Normal"}
+大语言模型为农业知识服务带来了新的可能性。通用大模型如GPT-4、文心一言等虽然具备强大的语言理解和生成能力，但在专业农业领域存在知识幻觉问题。通过检索增强生成技术，将农业专业知识库与语言模型结合，可以有效提升回答的准确性和专业性。构建高质量的农业领域知识图谱是提升大模型农业应用效果的关键基础。
+:::
+
+# 第三章 基于深度学习的作物生长监测与产量预测 {#h0014 kind=heading level=1}
+
+::: paragraph {#p0052 kind=paragraph style="Normal"}
+作物生长监测与产量预测是智慧农业的核心应用场景之一。准确掌握作物生长状况并预测最终产量，对于优化田间管理、调配农业资源和制定市场策略具有重要意义。本章从数据采集、模型构建和实验验证三个方面，研究基于深度学习的作物生长监测与产量预测方法。
+:::
+
+## 3.1 作物生长环境数据采集与特征提取 {#h0015 kind=heading level=2}
+
+::: paragraph {#p0053 kind=paragraph style="Normal"}
+作物生长监测需要多源数据的协同配合。本研究设计的数据采集方案包括三个层面：地面传感器网络实时采集土壤温度、含水量、电导率等参数；无人机多光谱相机定期获取作物冠层影像；气象站持续记录空气温度、湿度、降雨量和太阳辐射等气象要素。数据采集覆盖作物全生育期，频率根据生长阶段和参数特征设定，关键生育期加密至每日一次。
+:::
+
+::: paragraph {#p0054 kind=paragraph style="Normal"}
+从多源数据中提取有效的生长特征是模型构建的基础。基于无人机多光谱影像的反演参数包括归一化植被指数、增强型植被指数和叶面积指数等。这些指标能够反映作物的光合能力、氮素营养状况和群体结构特征。从时序气象数据中提取积温、累积降雨量和光照时长等农学特征；从土壤传感器数据中提取土壤水分动态变化特征和温度日较差等指标。
+:::
+
+::: paragraph {#p0055 kind=paragraph style="Normal"}
+特征的筛选和融合是提高模型性能的关键步骤。本研究采用皮尔逊相关系数分析和随机森林特征重要性排序相结合的方法，筛选与产量相关的核心特征。对于不同来源的特征，通过时间对齐和空间插值实现数据融合，构建统一的多维特征矩阵作为深度学习模型的输入。
+:::
+
+## 3.2 深度学习预测模型构建 {#h0016 kind=heading level=2}
+
+::: paragraph {#p0056 kind=paragraph style="Normal"}
+针对作物产量预测任务的多因素、长周期、非线性特点，本研究设计了融合卷积神经网络和长短期记忆网络的混合深度学习模型。卷积层负责从多光谱影像中提取空间特征，包括作物冠层纹理特征和植被指数空间分布模式。长短期记忆网络层处理时序特征序列，捕捉作物生长过程中的时间依赖关系。两部分特征在全连接层进行融合，最终输出产量预测值。
+:::
+
+::: paragraph {#p0057 kind=paragraph style="Normal"}
+模型训练采用两阶段策略。第一阶段使用预训练的ResNet-50作为卷积特征提取器，在作物分类数据集上进行迁移学习；第二阶段将时序模块与视觉模块联合训练，使用标注的产量数据进行端到端优化。训练过程中采用早停策略和学习率衰减，防止过拟合。损失函数采用均方误差和平均绝对误差的加权组合，兼顾全局精度和个别样本的偏差控制。
+:::
+
+::: paragraph {#p0058 kind=paragraph style="Normal"}
+模型输入包括整个生育期的多光谱影像序列、气象数据序列和土壤数据序列。考虑到不同生育阶段对最终产量的贡献权重不同，在模型架构中引入了时序注意力机制，使模型能够自适应地关注关键生育期的特征。韦鹏洪等（2025）关于数据孪生在精准农事作业中决策支持的研究表明，数字孪生技术在作物生长过程模拟和产量预估中具有重要价值，本研究参考其方法框架，在模型训练中融入作物生长模型约束。
+:::
+
+## 3.3 实验验证与结果分析 {#h0017 kind=heading level=2}
+
+::: paragraph {#p0059 kind=paragraph style="Normal"}
+实验数据来源于某农业示范基地2024-2025年度水稻和冬小麦种植数据，共包含120个田块的实地观测记录。数据分为训练集（80个田块）、验证集（20个田块）和测试集（20个田块）。评估指标包括均方根误差、平均绝对百分比误差和决定系数。
+:::
+
+::: paragraph {#p0060 kind=paragraph style="Normal"}
+实验结果表明，融合多源数据的CNN-LSTM混合模型在产量预测任务上优于单一数据源模型。对于水稻产量预测，混合模型的RMSE为385.2 kg/ha，MAPE为4.8%，R2达到0.87；对于冬小麦预测，RMSE为312.6 kg/ha，MAPE为5.2%，R2达到0.84。相比之下，仅使用气象数据的LSTM模型的R2为0.71，仅使用遥感影像的CNN模型R2为0.76。
+:::
+
+::: paragraph {#p0061 kind=paragraph style="Normal"}
+消融实验进一步验证了各模块的贡献。去除时序注意力机制后，R2下降至0.82，表明关键生育期信息的自适应加权对预测精度有重要影响。去除土壤数据输入后，预测误差增加约12%，说明土壤条件对产量的影响不可忽视。葛海年（2026）关于基于土壤墒情的农业灌溉精准控制技术研究也强调了土壤水分监测在作物管理中的关键作用。
+:::
+
+
+::: paragraph {#p0063 kind=paragraph style="BodyTextNoIndent"}
+图3-1 产量预测模型R2对比
+:::
+
+
+
+::: paragraph {#p0066 kind=paragraph style="BodyTextNoIndent"}
+图 1
+:::
+
+
+
+::: paragraph {#p0069 kind=paragraph style="BodyTextNoIndent"}
+图 1
+:::
+
+
+
+::: paragraph {#p0072 kind=paragraph style="BodyTextNoIndent"}
+图3-2 作物生育期NDVI时序变化
+:::
+
+
+# 第四章 农业病虫害智能识别与预警 {#h0018 kind=heading level=1}
+
+::: paragraph {#p0074 kind=paragraph style="Normal"}
+病虫害是影响农作物产量和品质的重要因素，全球每年因病虫害造成的作物损失约占总产量的20%至40%。传统的病虫害识别依赖植保专家的人工诊断，存在效率低、覆盖范围有限、主观性强等问题。基于深度学习的病虫害智能识别技术能够实现快速、准确的自动诊断，结合环境监测数据的预警系统可提前预测病虫害发生风险，为科学防控提供决策支持。
+:::
+
+## 4.1 农业病虫害识别技术概述 {#h0019 kind=heading level=2}
+
+::: paragraph {#p0075 kind=paragraph style="Normal"}
+农业病虫害智能识别技术经历了从传统图像处理到深度学习的发展历程。早期方法依赖手工设计的图像特征如颜色直方图、纹理特征和形态特征，结合支持向量机等分类器进行病虫害诊断。这类方法识别精度有限，且特征设计严重依赖领域专家知识，泛化能力不足。
+:::
+
+::: paragraph {#p0076 kind=paragraph style="Normal"}
+深度学习的引入极大提升了病虫害识别的准确率和鲁棒性。2017年以来，以AlexNet、VGGNet为代表的卷积神经网络被应用于作物病害叶片图像分类，取得了超过90%的识别准确率。此后，更深的网络架构如ResNet、DenseNet以及轻量化模型如MobileNet、ShuffleNet相继应用于病虫害识别任务，在精度和效率之间寻求平衡。
+:::
+
+::: paragraph {#p0077 kind=paragraph style="Normal"}
+目标检测技术的发展使得病虫害识别从图像级分类演进到像素级定位。YOLO系列算法以其出色的实时性能成为田间病虫害检测的主流选择。沈珈毅（2025）对YOLOv5增强三种C3注意力机制的水稻害虫检测性能进行了比较研究，发现SE注意力机制的引入显著提升了小目标害虫的检测精度。王倩（2022）对农业病虫害防治现状与方法进行了系统梳理，指出智能化监测预警是实现病虫害绿色防控的关键前提。
+:::
+
+## 4.2 基于改进YOLO的轻量化病虫害检测方法 {#h0020 kind=heading level=2}
+
+::: paragraph {#p0078 kind=paragraph style="Normal"}
+田间病虫害检测面临目标尺度小、背景复杂、光照多变等挑战。同时，移动端和嵌入式设备部署要求模型具有较低的参数量和计算复杂度。针对这些需求，本研究设计了基于改进YOLOv8的轻量化病虫害检测方法。
+:::
+
+::: paragraph {#p0079 kind=paragraph style="Normal"}
+改进策略包括三个方面。第一，在Backbone网络中引入轻量化的GSConv卷积模块，减少模型参数量和计算量，同时保持特征提取能力。第二，在Neck部分增加自适应特征融合模块，增强多尺度特征表达，改善小目标害虫和早期病斑的检测效果。第三，在Head部分采用解耦头结构，分离分类和定位任务分支，提升检测精度的同时加快收敛速度。
+:::
+
+::: paragraph {#p0080 kind=paragraph style="Normal"}
+模型训练数据集为田间实拍的水稻稻瘟病、稻飞虱和螟虫图像，共计5600张标注图像，涵盖不同光照条件和拍摄角度。数据增强策略包括随机裁剪、翻转、色彩抖动和Mosaic增强。训练采用SGD优化器，初始学习率0.01，采用余弦退火策略衰减。改进后的模型在测试集上mAP@0.5达到91.3%，参数量仅为原始YOLOv8的62%，在移动端设备上推理速度达到25 FPS。
+:::
+
+
+::: paragraph {#p0082 kind=paragraph style="BodyTextNoIndent"}
+图4-1 病虫害检测模型mAP@0.5对比
+:::
+
+
+
+::: paragraph {#p0085 kind=paragraph style="BodyTextNoIndent"}
+图4-2 病虫害检测模型参数量对比
+:::
+
+
+## 4.3 病虫害预警系统设计 {#h0021 kind=heading level=2}
+
+::: paragraph {#p0087 kind=paragraph style="Normal"}
+病虫害预警系统通过融合环境监测数据和害虫识别结果，实现病虫害发生风险的提前预测。系统架构包括数据采集层、模型推理层和决策支持层。数据采集层通过田间摄像头和环境传感器持续获取虫情图像和气象数据；模型推理层运行病虫害识别模型和发生风险评估模型；决策支持层根据评估结果生成防治建议并推送预警信息。
+:::
+
+::: paragraph {#p0088 kind=paragraph style="Normal"}
+风险评估模型采用多层感知机结构，输入特征包括历史病虫害发生记录、当前气温和湿度、未来三天气象预报以及周边区域病虫害发生情况。模型输出病虫害发生概率和风险等级（低、中、高三级）。系统每天自动运行一次，当风险等级达到中以上时自动触发预警，并将虫情图像、位置信息和防治建议推送至植保人员移动终端。
+:::
+
+
+::: paragraph {#p0090 kind=paragraph style="BodyTextNoIndent"}
+图 1
+:::
+
+
+::: paragraph {#p0092 kind=paragraph style="Normal"}
+徐志伟（2020）关于水稻病虫害绿色防控技术的研究强调了预防为主、综合防治的植保方针，智能化预警系统正是实现这一方针的有效技术手段。通过与植保专家知识的结合，预警系统可从单一害虫识别升级为综合性的病虫害管理决策支持平台。
+:::
+
+# 第五章 大语言模型在农技服务中的应用 {#h0022 kind=heading level=1}
+
+::: paragraph {#p0093 kind=paragraph style="Normal"}
+农技服务是连接农业科研成果与生产实践的重要桥梁。传统的农技推广模式依赖技术人员的现场指导和纸质资料传播，存在覆盖面有限、信息更新滞后、个性化服务不足等问题。大语言模型技术为农技服务的智能化转型提供了全新路径，通过自然语言交互方式为农户提供便捷、及时的农技咨询和决策支持服务。
+:::
+
+## 5.1 农业知识图谱构建 {#h0023 kind=heading level=2}
+
+::: paragraph {#p0094 kind=paragraph style="Normal"}
+农业知识图谱是组织和管理农业专业知识的结构化知识库，为智能农技服务提供知识基础。本研究构建的农业知识图谱涵盖作物、病虫害、农药、肥料、农事操作五大实体类型，以及十余种关系类型，包括作物-易感-病虫害、病虫害-防治-农药、作物-需肥-肥料等。
+:::
+
+::: paragraph {#p0095 kind=paragraph style="Normal"}
+知识来源包括农业教科书、植保手册、农药登记公告、农业技术标准文件和学术论文。知识抽取采用基于规则和深度学习相结合的方法：对于结构化较好的农药登记数据采用规则匹配方法；对于非结构化的文本知识采用预训练的农业领域BERT模型进行命名实体识别和关系抽取。知识融合采用基于语义相似度的实体对齐方法，将不同来源的同一实体进行合并，去除冗余和矛盾信息。
+:::
+
+::: paragraph {#p0096 kind=paragraph style="Normal"}
+构建完成的农业知识图谱包含8万多个实体和50多万条关系，存储于Neo4j图数据库中。图谱支持Cypher查询语言进行复杂关系检索，如查询水稻稻瘟病的所有登记农药及其安全间隔期。知识图谱不仅为下游的智能问答系统提供结构化知识，也为检索增强生成提供了高质量的知识源。
+:::
+
+## 5.2 基于RAG的农技智能问答系统 {#h0024 kind=heading level=2}
+
+::: paragraph {#p0097 kind=paragraph style="Normal"}
+检索增强生成技术是解决大语言模型知识幻觉问题的有效方法。本研究设计的农技智能问答系统采用RAG架构，核心流程包括用户问题理解、相关知识检索和增强答案生成三个环节。
+:::
+
+::: paragraph {#p0098 kind=paragraph style="Normal"}
+问题理解模块对农户的自然语言提问进行意图识别和实体抽取。农户提问形式多样，如稻子叶子黄了怎么办、什么时候打稻飞虱药等，需要准确识别作物种类、症状描述和咨询意图。本系统采用微调的农业领域BERT模型进行意图分类和槽位填充。
+:::
+
+::: paragraph {#p0099 kind=paragraph style="Normal"}
+知识检索模块从多个知识源中检索相关信息，构建提示上下文。检索源包括农业知识图谱（结构化）、农业技术手册（非结构化）和农药数据库（半结构化）。检索策略采用混合检索方式，结合基于向量的语义检索和基于关键词的BM25检索，取两者的加权排序结果。对于从知识图谱检索到的结构化信息，通过模板转换为自然语言描述后纳入上下文。
+:::
+
+::: paragraph {#p0100 kind=paragraph style="Normal"}
+答案生成模块以通用大语言模型为基础，将检索到的知识作为上下文进行提示增强，生成包含诊断分析和防治建议的结构化回答。生成策略要求回答包含三个部分：问题分析（对农户描述的症状进行分析）、防治方案（提供具体可操作的防治措施，包含农药名称、使用浓度和安全间隔期）、注意事项（提醒安全使用规范和可能的药害风险）。
+:::
+
+## 5.3 系统评估与案例分析 {#h0025 kind=heading level=2}
+
+::: paragraph {#p0101 kind=paragraph style="Normal"}
+系统评估从回答准确性和用户满意度两个维度进行。准确性评估邀请5位植保专家对系统生成的150个农技问题的回答进行评分，分为完全正确、基本正确（有轻微偏差）、存在错误和完全错误四个等级。评估结果显示，系统回答的总体准确率为86.7%（完全正确68.0%加基本正确18.7%），存在错误的比例为10.0%，完全错误的比例为3.3%。
+:::
+
+::: paragraph {#p0102 kind=paragraph style="Normal"}
+案例分析以水稻纹枯病咨询为例：用户提问水稻底部叶子发黑有褐色斑块是什么病怎么办，系统首先从知识图谱中检索水稻常见病害的症状特征，经BM25语义匹配判定为纹枯病；然后从农药数据库中检索登记防治药剂，推荐井冈霉素和苯醚甲环唑两种药剂；最后结合农事操作知识，补充了晒田降湿、合理施肥等农艺防治建议。专家评价认为诊断准确，方案合理，注意事项完整。
+:::
+
+::: paragraph {#p0103 kind=paragraph style="Normal"}
+系统存在的不足包括：对稀有地方病虫害的识别能力有限、方言表述的理解能力有待提升、缺乏对农药市场价格的实时信息、未集成农田现场图像的视觉诊断能力。后续改进方向包括接入病虫害图像识别模型实现多模态问答、扩充地方性农业知识、引入农产品市场信息服务等。
+:::
+
+
+::: paragraph {#p0105 kind=paragraph style="BodyTextNoIndent"}
+图5-1 农技问答系统准确率评估
+:::
+
+
+# 第六章 总结与展望 {#h0026 kind=heading level=1}
+
+::: paragraph {#p0107 kind=paragraph style="Normal"}
+本文围绕人工智能在智慧农业中的关键技术应用进行了系统研究，从智慧农业体系架构、作物生长监测与产量预测、病虫害智能识别与预警、基于大语言模型的农技服务四个维度展开探讨，形成了较为完整的智慧农业技术应用研究框架。
+:::
+
+## 6.1 研究总结 {#h0027 kind=heading level=2}
+
+::: paragraph {#p0108 kind=paragraph style="Normal"}
+本研究的主要工作和结论包括以下四个方面：
+:::
+
+::: paragraph {#p0109 kind=paragraph style="Normal"}
+第一，系统梳理了智慧农业体系架构与关键技术基础。提出了感知层、传输层、平台层、应用层四层架构，明确了各层的功能定位和关键技术组成。分析了农业数据采集与处理技术的特点，强调了数据质量控制和多源融合在智慧农业中的基础性作用。
+:::
+
+::: paragraph {#p0110 kind=paragraph style="Normal"}
+第二，深入研究了基于深度学习的作物生长监测与产量预测方法。设计了融合CNN和LSTM的混合深度学习模型，实验结果表明多源数据融合方法优于单一数据源方法，水稻和冬小麦产量预测的R2分别达到0.87和0.84。时序注意力机制的引入有效提升了模型对关键生育期信息的利用效率。
+:::
+
+::: paragraph {#p0111 kind=paragraph style="Normal"}
+第三，研究了农业病虫害智能识别与预警技术。基于改进YOLOv8的轻量化检测模型在保持91.3% mAP的同时，模型参数量降低38%，为移动端部署创造了条件。设计的病虫害预警系统实现了监测识别预警决策的全流程智能化。
+:::
+
+::: paragraph {#p0112 kind=paragraph style="Normal"}
+第四，探索了大语言模型在农技服务中的应用路径。构建了包含8万实体和50万关系的农业知识图谱，基于RAG架构的农技智能问答系统在150个测试问题上取得了86.7%的专家认可准确率，为大模型在农业垂直领域的落地提供了可行方案。
+:::
+
+## 6.2 创新点 {#h0028 kind=heading level=2}
+
+::: paragraph {#p0113 kind=paragraph style="Normal"}
+本研究的创新点主要体现在以下三个方面：（1）提出融合CNN空间特征和LSTM时序特征的混合深度学习模型，并引入时序注意力机制，提升了作物产量预测精度；（2）设计了基于改进YOLOv8的轻量化病虫害检测方法，通过GSConv模块和自适应特征融合实现了精度与效率的平衡；（3）构建了农业领域知识图谱并基于RAG架构开发了农技智能问答系统，为专业领域大模型应用提供了可参考的技术路线。
+:::
+
+## 6.3 不足与未来展望 {#h0029 kind=heading level=2}
+
+::: paragraph {#p0114 kind=paragraph style="Normal"}
+本研究存在以下不足：（1）作物产量预测模型的训练数据仅来源于两个品种两个年度的数据，模型的泛化能力有待在更广泛的数据集上验证；（2）病虫害检测模型仅在三种水稻害虫上进行了验证，对其他作物和病虫害类型的适用性需要进一步测试；（3）农技问答系统的知识覆盖范围主要集中在水稻和主要病虫害，尚未涵盖更多作物品种和农业领域。
+:::
+
+::: paragraph {#p0115 kind=paragraph style="Normal"}
+展望未来，智慧农业技术发展将呈现以下趋势：第一，多模态大模型将成为智慧农业的核心技术引擎，融合视觉、语言、时序和结构化数据的统一模型将极大提升农业智能决策能力。第二，边缘计算和云边协同将推动AI模型在田间地头的实时部署，实现低成本、低延迟的智能农业服务。第三，农业数据共享和联邦学习将解决数据孤岛问题，在保护数据隐私的前提下实现跨区域模型协同训练。第四，数字孪生与AI技术的深度融合将使农业生产过程实现全要素数字化和全流程智能化。第五，面向小农户的低成本、易操作的智慧农业解决方案将是推动技术普惠应用的关键。
+:::
+
+::: paragraph {#p0116 kind=paragraph style="Normal"}
+智慧农业的发展不仅需要技术创新，还需要政策支持、人才培养和产业协同。构建政产学研用一体化的智慧农业创新生态，推动人工智能技术从实验室走向广阔的田间地头，最终实现农业生产的精准化、智能化和可持续发展，是智慧农业科技工作者的共同使命。
+:::
+
+# 参考文献 {#h0030 kind=heading level=1}
+
+::: paragraph {#p0117 kind=paragraph style="Normal"}
+[1] 岳利峰, 曹丽, 邱鹏程, 等. 精准农业技术在提高农作物产量与品质中的实践[J]. 农业科技与发展, 2025. DOI: 10.37155/2811-0617-0401-7
+:::
+
+::: paragraph {#p0118 kind=paragraph style="Normal"}
+[2] 郑宗意, 王雪婷, 李杰. 基于多模态大模型的智慧农业全链路数字化决策系统方案研究[J]. 中国科学与技术学报, 2026. DOI: 10.70693/cjst.v2i2.1937
+:::
+
+::: paragraph {#p0119 kind=paragraph style="Normal"}
+[3] 金大为. 人工智能在智慧农业中的应用分析[J]. 电子通信与计算机科学, 2025. DOI: 10.37155/2717-5170-0709-35
+:::
+
+::: paragraph {#p0120 kind=paragraph style="Normal"}
+[4] 韦鹏洪, 邓煜乾, 禤志远, 等. 数据孪生在精准农事作业中的决策支持研究[J]. 农业科学, 2025. DOI: 10.32629/as.v8i12.3496
+:::
+
+::: paragraph {#p0121 kind=paragraph style="Normal"}
+[5] Yan H, Li J, Xu Y, et al. New progress and prospects in variable rate irrigation technology[J]. Journal of Hydraulic Engineering, 2026. DOI: 10.3724/j.slxb.20250702
+:::
+
+::: paragraph {#p0122 kind=paragraph style="Normal"}
+[6] 葛海年. 基于土壤墒情的农业灌溉精准控制技术研究[J]. 农业科技与发展, 2026. DOI: 10.37155/2811-0617-0504-24
+:::
+
+::: paragraph {#p0123 kind=paragraph style="Normal"}
+[7] 沈珈毅. Comparative Study on Rice Pest Detection Performance Using YOLOv5 Enhanced with Three C3 Attention Modules[J]. Computer Science and Application, 2025. DOI: 10.12677/csa.2025.158196
+:::
+
+::: paragraph {#p0124 kind=paragraph style="Normal"}
+[8] 彭海容. 美国七成农场触网 智慧农业带来绿色革命[J]. 中国食品, 2015
+:::
+
+::: paragraph {#p0125 kind=paragraph style="Normal"}
+[9] 张雯, 刘华东. 智慧农业技术在设施蔬菜种植中的应用[J]. 农业科技与发展, 2025. DOI: 10.37155/2811-0617-0411-10
+:::
+
+::: paragraph {#p0126 kind=paragraph style="Normal"}
+[10] Liu Y, Ju Y, Xu Q, et al. 深度学习在生态资源研究领域的应用: 理论、方法和挑战[J]. SCIENTIA SINICA Terrae, 2020. DOI: 10.1360/sste-2019-0201
+:::
+
+::: paragraph {#p0127 kind=paragraph style="Normal"}
+[11] 王倩. 农业病虫害防治现状与方法[J]. 农业科技与发展, 2022. DOI: 10.37155/2811-0617-0102-19
+:::
+
+::: paragraph {#p0128 kind=paragraph style="Normal"}
+[12] 徐志伟. 探析水稻病虫害绿色防控技术[J]. 农业科学, 2020. DOI: 10.32629/as.v3i2.1790
+:::
+
+::: paragraph {#p0129 kind=paragraph style="Normal"}
+[13] Li Z. A Study on Rice Pest Insect and Disease Diagnosis Expert System Based on B/S Mode[J]. 2008
+:::
+
+::: paragraph {#p0130 kind=paragraph style="Normal"}
+[14] 秦岭, 秦岭. 森林病虫害的综合防治[J]. 园林建设与城市规划, 2021. DOI: 10.37155/2717-5162-0306-7
+:::
+
+::: paragraph {#p0131 kind=paragraph style="Normal"}
+[15] 刘阳. 林业病虫害防治的优化策略及措施[J]. 农业科技与发展, 2022. DOI: 10.37155/2811-0617-0103-4
+:::
+
+::: paragraph {#p0132 kind=paragraph style="Normal"}
+[16] Kamilaris A, Prenafeta-Boldu F X. Deep learning in agriculture: A survey[J]. Computers and Electronics in Agriculture, 2018, 147: 70-90. DOI: 10.1016/j.compag.2018.02.016
+:::
+
+::: paragraph {#p0133 kind=paragraph style="Normal"}
+[17] FAO. The future of food and agriculture: Trends and challenges[R]. Rome: Food and Agriculture Organization of the United Nations, 2017
+:::
+
+::: paragraph {#p0134 kind=paragraph style="Normal"}
+[18] 国务院. 数字乡村发展战略纲要[Z]. 2019
+:::
+
+::: paragraph {#p0135 kind=paragraph style="Normal"}
+[19] 农业农村部. 十四五全国农业农村信息化发展规划[Z]. 2022
+:::
+
+::: paragraph {#p0136 kind=paragraph style="Normal"}
+---
+:::
+
+# 致谢 {#h0031 kind=heading level=1}
+
+::: paragraph {#p0137 kind=paragraph style="Normal"}
+时光荏苒，硕士研究生的学习生涯即将画上句号。回首这段求学之路，心中充满感恩。
+:::
+
+::: paragraph {#p0138 kind=paragraph style="Normal"}
+首先，衷心感谢我的导师XXX教授。从论文选题、研究方案设计到论文撰写，导师倾注了大量心血。导师严谨的治学态度、深厚的学术造诣和对智慧农业领域的敏锐洞察，给了我深刻的启示和影响。在科研遇到困难时，导师耐心指导和鼓励让我能够坚持前行。导师不仅教会我如何做研究，更教会我如何做人做事。
+:::
+
+::: paragraph {#p0139 kind=paragraph style="Normal"}
+感谢实验室的各位师兄师姐和同学。在智慧农业这个交叉学科领域，大家的讨论和交流激发了我的研究灵感，共同的奋斗岁月让我收获了珍贵的友谊。特别感谢XXX在数据处理和模型调试方面给予的帮助，XXX在田间实验中的辛勤付出。
+:::
+
+::: paragraph {#p0140 kind=paragraph style="Normal"}
+感谢信息与电气工程学院的各位老师，在学习期间给予的教导和关怀。感谢中国农业大学提供的优秀科研平台和学习环境。
+:::
+
+::: paragraph {#p0141 kind=paragraph style="Normal"}
+感谢我的家人，你们的理解、支持和无私付出是我完成学业的坚强后盾。在外求学的日子里，你们的牵挂和关爱让我倍感温暖。
+:::
+
+::: paragraph {#p0142 kind=paragraph style="Normal"}
+最后，感谢在百忙之中审阅本论文的各位专家和答辩委员会的老师们。你们的宝贵意见使本论文得以进一步完善。
+:::
+
+::: paragraph {#p0143 kind=paragraph style="Normal"}
+人工智能赋能智慧农业是充满希望的新兴交叉领域。硕士阶段的研究只是一个开始，未来我将继续在这一领域深耕，为中国的智慧农业发展贡献自己的力量。
+:::
+
+# 附录 {#h0032 kind=heading level=1}
+
+## 附录A 主要缩略语对照表 {#h0033 kind=heading level=2}
+
+::: table {#t0001 kind=table rows=18 cols=3}
+| 缩略语 | 英文全称 | 中文释义 |
+| --- | --- | --- |
+| AI | Artificial Intelligence | 人工智能 |
+| CNN | Convolutional Neural Network | 卷积神经网络 |
+| LSTM | Long Short-Term Memory | 长短期记忆网络 |
+| YOLO | You Only Look Once | 实时目标检测算法 |
+| RAG | Retrieval-Augmented Generation | 检索增强生成 |
+| LLM | Large Language Model | 大语言模型 |
+| NDVI | Normalized Difference Vegetation Index | 归一化植被指数 |
+| EVI | Enhanced Vegetation Index | 增强型植被指数 |
+| LAI | Leaf Area Index | 叶面积指数 |
+| IoT | Internet of Things | 物联网 |
+| RMSE | Root Mean Square Error | 均方根误差 |
+| MAPE | Mean Absolute Percentage Error | 平均绝对百分比误差 |
+| mAP | mean Average Precision | 平均精度均值 |
+| MLP | Multi-Layer Perceptron | 多层感知机 |
+| BERT | Bidirectional Encoder Representations from Transformers | 双向编码器表示变换器 |
+| R-CNN | Region-based Convolutional Neural Network | 区域卷积神经网络 |
+| GRU | Gated Recurrent Unit | 门控循环单元 |
+:::
+
+
+::: paragraph {#p0145 kind=paragraph style="Normal"}
+---
+:::
+
+# 作者简介 {#h0034 kind=heading level=1}
+
+::: paragraph {#p0146 kind=paragraph style="Normal"}
+XXX，男/女，19XX年XX月出生，XX省XX市人。
+:::
+
+::: paragraph {#p0147 kind=paragraph style="Normal"}
+20XX年9月至20XX年6月，就读于XX大学XX学院XX专业，获XX学士学位。
+:::
+
+::: paragraph {#p0148 kind=paragraph style="Normal"}
+20XX年9月至20XX年6月，就读于中国农业大学信息与电气工程学院农业工程专业，攻读硕士学位，研究方向为智慧农业与人工智能技术应用。
+:::
+
+::: paragraph {#p0149 kind=paragraph style="Normal"}
+攻读硕士学位期间，主要参与国家自然科学基金项目“基于深度学习的作物病虫害智能识别方法研究”和农业部智慧农业技术推广项目。在学期间发表（或录用）学术论文X篇，申请发明专利X项。
+:::
+
+::: paragraph {#p0150 kind=paragraph style="Normal"}
+联系方式：xxx@cau.edu.cn
+:::

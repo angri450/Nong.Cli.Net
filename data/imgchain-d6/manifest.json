@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "nong-pandoc/package/v1",
+  "source": {
+    "path": "imgchain-5.docx",
+    "format": "docx",
+    "sha256": "e79ab86c3eece3925fbd880fba52d281d61bd5125cd9c5fd215e8c2ac072c5b6"
+  },
+  "createdAt": "2026-06-19T10:29:28.6611264Z",
+  "streams": {
+    "document": "document.json",
+    "contentJsonl": "content.jsonl",
+    "contentNongMark": "content.nongmark",
+    "structure": "structure.json",
+    "format": "format.json",
+    "diagnostics": "diagnostics.json",
+    "assets": "assets/manifest.json",
+    "textPreview": "preview/content.txt"
+  },
+  "metrics": {
+    "blocks": 188,
+    "paragraphs": 153,
+    "headings": 34,
+    "tables": 1,
+    "figures": 0,
+    "images": 0,
+    "references": 0,
+    "warnings": 0
+  },
+  "warnings": []
+}

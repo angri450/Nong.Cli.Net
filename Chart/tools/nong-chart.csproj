@@ -9,7 +9,7 @@
     <PackageId>Angri450.Nong.Tool.Chart</PackageId>
     <ToolCommandName>nong-chart</ToolCommandName>
     <PackAsTool>true</PackAsTool>
-    <Version>4.2.1</Version>
+    <Version>12.1.0</Version>
     <Authors>angri450</Authors>
     <Description>Statistical charts — bar, line, scatter, pie, boxplot, histogram, heatmap, radar, ANOVA, Duncan MRT.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -21,7 +21,7 @@
     <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.2" />
     <!-- Non-Windows SkiaSharp native assets removed per RID strategy: macOS / Linux excluded to keep package below 50MB.
          Cross-platform users can install from source or wait for RID-specific packages. -->
-    <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" Version="8.3.1.1" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" Version="8.3.1.5" />
     <!-- Non-Windows HarfBuzz native assets removed (see SkiaSharp note above) -->
   </ItemGroup>
   <ItemGroup>

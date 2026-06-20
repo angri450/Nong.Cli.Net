@@ -1,0 +1,13 @@
+{
+  "title": "Test Thesis",
+  "authors": ["Test Author"],
+  "abstract": "Test abstract content.",
+  "keywords": "test; thesis",
+  "sections": [
+    {
+      "heading": "Chapter 1 Introduction",
+      "body": ["This is a test paragraph."]
+    }
+  ],
+  "references": ["[1] Author. Title. Journal, 2025."]
+}

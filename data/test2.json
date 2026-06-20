@@ -1,0 +1,13 @@
+{
+  "title": "AI Test",
+  "authors": ["Test"],
+  "abstract": "Test.",
+  "keywords": "test",
+  "sections": [
+    {
+      "heading": "Test Chapter",
+      "body": ["This is a test with Chinese characters."]
+    }
+  ],
+  "references": ["[1] Test, 2025."]
+}

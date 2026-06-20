@@ -1,0 +1,5683 @@
+{
+  "schemaVersion": "nongmark/v1",
+  "source": "",
+  "outline": [
+    {
+      "id": "h0001",
+      "text": " MACROBUTTON Title1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E00\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98981]",
+      "level": 2,
+      "children": [
+        {
+          "id": "h0002",
+          "text": "1.1 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0003",
+              "text": "1.1.1 MACROBUTTON Tiltle3 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+              "level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "h0004",
+          "text": "1.2 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0005",
+              "text": "1.2.1 MACROBUTTON Tiltle3 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+              "level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "h0006",
+          "text": "1.3 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0007",
+              "text": "1.3.1 MACROBUTTON Tiltle3 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+              "level": 4,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "h0008",
+      "text": " MACROBUTTON Title1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E00\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98981]",
+      "level": 2,
+      "children": [
+        {
+          "id": "h0009",
+          "text": "2.1 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0010",
+              "text": "2.1.1 MACROBUTTON Tiltle3 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+              "level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "h0011",
+          "text": "2.2 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0012",
+              "text": "2.2.1 MACROBUTTON Tiltle3 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+              "level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "h0013",
+          "text": "2.3 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0014",
+              "text": "2.3.1 MACROBUTTON Tiltle3 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+              "level": 4,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "h0015",
+      "text": " MACROBUTTON Title1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E00\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98981]",
+      "level": 2,
+      "children": [
+        {
+          "id": "h0016",
+          "text": "3.1 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0017",
+              "text": "3.1.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983] ",
+              "level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "h0018",
+          "text": "3.2 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0019",
+              "text": "3.2.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983] ",
+              "level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "h0020",
+          "text": "3.3 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0021",
+              "text": "3.3.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983] ",
+              "level": 4,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "h0022",
+      "text": "",
+      "level": 2,
+      "children": []
+    },
+    {
+      "id": "h0023",
+      "text": " MACROBUTTON Title1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E00\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98981]",
+      "level": 2,
+      "children": [
+        {
+          "id": "h0024",
+          "text": "4.1 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0025",
+              "text": "4.1.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983] ",
+              "level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "h0026",
+          "text": "4.2 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0027",
+              "text": " MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C4\u7AE0\u6B63\u6587\u5185\u5BB9] ",
+              "level": 5,
+              "children": []
+            },
+            {
+              "id": "h0028",
+              "text": "4.2.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983] ",
+              "level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "h0029",
+          "text": "4.3 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0030",
+              "text": " MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C4\u7AE0\u6B63\u6587\u5185\u5BB9] ",
+              "level": 5,
+              "children": []
+            },
+            {
+              "id": "h0031",
+              "text": "4.3.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983] ",
+              "level": 4,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "h0032",
+      "text": " MACROBUTTON Title1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E00\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98981]",
+      "level": 2,
+      "children": [
+        {
+          "id": "h0033",
+          "text": "5.1 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0034",
+              "text": "5.1.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983] ",
+              "level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "h0035",
+          "text": "5.2 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0036",
+              "text": "5.2.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983] ",
+              "level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "h0037",
+          "text": "5.3 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0038",
+              "text": "5.3.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983] ",
+              "level": 4,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "h0039",
+      "text": " MACROBUTTON Title1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E00\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98981]",
+      "level": 2,
+      "children": [
+        {
+          "id": "h0040",
+          "text": "6.1 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0041",
+              "text": "6.1.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983] ",
+              "level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "h0042",
+          "text": "6.2 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0043",
+              "text": "6.2.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983] ",
+              "level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "h0044",
+          "text": "6.3 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+          "level": 3,
+          "children": [
+            {
+              "id": "h0045",
+              "text": "6.3.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983] ",
+              "level": 4,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "h0046",
+      "text": "\u53C2\u8003\u6587\u732E",
+      "level": 2,
+      "children": []
+    },
+    {
+      "id": "h0047",
+      "text": "\u81F4 \u8C22",
+      "level": 2,
+      "children": []
+    },
+    {
+      "id": "h0048",
+      "text": "\u9644\u5F55",
+      "level": 2,
+      "children": []
+    },
+    {
+      "id": "h0049",
+      "text": "\u4F5C\u8005\u7B80\u4ECB",
+      "level": 2,
+      "children": []
+    }
+  ],
+  "blockIndex": {
+    "bm0001": {
+      "kind": "bookmark",
+      "order": 0,
+      "position": 0,
+      "textPreview": "_Toc355274223",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 0,
+        "confidence": "high"
+      }
+    },
+    "bm0002": {
+      "kind": "bookmark",
+      "order": 1,
+      "position": 1,
+      "textPreview": "_Toc355807471",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 1,
+        "confidence": "high"
+      }
+    },
+    "bm0003": {
+      "kind": "bookmark",
+      "order": 2,
+      "position": 2,
+      "textPreview": "_Toc355274957",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 2,
+        "confidence": "high"
+      }
+    },
+    "bm0004": {
+      "kind": "bookmark",
+      "order": 3,
+      "position": 3,
+      "textPreview": "_Toc355361237",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 3,
+        "confidence": "high"
+      }
+    },
+    "bm0005": {
+      "kind": "bookmark",
+      "order": 4,
+      "position": 4,
+      "textPreview": "_Toc355614273",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 4,
+        "confidence": "high"
+      }
+    },
+    "bm0006": {
+      "kind": "bookmark",
+      "order": 5,
+      "position": 5,
+      "textPreview": "_Toc355204232",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 5,
+        "confidence": "high"
+      }
+    },
+    "p0001": {
+      "kind": "paragraph",
+      "order": 6,
+      "position": 6,
+      "textPreview": "53340-632460\u4F7F\u7528\u540E\u5220\u9664\u672C\u6846-\u9644\u4EF61\uFF1A\u9002\u7528\u4E8E\u5B66\u5386\u6559\u80B2\u535A\u58EB/\u7855\u58EB\u7814\u7A76\u751F\u548C\u5728\u804C\u4EBA\u5458\u4EE5\u7814\u7A76\u751F\u6BD5\u4E1A\u540C\u7B49\u5B66\u529B\u7533\u8BF7\u5B66\u4F4D\u4EBA\u5458\u4F7F\u7528\u540E\u5220\u9664\u672C\u6846-\u9644\u4EF61\uFF1A\u9002\u7528\u4E8E\u5B66\u5386\u6559\u80B2\u535A...",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 6,
+        "confidence": "high"
+      }
+    },
+    "img0001": {
+      "kind": "image",
+      "order": 7,
+      "position": 7,
+      "textPreview": "VML image",
+      "provenance": {
+        "format": "docx",
+        "source": "vml",
+        "position": 7,
+        "confidence": "high",
+        "notes": [
+          "VML image relationship preserved as extracted asset evidence."
+        ]
+      }
+    },
+    "p0002": {
+      "kind": "paragraph",
+      "order": 8,
+      "position": 8,
+      "textPreview": "\u5206\u7C7B\u53F7\uFF1A                                     \u5355\u4F4D\u4EE3\u7801\uFF1A10019",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 8,
+        "confidence": "high"
+      }
+    },
+    "p0003": {
+      "kind": "paragraph",
+      "order": 9,
+      "position": 9,
+      "textPreview": "\u5BC6  \u7EA7\uFF1A                                     \u5B66    \u53F7\uFF1A",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 9,
+        "confidence": "high"
+      }
+    },
+    "p0004": {
+      "kind": "paragraph",
+      "order": 10,
+      "position": 10,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 10,
+        "confidence": "high"
+      }
+    },
+    "p0005": {
+      "kind": "paragraph",
+      "order": 11,
+      "position": 11,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 11,
+        "confidence": "high"
+      }
+    },
+    "p0006": {
+      "kind": "paragraph",
+      "order": 12,
+      "position": 12,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 12,
+        "confidence": "high"
+      }
+    },
+    "p0007": {
+      "kind": "paragraph",
+      "order": 13,
+      "position": 13,
+      "textPreview": "INCLUDEPICTURE  \u0022http://news.cau.edu.cn/upload/2005/caunews_20050711181514.jpg\u0022 ...",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 13,
+        "confidence": "high"
+      }
+    },
+    "img0002": {
+      "kind": "image",
+      "order": 14,
+      "position": 14,
+      "textPreview": "[image]",
+      "provenance": {
+        "format": "docx",
+        "source": "drawingml",
+        "position": 14,
+        "layout": {
+          "width": 3726180,
+          "height": 714375,
+          "unit": "emu"
+        },
+        "assetId": "rId47",
+        "relationshipId": "rId47",
+        "confidence": "high"
+      }
+    },
+    "p0008": {
+      "kind": "paragraph",
+      "order": 15,
+      "position": 15,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 15,
+        "confidence": "high"
+      }
+    },
+    "p0009": {
+      "kind": "paragraph",
+      "order": 16,
+      "position": 16,
+      "textPreview": "\u7855\u58EB/\u535A\u58EB\u5B66\u4F4D\u8BBA\u6587",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 16,
+        "confidence": "high"
+      }
+    },
+    "p0010": {
+      "kind": "paragraph",
+      "order": 17,
+      "position": 17,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 17,
+        "confidence": "high"
+      }
+    },
+    "bm0007": {
+      "kind": "bookmark",
+      "order": 18,
+      "position": 18,
+      "textPreview": "OLE_LINK2",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 18,
+        "confidence": "high"
+      }
+    },
+    "bm0008": {
+      "kind": "bookmark",
+      "order": 19,
+      "position": 19,
+      "textPreview": "OLE_LINK1",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 19,
+        "confidence": "high"
+      }
+    },
+    "p0011": {
+      "kind": "paragraph",
+      "order": 20,
+      "position": 20,
+      "textPreview": "MACROBUTTON \u9898\u76EE [\u8BF7\u5355\u51FB\u6B64\u5904\uFF0C\u7136\u540E\u952E\u5165\u8BBA\u6587\u9898\u76EE]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 20,
+        "confidence": "high"
+      }
+    },
+    "p0012": {
+      "kind": "paragraph",
+      "order": 21,
+      "position": 21,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u8BF7\u5355\u51FB\u6B64\u5904\uFF0C\u7136\u540E\u952E\u5165\u8BBA\u6587\u82F1\u6587\u9898\u76EE]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 21,
+        "confidence": "high"
+      }
+    },
+    "raw0001": {
+      "kind": "rawOpenXmlRef",
+      "order": 22,
+      "position": 22,
+      "textPreview": "bookmarkEnd",
+      "provenance": {
+        "format": "docx",
+        "source": "rawOpenXmlRef",
+        "position": 22,
+        "confidence": "high"
+      }
+    },
+    "raw0002": {
+      "kind": "rawOpenXmlRef",
+      "order": 23,
+      "position": 23,
+      "textPreview": "bookmarkEnd",
+      "provenance": {
+        "format": "docx",
+        "source": "rawOpenXmlRef",
+        "position": 23,
+        "confidence": "high"
+      }
+    },
+    "p0013": {
+      "kind": "paragraph",
+      "order": 24,
+      "position": 24,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 24,
+        "confidence": "high"
+      }
+    },
+    "p0014": {
+      "kind": "paragraph",
+      "order": 25,
+      "position": 25,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 25,
+        "confidence": "high"
+      }
+    },
+    "p0015": {
+      "kind": "paragraph",
+      "order": 26,
+      "position": 26,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 26,
+        "confidence": "high"
+      }
+    },
+    "p0016": {
+      "kind": "paragraph",
+      "order": 27,
+      "position": 27,
+      "textPreview": "\u7814\u7A76\u751F\uFF1A  MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u8BF7\u5355\u51FB\u6B64\u5904\uFF0C\u7136\u540E\u952E\u5165\u59D3\u540D]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 27,
+        "confidence": "high"
+      }
+    },
+    "p0017": {
+      "kind": "paragraph",
+      "order": 28,
+      "position": 28,
+      "textPreview": "\u6307\u5BFC\u6559\u5E08\uFF1A     MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u952E\u5165\u5BFC\u5E08\u59D3\u540D\uFF0C\u804C\u79F0]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 28,
+        "confidence": "high"
+      }
+    },
+    "p0018": {
+      "kind": "paragraph",
+      "order": 29,
+      "position": 29,
+      "textPreview": "\u5408\u4F5C\u6307\u5BFC\u6559\u5E08\uFF1A     MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u952E\u5165\u5BFC\u5E08\u59D3\u540D\uFF0C\u804C\u79F0]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 29,
+        "confidence": "high"
+      }
+    },
+    "p0019": {
+      "kind": "paragraph",
+      "order": 30,
+      "position": 30,
+      "textPreview": "\u7533\u8BF7\u5B66\u4F4D\u95E8\u7C7B\u7EA7\u522B\uFF1A  MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u952E\u5165\u535A\u58EB\u6216\u7855\u58EB\u5B66\u4F4D\u7C7B\u522B]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 30,
+        "confidence": "high"
+      }
+    },
+    "p0020": {
+      "kind": "paragraph",
+      "order": 31,
+      "position": 31,
+      "textPreview": "\u4E13\u4E1A\u540D\u79F0\uFF1A        MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u952E\u5165\u4E13\u4E1A\u540D\u79F0]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 31,
+        "confidence": "high"
+      }
+    },
+    "p0021": {
+      "kind": "paragraph",
+      "order": 32,
+      "position": 32,
+      "textPreview": "\u7814\u7A76\u65B9\u5411\uFF1A        MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u952E\u5165\u7814\u7A76\u65B9\u5411]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 32,
+        "confidence": "high"
+      }
+    },
+    "p0022": {
+      "kind": "paragraph",
+      "order": 33,
+      "position": 33,
+      "textPreview": "\u6240\u5728\u5B66\u9662\uFF1A        MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u952E\u5165\u5B66\u9662\u540D\u79F0]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 33,
+        "confidence": "high"
+      }
+    },
+    "p0023": {
+      "kind": "paragraph",
+      "order": 34,
+      "position": 34,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 34,
+        "confidence": "high"
+      }
+    },
+    "p0024": {
+      "kind": "paragraph",
+      "order": 35,
+      "position": 35,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 35,
+        "confidence": "high"
+      }
+    },
+    "p0025": {
+      "kind": "paragraph",
+      "order": 36,
+      "position": 36,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 36,
+        "confidence": "high"
+      }
+    },
+    "p0026": {
+      "kind": "paragraph",
+      "order": 37,
+      "position": 37,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 37,
+        "confidence": "high"
+      }
+    },
+    "p0027": {
+      "kind": "paragraph",
+      "order": 38,
+      "position": 38,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 38,
+        "confidence": "high"
+      }
+    },
+    "p0028": {
+      "kind": "paragraph",
+      "order": 39,
+      "position": 39,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 39,
+        "confidence": "high"
+      }
+    },
+    "p0029": {
+      "kind": "paragraph",
+      "order": 40,
+      "position": 40,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 40,
+        "confidence": "high"
+      }
+    },
+    "p0030": {
+      "kind": "paragraph",
+      "order": 41,
+      "position": 41,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 41,
+        "confidence": "high"
+      }
+    },
+    "p0031": {
+      "kind": "paragraph",
+      "order": 42,
+      "position": 42,
+      "textPreview": "XXXX\u5E74 XX \u6708",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 42,
+        "confidence": "high"
+      }
+    },
+    "p0032": {
+      "kind": "paragraph",
+      "order": 43,
+      "position": 43,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 43,
+        "confidence": "high"
+      }
+    },
+    "p0033": {
+      "kind": "paragraph",
+      "order": 44,
+      "position": 44,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 44,
+        "confidence": "high"
+      }
+    },
+    "p0034": {
+      "kind": "paragraph",
+      "order": 45,
+      "position": 45,
+      "textPreview": "43815-651510\u4F7F\u7528\u540E\u5220\u9664\u672C\u6846-\u9644\u4EF62\uFF1A\u9002\u7528\u4E8E\u4E13\u4E1A\u5B66\u4F4D\u7814\u7A76\u751F\u4F7F\u7528\u540E\u5220\u9664\u672C\u6846-\u9644\u4EF62\uFF1A\u9002\u7528\u4E8E\u4E13\u4E1A\u5B66\u4F4D\u7814\u7A76\u751F",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 45,
+        "confidence": "high"
+      }
+    },
+    "img0003": {
+      "kind": "image",
+      "order": 46,
+      "position": 46,
+      "textPreview": "VML image",
+      "provenance": {
+        "format": "docx",
+        "source": "vml",
+        "position": 46,
+        "confidence": "high",
+        "notes": [
+          "VML image relationship preserved as extracted asset evidence."
+        ]
+      }
+    },
+    "p0035": {
+      "kind": "paragraph",
+      "order": 47,
+      "position": 47,
+      "textPreview": "\u5206\u7C7B\u53F7\uFF1A                                     \u5355\u4F4D\u4EE3\u7801\uFF1A10019",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 47,
+        "confidence": "high"
+      }
+    },
+    "p0036": {
+      "kind": "paragraph",
+      "order": 48,
+      "position": 48,
+      "textPreview": "\u5BC6  \u7EA7\uFF1A                                     \u5B66    \u53F7\uFF1A",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 48,
+        "confidence": "high"
+      }
+    },
+    "p0037": {
+      "kind": "paragraph",
+      "order": 49,
+      "position": 49,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 49,
+        "confidence": "high"
+      }
+    },
+    "p0038": {
+      "kind": "paragraph",
+      "order": 50,
+      "position": 50,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 50,
+        "confidence": "high"
+      }
+    },
+    "p0039": {
+      "kind": "paragraph",
+      "order": 51,
+      "position": 51,
+      "textPreview": "INCLUDEPICTURE  \u0022http://news.cau.edu.cn/upload/2005/caunews_20050711181514.jpg\u0022 ...",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 51,
+        "confidence": "high"
+      }
+    },
+    "p0040": {
+      "kind": "paragraph",
+      "order": 52,
+      "position": 52,
+      "textPreview": "INCLUDEPICTURE  \u0022http://news.cau.edu.cn/upload/2005/caunews_20050711181514.jpg\u0022 ...",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 52,
+        "confidence": "high"
+      }
+    },
+    "bm0009": {
+      "kind": "bookmark",
+      "order": 53,
+      "position": 53,
+      "textPreview": "_GoBack",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 53,
+        "confidence": "high"
+      }
+    },
+    "img0004": {
+      "kind": "image",
+      "order": 54,
+      "position": 54,
+      "textPreview": "[image]",
+      "provenance": {
+        "format": "docx",
+        "source": "drawingml",
+        "position": 54,
+        "layout": {
+          "width": 3726180,
+          "height": 714375,
+          "unit": "emu"
+        },
+        "assetId": "rId47",
+        "relationshipId": "rId47",
+        "confidence": "high"
+      }
+    },
+    "p0041": {
+      "kind": "paragraph",
+      "order": 55,
+      "position": 55,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 55,
+        "confidence": "high"
+      }
+    },
+    "p0042": {
+      "kind": "paragraph",
+      "order": 56,
+      "position": 56,
+      "textPreview": "\u7855\u58EB/\u535A\u58EB\u5B66\u4F4D\u8BBA\u6587",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 56,
+        "confidence": "high"
+      }
+    },
+    "p0043": {
+      "kind": "paragraph",
+      "order": 57,
+      "position": 57,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 57,
+        "confidence": "high"
+      }
+    },
+    "p0044": {
+      "kind": "paragraph",
+      "order": 58,
+      "position": 58,
+      "textPreview": "MACROBUTTON \u9898\u76EE [\u8BF7\u5355\u51FB\u6B64\u5904\uFF0C\u7136\u540E\u952E\u5165\u8BBA\u6587\u9898\u76EE]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 58,
+        "confidence": "high"
+      }
+    },
+    "p0045": {
+      "kind": "paragraph",
+      "order": 59,
+      "position": 59,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u8BF7\u5355\u51FB\u6B64\u5904\uFF0C\u7136\u540E\u952E\u5165\u8BBA\u6587\u82F1\u6587\u9898\u76EE]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 59,
+        "confidence": "high"
+      }
+    },
+    "p0046": {
+      "kind": "paragraph",
+      "order": 60,
+      "position": 60,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 60,
+        "confidence": "high"
+      }
+    },
+    "p0047": {
+      "kind": "paragraph",
+      "order": 61,
+      "position": 61,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 61,
+        "confidence": "high"
+      }
+    },
+    "p0048": {
+      "kind": "paragraph",
+      "order": 62,
+      "position": 62,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 62,
+        "confidence": "high"
+      }
+    },
+    "p0049": {
+      "kind": "paragraph",
+      "order": 63,
+      "position": 63,
+      "textPreview": "\u7814\u7A76\u751F\uFF1A  MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u8BF7\u5355\u51FB\u6B64\u5904\uFF0C\u7136\u540E\u952E\u5165\u59D3\u540D]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 63,
+        "confidence": "high"
+      }
+    },
+    "p0050": {
+      "kind": "paragraph",
+      "order": 64,
+      "position": 64,
+      "textPreview": "\u6307\u5BFC\u6559\u5E08\uFF1A     MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u952E\u5165\u5BFC\u5E08\u59D3\u540D\uFF0C\u804C\u79F0]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 64,
+        "confidence": "high"
+      }
+    },
+    "p0051": {
+      "kind": "paragraph",
+      "order": 65,
+      "position": 65,
+      "textPreview": "\u5408\u4F5C\u6307\u5BFC\u6559\u5E08\uFF1A     MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u952E\u5165\u5BFC\u5E08\u59D3\u540D\uFF0C\u804C\u79F0]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 65,
+        "confidence": "high"
+      }
+    },
+    "p0052": {
+      "kind": "paragraph",
+      "order": 66,
+      "position": 66,
+      "textPreview": "\u7533\u8BF7\u5B66\u4F4D\u95E8\u7C7B\u7EA7\u522B\uFF1A    MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u952E\u5165\u535A\u58EB\u6216\u7855\u58EB\u5B66\u4F4D\u7C7B\u522B]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 66,
+        "confidence": "high"
+      }
+    },
+    "p0053": {
+      "kind": "paragraph",
+      "order": 67,
+      "position": 67,
+      "textPreview": "\u4E13\u4E1A\u9886\u57DF\u540D\u79F0\uFF1A        MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u952E\u5165\u4E13\u4E1A\u540D\u79F0]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 67,
+        "confidence": "high"
+      }
+    },
+    "p0054": {
+      "kind": "paragraph",
+      "order": 68,
+      "position": 68,
+      "textPreview": "\u7814\u7A76\u65B9\u5411\uFF1A        MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u952E\u5165\u7814\u7A76\u65B9\u5411]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 68,
+        "confidence": "high"
+      }
+    },
+    "p0055": {
+      "kind": "paragraph",
+      "order": 69,
+      "position": 69,
+      "textPreview": "\u6240\u5728\u5B66\u9662\uFF1A        MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u952E\u5165\u5B66\u9662\u540D\u79F0]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 69,
+        "confidence": "high"
+      }
+    },
+    "p0056": {
+      "kind": "paragraph",
+      "order": 70,
+      "position": 70,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 70,
+        "confidence": "high"
+      }
+    },
+    "p0057": {
+      "kind": "paragraph",
+      "order": 71,
+      "position": 71,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 71,
+        "confidence": "high"
+      }
+    },
+    "p0058": {
+      "kind": "paragraph",
+      "order": 72,
+      "position": 72,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 72,
+        "confidence": "high"
+      }
+    },
+    "p0059": {
+      "kind": "paragraph",
+      "order": 73,
+      "position": 73,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 73,
+        "confidence": "high"
+      }
+    },
+    "p0060": {
+      "kind": "paragraph",
+      "order": 74,
+      "position": 74,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 74,
+        "confidence": "high"
+      }
+    },
+    "p0061": {
+      "kind": "paragraph",
+      "order": 75,
+      "position": 75,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 75,
+        "confidence": "high"
+      }
+    },
+    "p0062": {
+      "kind": "paragraph",
+      "order": 76,
+      "position": 76,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 76,
+        "confidence": "high"
+      }
+    },
+    "p0063": {
+      "kind": "paragraph",
+      "order": 77,
+      "position": 77,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 77,
+        "confidence": "high"
+      }
+    },
+    "p0064": {
+      "kind": "paragraph",
+      "order": 78,
+      "position": 78,
+      "textPreview": "XXXX\u5E74 XX \u6708",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 78,
+        "confidence": "high"
+      }
+    },
+    "p0065": {
+      "kind": "paragraph",
+      "order": 79,
+      "position": 79,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 79,
+        "confidence": "high"
+      }
+    },
+    "p0066": {
+      "kind": "paragraph",
+      "order": 80,
+      "position": 80,
+      "textPreview": "0-609600\u8BBA\u6587\u6210\u6587\u540E\u5220\u9664\u6B64\u9875\u8BBA\u6587\u6210\u6587\u540E\u5220\u9664\u6B64\u9875",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 80,
+        "confidence": "high"
+      }
+    },
+    "img0005": {
+      "kind": "image",
+      "order": 81,
+      "position": 81,
+      "textPreview": "VML image",
+      "provenance": {
+        "format": "docx",
+        "source": "vml",
+        "position": 81,
+        "confidence": "high",
+        "notes": [
+          "VML image relationship preserved as extracted asset evidence."
+        ]
+      }
+    },
+    "p0067": {
+      "kind": "paragraph",
+      "order": 82,
+      "position": 82,
+      "textPreview": "\u4E66 \u810A \u7684 \u4E66 \u5199",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 82,
+        "confidence": "high"
+      }
+    },
+    "p0068": {
+      "kind": "paragraph",
+      "order": 83,
+      "position": 83,
+      "textPreview": "37547553621405\u9875\u8FB9\u9875\u8FB9",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 83,
+        "confidence": "high"
+      }
+    },
+    "img0006": {
+      "kind": "image",
+      "order": 84,
+      "position": 84,
+      "textPreview": "VML image",
+      "provenance": {
+        "format": "docx",
+        "source": "vml",
+        "position": 84,
+        "confidence": "high",
+        "notes": [
+          "VML image relationship preserved as extracted asset evidence."
+        ]
+      }
+    },
+    "p0069": {
+      "kind": "paragraph",
+      "order": 85,
+      "position": 85,
+      "textPreview": "3718560424815\u9875\u8FB9\u9875\u8FB9",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 85,
+        "confidence": "high"
+      }
+    },
+    "img0007": {
+      "kind": "image",
+      "order": 86,
+      "position": 86,
+      "textPreview": "VML image",
+      "provenance": {
+        "format": "docx",
+        "source": "vml",
+        "position": 86,
+        "confidence": "high",
+        "notes": [
+          "VML image relationship preserved as extracted asset evidence."
+        ]
+      }
+    },
+    "p0070": {
+      "kind": "paragraph",
+      "order": 87,
+      "position": 87,
+      "textPreview": "\u5B66\u4F4D\u8BBA\u6587\u7684\u4E66\u810A\u7528\u4E94\u53F7\u5B8B\u4F53\u4E66\u5199\uFF0C\u4E0A\u65B9\u5199\u8BBA\u6587\u9898\u76EE\uFF0C\u4E0B\u65B9\u5199\u7533\u8BF7\u4EBA\u59D3\u540D\uFF0C\u8DDD\u4E0A\u4E0B\u9875\u8FB9\u5C45\u4E2D\u6392\u5217\uFF0C\u5982\u4E0B\u56FE\uFF1A",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 87,
+        "confidence": "high"
+      }
+    },
+    "t0001": {
+      "kind": "table",
+      "order": 88,
+      "position": 88,
+      "textPreview": "[1x1 table]",
+      "styleId": "33",
+      "provenance": {
+        "format": "docx",
+        "source": "wordTable",
+        "position": 88,
+        "confidence": "high",
+        "notes": [
+          "styleId:33"
+        ]
+      }
+    },
+    "p0071": {
+      "kind": "paragraph",
+      "order": 89,
+      "position": 89,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 89,
+        "confidence": "high"
+      }
+    },
+    "p0072": {
+      "kind": "paragraph",
+      "order": 90,
+      "position": 90,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 90,
+        "confidence": "high"
+      }
+    },
+    "p0073": {
+      "kind": "paragraph",
+      "order": 91,
+      "position": 91,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 91,
+        "confidence": "high"
+      }
+    },
+    "p0074": {
+      "kind": "paragraph",
+      "order": 92,
+      "position": 92,
+      "textPreview": "\u72EC \u521B \u6027 \u58F0 \u660E",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 92,
+        "confidence": "high"
+      }
+    },
+    "p0075": {
+      "kind": "paragraph",
+      "order": 93,
+      "position": 93,
+      "textPreview": "\u672C\u4EBA\u58F0\u660E\u6240\u5448\u4EA4\u7684\u5B66\u4F4D\u8BBA\u6587\u662F\u6211\u4E2A\u4EBA\u5728\u5BFC\u5E08\u6307\u5BFC\u4E0B\u8FDB\u884C\u7684\u7814\u7A76\u5DE5\u4F5C\u53CA\u53D6\u5F97\u7684\u7814\u7A76\u6210\u679C\u3002\u5C3D\u6211\u6240\u77E5\uFF0C\u9664\u4E86\u6587\u4E2D\u5DF2\u7ECF\u6CE8\u660E\u5F15\u7528\u3001\u5DF2\u7ECF\u58F0\u660E\u751F\u6210\u5F0F\u4EBA\u5DE5\u667A\u80FD\u4F7F\u7528\u60C5\u51B5\u548C\u81F4\u8C22\u7684\u5185\u5BB9\u5916\uFF0C\u8BBA\u6587\u4E2D...",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 93,
+        "confidence": "high"
+      }
+    },
+    "p0076": {
+      "kind": "paragraph",
+      "order": 94,
+      "position": 94,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 94,
+        "confidence": "high"
+      }
+    },
+    "p0077": {
+      "kind": "paragraph",
+      "order": 95,
+      "position": 95,
+      "textPreview": "\u5B66\u4F4D\u8BBA\u6587\u4F5C\u8005\u7B7E\u540D\uFF1A\u65F6\u95F4\uFF1A        \u5E74   \u6708   \u65E5",
+      "styleId": "15",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 95,
+        "confidence": "high"
+      }
+    },
+    "p0078": {
+      "kind": "paragraph",
+      "order": 96,
+      "position": 96,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 96,
+        "confidence": "high"
+      }
+    },
+    "p0079": {
+      "kind": "paragraph",
+      "order": 97,
+      "position": 97,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 97,
+        "confidence": "high"
+      }
+    },
+    "p0080": {
+      "kind": "paragraph",
+      "order": 98,
+      "position": 98,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 98,
+        "confidence": "high"
+      }
+    },
+    "p0081": {
+      "kind": "paragraph",
+      "order": 99,
+      "position": 99,
+      "textPreview": "\u5173\u4E8E\u5B66\u4F4D\u8BBA\u6587\u4F7F\u7528\u6388\u6743\u7684\u8BF4\u660E",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 99,
+        "confidence": "high"
+      }
+    },
+    "p0082": {
+      "kind": "paragraph",
+      "order": 100,
+      "position": 100,
+      "textPreview": "\u672C\u4EBA\u5B8C\u5168\u4E86\u89E3\u4E2D\u56FD\u519C\u4E1A\u5927\u5B66\u6709\u5173\u4FDD\u7559\u3001\u4F7F\u7528\u5B66\u4F4D\u8BBA\u6587\u7684\u89C4\u5B9A\u3002\u672C\u4EBA\u540C\u610F\u4E2D\u56FD\u519C\u4E1A\u5927\u5B66\u6709\u6743\u4FDD\u5B58\u53CA\u5411\u56FD\u5BB6\u6709\u5173\u90E8\u95E8\u548C\u673A\u6784\u9001\u4EA4\u8BBA\u6587\u7684\u7EB8\u8D28\u7248\u548C\u7535\u5B50\u7248\uFF0C\u5141\u8BB8\u8BBA\u6587\u88AB\u67E5\u9605\u548C\u501F\u9605\u3002",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 100,
+        "confidence": "high"
+      }
+    },
+    "p0083": {
+      "kind": "paragraph",
+      "order": 101,
+      "position": 101,
+      "textPreview": "(\u4FDD\u5BC6\u7684\u5B66\u4F4D\u8BBA\u6587\u5728\u89E3\u5BC6\u540E\u5E94\u9075\u5B88\u6B64\u534F\u8BAE)",
+      "styleId": "15",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 101,
+        "confidence": "high"
+      }
+    },
+    "p0084": {
+      "kind": "paragraph",
+      "order": 102,
+      "position": 102,
+      "styleId": "15",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 102,
+        "confidence": "high"
+      }
+    },
+    "p0085": {
+      "kind": "paragraph",
+      "order": 103,
+      "position": 103,
+      "styleId": "15",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 103,
+        "confidence": "high"
+      }
+    },
+    "p0086": {
+      "kind": "paragraph",
+      "order": 104,
+      "position": 104,
+      "textPreview": "\u5B66\u4F4D\u8BBA\u6587\u4F5C\u8005\u7B7E\u540D\uFF1A\u65F6\u95F4\uFF1A        \u5E74   \u6708   \u65E5",
+      "styleId": "15",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 104,
+        "confidence": "high"
+      }
+    },
+    "p0087": {
+      "kind": "paragraph",
+      "order": 105,
+      "position": 105,
+      "styleId": "15",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 105,
+        "confidence": "high"
+      }
+    },
+    "p0088": {
+      "kind": "paragraph",
+      "order": 106,
+      "position": 106,
+      "textPreview": "\u5BFC\u5E08\u7B7E\u540D\uFF1A\u65F6\u95F4\uFF1A        \u5E74   \u6708   \u65E5",
+      "styleId": "15",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 106,
+        "confidence": "high"
+      }
+    },
+    "p0089": {
+      "kind": "paragraph",
+      "order": 107,
+      "position": 107,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 107,
+        "confidence": "high"
+      }
+    },
+    "p0090": {
+      "kind": "paragraph",
+      "order": 108,
+      "position": 108,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 108,
+        "confidence": "high"
+      }
+    },
+    "raw0003": {
+      "kind": "rawOpenXmlRef",
+      "order": 109,
+      "position": 109,
+      "textPreview": "bookmarkEnd",
+      "provenance": {
+        "format": "docx",
+        "source": "rawOpenXmlRef",
+        "position": 109,
+        "confidence": "high"
+      }
+    },
+    "raw0004": {
+      "kind": "rawOpenXmlRef",
+      "order": 110,
+      "position": 110,
+      "textPreview": "bookmarkEnd",
+      "provenance": {
+        "format": "docx",
+        "source": "rawOpenXmlRef",
+        "position": 110,
+        "confidence": "high"
+      }
+    },
+    "raw0005": {
+      "kind": "rawOpenXmlRef",
+      "order": 111,
+      "position": 111,
+      "textPreview": "bookmarkEnd",
+      "provenance": {
+        "format": "docx",
+        "source": "rawOpenXmlRef",
+        "position": 111,
+        "confidence": "high"
+      }
+    },
+    "raw0006": {
+      "kind": "rawOpenXmlRef",
+      "order": 112,
+      "position": 112,
+      "textPreview": "bookmarkEnd",
+      "provenance": {
+        "format": "docx",
+        "source": "rawOpenXmlRef",
+        "position": 112,
+        "confidence": "high"
+      }
+    },
+    "raw0007": {
+      "kind": "rawOpenXmlRef",
+      "order": 113,
+      "position": 113,
+      "textPreview": "bookmarkEnd",
+      "provenance": {
+        "format": "docx",
+        "source": "rawOpenXmlRef",
+        "position": 113,
+        "confidence": "high"
+      }
+    },
+    "raw0008": {
+      "kind": "rawOpenXmlRef",
+      "order": 114,
+      "position": 114,
+      "textPreview": "bookmarkEnd",
+      "provenance": {
+        "format": "docx",
+        "source": "rawOpenXmlRef",
+        "position": 114,
+        "confidence": "high"
+      }
+    },
+    "bm0010": {
+      "kind": "bookmark",
+      "order": 115,
+      "position": 115,
+      "textPreview": "_Toc520240576",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 115,
+        "confidence": "high"
+      }
+    },
+    "bm0011": {
+      "kind": "bookmark",
+      "order": 116,
+      "position": 116,
+      "textPreview": "_Toc479346319",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 116,
+        "confidence": "high"
+      }
+    },
+    "bm0012": {
+      "kind": "bookmark",
+      "order": 117,
+      "position": 117,
+      "textPreview": "_Toc523697193",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 117,
+        "confidence": "high"
+      }
+    },
+    "bm0013": {
+      "kind": "bookmark",
+      "order": 118,
+      "position": 118,
+      "textPreview": "_Toc484182509",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 118,
+        "confidence": "high"
+      }
+    },
+    "bm0014": {
+      "kind": "bookmark",
+      "order": 119,
+      "position": 119,
+      "textPreview": "_Toc485389065",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 119,
+        "confidence": "high"
+      }
+    },
+    "bm0015": {
+      "kind": "bookmark",
+      "order": 120,
+      "position": 120,
+      "textPreview": "_Toc485048978",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 120,
+        "confidence": "high"
+      }
+    },
+    "bm0016": {
+      "kind": "bookmark",
+      "order": 121,
+      "position": 121,
+      "textPreview": "_Toc421635058",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 121,
+        "confidence": "high"
+      }
+    },
+    "p0091": {
+      "kind": "paragraph",
+      "order": 122,
+      "position": 122,
+      "textPreview": "\u6458  \u8981",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 122,
+        "confidence": "high"
+      }
+    },
+    "p0092": {
+      "kind": "paragraph",
+      "order": 123,
+      "position": 123,
+      "textPreview": "MACROBUTTON  AcceptAllChangesShown [\u8BF7\u5355\u51FB\u6B64\u5904\uFF0C\u7136\u540E\u8F93\u5165\u4E2D\u6587\u6458\u8981\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 123,
+        "confidence": "high"
+      }
+    },
+    "bm0017": {
+      "kind": "bookmark",
+      "order": 124,
+      "position": 124,
+      "textPreview": "_Toc355274958",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 124,
+        "confidence": "high"
+      }
+    },
+    "bm0018": {
+      "kind": "bookmark",
+      "order": 125,
+      "position": 125,
+      "textPreview": "_Toc355807472",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 125,
+        "confidence": "high"
+      }
+    },
+    "bm0019": {
+      "kind": "bookmark",
+      "order": 126,
+      "position": 126,
+      "textPreview": "_Toc355614274",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 126,
+        "confidence": "high"
+      }
+    },
+    "bm0020": {
+      "kind": "bookmark",
+      "order": 127,
+      "position": 127,
+      "textPreview": "_Toc355274224",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 127,
+        "confidence": "high"
+      }
+    },
+    "bm0021": {
+      "kind": "bookmark",
+      "order": 128,
+      "position": 128,
+      "textPreview": "_Toc355204233",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 128,
+        "confidence": "high"
+      }
+    },
+    "bm0022": {
+      "kind": "bookmark",
+      "order": 129,
+      "position": 129,
+      "textPreview": "_Toc355361238",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 129,
+        "confidence": "high"
+      }
+    },
+    "p0093": {
+      "kind": "paragraph",
+      "order": 130,
+      "position": 130,
+      "textPreview": "\u5173\u952E\u8BCD\uFF1A MACROBUTTON  AcceptAllChangesShown [\u8BF7\u5355\u51FB\u6B64\u5904\uFF0C\u952E\u5165\u5173\u952E\u8BCD\uFF0C3-5\u4E2A\uFF0C\u7528\u4E2D\u6587\u9017\u53F7\u5206\u5F00]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 130,
+        "confidence": "high"
+      }
+    },
+    "p0094": {
+      "kind": "paragraph",
+      "order": 131,
+      "position": 131,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 131,
+        "confidence": "high"
+      }
+    },
+    "p0095": {
+      "kind": "paragraph",
+      "order": 132,
+      "position": 132,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 132,
+        "confidence": "high"
+      }
+    },
+    "p0096": {
+      "kind": "paragraph",
+      "order": 133,
+      "position": 133,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 133,
+        "confidence": "high"
+      }
+    },
+    "p0097": {
+      "kind": "paragraph",
+      "order": 134,
+      "position": 134,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 134,
+        "confidence": "high"
+      }
+    },
+    "p0098": {
+      "kind": "paragraph",
+      "order": 135,
+      "position": 135,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 135,
+        "confidence": "high"
+      }
+    },
+    "bm0023": {
+      "kind": "bookmark",
+      "order": 136,
+      "position": 136,
+      "textPreview": "_Toc520240577",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 136,
+        "confidence": "high"
+      }
+    },
+    "bm0024": {
+      "kind": "bookmark",
+      "order": 137,
+      "position": 137,
+      "textPreview": "_Toc523697194",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 137,
+        "confidence": "high"
+      }
+    },
+    "bm0025": {
+      "kind": "bookmark",
+      "order": 138,
+      "position": 138,
+      "textPreview": "_Toc484182510",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 138,
+        "confidence": "high"
+      }
+    },
+    "bm0026": {
+      "kind": "bookmark",
+      "order": 139,
+      "position": 139,
+      "textPreview": "_Toc485389066",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 139,
+        "confidence": "high"
+      }
+    },
+    "bm0027": {
+      "kind": "bookmark",
+      "order": 140,
+      "position": 140,
+      "textPreview": "_Toc485048979",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 140,
+        "confidence": "high"
+      }
+    },
+    "p0099": {
+      "kind": "paragraph",
+      "order": 141,
+      "position": 141,
+      "textPreview": "Abstract",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 141,
+        "confidence": "high"
+      }
+    },
+    "bm0028": {
+      "kind": "bookmark",
+      "order": 142,
+      "position": 142,
+      "textPreview": "OLE_LINK8",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 142,
+        "confidence": "high"
+      }
+    },
+    "p0100": {
+      "kind": "paragraph",
+      "order": 143,
+      "position": 143,
+      "textPreview": "MACROBUTTON  AcceptAllChangesShown [\u8BF7\u5355\u51FB\u6B64\u5904\uFF0C\u7136\u540E\u8F93\u5165\u82F1\u6587\u6458\u8981\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 143,
+        "confidence": "high"
+      }
+    },
+    "raw0009": {
+      "kind": "rawOpenXmlRef",
+      "order": 144,
+      "position": 144,
+      "textPreview": "bookmarkEnd",
+      "provenance": {
+        "format": "docx",
+        "source": "rawOpenXmlRef",
+        "position": 144,
+        "confidence": "high"
+      }
+    },
+    "bm0029": {
+      "kind": "bookmark",
+      "order": 145,
+      "position": 145,
+      "textPreview": "OLE_LINK7",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 145,
+        "confidence": "high"
+      }
+    },
+    "p0101": {
+      "kind": "paragraph",
+      "order": 146,
+      "position": 146,
+      "textPreview": "Key words:  MACROBUTTON  AcceptAllChangesShown [\u4E0E\u4E2D\u6587\u5173\u952E\u8BCD\u540C\uFF0C\u4E2D\u95F4\u7528\u82F1\u6587\u9017\u53F7\u5206\u5F00]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 146,
+        "confidence": "high"
+      }
+    },
+    "p0102": {
+      "kind": "paragraph",
+      "order": 147,
+      "position": 147,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 147,
+        "confidence": "high"
+      }
+    },
+    "p0103": {
+      "kind": "paragraph",
+      "order": 148,
+      "position": 148,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 148,
+        "confidence": "high"
+      }
+    },
+    "p0104": {
+      "kind": "paragraph",
+      "order": 149,
+      "position": 149,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 149,
+        "confidence": "high"
+      }
+    },
+    "p0105": {
+      "kind": "paragraph",
+      "order": 150,
+      "position": 150,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 150,
+        "confidence": "high"
+      }
+    },
+    "p0106": {
+      "kind": "paragraph",
+      "order": 151,
+      "position": 151,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 151,
+        "confidence": "high"
+      }
+    },
+    "p0107": {
+      "kind": "paragraph",
+      "order": 152,
+      "position": 152,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 152,
+        "confidence": "high"
+      }
+    },
+    "p0108": {
+      "kind": "paragraph",
+      "order": 153,
+      "position": 153,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 153,
+        "confidence": "high"
+      }
+    },
+    "p0109": {
+      "kind": "paragraph",
+      "order": 154,
+      "position": 154,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 154,
+        "confidence": "high"
+      }
+    },
+    "p0110": {
+      "kind": "paragraph",
+      "order": 155,
+      "position": 155,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 155,
+        "confidence": "high"
+      }
+    },
+    "p0111": {
+      "kind": "paragraph",
+      "order": 156,
+      "position": 156,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 156,
+        "confidence": "high"
+      }
+    },
+    "bm0030": {
+      "kind": "bookmark",
+      "order": 157,
+      "position": 157,
+      "textPreview": "_Toc355807473",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 157,
+        "confidence": "high"
+      }
+    },
+    "bm0031": {
+      "kind": "bookmark",
+      "order": 158,
+      "position": 158,
+      "textPreview": "_Toc484182511",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 158,
+        "confidence": "high"
+      }
+    },
+    "bm0032": {
+      "kind": "bookmark",
+      "order": 159,
+      "position": 159,
+      "textPreview": "_Toc520240578",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 159,
+        "confidence": "high"
+      }
+    },
+    "bm0033": {
+      "kind": "bookmark",
+      "order": 160,
+      "position": 160,
+      "textPreview": "_Toc355614275",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 160,
+        "confidence": "high"
+      }
+    },
+    "bm0034": {
+      "kind": "bookmark",
+      "order": 161,
+      "position": 161,
+      "textPreview": "_Toc485048980",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 161,
+        "confidence": "high"
+      }
+    },
+    "bm0035": {
+      "kind": "bookmark",
+      "order": 162,
+      "position": 162,
+      "textPreview": "_Toc485389067",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 162,
+        "confidence": "high"
+      }
+    },
+    "bm0036": {
+      "kind": "bookmark",
+      "order": 163,
+      "position": 163,
+      "textPreview": "_Toc523697195",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 163,
+        "confidence": "high"
+      }
+    },
+    "p0112": {
+      "kind": "paragraph",
+      "order": 164,
+      "position": 164,
+      "textPreview": "\u76EE   \u5F55",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 164,
+        "confidence": "high"
+      }
+    },
+    "p0113": {
+      "kind": "paragraph",
+      "order": 165,
+      "position": 165,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u6B64\u5904\uFF0C\u6267\u884C\u5F15\u7528\uFF0F\u76EE\u5F55\u547D\u4EE4\u63D2\u5165\u6216\u66F4\u65B0\u4E0B\u9762\u6A21\u677F\u76EE\u5F55\uFF3D",
+      "styleId": "24",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 165,
+        "confidence": "high"
+      }
+    },
+    "toc0001": {
+      "kind": "toc",
+      "order": 166,
+      "position": 166,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 166,
+        "confidence": "high"
+      }
+    },
+    "toc0002": {
+      "kind": "toc",
+      "order": 167,
+      "position": 167,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 167,
+        "confidence": "high"
+      }
+    },
+    "toc0003": {
+      "kind": "toc",
+      "order": 168,
+      "position": 168,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 168,
+        "confidence": "high"
+      }
+    },
+    "toc0004": {
+      "kind": "toc",
+      "order": 169,
+      "position": 169,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 169,
+        "confidence": "high"
+      }
+    },
+    "toc0005": {
+      "kind": "toc",
+      "order": 170,
+      "position": 170,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 170,
+        "confidence": "high"
+      }
+    },
+    "toc0006": {
+      "kind": "toc",
+      "order": 171,
+      "position": 171,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 171,
+        "confidence": "high"
+      }
+    },
+    "toc0007": {
+      "kind": "toc",
+      "order": 172,
+      "position": 172,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 172,
+        "confidence": "high"
+      }
+    },
+    "toc0008": {
+      "kind": "toc",
+      "order": 173,
+      "position": 173,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 173,
+        "confidence": "high"
+      }
+    },
+    "toc0009": {
+      "kind": "toc",
+      "order": 174,
+      "position": 174,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 174,
+        "confidence": "high"
+      }
+    },
+    "toc0010": {
+      "kind": "toc",
+      "order": 175,
+      "position": 175,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 175,
+        "confidence": "high"
+      }
+    },
+    "toc0011": {
+      "kind": "toc",
+      "order": 176,
+      "position": 176,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 176,
+        "confidence": "high"
+      }
+    },
+    "toc0012": {
+      "kind": "toc",
+      "order": 177,
+      "position": 177,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 177,
+        "confidence": "high"
+      }
+    },
+    "toc0013": {
+      "kind": "toc",
+      "order": 178,
+      "position": 178,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 178,
+        "confidence": "high"
+      }
+    },
+    "toc0014": {
+      "kind": "toc",
+      "order": 179,
+      "position": 179,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 179,
+        "confidence": "high"
+      }
+    },
+    "toc0015": {
+      "kind": "toc",
+      "order": 180,
+      "position": 180,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 180,
+        "confidence": "high"
+      }
+    },
+    "toc0016": {
+      "kind": "toc",
+      "order": 181,
+      "position": 181,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 181,
+        "confidence": "high"
+      }
+    },
+    "toc0017": {
+      "kind": "toc",
+      "order": 182,
+      "position": 182,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 182,
+        "confidence": "high"
+      }
+    },
+    "toc0018": {
+      "kind": "toc",
+      "order": 183,
+      "position": 183,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 183,
+        "confidence": "high"
+      }
+    },
+    "toc0019": {
+      "kind": "toc",
+      "order": 184,
+      "position": 184,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 184,
+        "confidence": "high"
+      }
+    },
+    "toc0020": {
+      "kind": "toc",
+      "order": 185,
+      "position": 185,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 185,
+        "confidence": "high"
+      }
+    },
+    "toc0021": {
+      "kind": "toc",
+      "order": 186,
+      "position": 186,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 186,
+        "confidence": "high"
+      }
+    },
+    "toc0022": {
+      "kind": "toc",
+      "order": 187,
+      "position": 187,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 187,
+        "confidence": "high"
+      }
+    },
+    "toc0023": {
+      "kind": "toc",
+      "order": 188,
+      "position": 188,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 188,
+        "confidence": "high"
+      }
+    },
+    "toc0024": {
+      "kind": "toc",
+      "order": 189,
+      "position": 189,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 189,
+        "confidence": "high"
+      }
+    },
+    "toc0025": {
+      "kind": "toc",
+      "order": 190,
+      "position": 190,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 190,
+        "confidence": "high"
+      }
+    },
+    "toc0026": {
+      "kind": "toc",
+      "order": 191,
+      "position": 191,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 191,
+        "confidence": "high"
+      }
+    },
+    "toc0027": {
+      "kind": "toc",
+      "order": 192,
+      "position": 192,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 192,
+        "confidence": "high"
+      }
+    },
+    "toc0028": {
+      "kind": "toc",
+      "order": 193,
+      "position": 193,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 193,
+        "confidence": "high"
+      }
+    },
+    "toc0029": {
+      "kind": "toc",
+      "order": 194,
+      "position": 194,
+      "textPreview": "[TOC]",
+      "provenance": {
+        "format": "docx",
+        "source": "toc",
+        "position": 194,
+        "confidence": "high"
+      }
+    },
+    "p0114": {
+      "kind": "paragraph",
+      "order": 195,
+      "position": 195,
+      "styleId": "24",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 195,
+        "confidence": "high"
+      }
+    },
+    "p0115": {
+      "kind": "paragraph",
+      "order": 196,
+      "position": 196,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 196,
+        "confidence": "high"
+      }
+    },
+    "p0116": {
+      "kind": "paragraph",
+      "order": 197,
+      "position": 197,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 197,
+        "confidence": "high"
+      }
+    },
+    "bm0037": {
+      "kind": "bookmark",
+      "order": 198,
+      "position": 198,
+      "textPreview": "_Toc523697196",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 198,
+        "confidence": "high"
+      }
+    },
+    "p0117": {
+      "kind": "paragraph",
+      "order": 199,
+      "position": 199,
+      "textPreview": "\u63D2\u56FE\u548C\u9644\u8868\u6E05\u5355",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 199,
+        "confidence": "high"
+      }
+    },
+    "p0118": {
+      "kind": "paragraph",
+      "order": 200,
+      "position": 200,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 200,
+        "confidence": "high"
+      }
+    },
+    "p0119": {
+      "kind": "paragraph",
+      "order": 201,
+      "position": 201,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 201,
+        "confidence": "high"
+      }
+    },
+    "bm0038": {
+      "kind": "bookmark",
+      "order": 202,
+      "position": 202,
+      "textPreview": "_Toc523697197",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 202,
+        "confidence": "high"
+      }
+    },
+    "p0120": {
+      "kind": "paragraph",
+      "order": 203,
+      "position": 203,
+      "textPreview": "\u4E3B\u8981\u7B26\u53F7\u8868",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 203,
+        "confidence": "high"
+      }
+    },
+    "p0121": {
+      "kind": "paragraph",
+      "order": 204,
+      "position": 204,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 204,
+        "confidence": "high"
+      }
+    },
+    "p0122": {
+      "kind": "paragraph",
+      "order": 205,
+      "position": 205,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 205,
+        "confidence": "high"
+      }
+    },
+    "p0123": {
+      "kind": "paragraph",
+      "order": 206,
+      "position": 206,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 206,
+        "confidence": "high"
+      }
+    },
+    "h0001": {
+      "kind": "heading",
+      "order": 207,
+      "position": 207,
+      "textPreview": "MACROBUTTON Title1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E00\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98981]",
+      "styleId": "2",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 207,
+        "confidence": "high"
+      }
+    },
+    "p0124": {
+      "kind": "paragraph",
+      "order": 208,
+      "position": 208,
+      "textPreview": "MACROBUTTON Text1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C1\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 208,
+        "confidence": "high"
+      }
+    },
+    "h0002": {
+      "kind": "heading",
+      "order": 209,
+      "position": 209,
+      "textPreview": "1.1 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 209,
+        "confidence": "high"
+      }
+    },
+    "p0125": {
+      "kind": "paragraph",
+      "order": 210,
+      "position": 210,
+      "textPreview": "MACROBUTTON Text1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C1\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 210,
+        "confidence": "high"
+      }
+    },
+    "h0003": {
+      "kind": "heading",
+      "order": 211,
+      "position": 211,
+      "textPreview": "1.1.1 MACROBUTTON Tiltle3 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 211,
+        "confidence": "high"
+      }
+    },
+    "p0126": {
+      "kind": "paragraph",
+      "order": 212,
+      "position": 212,
+      "textPreview": "MACROBUTTON Text1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C1\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 212,
+        "confidence": "high"
+      }
+    },
+    "h0004": {
+      "kind": "heading",
+      "order": 213,
+      "position": 213,
+      "textPreview": "1.2 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 213,
+        "confidence": "high"
+      }
+    },
+    "p0127": {
+      "kind": "paragraph",
+      "order": 214,
+      "position": 214,
+      "textPreview": "MACROBUTTON Text1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C1\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 214,
+        "confidence": "high"
+      }
+    },
+    "h0005": {
+      "kind": "heading",
+      "order": 215,
+      "position": 215,
+      "textPreview": "1.2.1 MACROBUTTON Tiltle3 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 215,
+        "confidence": "high"
+      }
+    },
+    "p0128": {
+      "kind": "paragraph",
+      "order": 216,
+      "position": 216,
+      "textPreview": "MACROBUTTON Text1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C1\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 216,
+        "confidence": "high"
+      }
+    },
+    "h0006": {
+      "kind": "heading",
+      "order": 217,
+      "position": 217,
+      "textPreview": "1.3 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 217,
+        "confidence": "high"
+      }
+    },
+    "p0129": {
+      "kind": "paragraph",
+      "order": 218,
+      "position": 218,
+      "textPreview": "MACROBUTTON Text1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C1\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 218,
+        "confidence": "high"
+      }
+    },
+    "h0007": {
+      "kind": "heading",
+      "order": 219,
+      "position": 219,
+      "textPreview": "1.3.1 MACROBUTTON Tiltle3 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 219,
+        "confidence": "high"
+      }
+    },
+    "p0130": {
+      "kind": "paragraph",
+      "order": 220,
+      "position": 220,
+      "textPreview": "MACROBUTTON Text1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C1\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 220,
+        "confidence": "high"
+      }
+    },
+    "p0131": {
+      "kind": "paragraph",
+      "order": 221,
+      "position": 221,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 221,
+        "confidence": "high"
+      }
+    },
+    "p0132": {
+      "kind": "paragraph",
+      "order": 222,
+      "position": 222,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 222,
+        "confidence": "high"
+      }
+    },
+    "p0133": {
+      "kind": "paragraph",
+      "order": 223,
+      "position": 223,
+      "textPreview": "1717675187325",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 223,
+        "confidence": "high"
+      }
+    },
+    "img0008": {
+      "kind": "image",
+      "order": 224,
+      "position": 224,
+      "textPreview": "[image]",
+      "provenance": {
+        "format": "docx",
+        "source": "drawingml",
+        "position": 224,
+        "layout": {
+          "width": 2173605,
+          "height": 2135505,
+          "unit": "emu"
+        },
+        "assetId": "rId49",
+        "relationshipId": "rId49",
+        "confidence": "high"
+      }
+    },
+    "p0134": {
+      "kind": "paragraph",
+      "order": 225,
+      "position": 225,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5728\u6B64\u5904\u63D2\u5165\u56FE\u7247]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 225,
+        "confidence": "high"
+      }
+    },
+    "fld0001": {
+      "kind": "field",
+      "order": 226,
+      "position": 226,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u56FE\u8868\u6807\u9898\u5B57\u4F53\u4E3A\u9ED1\u4F53\u4E94\u53F7]    SEQ \u56FE_1- \\* A...",
+      "provenance": {
+        "format": "docx",
+        "source": "field",
+        "position": 226,
+        "confidence": "high"
+      }
+    },
+    "p0135": {
+      "kind": "paragraph",
+      "order": 227,
+      "position": 227,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u56FE\u6CE8\u8BF4\u660E\u5B57\u4F53\u4E3A\u5B8B\u4F53\u4E94\u53F7] \u793A\u4F8B\uFF1A\u6CE8\uFF1AM\uFF0CDNA \u6807\u51C6DL2...",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 227,
+        "confidence": "high"
+      }
+    },
+    "p0136": {
+      "kind": "paragraph",
+      "order": 228,
+      "position": 228,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking \u0022[\u70B9\u51FB \u5F15\u7528/\u63D2\u5165\u9898\u6CE8\uFF0C\u65B0\u5EFA\u6807\u7B7E/\u56FE1- \uFF0C\u4E4B\u540E\u5219\u53EF\u751F\u6210\u56FE...",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 228,
+        "confidence": "high"
+      }
+    },
+    "p0137": {
+      "kind": "paragraph",
+      "order": 229,
+      "position": 229,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 229,
+        "confidence": "high"
+      }
+    },
+    "p0138": {
+      "kind": "paragraph",
+      "order": 230,
+      "position": 230,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 230,
+        "confidence": "high"
+      }
+    },
+    "p0139": {
+      "kind": "paragraph",
+      "order": 231,
+      "position": 231,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 231,
+        "confidence": "high"
+      }
+    },
+    "p0140": {
+      "kind": "paragraph",
+      "order": 232,
+      "position": 232,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 232,
+        "confidence": "high"
+      }
+    },
+    "p0141": {
+      "kind": "paragraph",
+      "order": 233,
+      "position": 233,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 233,
+        "confidence": "high"
+      }
+    },
+    "h0008": {
+      "kind": "heading",
+      "order": 234,
+      "position": 234,
+      "textPreview": "MACROBUTTON Title1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E00\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98981]",
+      "styleId": "2",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 234,
+        "confidence": "high"
+      }
+    },
+    "p0142": {
+      "kind": "paragraph",
+      "order": 235,
+      "position": 235,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C2\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 235,
+        "confidence": "high"
+      }
+    },
+    "h0009": {
+      "kind": "heading",
+      "order": 236,
+      "position": 236,
+      "textPreview": "2.1 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 236,
+        "confidence": "high"
+      }
+    },
+    "p0143": {
+      "kind": "paragraph",
+      "order": 237,
+      "position": 237,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C2\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 237,
+        "confidence": "high"
+      }
+    },
+    "h0010": {
+      "kind": "heading",
+      "order": 238,
+      "position": 238,
+      "textPreview": "2.1.1 MACROBUTTON Tiltle3 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 238,
+        "confidence": "high"
+      }
+    },
+    "p0144": {
+      "kind": "paragraph",
+      "order": 239,
+      "position": 239,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C2\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 239,
+        "confidence": "high"
+      }
+    },
+    "h0011": {
+      "kind": "heading",
+      "order": 240,
+      "position": 240,
+      "textPreview": "2.2 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 240,
+        "confidence": "high"
+      }
+    },
+    "p0145": {
+      "kind": "paragraph",
+      "order": 241,
+      "position": 241,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C2\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 241,
+        "confidence": "high"
+      }
+    },
+    "h0012": {
+      "kind": "heading",
+      "order": 242,
+      "position": 242,
+      "textPreview": "2.2.1 MACROBUTTON Tiltle3 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 242,
+        "confidence": "high"
+      }
+    },
+    "p0146": {
+      "kind": "paragraph",
+      "order": 243,
+      "position": 243,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C2\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 243,
+        "confidence": "high"
+      }
+    },
+    "h0013": {
+      "kind": "heading",
+      "order": 244,
+      "position": 244,
+      "textPreview": "2.3 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 244,
+        "confidence": "high"
+      }
+    },
+    "p0147": {
+      "kind": "paragraph",
+      "order": 245,
+      "position": 245,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C2\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 245,
+        "confidence": "high"
+      }
+    },
+    "h0014": {
+      "kind": "heading",
+      "order": 246,
+      "position": 246,
+      "textPreview": "2.3.1 MACROBUTTON Tiltle3 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 246,
+        "confidence": "high"
+      }
+    },
+    "p0148": {
+      "kind": "paragraph",
+      "order": 247,
+      "position": 247,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C2\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 247,
+        "confidence": "high"
+      }
+    },
+    "p0149": {
+      "kind": "paragraph",
+      "order": 248,
+      "position": 248,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 248,
+        "confidence": "high"
+      }
+    },
+    "p0150": {
+      "kind": "paragraph",
+      "order": 249,
+      "position": 249,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 249,
+        "confidence": "high"
+      }
+    },
+    "m0001": {
+      "kind": "equation",
+      "order": 250,
+      "position": 250,
+      "textPreview": "fx=sign(w\u00B7x\u002Bb)",
+      "provenance": {
+        "format": "docx",
+        "source": "equation",
+        "position": 250,
+        "confidence": "high"
+      }
+    },
+    "p0151": {
+      "kind": "paragraph",
+      "order": 251,
+      "position": 251,
+      "textPreview": "\u516C\u5F0F\uFF082-1\uFF09",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 251,
+        "confidence": "high"
+      }
+    },
+    "p0152": {
+      "kind": "paragraph",
+      "order": 252,
+      "position": 252,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 252,
+        "confidence": "high"
+      }
+    },
+    "p0153": {
+      "kind": "paragraph",
+      "order": 253,
+      "position": 253,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 253,
+        "confidence": "high"
+      }
+    },
+    "m0002": {
+      "kind": "equation",
+      "order": 254,
+      "position": 254,
+      "textPreview": "signx= \u002B1,  x\u22650\u22121,  x\u003C0",
+      "provenance": {
+        "format": "docx",
+        "source": "equation",
+        "position": 254,
+        "confidence": "high"
+      }
+    },
+    "p0154": {
+      "kind": "paragraph",
+      "order": 255,
+      "position": 255,
+      "textPreview": "\u516C\u5F0F\uFF082-2\uFF09",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 255,
+        "confidence": "high"
+      }
+    },
+    "p0155": {
+      "kind": "paragraph",
+      "order": 256,
+      "position": 256,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 256,
+        "confidence": "high"
+      }
+    },
+    "p0156": {
+      "kind": "paragraph",
+      "order": 257,
+      "position": 257,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 257,
+        "confidence": "high"
+      }
+    },
+    "p0157": {
+      "kind": "paragraph",
+      "order": 258,
+      "position": 258,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 258,
+        "confidence": "high"
+      }
+    },
+    "p0158": {
+      "kind": "paragraph",
+      "order": 259,
+      "position": 259,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 259,
+        "confidence": "high"
+      }
+    },
+    "p0159": {
+      "kind": "paragraph",
+      "order": 260,
+      "position": 260,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 260,
+        "confidence": "high"
+      }
+    },
+    "p0160": {
+      "kind": "paragraph",
+      "order": 261,
+      "position": 261,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 261,
+        "confidence": "high"
+      }
+    },
+    "p0161": {
+      "kind": "paragraph",
+      "order": 262,
+      "position": 262,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 262,
+        "confidence": "high"
+      }
+    },
+    "raw0010": {
+      "kind": "rawOpenXmlRef",
+      "order": 263,
+      "position": 263,
+      "textPreview": "bookmarkEnd",
+      "provenance": {
+        "format": "docx",
+        "source": "rawOpenXmlRef",
+        "position": 263,
+        "confidence": "high"
+      }
+    },
+    "h0015": {
+      "kind": "heading",
+      "order": 264,
+      "position": 264,
+      "textPreview": "MACROBUTTON Title1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E00\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98981]",
+      "styleId": "2",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 264,
+        "confidence": "high"
+      }
+    },
+    "p0162": {
+      "kind": "paragraph",
+      "order": 265,
+      "position": 265,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C3\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 265,
+        "confidence": "high"
+      }
+    },
+    "h0016": {
+      "kind": "heading",
+      "order": 266,
+      "position": 266,
+      "textPreview": "3.1 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 266,
+        "confidence": "high"
+      }
+    },
+    "p0163": {
+      "kind": "paragraph",
+      "order": 267,
+      "position": 267,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C3\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 267,
+        "confidence": "high"
+      }
+    },
+    "h0017": {
+      "kind": "heading",
+      "order": 268,
+      "position": 268,
+      "textPreview": "3.1.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 268,
+        "confidence": "high"
+      }
+    },
+    "p0164": {
+      "kind": "paragraph",
+      "order": 269,
+      "position": 269,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C3\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 269,
+        "confidence": "high"
+      }
+    },
+    "h0018": {
+      "kind": "heading",
+      "order": 270,
+      "position": 270,
+      "textPreview": "3.2 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 270,
+        "confidence": "high"
+      }
+    },
+    "p0165": {
+      "kind": "paragraph",
+      "order": 271,
+      "position": 271,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C3\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 271,
+        "confidence": "high"
+      }
+    },
+    "h0019": {
+      "kind": "heading",
+      "order": 272,
+      "position": 272,
+      "textPreview": "3.2.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 272,
+        "confidence": "high"
+      }
+    },
+    "p0166": {
+      "kind": "paragraph",
+      "order": 273,
+      "position": 273,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C3\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 273,
+        "confidence": "high"
+      }
+    },
+    "h0020": {
+      "kind": "heading",
+      "order": 274,
+      "position": 274,
+      "textPreview": "3.3 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 274,
+        "confidence": "high"
+      }
+    },
+    "p0167": {
+      "kind": "paragraph",
+      "order": 275,
+      "position": 275,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C3\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 275,
+        "confidence": "high"
+      }
+    },
+    "h0021": {
+      "kind": "heading",
+      "order": 276,
+      "position": 276,
+      "textPreview": "3.3.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 276,
+        "confidence": "high"
+      }
+    },
+    "p0168": {
+      "kind": "paragraph",
+      "order": 277,
+      "position": 277,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C3\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 277,
+        "confidence": "high"
+      }
+    },
+    "p0169": {
+      "kind": "paragraph",
+      "order": 278,
+      "position": 278,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 278,
+        "confidence": "high"
+      }
+    },
+    "p0170": {
+      "kind": "paragraph",
+      "order": 279,
+      "position": 279,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking \u0022[\u70B9\u51FB \u5F15\u7528/\u63D2\u5165\u9898\u6CE8\uFF0C\u65B0\u5EFA\u6807\u7B7E/\u88681- \uFF0C\u4E4B\u540E\u5219\u53EF\u751F\u6210\u8868...",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 279,
+        "confidence": "high"
+      }
+    },
+    "fld0002": {
+      "kind": "field",
+      "order": 280,
+      "position": 280,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u8868\u683C\u6807\u9898\u5B57\u4F53\u4E3A\u9ED1\u4F53\u4E94\u53F7\u5B57]    SEQ \u88681- \\* A...",
+      "provenance": {
+        "format": "docx",
+        "source": "field",
+        "position": 280,
+        "confidence": "high"
+      }
+    },
+    "t0002": {
+      "kind": "table",
+      "order": 281,
+      "position": 281,
+      "textPreview": "[5x5 table]",
+      "styleId": "69",
+      "provenance": {
+        "format": "docx",
+        "source": "wordTable",
+        "position": 281,
+        "confidence": "high",
+        "notes": [
+          "styleId:69"
+        ]
+      }
+    },
+    "p0171": {
+      "kind": "paragraph",
+      "order": 282,
+      "position": 282,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u8868\u6CE8\u5B57\u4F53\u4E3A\u5B8B\u4F53\u5C0F\u4E94\u53F7\u5B57] \u8868\u6CE8\uFF1AXXX",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 282,
+        "confidence": "high"
+      }
+    },
+    "h0022": {
+      "kind": "heading",
+      "order": 283,
+      "position": 283,
+      "styleId": "2",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 283,
+        "confidence": "high"
+      }
+    },
+    "h0023": {
+      "kind": "heading",
+      "order": 284,
+      "position": 284,
+      "textPreview": "MACROBUTTON Title1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E00\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98981]",
+      "styleId": "2",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 284,
+        "confidence": "high"
+      }
+    },
+    "p0172": {
+      "kind": "paragraph",
+      "order": 285,
+      "position": 285,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C4\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 285,
+        "confidence": "high"
+      }
+    },
+    "h0024": {
+      "kind": "heading",
+      "order": 286,
+      "position": 286,
+      "textPreview": "4.1 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 286,
+        "confidence": "high"
+      }
+    },
+    "p0173": {
+      "kind": "paragraph",
+      "order": 287,
+      "position": 287,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C4\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 287,
+        "confidence": "high"
+      }
+    },
+    "h0025": {
+      "kind": "heading",
+      "order": 288,
+      "position": 288,
+      "textPreview": "4.1.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 288,
+        "confidence": "high"
+      }
+    },
+    "p0174": {
+      "kind": "paragraph",
+      "order": 289,
+      "position": 289,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C4\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 289,
+        "confidence": "high"
+      }
+    },
+    "h0026": {
+      "kind": "heading",
+      "order": 290,
+      "position": 290,
+      "textPreview": "4.2 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 290,
+        "confidence": "high"
+      }
+    },
+    "h0027": {
+      "kind": "heading",
+      "order": 291,
+      "position": 291,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C4\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "styleId": "5",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 291,
+        "confidence": "high"
+      }
+    },
+    "h0028": {
+      "kind": "heading",
+      "order": 292,
+      "position": 292,
+      "textPreview": "4.2.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 292,
+        "confidence": "high"
+      }
+    },
+    "p0175": {
+      "kind": "paragraph",
+      "order": 293,
+      "position": 293,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C4\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 293,
+        "confidence": "high"
+      }
+    },
+    "h0029": {
+      "kind": "heading",
+      "order": 294,
+      "position": 294,
+      "textPreview": "4.3 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 294,
+        "confidence": "high"
+      }
+    },
+    "h0030": {
+      "kind": "heading",
+      "order": 295,
+      "position": 295,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C4\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "styleId": "5",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 295,
+        "confidence": "high"
+      }
+    },
+    "h0031": {
+      "kind": "heading",
+      "order": 296,
+      "position": 296,
+      "textPreview": "4.3.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 296,
+        "confidence": "high"
+      }
+    },
+    "p0176": {
+      "kind": "paragraph",
+      "order": 297,
+      "position": 297,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C4\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 297,
+        "confidence": "high"
+      }
+    },
+    "p0177": {
+      "kind": "paragraph",
+      "order": 298,
+      "position": 298,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 298,
+        "confidence": "high"
+      }
+    },
+    "p0178": {
+      "kind": "paragraph",
+      "order": 299,
+      "position": 299,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 299,
+        "confidence": "high"
+      }
+    },
+    "p0179": {
+      "kind": "paragraph",
+      "order": 300,
+      "position": 300,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 300,
+        "confidence": "high"
+      }
+    },
+    "p0180": {
+      "kind": "paragraph",
+      "order": 301,
+      "position": 301,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 301,
+        "confidence": "high"
+      }
+    },
+    "p0181": {
+      "kind": "paragraph",
+      "order": 302,
+      "position": 302,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 302,
+        "confidence": "high"
+      }
+    },
+    "p0182": {
+      "kind": "paragraph",
+      "order": 303,
+      "position": 303,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 303,
+        "confidence": "high"
+      }
+    },
+    "p0183": {
+      "kind": "paragraph",
+      "order": 304,
+      "position": 304,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 304,
+        "confidence": "high"
+      }
+    },
+    "p0184": {
+      "kind": "paragraph",
+      "order": 305,
+      "position": 305,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 305,
+        "confidence": "high"
+      }
+    },
+    "p0185": {
+      "kind": "paragraph",
+      "order": 306,
+      "position": 306,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 306,
+        "confidence": "high"
+      }
+    },
+    "p0186": {
+      "kind": "paragraph",
+      "order": 307,
+      "position": 307,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 307,
+        "confidence": "high"
+      }
+    },
+    "p0187": {
+      "kind": "paragraph",
+      "order": 308,
+      "position": 308,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 308,
+        "confidence": "high"
+      }
+    },
+    "p0188": {
+      "kind": "paragraph",
+      "order": 309,
+      "position": 309,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 309,
+        "confidence": "high"
+      }
+    },
+    "h0032": {
+      "kind": "heading",
+      "order": 310,
+      "position": 310,
+      "textPreview": "MACROBUTTON Title1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E00\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98981]",
+      "styleId": "2",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 310,
+        "confidence": "high"
+      }
+    },
+    "p0189": {
+      "kind": "paragraph",
+      "order": 311,
+      "position": 311,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C5\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 311,
+        "confidence": "high"
+      }
+    },
+    "h0033": {
+      "kind": "heading",
+      "order": 312,
+      "position": 312,
+      "textPreview": "5.1 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 312,
+        "confidence": "high"
+      }
+    },
+    "p0190": {
+      "kind": "paragraph",
+      "order": 313,
+      "position": 313,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C5\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 313,
+        "confidence": "high"
+      }
+    },
+    "h0034": {
+      "kind": "heading",
+      "order": 314,
+      "position": 314,
+      "textPreview": "5.1.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 314,
+        "confidence": "high"
+      }
+    },
+    "p0191": {
+      "kind": "paragraph",
+      "order": 315,
+      "position": 315,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C5\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 315,
+        "confidence": "high"
+      }
+    },
+    "h0035": {
+      "kind": "heading",
+      "order": 316,
+      "position": 316,
+      "textPreview": "5.2 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 316,
+        "confidence": "high"
+      }
+    },
+    "p0192": {
+      "kind": "paragraph",
+      "order": 317,
+      "position": 317,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C5\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 317,
+        "confidence": "high"
+      }
+    },
+    "h0036": {
+      "kind": "heading",
+      "order": 318,
+      "position": 318,
+      "textPreview": "5.2.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 318,
+        "confidence": "high"
+      }
+    },
+    "p0193": {
+      "kind": "paragraph",
+      "order": 319,
+      "position": 319,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C5\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 319,
+        "confidence": "high"
+      }
+    },
+    "h0037": {
+      "kind": "heading",
+      "order": 320,
+      "position": 320,
+      "textPreview": "5.3 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 320,
+        "confidence": "high"
+      }
+    },
+    "p0194": {
+      "kind": "paragraph",
+      "order": 321,
+      "position": 321,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C5\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 321,
+        "confidence": "high"
+      }
+    },
+    "h0038": {
+      "kind": "heading",
+      "order": 322,
+      "position": 322,
+      "textPreview": "5.3.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 322,
+        "confidence": "high"
+      }
+    },
+    "p0195": {
+      "kind": "paragraph",
+      "order": 323,
+      "position": 323,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C5\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 323,
+        "confidence": "high"
+      }
+    },
+    "p0196": {
+      "kind": "paragraph",
+      "order": 324,
+      "position": 324,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 324,
+        "confidence": "high"
+      }
+    },
+    "p0197": {
+      "kind": "paragraph",
+      "order": 325,
+      "position": 325,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 325,
+        "confidence": "high"
+      }
+    },
+    "p0198": {
+      "kind": "paragraph",
+      "order": 326,
+      "position": 326,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 326,
+        "confidence": "high"
+      }
+    },
+    "p0199": {
+      "kind": "paragraph",
+      "order": 327,
+      "position": 327,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 327,
+        "confidence": "high"
+      }
+    },
+    "p0200": {
+      "kind": "paragraph",
+      "order": 328,
+      "position": 328,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 328,
+        "confidence": "high"
+      }
+    },
+    "p0201": {
+      "kind": "paragraph",
+      "order": 329,
+      "position": 329,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 329,
+        "confidence": "high"
+      }
+    },
+    "p0202": {
+      "kind": "paragraph",
+      "order": 330,
+      "position": 330,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 330,
+        "confidence": "high"
+      }
+    },
+    "p0203": {
+      "kind": "paragraph",
+      "order": 331,
+      "position": 331,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 331,
+        "confidence": "high"
+      }
+    },
+    "p0204": {
+      "kind": "paragraph",
+      "order": 332,
+      "position": 332,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 332,
+        "confidence": "high"
+      }
+    },
+    "p0205": {
+      "kind": "paragraph",
+      "order": 333,
+      "position": 333,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 333,
+        "confidence": "high"
+      }
+    },
+    "p0206": {
+      "kind": "paragraph",
+      "order": 334,
+      "position": 334,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 334,
+        "confidence": "high"
+      }
+    },
+    "p0207": {
+      "kind": "paragraph",
+      "order": 335,
+      "position": 335,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 335,
+        "confidence": "high"
+      }
+    },
+    "p0208": {
+      "kind": "paragraph",
+      "order": 336,
+      "position": 336,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 336,
+        "confidence": "high"
+      }
+    },
+    "h0039": {
+      "kind": "heading",
+      "order": 337,
+      "position": 337,
+      "textPreview": "MACROBUTTON Title1 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E00\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98981]",
+      "styleId": "2",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 337,
+        "confidence": "high"
+      }
+    },
+    "p0209": {
+      "kind": "paragraph",
+      "order": 338,
+      "position": 338,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C6\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 338,
+        "confidence": "high"
+      }
+    },
+    "h0040": {
+      "kind": "heading",
+      "order": 339,
+      "position": 339,
+      "textPreview": "6.1 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 339,
+        "confidence": "high"
+      }
+    },
+    "bm0039": {
+      "kind": "bookmark",
+      "order": 340,
+      "position": 340,
+      "textPreview": "OLE_LINK5",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 340,
+        "confidence": "high"
+      }
+    },
+    "bm0040": {
+      "kind": "bookmark",
+      "order": 341,
+      "position": 341,
+      "textPreview": "OLE_LINK6",
+      "provenance": {
+        "format": "docx",
+        "source": "bookmark",
+        "position": 341,
+        "confidence": "high"
+      }
+    },
+    "p0210": {
+      "kind": "paragraph",
+      "order": 342,
+      "position": 342,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C6\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 342,
+        "confidence": "high"
+      }
+    },
+    "h0041": {
+      "kind": "heading",
+      "order": 343,
+      "position": 343,
+      "textPreview": "6.1.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 343,
+        "confidence": "high"
+      }
+    },
+    "p0211": {
+      "kind": "paragraph",
+      "order": 344,
+      "position": 344,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C6\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 344,
+        "confidence": "high"
+      }
+    },
+    "raw0011": {
+      "kind": "rawOpenXmlRef",
+      "order": 345,
+      "position": 345,
+      "textPreview": "bookmarkEnd",
+      "provenance": {
+        "format": "docx",
+        "source": "rawOpenXmlRef",
+        "position": 345,
+        "confidence": "high"
+      }
+    },
+    "raw0012": {
+      "kind": "rawOpenXmlRef",
+      "order": 346,
+      "position": 346,
+      "textPreview": "bookmarkEnd",
+      "provenance": {
+        "format": "docx",
+        "source": "rawOpenXmlRef",
+        "position": 346,
+        "confidence": "high"
+      }
+    },
+    "h0042": {
+      "kind": "heading",
+      "order": 347,
+      "position": 347,
+      "textPreview": "6.2 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 347,
+        "confidence": "high"
+      }
+    },
+    "p0212": {
+      "kind": "paragraph",
+      "order": 348,
+      "position": 348,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C6\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 348,
+        "confidence": "high"
+      }
+    },
+    "h0043": {
+      "kind": "heading",
+      "order": 349,
+      "position": 349,
+      "textPreview": "6.2.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 349,
+        "confidence": "high"
+      }
+    },
+    "p0213": {
+      "kind": "paragraph",
+      "order": 350,
+      "position": 350,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C6\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 350,
+        "confidence": "high"
+      }
+    },
+    "h0044": {
+      "kind": "heading",
+      "order": 351,
+      "position": 351,
+      "textPreview": "6.3 MACROBUTTON Title2 [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E8C\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98982]",
+      "styleId": "3",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 351,
+        "confidence": "high"
+      }
+    },
+    "p0214": {
+      "kind": "paragraph",
+      "order": 352,
+      "position": 352,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C6\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 352,
+        "confidence": "high"
+      }
+    },
+    "h0045": {
+      "kind": "heading",
+      "order": 353,
+      "position": 353,
+      "textPreview": "6.3.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C\u4E09\u7EA7\u6807\u9898\uFF0C\u5BF9\u5E94\u6837\u5F0F\uFF1A\u6807\u98983]",
+      "styleId": "4",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 353,
+        "confidence": "high"
+      }
+    },
+    "p0215": {
+      "kind": "paragraph",
+      "order": 354,
+      "position": 354,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u7B2C6\u7AE0\u6B63\u6587\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 354,
+        "confidence": "high"
+      }
+    },
+    "p0216": {
+      "kind": "paragraph",
+      "order": 355,
+      "position": 355,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 355,
+        "confidence": "high"
+      }
+    },
+    "p0217": {
+      "kind": "paragraph",
+      "order": 356,
+      "position": 356,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 356,
+        "confidence": "high"
+      }
+    },
+    "p0218": {
+      "kind": "paragraph",
+      "order": 357,
+      "position": 357,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 357,
+        "confidence": "high"
+      }
+    },
+    "p0219": {
+      "kind": "paragraph",
+      "order": 358,
+      "position": 358,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 358,
+        "confidence": "high"
+      }
+    },
+    "p0220": {
+      "kind": "paragraph",
+      "order": 359,
+      "position": 359,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 359,
+        "confidence": "high"
+      }
+    },
+    "p0221": {
+      "kind": "paragraph",
+      "order": 360,
+      "position": 360,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 360,
+        "confidence": "high"
+      }
+    },
+    "p0222": {
+      "kind": "paragraph",
+      "order": 361,
+      "position": 361,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 361,
+        "confidence": "high"
+      }
+    },
+    "p0223": {
+      "kind": "paragraph",
+      "order": 362,
+      "position": 362,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 362,
+        "confidence": "high"
+      }
+    },
+    "p0224": {
+      "kind": "paragraph",
+      "order": 363,
+      "position": 363,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 363,
+        "confidence": "high"
+      }
+    },
+    "p0225": {
+      "kind": "paragraph",
+      "order": 364,
+      "position": 364,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 364,
+        "confidence": "high"
+      }
+    },
+    "p0226": {
+      "kind": "paragraph",
+      "order": 365,
+      "position": 365,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 365,
+        "confidence": "high"
+      }
+    },
+    "p0227": {
+      "kind": "paragraph",
+      "order": 366,
+      "position": 366,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 366,
+        "confidence": "high"
+      }
+    },
+    "p0228": {
+      "kind": "paragraph",
+      "order": 367,
+      "position": 367,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 367,
+        "confidence": "high"
+      }
+    },
+    "h0046": {
+      "kind": "heading",
+      "order": 368,
+      "position": 368,
+      "textPreview": "\u53C2\u8003\u6587\u732E",
+      "styleId": "2",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 368,
+        "confidence": "high"
+      }
+    },
+    "p0229": {
+      "kind": "paragraph",
+      "order": 369,
+      "position": 369,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 369,
+        "confidence": "high"
+      }
+    },
+    "p0230": {
+      "kind": "paragraph",
+      "order": 370,
+      "position": 370,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 370,
+        "confidence": "high"
+      }
+    },
+    "p0231": {
+      "kind": "paragraph",
+      "order": 371,
+      "position": 371,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 371,
+        "confidence": "high"
+      }
+    },
+    "p0232": {
+      "kind": "paragraph",
+      "order": 372,
+      "position": 372,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 372,
+        "confidence": "high"
+      }
+    },
+    "h0047": {
+      "kind": "heading",
+      "order": 373,
+      "position": 373,
+      "textPreview": "\u81F4 \u8C22",
+      "styleId": "2",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 373,
+        "confidence": "high"
+      }
+    },
+    "p0233": {
+      "kind": "paragraph",
+      "order": 374,
+      "position": 374,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u81F4\u8C22\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 374,
+        "confidence": "high"
+      }
+    },
+    "p0234": {
+      "kind": "paragraph",
+      "order": 375,
+      "position": 375,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 375,
+        "confidence": "high"
+      }
+    },
+    "p0235": {
+      "kind": "paragraph",
+      "order": 376,
+      "position": 376,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u843D\u6B3E\uFF1A\u59D3\u540D]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 376,
+        "confidence": "high"
+      }
+    },
+    "p0236": {
+      "kind": "paragraph",
+      "order": 377,
+      "position": 377,
+      "textPreview": "XXXX\u5E74XX\u6708",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 377,
+        "confidence": "high"
+      }
+    },
+    "p0237": {
+      "kind": "paragraph",
+      "order": 378,
+      "position": 378,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 378,
+        "confidence": "high"
+      }
+    },
+    "p0238": {
+      "kind": "paragraph",
+      "order": 379,
+      "position": 379,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 379,
+        "confidence": "high"
+      }
+    },
+    "p0239": {
+      "kind": "paragraph",
+      "order": 380,
+      "position": 380,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 380,
+        "confidence": "high"
+      }
+    },
+    "p0240": {
+      "kind": "paragraph",
+      "order": 381,
+      "position": 381,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 381,
+        "confidence": "high"
+      }
+    },
+    "p0241": {
+      "kind": "paragraph",
+      "order": 382,
+      "position": 382,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 382,
+        "confidence": "high"
+      }
+    },
+    "p0242": {
+      "kind": "paragraph",
+      "order": 383,
+      "position": 383,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 383,
+        "confidence": "high"
+      }
+    },
+    "p0243": {
+      "kind": "paragraph",
+      "order": 384,
+      "position": 384,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 384,
+        "confidence": "high"
+      }
+    },
+    "p0244": {
+      "kind": "paragraph",
+      "order": 385,
+      "position": 385,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 385,
+        "confidence": "high"
+      }
+    },
+    "p0245": {
+      "kind": "paragraph",
+      "order": 386,
+      "position": 386,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 386,
+        "confidence": "high"
+      }
+    },
+    "p0246": {
+      "kind": "paragraph",
+      "order": 387,
+      "position": 387,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 387,
+        "confidence": "high"
+      }
+    },
+    "p0247": {
+      "kind": "paragraph",
+      "order": 388,
+      "position": 388,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 388,
+        "confidence": "high"
+      }
+    },
+    "p0248": {
+      "kind": "paragraph",
+      "order": 389,
+      "position": 389,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 389,
+        "confidence": "high"
+      }
+    },
+    "p0249": {
+      "kind": "paragraph",
+      "order": 390,
+      "position": 390,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 390,
+        "confidence": "high"
+      }
+    },
+    "p0250": {
+      "kind": "paragraph",
+      "order": 391,
+      "position": 391,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 391,
+        "confidence": "high"
+      }
+    },
+    "p0251": {
+      "kind": "paragraph",
+      "order": 392,
+      "position": 392,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 392,
+        "confidence": "high"
+      }
+    },
+    "p0252": {
+      "kind": "paragraph",
+      "order": 393,
+      "position": 393,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 393,
+        "confidence": "high"
+      }
+    },
+    "p0253": {
+      "kind": "paragraph",
+      "order": 394,
+      "position": 394,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 394,
+        "confidence": "high"
+      }
+    },
+    "h0048": {
+      "kind": "heading",
+      "order": 395,
+      "position": 395,
+      "textPreview": "\u9644\u5F55",
+      "styleId": "2",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 395,
+        "confidence": "high"
+      }
+    },
+    "p0254": {
+      "kind": "paragraph",
+      "order": 396,
+      "position": 396,
+      "textPreview": "MACROBUTTON  AcceptAllChangesInDocAndStopTracking [\u5355\u51FB\u5E76\u8F93\u5165\u9644\u5F55\u5185\u5BB9]",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 396,
+        "confidence": "high"
+      }
+    },
+    "p0255": {
+      "kind": "paragraph",
+      "order": 397,
+      "position": 397,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 397,
+        "confidence": "high"
+      }
+    },
+    "p0256": {
+      "kind": "paragraph",
+      "order": 398,
+      "position": 398,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 398,
+        "confidence": "high"
+      }
+    },
+    "p0257": {
+      "kind": "paragraph",
+      "order": 399,
+      "position": 399,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 399,
+        "confidence": "high"
+      }
+    },
+    "p0258": {
+      "kind": "paragraph",
+      "order": 400,
+      "position": 400,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 400,
+        "confidence": "high"
+      }
+    },
+    "p0259": {
+      "kind": "paragraph",
+      "order": 401,
+      "position": 401,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 401,
+        "confidence": "high"
+      }
+    },
+    "p0260": {
+      "kind": "paragraph",
+      "order": 402,
+      "position": 402,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 402,
+        "confidence": "high"
+      }
+    },
+    "p0261": {
+      "kind": "paragraph",
+      "order": 403,
+      "position": 403,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 403,
+        "confidence": "high"
+      }
+    },
+    "p0262": {
+      "kind": "paragraph",
+      "order": 404,
+      "position": 404,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 404,
+        "confidence": "high"
+      }
+    },
+    "p0263": {
+      "kind": "paragraph",
+      "order": 405,
+      "position": 405,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 405,
+        "confidence": "high"
+      }
+    },
+    "p0264": {
+      "kind": "paragraph",
+      "order": 406,
+      "position": 406,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 406,
+        "confidence": "high"
+      }
+    },
+    "p0265": {
+      "kind": "paragraph",
+      "order": 407,
+      "position": 407,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 407,
+        "confidence": "high"
+      }
+    },
+    "p0266": {
+      "kind": "paragraph",
+      "order": 408,
+      "position": 408,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 408,
+        "confidence": "high"
+      }
+    },
+    "h0049": {
+      "kind": "heading",
+      "order": 409,
+      "position": 409,
+      "textPreview": "\u4F5C\u8005\u7B80\u4ECB",
+      "styleId": "2",
+      "provenance": {
+        "format": "docx",
+        "source": "heading",
+        "position": 409,
+        "confidence": "high"
+      }
+    },
+    "p0267": {
+      "kind": "paragraph",
+      "order": 410,
+      "position": 410,
+      "textPreview": "\u57FA\u672C\u4ECB\u7ECD\uFF08\u59D3\u540D\u3001\u6027\u522B\u3001\u51FA\u751F\u65E5\u671F\u3001\u7C4D\u8D2F\u7B49\uFF09\uFF1A",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 410,
+        "confidence": "high"
+      }
+    },
+    "p0268": {
+      "kind": "paragraph",
+      "order": 411,
+      "position": 411,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 411,
+        "confidence": "high"
+      }
+    },
+    "p0269": {
+      "kind": "paragraph",
+      "order": 412,
+      "position": 412,
+      "textPreview": "\u6559\u80B2\u7ECF\u5386\uFF1A",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 412,
+        "confidence": "high"
+      }
+    },
+    "p0270": {
+      "kind": "paragraph",
+      "order": 413,
+      "position": 413,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 413,
+        "confidence": "high"
+      }
+    },
+    "p0271": {
+      "kind": "paragraph",
+      "order": 414,
+      "position": 414,
+      "textPreview": "\u7814\u7A76\u751F\u671F\u95F4\u53D1\u8868\u7684\u5B66\u672F\u8BBA\u6587\uFF1A",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 414,
+        "confidence": "high"
+      }
+    },
+    "p0272": {
+      "kind": "paragraph",
+      "order": 415,
+      "position": 415,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 415,
+        "confidence": "high"
+      }
+    },
+    "p0273": {
+      "kind": "paragraph",
+      "order": 416,
+      "position": 416,
+      "textPreview": "\u7814\u7A76\u751F\u671F\u95F4\u4E3B\u6301/\u53C2\u4E0E\u7684\u79D1\u7814\u9879\u76EE\uFF1A",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 416,
+        "confidence": "high"
+      }
+    },
+    "p0274": {
+      "kind": "paragraph",
+      "order": 417,
+      "position": 417,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 417,
+        "confidence": "high"
+      }
+    },
+    "p0275": {
+      "kind": "paragraph",
+      "order": 418,
+      "position": 418,
+      "textPreview": "\u7814\u7A76\u751F\u671F\u95F4\u83B7\u5F97\u7684\u5956\u52B1\u548C\u8363\u8A89\uFF1A",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 418,
+        "confidence": "high"
+      }
+    },
+    "p0276": {
+      "kind": "paragraph",
+      "order": 419,
+      "position": 419,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 419,
+        "confidence": "high"
+      }
+    },
+    "p0277": {
+      "kind": "paragraph",
+      "order": 420,
+      "position": 420,
+      "textPreview": "\u5176\u4ED6\u6210\u679C\uFF1A",
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 420,
+        "confidence": "high"
+      }
+    },
+    "p0278": {
+      "kind": "paragraph",
+      "order": 421,
+      "position": 421,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 421,
+        "confidence": "high"
+      }
+    },
+    "p0279": {
+      "kind": "paragraph",
+      "order": 422,
+      "position": 422,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 422,
+        "confidence": "high"
+      }
+    },
+    "p0280": {
+      "kind": "paragraph",
+      "order": 423,
+      "position": 423,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 423,
+        "confidence": "high"
+      }
+    },
+    "p0281": {
+      "kind": "paragraph",
+      "order": 424,
+      "position": 424,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 424,
+        "confidence": "high"
+      }
+    },
+    "p0282": {
+      "kind": "paragraph",
+      "order": 425,
+      "position": 425,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 425,
+        "confidence": "high"
+      }
+    },
+    "p0283": {
+      "kind": "paragraph",
+      "order": 426,
+      "position": 426,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 426,
+        "confidence": "high"
+      }
+    },
+    "p0284": {
+      "kind": "paragraph",
+      "order": 427,
+      "position": 427,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 427,
+        "confidence": "high"
+      }
+    },
+    "p0285": {
+      "kind": "paragraph",
+      "order": 428,
+      "position": 428,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 428,
+        "confidence": "high"
+      }
+    },
+    "p0286": {
+      "kind": "paragraph",
+      "order": 429,
+      "position": 429,
+      "provenance": {
+        "format": "docx",
+        "source": "paragraph",
+        "position": 429,
+        "confidence": "high"
+      }
+    },
+    "f0001": {
+      "kind": "footnote",
+      "order": 430,
+      "position": 430,
+      "provenance": {
+        "format": "docx",
+        "source": "footnote",
+        "position": 430,
+        "confidence": "high"
+      }
+    },
+    "e0001": {
+      "kind": "endnote",
+      "order": 431,
+      "position": 431,
+      "provenance": {
+        "format": "docx",
+        "source": "endnote",
+        "position": 431,
+        "confidence": "high"
+      }
+    }
+  },
+  "tables": [
+    {
+      "id": "t0001",
+      "position": 88,
+      "rowCount": 1,
+      "colCount": 1
+    },
+    {
+      "id": "t0002",
+      "position": 281,
+      "rowCount": 5,
+      "colCount": 5
+    }
+  ],
+  "footnotes": [
+    {
+      "id": "f0001",
+      "number": 2,
+      "position": 430
+    }
+  ],
+  "endnotes": [
+    {
+      "id": "e0001",
+      "number": 2,
+      "position": 431
+    }
+  ],
+  "hyperlinks": [],
+  "bookmarks": [
+    {
+      "id": "bm0001",
+      "name": "_Toc355274223",
+      "position": 0
+    },
+    {
+      "id": "bm0002",
+      "name": "_Toc355807471",
+      "position": 1
+    },
+    {
+      "id": "bm0003",
+      "name": "_Toc355274957",
+      "position": 2
+    },
+    {
+      "id": "bm0004",
+      "name": "_Toc355361237",
+      "position": 3
+    },
+    {
+      "id": "bm0005",
+      "name": "_Toc355614273",
+      "position": 4
+    },
+    {
+      "id": "bm0006",
+      "name": "_Toc355204232",
+      "position": 5
+    },
+    {
+      "id": "bm0007",
+      "name": "OLE_LINK2",
+      "position": 18
+    },
+    {
+      "id": "bm0008",
+      "name": "OLE_LINK1",
+      "position": 19
+    },
+    {
+      "id": "bm0009",
+      "name": "_GoBack",
+      "position": 53
+    },
+    {
+      "id": "bm0010",
+      "name": "_Toc520240576",
+      "position": 115
+    },
+    {
+      "id": "bm0011",
+      "name": "_Toc479346319",
+      "position": 116
+    },
+    {
+      "id": "bm0012",
+      "name": "_Toc523697193",
+      "position": 117
+    },
+    {
+      "id": "bm0013",
+      "name": "_Toc484182509",
+      "position": 118
+    },
+    {
+      "id": "bm0014",
+      "name": "_Toc485389065",
+      "position": 119
+    },
+    {
+      "id": "bm0015",
+      "name": "_Toc485048978",
+      "position": 120
+    },
+    {
+      "id": "bm0016",
+      "name": "_Toc421635058",
+      "position": 121
+    },
+    {
+      "id": "bm0017",
+      "name": "_Toc355274958",
+      "position": 124
+    },
+    {
+      "id": "bm0018",
+      "name": "_Toc355807472",
+      "position": 125
+    },
+    {
+      "id": "bm0019",
+      "name": "_Toc355614274",
+      "position": 126
+    },
+    {
+      "id": "bm0020",
+      "name": "_Toc355274224",
+      "position": 127
+    },
+    {
+      "id": "bm0021",
+      "name": "_Toc355204233",
+      "position": 128
+    },
+    {
+      "id": "bm0022",
+      "name": "_Toc355361238",
+      "position": 129
+    },
+    {
+      "id": "bm0023",
+      "name": "_Toc520240577",
+      "position": 136
+    },
+    {
+      "id": "bm0024",
+      "name": "_Toc523697194",
+      "position": 137
+    },
+    {
+      "id": "bm0025",
+      "name": "_Toc484182510",
+      "position": 138
+    },
+    {
+      "id": "bm0026",
+      "name": "_Toc485389066",
+      "position": 139
+    },
+    {
+      "id": "bm0027",
+      "name": "_Toc485048979",
+      "position": 140
+    },
+    {
+      "id": "bm0028",
+      "name": "OLE_LINK8",
+      "position": 142
+    },
+    {
+      "id": "bm0029",
+      "name": "OLE_LINK7",
+      "position": 145
+    },
+    {
+      "id": "bm0030",
+      "name": "_Toc355807473",
+      "position": 157
+    },
+    {
+      "id": "bm0031",
+      "name": "_Toc484182511",
+      "position": 158
+    },
+    {
+      "id": "bm0032",
+      "name": "_Toc520240578",
+      "position": 159
+    },
+    {
+      "id": "bm0033",
+      "name": "_Toc355614275",
+      "position": 160
+    },
+    {
+      "id": "bm0034",
+      "name": "_Toc485048980",
+      "position": 161
+    },
+    {
+      "id": "bm0035",
+      "name": "_Toc485389067",
+      "position": 162
+    },
+    {
+      "id": "bm0036",
+      "name": "_Toc523697195",
+      "position": 163
+    },
+    {
+      "id": "bm0037",
+      "name": "_Toc523697196",
+      "position": 198
+    },
+    {
+      "id": "bm0038",
+      "name": "_Toc523697197",
+      "position": 202
+    },
+    {
+      "id": "bm0039",
+      "name": "OLE_LINK5",
+      "position": 340
+    },
+    {
+      "id": "bm0040",
+      "name": "OLE_LINK6",
+      "position": 341
+    }
+  ],
+  "comments": [],
+  "revisions": [],
+  "math": [
+    {
+      "id": "m0001",
+      "display": false,
+      "hasLatex": false,
+      "position": 250
+    },
+    {
+      "id": "m0002",
+      "display": false,
+      "hasLatex": false,
+      "position": 254
+    }
+  ],
+  "chem": []
+}

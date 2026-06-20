@@ -1,0 +1,986 @@
+{
+  "records": [
+    {
+      "id": "https://openalex.org/W4409850813",
+      "doi": "10.37155/2811-0617-0401-7",
+      "title": "\u7CBE\u51C6\u519C\u4E1A\u6280\u672F\u5728\u63D0\u9AD8\u519C\u4F5C\u7269\u4EA7\u91CF\u4E0E\u54C1\u8D28\u4E2D\u7684\u5B9E\u8DF5",
+      "authors": [
+        "\u5CB3\u5229\u5CF0",
+        "\u66F9 \u4E3D",
+        "\u90B1\u9E4F\u7A0B",
+        "\u7531\u6D77\u971E",
+        "\u5218\u5C0F\u71D5"
+      ],
+      "year": 2025,
+      "venue": "\u519C\u4E1A\u79D1\u6280\u4E0E\u53D1\u5C55",
+      "publisher": null,
+      "abstract": "\u7CBE\u51C6\u519C\u4E1A\u6280\u672F\u901A\u8FC7\u96C6\u6210\u7269\u8054\u7F51\u3001\u5927\u6570\u636E\u3001\u4EBA\u5DE5\u667A\u80FD\u7B49\u73B0\u4EE3\u4FE1\u606F\u6280\u672F\uFF0C\u5728\u519C\u4F5C\u7269\u751F\u4EA7\u4E2D\u5B9E\u73B0\u4E86\u571F\u58E4\u517B\u5206 \u7BA1\u7406\u3001\u75C5\u866B\u5BB3\u76D1\u6D4B\u4E0E\u9632\u6CBB\u3001\u6C34\u8D44\u6E90\u7BA1\u7406\u4E0E\u704C\u6E89\u4EE5\u53CA\u519C\u4F5C\u7269\u751F\u957F\u76D1\u6D4B\u4E0E\u8C03\u63A7\u7684\u7CBE\u51C6\u5316\u3002\u8FD9\u4E9B\u6280\u672F\u80FD\u591F\u5B9E\u65F6\u76D1\u6D4B\u519C\u7530\u73AF \u5883\u548C\u4F5C\u7269\u751F\u957F\u72B6\u6001\uFF0C\u4E3A\u5236\u5B9A\u79D1\u5B66\u7684\u519C\u4E1A\u7BA1\u7406\u63AA\u65BD\u63D0\u4F9B\u6570\u636E\u652F\u6301\uFF0C\u5B9E\u73B0\u4F5C\u7269\u751F\u957F\u73AF\u5883\u7684\u4F18\u5316\u8C03\u63A7\uFF0C\u4ECE\u800C\u63D0\u9AD8\u519C\u4F5C\u7269\u7684 \u4EA7\u91CF\u548C\u54C1\u8D28\u3002\u7CBE\u51C6\u519C\u4E1A\u6280\u672F\u7684\u5E94\u7528\u63A8\u52A8\u4E86\u519C\u4E1A\u751F\u4EA7\u7684\u667A\u80FD\u5316\u548C\u53EF\u6301\u7EED\u53D1\u5C55\uFF0C\u4E3A\u519C\u4E1A\u7684\u9AD8\u6548\u3001\u73AF\u4FDD\u548C\u53EF\u6301\u7EED\u53D1\u5C55\u63D0\u4F9B \u4E86\u6709\u529B\u4FDD\u969C\u3002",
+      "keywords": [
+        "Political science"
+      ],
+      "concepts": [
+        "Political science"
+      ],
+      "topics": [
+        "Military Technology and Strategies",
+        "Legal and Regulatory Analysis",
+        "Linguistic, Cultural, and Literary Studies"
+      ],
+      "affiliations": [],
+      "funders": [],
+      "references": [],
+      "firstAuthor": "\u5CB3\u5229\u5CF0",
+      "journal": "\u519C\u4E1A\u79D1\u6280\u4E0E\u53D1\u5C55",
+      "issn": null,
+      "cn": null,
+      "isbn": null,
+      "clc": null,
+      "volume": null,
+      "issue": null,
+      "pages": null,
+      "citationCount": 1,
+      "isOpenAccess": true,
+      "openAccessStatus": "diamond",
+      "license": "cc-by-nc",
+      "pdfUrl": "http://ojs.omniscient.sg/index.php/atd/article/download/52717/51586",
+      "landingPageUrl": "http://ojs.omniscient.sg/index.php/atd/article/download/52717/51586",
+      "fullText": null,
+      "retrievedFrom": [
+        "openalex"
+      ],
+      "sourceIds": {
+        "openalex": "https://openalex.org/W4409850813"
+      },
+      "matchReasons": [
+        "SU:\u7CBE\u51C6\u519C\u4E1A",
+        "SU:\u4EBA\u5DE5\u667A\u80FD",
+        "SU:\u4F5C\u7269"
+      ],
+      "relevanceScore": 0.5957181664498657
+    },
+    {
+      "id": "https://openalex.org/W7142034545",
+      "doi": "10.70693/cjst.v2i2.1937",
+      "title": "\u57FA\u4E8E\u591A\u6A21\u6001\u5927\u6A21\u578B\u7684\u667A\u6167\u519C\u4E1A\u5168\u94FE\u8DEF\u6570\u5B57\u5316\u51B3\u7B56\u7CFB\u7EDF\u65B9\u6848\u7814\u7A76",
+      "authors": [
+        "\u90D1\u5B97\u610F",
+        "\u738B\u96EA\u5A77",
+        "\u674E\u6770"
+      ],
+      "year": 2026,
+      "venue": "\u4E2D\u56FD\u79D1\u5B66\u4E0E\u6280\u672F\u5B66\u62A5",
+      "publisher": null,
+      "abstract": "\u4E3A\u5E94\u5BF9\u73B0\u4EE3\u519C\u4E1A\u4E2D\u690D\u7269\u75C5\u866B\u5BB3\u9632\u6CBB\u6548\u7387\u4F4E\u4E0B\u4E0E\u6C34\u8D44\u6E90\u7BA1\u7406\u7C97\u653E\u7684\u6838\u5FC3\u6311\u6218\uFF0C\u672C\u6587\u63D0\u51FA\u5E76\u8BBE\u8BA1\u4E86\u4E00\u5957\u57FA\u4E8E\u591A\u6A21\u6001\u5927\u6A21\u578B\u7684\u667A\u6167\u519C\u4E1A\u5168\u94FE\u8DEF\u6570\u5B57\u5316\u51B3\u7B56\u7CFB\u7EDF\u65B9\u6848\u3002\u9996\u5148\uFF0C\u5728\u6570\u636E\u83B7\u53D6\u7AEF\u6784\u5EFA\u4E86\u201C\u7A7A\u5929\u5730\u4E00\u4F53\u5316\u201D\u7684\u591A\u7EF4\u611F\u77E5\u4F53\u7CFB\uFF0C\u5B9E\u73B0\u5BF9\u519C\u7530\u73AF\u5883\u4E0E\u4F5C\u7269\u751F\u7406\u72B6\u6001\u7684\u5168\u666F\u76D1\u63A7\uFF1B\u5176\u6B21\uFF0C\u5728\u51B3\u7B56\u4E2D\u67A2\u5C42\u9762\uFF0C\u521B\u65B0\u6027\u5730\u5F15\u5165\u672C\u5730\u5316\u5927\u8BED\u8A00\u6A21\u578B\u7ED3\u5408\u68C0\u7D22\u589E\u5F3A\u751F\u6210\u6280\u672F\uFF0C\u901A\u8FC7\u6302\u8F7D\u6743\u5A01\u519C\u4E1A\u4E13\u4E1A\u77E5\u8BC6\u5E93\uFF0C\u6709\u6548\u6D88\u9664\u901A\u7528\u4EBA\u5DE5\u667A\u80FD\u7684\u201C\u77E5\u8BC6\u5E7B\u89C9\u201D\uFF0C\u5B9E\u73B0\u4ECE\u6A21\u7CCA\u95EE\u7B54\u5411\u7CBE\u51C6\u6807\u51C6\u5316\u519C\u4E8B\u5904\u65B9\u7684\u903B\u8F91\u8DE8\u8D8A\uFF1B\u6700\u540E\uFF0C\u5728\u6267\u884C\u4E0E\u5E94\u7528\u5C42\u9762\uFF0C\u4F9D\u6258\u4E91\u8FB9\u7AEF\u534F\u540C\u673A\u5236\u8BBE\u8BA1\u4E86\u8F6F\u786C\u4E00\u4F53\u5316\u7684\u201C\u611F-\u7B97-\u63A7\u201D\u7269\u7406\u95ED\u73AF\uFF0C\u5E76\u89C4\u5212\u4E86PC\u603B\u63A7\u4E0E\u79FB\u52A8\u5C0F\u7A0B\u5E8F\u53CC\u7AEF\u534F\u540C\u7684\u7BA1\u7406\u6A21\u5F0F\u4EE5\u53CA\u57FA\u4E8E\u533A\u5757\u94FE\u7684\u54C1\u8D28\u6EAF\u6E90\u94FE\u8DEF\u3002\u672C\u65B9\u6848\u6253\u901A\u4E86\u4ECE\u5E95\u5C42\u6570\u636E\u91C7\u96C6\u3001\u667A\u80FD\u51B3\u7B56\u5230\u672B\u7AEF\u63A7\u5236\u4E0E\u4E1A\u52A1\u53D8\u73B0\u7684\u5168\u6D41\u7A0B\uFF0C\u4E3A\u7834\u89E3\u4F20\u7EDF\u519C\u4E1A\u611F\u77E5\u4E0E\u51B3\u7B56\u5272\u88C2\u96BE\u9898\u63D0\u4F9B\u4E86\u7CFB\u7EDF\u7684\u9876\u5C42\u8BBE\u8BA1\u56FE\u7EB8\uFF0C\u4E3A\u63A8\u52A8\u519C\u4E1A\u65B0\u8D28\u751F\u4EA7\u529B\u53D1\u5C55\u4E0E\u6570\u5B57\u5316\u8F6C\u578B\u63D0\u4F9B\u4E86\u79D1\u5B66\u7684\u7406\u8BBA\u67B6\u6784\u4E0E\u5E94\u7528\u8303\u5F0F\u3002",
+      "keywords": [
+        "Process (computing)",
+        "Identification (biology)",
+        "Product (mathematics)"
+      ],
+      "concepts": [
+        "Process (computing)",
+        "Identification (biology)",
+        "Computer science",
+        "Product (mathematics)",
+        "Work (physics)",
+        "Context (archaeology)",
+        "Set (abstract data type)",
+        "Term (time)",
+        "Natural (archaeology)",
+        "Selection (genetic algorithm)"
+      ],
+      "topics": [
+        "Military Technology and Strategies",
+        "Legal and Regulatory Analysis",
+        "Linguistic, Cultural, and Literary Studies"
+      ],
+      "affiliations": [
+        "Human Growth Foundation"
+      ],
+      "funders": [],
+      "references": [],
+      "firstAuthor": "\u90D1\u5B97\u610F",
+      "journal": "\u4E2D\u56FD\u79D1\u5B66\u4E0E\u6280\u672F\u5B66\u62A5",
+      "issn": null,
+      "cn": null,
+      "isbn": null,
+      "clc": null,
+      "volume": null,
+      "issue": null,
+      "pages": null,
+      "citationCount": 0,
+      "isOpenAccess": true,
+      "openAccessStatus": "hybrid",
+      "license": "cc-by",
+      "pdfUrl": "https://ac.wisvora.com/index.php/cjst/article/download/1937/1741",
+      "landingPageUrl": "https://ac.wisvora.com/index.php/cjst/article/download/1937/1741",
+      "fullText": null,
+      "retrievedFrom": [
+        "openalex"
+      ],
+      "sourceIds": {
+        "openalex": "https://openalex.org/W7142034545"
+      },
+      "matchReasons": [
+        "SU:\u667A\u6167\u519C\u4E1A",
+        "SU:\u4EBA\u5DE5\u667A\u80FD",
+        "SU:\u4F5C\u7269"
+      ],
+      "relevanceScore": 0.5866666666666667
+    },
+    {
+      "id": "https://openalex.org/W4416759541",
+      "doi": "10.37155/2717-5170-0709-35",
+      "title": "\u4EBA\u5DE5\u667A\u80FD\u5728\u667A\u6167\u519C\u4E1A\u4E2D\u7684\u5E94\u7528\u5206\u6790",
+      "authors": [
+        "\u91D1\u5927\u4E3A"
+      ],
+      "year": 2025,
+      "venue": "\u7535\u5B50\u901A\u4FE1\u4E0E\u8BA1\u7B97\u673A\u79D1\u5B66",
+      "publisher": null,
+      "abstract": "\u4EBA\u5DE5\u667A\u80FD\u6280\u672F\u4E3A\u667A\u6167\u519C\u4E1A\u53D1\u5C55\u63D0\u4F9B\u4E86\u6838\u5FC3\u9A71\u52A8\u529B\uFF0C\u5176\u5E94\u7528\u8D2F\u7A7F\u519C\u4E1A\u751F\u4EA7\u5168\u94FE\u6761\u3002\u672C\u6587\u56F4\u7ED5\u4EBA\u5DE5\u667A\u80FD\u5728\u667A \u6167\u519C\u4E1A\u4E2D\u7684\u5E94\u7528\u5C55\u5F00\u5206\u6790\uFF0C\u9996\u5148\u6982\u8FF0\u5176\u6280\u672F\u5185\u6DB5\u4E0E\u5E94\u7528\u4EF7\u503C\uFF0C\u968F\u540E\u4ECE\u79CD\u690D\u3001\u517B\u6B96\u3001\u519C\u4EA7\u54C1\u68C0\u6D4B\u5206\u7EA7\u4E09\u5927\u573A\u666F\u6DF1\u5165\u63A2\u8BA8 \u5177\u4F53\u5E94\u7528\uFF0C\u5305\u62EC\u571F\u58E4\u76D1\u6D4B\u3001\u4F5C\u7269\u75C5\u866B\u5BB3\u9632\u6CBB\u3001\u755C\u79BD\u5065\u5EB7\u7BA1\u7406\u3001\u667A\u80FD\u704C\u6E89\u65BD\u80A5\u7B49\u7EC6\u5206\u9886\u57DF\u3002\u540C\u65F6\uFF0C\u5256\u6790\u5F53\u524D\u9762\u4E34\u7684\u6570\u636E \u8D28\u91CF\u5B89\u5168\u3001\u6280\u672F\u6210\u672C\u9AD8\u3001\u4EBA\u624D\u77ED\u7F3A\u3001\u9002\u5E94\u6027\u4E0D\u8DB3\u7B49\u95EE\u9898\uFF0C\u5E76\u9488\u5BF9\u6027\u63D0\u51FA\u52A0\u5F3A\u6570\u636E\u7BA1\u7406\u3001\u964D\u4F4E\u6210\u672C\u3001\u57F9\u517B\u4EBA\u624D\u3001\u63D0\u5347\u6280 \u672F\u7A33\u5B9A\u6027\u7B49\u5BF9\u7B56\uFF0C\u65E8\u5728\u4E3A\u4EBA\u5DE5\u667A\u80FD\u8D4B\u80FD\u667A\u6167\u519C\u4E1A\u7684\u53EF\u6301\u7EED\u53D1\u5C55\u63D0\u4F9B\u53C2\u8003\u3002",
+      "keywords": [
+        "Process (computing)",
+        "Identification (biology)",
+        "Product (mathematics)"
+      ],
+      "concepts": [
+        "Process (computing)",
+        "Identification (biology)",
+        "Computer science",
+        "Product (mathematics)",
+        "Work (physics)",
+        "Context (archaeology)",
+        "Set (abstract data type)",
+        "Term (time)",
+        "Natural (archaeology)",
+        "Selection (genetic algorithm)"
+      ],
+      "topics": [
+        "Military Technology and Strategies",
+        "Legal and Regulatory Analysis",
+        "Linguistic, Cultural, and Literary Studies"
+      ],
+      "affiliations": [],
+      "funders": [],
+      "references": [],
+      "firstAuthor": "\u91D1\u5927\u4E3A",
+      "journal": "\u7535\u5B50\u901A\u4FE1\u4E0E\u8BA1\u7B97\u673A\u79D1\u5B66",
+      "issn": null,
+      "cn": null,
+      "isbn": null,
+      "clc": null,
+      "volume": null,
+      "issue": null,
+      "pages": null,
+      "citationCount": 0,
+      "isOpenAccess": true,
+      "openAccessStatus": "diamond",
+      "license": "cc-by-nc",
+      "pdfUrl": "http://ojs.omniscient.sg/index.php/eccs/article/download/69589/68131",
+      "landingPageUrl": "http://ojs.omniscient.sg/index.php/eccs/article/download/69589/68131",
+      "fullText": null,
+      "retrievedFrom": [
+        "openalex"
+      ],
+      "sourceIds": {
+        "openalex": "https://openalex.org/W4416759541"
+      },
+      "matchReasons": [
+        "SU:\u667A\u6167\u519C\u4E1A",
+        "SU:\u4EBA\u5DE5\u667A\u80FD",
+        "SU:\u4F5C\u7269"
+      ],
+      "relevanceScore": 0.5806666666666667
+    },
+    {
+      "id": "https://openalex.org/W7140511447",
+      "doi": "10.32629/as.v8i12.3496",
+      "title": "\u6570\u636E\u5B6A\u751F\u5728\u7CBE\u51C6\u519C\u4E8B\u4F5C\u4E1A\u4E2D\u7684\u51B3\u7B56\u652F\u6301\u7814\u7A76",
+      "authors": [
+        "\u97E6\u9E4F \u6D2A",
+        "\u715C\u4E7E \u9093",
+        "\u5FD7\u8FDC \u79A4",
+        "\u4E66\u8BAF \u8881",
+        "\u654F\u541B \u8C22"
+      ],
+      "year": 2025,
+      "venue": "\u519C\u4E1A\u79D1\u5B66",
+      "publisher": null,
+      "abstract": "\u968F\u7740\u667A\u6167\u519C\u4E1A\u7684\u5FEB\u901F\u53D1\u5C55,\u4F20\u7EDF\u519C\u4E1A\u751F\u4EA7\u6A21\u5F0F\u6B63\u9010\u6B65\u5411\u6570\u636E\u9A71\u52A8\u3001\u667A\u80FD\u51B3\u7B56\u7684\u65B9\u5411\u8F6C\u578B\u3002\u6570\u636E\u5B6A\u751F\u4F5C\u4E3A\u878D\u5408\u7269\u8054\u7F51\u3001\u5927\u6570\u636E\u3001\u4EBA\u5DE5\u667A\u80FD\u4E0E\u4EFF\u771F\u5EFA\u6A21\u7684\u524D\u6CBF\u6280\u672F,\u4E3A\u7CBE\u51C6\u519C\u4E8B\u4F5C\u4E1A\u63D0\u4F9B\u4E86\u5168\u65B0\u7684\u51B3\u7B56\u652F\u6301\u8303\u5F0F\u3002\u672C\u6587\u7CFB\u7EDF\u68B3\u7406\u4E86\u6570\u636E\u5B6A\u751F\u6280\u672F\u7684\u6838\u5FC3\u67B6\u6784\u53CA\u5176\u5728\u519C\u4E1A\u573A\u666F\u4E2D\u7684\u9002\u914D\u6027,\u6784\u5EFA\u4E86\u4E00\u4E2A\u9762\u5411\u519C\u7530\u7BA1\u7406\u7684\u4E94\u5C42\u6570\u636E\u5B6A\u751F\u51B3\u7B56\u652F\u6301\u6846\u67B6,\u6DB5\u76D6\u611F\u77E5\u5C42\u3001\u6570\u636E\u5C42\u3001\u6A21\u578B\u5C42\u3001\u670D\u52A1\u5C42\u4E0E\u5E94\u7528\u5C42\u3002\u5728\u6B64\u57FA\u7840\u4E0A,\u7ED3\u5408\u571F\u58E4\u5892\u60C5\u76D1\u6D4B\u3001\u4F5C\u7269\u751F\u957F\u6A21\u62DF\u3001\u75C5\u866B\u5BB3\u9884\u8B66\u53CA\u704C\u6E89\u65BD\u80A5\u4F18\u5316\u7B49\u5178\u578B\u5E94\u7528\u573A\u666F,\u9A8C\u8BC1\u4E86\u8BE5\u7CFB\u7EDF\u7684\u53EF\u884C\u6027\u4E0E\u6709\u6548\u6027\u3002\u5B9E\u9A8C\u7ED3\u679C\u8868\u660E,\u57FA\u4E8E\u6570\u636E\u5B6A\u751F\u7684\u51B3\u7B56\u652F\u6301\u7CFB\u7EDF\u53EF\u663E\u8457\u63D0\u5347\u519C\u4E8B\u4F5C\u4E1A\u7684\u7CBE\u51C6\u5EA6\u4E0E\u8D44\u6E90\u5229\u7528\u6548\u7387,\u964D\u4F4E\u4EBA\u5DE5\u5E72\u9884\u6210\u672C,\u4E3A\u5B9E\u73B0\u519C\u4E1A\u7EFF\u8272\u53EF\u6301\u7EED\u53D1\u5C55\u63D0\u4F9B\u6280\u672F\u652F\u6491\u3002",
+      "keywords": [
+        "Process (computing)",
+        "Identification (biology)",
+        "Product (mathematics)"
+      ],
+      "concepts": [
+        "Process (computing)",
+        "Identification (biology)",
+        "Computer science",
+        "Product (mathematics)",
+        "Work (physics)",
+        "Context (archaeology)",
+        "Set (abstract data type)",
+        "Term (time)",
+        "Natural (archaeology)",
+        "Selection (genetic algorithm)"
+      ],
+      "topics": [
+        "Military Technology and Strategies",
+        "Legal and Regulatory Analysis",
+        "Linguistic, Cultural, and Literary Studies"
+      ],
+      "affiliations": [],
+      "funders": [],
+      "references": [],
+      "firstAuthor": "\u97E6\u9E4F \u6D2A",
+      "journal": "\u519C\u4E1A\u79D1\u5B66",
+      "issn": null,
+      "cn": null,
+      "isbn": null,
+      "clc": null,
+      "volume": null,
+      "issue": null,
+      "pages": null,
+      "citationCount": 0,
+      "isOpenAccess": true,
+      "openAccessStatus": "diamond",
+      "license": "cc-by-nc",
+      "pdfUrl": "https://doi.org/10.32629/as.v8i12.3496",
+      "landingPageUrl": "https://doi.org/10.32629/as.v8i12.3496",
+      "fullText": null,
+      "retrievedFrom": [
+        "openalex"
+      ],
+      "sourceIds": {
+        "openalex": "https://openalex.org/W7140511447"
+      },
+      "matchReasons": [
+        "SU:\u667A\u6167\u519C\u4E1A",
+        "SU:\u4EBA\u5DE5\u667A\u80FD",
+        "SU:\u4F5C\u7269"
+      ],
+      "relevanceScore": 0.5806666666666667
+    },
+    {
+      "id": "https://openalex.org/W7125712097",
+      "doi": "10.3724/j.slxb.20250702",
+      "title": "New progress and prospects in variable rate irrigation technology",
+      "authors": [
+        "Haijun Yan",
+        "jiusheng li",
+        "Yuncheng Xu",
+        "Wentao WANG",
+        "Jingjing WANG"
+      ],
+      "year": 2026,
+      "venue": "Journal of Hydraulic Engineering",
+      "publisher": null,
+      "abstract": "\u519C\u4E1A\u6C34\u8D44\u6E90\u9AD8\u6548\u5229\u7528\u5BF9\u4FDD\u969C\u5168\u7403\u7CAE\u98DF\u5B89\u5168\u81F3\u5173\u91CD\u8981\u3002\u53D8\u91CF\u704C\u6E89\u4F5C\u4E3A\u7CBE\u51C6\u519C\u4E1A\u7684\u4E00\u9879\u6838\u5FC3\u6280\u672F\uFF0C\u662F\u5E94\u5BF9\u6C34\u8D44\u6E90\u6311\u6218\u3001\u5B9E\u73B0\u4F5C\u7269\u7CBE\u51C6\u704C\u6E89\u7684\u5173\u952E\u9014\u5F84\u3002\u672C\u6587\u5728\u9610\u660E\u53D8\u91CF\u704C\u6E89\u5185\u6DB5\u4E0E\u7CFB\u7EDF\u67B6\u6784\u7684\u57FA\u7840\u4E0A\uFF0C\u7CFB\u7EDF\u68B3\u7406\u4E86\u704C\u6E89\u51B3\u7B56\u6A21\u578B\u3001\u7BA1\u7406\u533A\u5212\u5206\u3001\u52A8\u6001\u5904\u65B9\u56FE\u751F\u6210\u548C\u65F6\u7A7A\u7CBE\u5EA6\u7B49\u5173\u952E\u6280\u672F\u7684\u7814\u7A76\u8FDB\u5C55\uFF0C\u9610\u8FF0\u4E86\u53D8\u91CF\u704C\u6E89\u7CFB\u7EDF\u7684\u611F\u77E5\u3001\u51B3\u7B56\u3001\u6267\u884C\u3001\u53CD\u9988\u7B49\u6838\u5FC3\u6A21\u5757\u4E0E\u5173\u952E\u90E8\u4EF6\uFF0C\u8BA8\u8BBA\u4E86\u53D8\u91CF\u704C\u6E89\u6280\u672F\u5728\u5927\u7530\u4F5C\u7269\u7684\u5E94\u7528\u4E2D\u9762\u4E34\u7684\u591A\u6E90\u6570\u636E\u878D\u5408\u96BE\u5EA6\u5927\u3001\u51B3\u7B56\u6A21\u578B\u9002\u5E94\u6027\u4E0D\u8DB3\u3001\u6280\u672F\u63A8\u5E7F\u6210\u672C\u9AD8\u7B49\u6311\u6218\uFF0C\u5C55\u671B\u4E86\u672A\u6765\u53D8\u91CF\u704C\u6E89\u6280\u672F\u7684\u91CD\u70B9\u53D1\u5C55\u65B9\u5411\uFF1A\u4E0E\u7269\u8054\u7F51\u3001\u4EBA\u5DE5\u667A\u80FD\u3001\u5927\u6570\u636E\u5E73\u53F0\u7B49\u6DF1\u5EA6\u878D\u5408\uFF0C\u7740\u91CD\u5728\u63D0\u5347\u5E94\u7528\u9002\u5E94\u6027\u3001\u964D\u4F4E\u4EA7\u54C1\u6210\u672C\u3001\u4F18\u5316\u51B3\u7B56\u6A21\u578B\u7B49\u65B9\u9762\u5F00\u5C55\u7814\u7A76\u3002\u672C\u6587\u65E8\u5728\u4E3A\u53D8\u91CF\u704C\u6E89\u6280\u672F\u7684\u7814\u53D1\u4E0E\u5E94\u7528\u63D0\u4F9B\u7406\u8BBA\u53C2\u8003\uFF0C\u4E3A\u9AD8\u6C34\u6548\u519C\u4E1A\u4E0E\u7EFF\u8272\u519C\u4E1A\u9AD8\u8D28\u91CF\u53D1\u5C55\u63D0\u4F9B\u6280\u672F\u652F\u6491\u3002",
+      "keywords": [
+        "Variable (mathematics)",
+        "Irrigation",
+        "Hydrology (agriculture)",
+        "Low-flow irrigation systems",
+        "Water conservation",
+        "Hydraulics"
+      ],
+      "concepts": [
+        "Variable (mathematics)",
+        "Environmental science",
+        "Irrigation",
+        "Water resource management",
+        "Hydrology (agriculture)",
+        "Environmental engineering",
+        "Agricultural engineering",
+        "Low-flow irrigation systems",
+        "Water conservation",
+        "Engineering",
+        "Hydraulics",
+        "Irrigation management",
+        "Surface irrigation",
+        "Hydrological modelling"
+      ],
+      "topics": [
+        "Irrigation Practices and Water Management",
+        "Polymer-Based Agricultural Enhancements",
+        "Engineering and Agricultural Innovations"
+      ],
+      "affiliations": [],
+      "funders": [],
+      "references": [],
+      "firstAuthor": "Haijun Yan",
+      "journal": "Journal of Hydraulic Engineering",
+      "issn": null,
+      "cn": null,
+      "isbn": null,
+      "clc": null,
+      "volume": null,
+      "issue": null,
+      "pages": null,
+      "citationCount": 1,
+      "isOpenAccess": false,
+      "openAccessStatus": "closed",
+      "license": null,
+      "pdfUrl": null,
+      "landingPageUrl": null,
+      "fullText": null,
+      "retrievedFrom": [
+        "openalex"
+      ],
+      "sourceIds": {
+        "openalex": "https://openalex.org/W7125712097"
+      },
+      "matchReasons": [
+        "SU:\u7CBE\u51C6\u519C\u4E1A",
+        "SU:\u4EBA\u5DE5\u667A\u80FD",
+        "SU:\u4F5C\u7269"
+      ],
+      "relevanceScore": 0.5267181664498658
+    },
+    {
+      "id": "https://openalex.org/W7162561100",
+      "doi": "10.37155/2811-0617-0504-24",
+      "title": "\u57FA\u4E8E\u571F\u58E4\u5892\u60C5\u7684\u519C\u4E1A\u704C\u6E89\u7CBE\u51C6\u63A7\u5236\u6280\u672F\u7814\u7A76",
+      "authors": [
+        "\u845B\u6D77\u5E74"
+      ],
+      "year": 2026,
+      "venue": "\u519C\u4E1A\u79D1\u6280\u4E0E\u53D1\u5C55",
+      "publisher": null,
+      "abstract": "\u672C\u6587\u7CFB\u7EDF\u68B3\u7406\u4E86\u571F\u58E4\u5892\u60C5\u7684\u57FA\u672C\u6982\u5FF5\u53CA\u5176\u5728\u519C\u4E1A\u704C\u6E89\u4E2D\u7684\u6838\u5FC3\u5730\u4F4D\uFF0C\u6DF1\u5165\u5206\u6790\u4E86\u5F53\u524D\u4E3B\u6D41\u7684\u571F\u58E4\u5892\u60C5\u76D1 \u6D4B\u6280\u672F\uFF08\u5305\u62EC\u4F20\u611F\u5668\u6CD5\u3001\u9065\u611F\u6CD5\u53CA\u6A21\u578B\u4F30\u7B97\u6CD5\uFF09\u7684\u539F\u7406\u3001\u4F18\u7F3A\u70B9\u53CA\u9002\u7528\u573A\u666F\uFF1B\u91CD\u70B9\u63A2\u8BA8\u4E86\u57FA\u4E8E\u5B9E\u65F6\u5892\u60C5\u6570\u636E\u7684\u667A\u80FD\u704C \u6E89\u51B3\u7B56\u6A21\u578B\uFF0C\u6DB5\u76D6\u9608\u503C\u63A7\u5236\u3001\u4F5C\u7269\u9700\u6C34\u6A21\u578B\u8026\u5408\u3001\u4EBA\u5DE5\u667A\u80FD\u7B97\u6CD5\u5E94\u7528\u7B49\u7B56\u7565\uFF1B\u5E76\u7ED3\u5408\u7269\u8054\u7F51\u3001\u8FB9\u7F18\u8BA1\u7B97\u3001\u6570\u5B57\u5B6A\u751F\u7B49 \u65B0\u5174\u4FE1\u606F\u6280\u672F\uFF0C\u6784\u5EFA\u4E86\u201C\u611F\u77E5\u2014\u51B3\u7B56\u2014\u6267\u884C\u201D\u4E00\u4F53\u5316\u7684\u7CBE\u51C6\u704C\u6E89\u63A7\u5236\u7CFB\u7EDF\u67B6\u6784\u3002\u6700\u540E\uFF0C\u6587\u7AE0\u603B\u7ED3\u4E86\u8BE5\u6280\u672F\u4F53\u7CFB\u5728\u5B9E\u9645 \u5E94\u7528\u4E2D\u9762\u4E34\u7684\u6311\u6218\uFF0C\u5E76\u5BF9\u672A\u6765\u53D1\u5C55\u65B9\u5411\u8FDB\u884C\u4E86\u5C55\u671B\uFF0C\u65E8\u5728\u4E3A\u667A\u6167\u519C\u4E1A\u4E0E\u8282\u6C34\u519C\u4E1A\u7684\u53D1\u5C55\u63D0\u4F9B\u7406\u8BBA\u652F\u6491\u4E0E\u5B9E\u8DF5\u53C2\u8003\u3002",
+      "keywords": [
+        "Process (computing)",
+        "Identification (biology)",
+        "Product (mathematics)"
+      ],
+      "concepts": [
+        "Process (computing)",
+        "Identification (biology)",
+        "Computer science",
+        "Product (mathematics)",
+        "Work (physics)",
+        "Context (archaeology)",
+        "Set (abstract data type)",
+        "Term (time)",
+        "Natural (archaeology)",
+        "Selection (genetic algorithm)"
+      ],
+      "topics": [],
+      "affiliations": [
+        "Hellenic Petroleum (Greece)",
+        "Alpha Genesis (United States)",
+        "Spectrum Scientific (United States)",
+        "International Society of Automation",
+        "Institut National de la Recherche Agronomique de Tunisie"
+      ],
+      "funders": [],
+      "references": [],
+      "firstAuthor": "\u845B\u6D77\u5E74",
+      "journal": "\u519C\u4E1A\u79D1\u6280\u4E0E\u53D1\u5C55",
+      "issn": null,
+      "cn": null,
+      "isbn": null,
+      "clc": null,
+      "volume": null,
+      "issue": null,
+      "pages": null,
+      "citationCount": 0,
+      "isOpenAccess": true,
+      "openAccessStatus": "diamond",
+      "license": "cc-by-nc",
+      "pdfUrl": "http://ojs.omniscient.sg/index.php/atd/article/download/77390/75756",
+      "landingPageUrl": "http://ojs.omniscient.sg/index.php/atd/article/download/77390/75756",
+      "fullText": null,
+      "retrievedFrom": [
+        "openalex"
+      ],
+      "sourceIds": {
+        "openalex": "https://openalex.org/W7162561100"
+      },
+      "matchReasons": [
+        "SU:\u667A\u6167\u519C\u4E1A",
+        "SU:\u4EBA\u5DE5\u667A\u80FD",
+        "SU:\u4F5C\u7269"
+      ],
+      "relevanceScore": 0.5116666666666667
+    },
+    {
+      "id": "https://openalex.org/W4413002650",
+      "doi": "10.12677/csa.2025.158196",
+      "title": "Comparative Study on Rice Pest Detection Performance Using YOLOv5 Enhanced with Three C3 Attention Modules",
+      "authors": [
+        "\u73C8\u6BC5 \u6C88"
+      ],
+      "year": 2025,
+      "venue": "Computer Science and Application",
+      "publisher": null,
+      "abstract": "\u4E2D\u56FD\u662F\u5168\u7403\u6700\u5927\u7684\u6C34\u7A3B\u751F\u4EA7\u56FD\uFF0C\u79CD\u690D\u9762\u79EF\u5E38\u5E74\u7EA6\u5360\u5168\u7403\u603B\u91CF\u768420%\u3002\u866B\u5BB3\u662F\u5236\u7EA6\u6C34\u7A3B\u4EA7\u91CF\u548C\u54C1\u8D28\u7684\u4E3B\u8981\u56E0\u7D20\u4E4B\u4E00\uFF0C\u4F20\u7EDF\u866B\u5BB3\u68C0\u6D4B\u65B9\u6CD5\u4E3B\u8981\u4F9D\u8D56\u4EBA\u5DE5\u89C2\u5BDF\u548C\u6027\u8BF1\u6355\u6CD5\uFF0C\u4F46\u4E24\u8005\u5747\u5B58\u5728\u5C40\u9650\u6027\uFF0C\u96BE\u4EE5\u6EE1\u8DB3\u73B0\u4EE3\u519C\u4E1A\u5BF9\u866B\u5BB3\u7684\u7CBE\u51C6\u9632\u63A7\u9700\u6C42\u3002\u968F\u7740\u519C\u4E1A\u667A\u80FD\u5316\u7684\u53D1\u5C55\u4E0E\u6DF1\u5EA6\u5B66\u4E60\u7684\u5E7F\u6CDB\u5E94\u7528\uFF0C\u57FA\u4E8E\u6DF1\u5EA6\u5B66\u4E60\u7684\u519C\u4F5C\u7269\u75C5\u866B\u5BB3\u667A\u80FD\u68C0\u6D4B\u5DF2\u6210\u4E3A\u7814\u7A76\u70ED\u70B9\u65B9\u5411\u3002\u672C\u6587\u9488\u5BF9\u4E0A\u8FF0\u95EE\u9898\uFF0C\u4F9D\u636E\u5B9E\u9645\u573A\u666F\u91C7\u7528\u76EE\u6807\u68C0\u6D4B\u65B9\u6CD5\u5BF9\u6C34\u7A3B\u5BB3\u866B\u8FDB\u884C\u68C0\u6D4B\uFF0C\u5BF9YOLOv5 (You Only Look Once version 5)\u68C0\u6D4B\u7B97\u6CD5\u8FDB\u884C\u6539\u8FDB\uFF0C\u5728\u5176\u57FA\u7840\u4E0A\u5F15\u5165\u4E09\u79CD\u4E3B\u6D41\u6CE8\u610F\u529B\u673A\u5236\u2014\u2014ECA (Efficient Channel Attention)\u3001CBAM (Convolutional Block Attention Module)\u548CSE (Squeeze-and-Excitation)\uFF0C\u5206\u522B\u6784\u5EFA\u6539\u8FDB\u6A21\u5757C3ECA\u3001C3CBAM\u548CC3SE\uFF0C\u5206\u522B\u66FF\u4EE3\u539F\u4E3B\u5E72\u7F51\u7EDC\u4E2D\u7684C3\u6A21\u5757\uFF0C\u4ECE\u800C\u5F62\u6210\u4E09\u79CD\u6539\u8FDB\u6A21\u578B\uFF1AYOLOv5s-C3ECA\u3001YOLOv5s-C3CBAM\u4E0EYOLOv5s-C3SE\u3002\u901A\u8FC7\u5728\u516C\u5F00\u7A3B\u7530\u5BB3\u866B\u56FE\u50CF\u6570\u636E\u96C6\u4E0A\u7684\u8BAD\u7EC3\u4E0E\u6D4B\u8BD5\uFF0C\u5B9E\u9A8C\u7ED3\u679C\u8868\u660E\uFF0C\u4E0E\u539F\u59CB\u7684YOLOv5s\u76F8\u6BD4\uFF0CYOLOv5s-C3CBAM\u548CYOLOv5s-C3ECA\u6539\u8FDB\u6A21\u578B\u5728mAP@0.5\u3001mAP@0.5:0.95\u5206\u522B\u6709\u4E0D\u540C\u7A0B\u5EA6\u7684\u63D0\u5347\uFF0C\u5176\u4E2DYOLOv5s-C3CBAM\u5728mAP@0.5\u3001mAP@0.5:0.95\u4E0A\u5206\u522B\u63D0\u53471.2%\u548C0.3%\uFF1BYOLOv5s-C3ECA\u5728mAP@0.5\u3001mAP@0.5:0.95\u4E0A\u5206\u522B\u63D0\u53472.5%\u548C1.1%\u3002\u7ED3\u679C\u8868\u660E\uFF0C\u6240\u63D0\u51FA\u7684\u6539\u8FDB\u7B56\u7565\u5728\u4FDD\u6301\u6A21\u578B\u8F7B\u91CF\u5316\u7684\u540C\u65F6\u63D0\u5347\u4E86\u6C34\u7A3B\u5BB3\u866B\u76EE\u6807\u7684\u68C0\u6D4B\u7CBE\u5EA6\u4E0E\u7A33\u5B9A\u6027\uFF0C\u9002\u7528\u4E8E\u8D44\u6E90\u53D7\u9650\u573A\u666F\u4E0B\u7684\u519C\u4E1A\u667A\u80FD\u7EC8\u7AEF\u90E8\u7F72\uFF0C\u5177\u6709\u826F\u597D\u7684\u5B9E\u9645\u5E94\u7528\u4EF7\u503C\u3002China is the largest rice producer worldwide, with a planting area accounting for approximately 20% of the global total. Pest infestation is one of the primary factors limiting rice yield and quality. Traditional pest detection methods mainly rely on manual inspection and sex pheromone trapping, both of which have limitations and fail to meet the precise pest control requirements of modern agriculture. With the development of agricultural intelligence and the widespread application of deep learning, deep learning-based intelligent detection of crop pests and diseases has become a research hotspot. To address these issues, this study employs an object detection approach for rice pest identification and improves the YOLOv5 (You Only Look Once version 5) detection algorithm by introducing three mainstream attention mechanisms\u2014ECA (Efficient Channel Attention), CBAM (Convolutional Block Attention Module), and SE (Squeeze-and-Excitation). Corresponding improved modules C3ECA, C3CBAM, and C3SE are constructed to replace the original C3 modules in the backbone network, forming three improved models: YOLOv5s-C3ECA, YOLOv5s-C3CBAM, and YOLOv5s-C3SE. Experiments conducted on a publicly available rice pest image dataset demonstrate that compared with the original YOLOv5s, the YOLOv5s-C3CBAM and YOLOv5s-C3ECA models achieve varying degrees of improvement in mAP@0.5 and mAP@0.5:0.95, with YOLOv5s-C3CBAM improving by 1.2% and 0.3%, and YOLOv5s-C3ECA improving by 2.5% and 1.1%, respectively. The results indicate that the proposed improvement strategy enhances detection accuracy and stability of rice pest targets while maintaining model lightweight characteristics, making it suitable for deployment on resource-constrained agricultural intelligent terminals and offering significant practical value.",
+      "keywords": [
+        "Computer science",
+        "PEST analysis",
+        "Biology",
+        "Horticulture"
+      ],
+      "concepts": [
+        "Computer science",
+        "PEST analysis",
+        "Biology",
+        "Horticulture"
+      ],
+      "topics": [
+        "Smart Agriculture and AI",
+        "Industrial Vision Systems and Defect Detection",
+        "Spectroscopy and Chemometric Analyses"
+      ],
+      "affiliations": [],
+      "funders": [],
+      "references": [],
+      "firstAuthor": "\u73C8\u6BC5 \u6C88",
+      "journal": "Computer Science and Application",
+      "issn": null,
+      "cn": null,
+      "isbn": null,
+      "clc": null,
+      "volume": null,
+      "issue": null,
+      "pages": null,
+      "citationCount": 1,
+      "isOpenAccess": true,
+      "openAccessStatus": "hybrid",
+      "license": "cc-by",
+      "pdfUrl": "https://pdf.hanspub.org/csa_1543704.pdf",
+      "landingPageUrl": "https://pdf.hanspub.org/csa_1543704.pdf",
+      "fullText": null,
+      "retrievedFrom": [
+        "openalex"
+      ],
+      "sourceIds": {
+        "openalex": "https://openalex.org/W4413002650"
+      },
+      "matchReasons": [
+        "SU:\u6DF1\u5EA6\u5B66\u4E60",
+        "SU:\u4F5C\u7269"
+      ],
+      "relevanceScore": 0.4807181664498658
+    },
+    {
+      "id": "https://openalex.org/W2237423369",
+      "doi": null,
+      "title": "\u7F8E\u56FD\u4E03\u6210\u519C\u573A\u201C\u89E6\u7F51\u201D \u667A\u6167\u519C\u4E1A\u5E26\u6765\u201C\u7EFF\u8272\u9769\u547D\u201D",
+      "authors": [
+        "\u5F6D\u6D77\u5BB9"
+      ],
+      "year": 2015,
+      "venue": "\u4E2D\u56FD\u98DF\u54C1",
+      "publisher": null,
+      "abstract": "\u5728\u7F8E\u56FD\u4E9A\u5229\u6851\u90A3\u5DDE\u7684\u7530\u95F4,\u65E0\u4EBA\u9A7E\u9A76\u62D6\u62C9\u673A\u5F80\u6765\u7A7F\u68AD,\u5927\u6279\uFF02\u751F\u83DC\u673A\u5668\u4EBA\uFF02\u5728\u67E5\u770B\u6BCF\u682A\u4F5C\u7269\u7684\u751F\u957F\u60C5\u51B5,\u519C\u573A\u4E3B\u53EA\u9700\u901A\u8FC7\u624B\u673A\u4FBF\u53EF\u638C\u63A7\u519C\u573A\u7684\u6838\u5FC3\u6570\u636E\u2026\u2026\u7531\u5927\u6570\u636E\u548C\u4EBA\u5DE5\u667A\u80FD\u9A71\u52A8\u7684\u667A\u6167\u519C\u4E1A,\u6B63\u628A\u60F3\u8C61\u53D8\u6210\u73B0\u5B9E\u30022 0\u4E16\u7EAA\u4EE5\u6765,\u519C\u4E1A\u7684\u8FDB\u6B65\u4E3B\u8981\u4F53\u73B0\u5728\u73B0\u4EE3\u519C\u4E1A\u673A\u68B0\u57FA\u672C\u53D6\u4EE3\u4E86\u4EBA\u529B\u548C\u755C\u529B\u4F5C\u4E1A,\u4EE5\u53CA\u519C\u4E1A\u751F\u4EA7\u7684\u7EC4\u7EC7\u7BA1\u7406\u5F62\u5F0F\u53D8\u5F97\u4E13\u4E1A\u5316\u3001\u793E\u4F1A\u5316\u548C\u4F01\u4E1A\u5316\u3002",
+      "keywords": [
+        "Business"
+      ],
+      "concepts": [
+        "Business"
+      ],
+      "topics": [
+        "Military Technology and Strategies",
+        "Legal and Regulatory Analysis",
+        "Linguistic, Cultural, and Literary Studies"
+      ],
+      "affiliations": [],
+      "funders": [],
+      "references": [],
+      "firstAuthor": "\u5F6D\u6D77\u5BB9",
+      "journal": "\u4E2D\u56FD\u98DF\u54C1",
+      "issn": null,
+      "cn": null,
+      "isbn": null,
+      "clc": null,
+      "volume": null,
+      "issue": null,
+      "pages": null,
+      "citationCount": 0,
+      "isOpenAccess": false,
+      "openAccessStatus": "closed",
+      "license": null,
+      "pdfUrl": null,
+      "landingPageUrl": null,
+      "fullText": null,
+      "retrievedFrom": [
+        "openalex"
+      ],
+      "sourceIds": {
+        "openalex": "https://openalex.org/W2237423369"
+      },
+      "matchReasons": [
+        "SU:\u667A\u6167\u519C\u4E1A",
+        "SU:\u4EBA\u5DE5\u667A\u80FD",
+        "SU:\u4F5C\u7269"
+      ],
+      "relevanceScore": 0.44566666666666666
+    },
+    {
+      "id": "https://openalex.org/W4415073251",
+      "doi": "10.37155/2811-0617-0411-10",
+      "title": "\u667A\u6167\u519C\u4E1A\u6280\u672F\u5728\u8BBE\u65BD\u852C\u83DC\u79CD\u690D\u4E2D\u7684\u5E94\u7528",
+      "authors": [
+        "\u96EF \u5F20",
+        "\u5218\u534E\u4E1C"
+      ],
+      "year": 2025,
+      "venue": "\u519C\u4E1A\u79D1\u6280\u4E0E\u53D1\u5C55",
+      "publisher": null,
+      "abstract": "\u5728\u5168\u7403\u519C\u4E1A\u5411\u6570\u5B57\u5316\u3001\u667A\u80FD\u5316\u8F6C\u578B\u7684\u5927\u80CC\u666F\u4E0B\uFF0C\u8BBE\u65BD\u852C\u83DC\u79CD\u690D\u4F5C\u4E3A\u73B0\u4EE3\u519C\u4E1A\u7684\u91CD\u8981\u7EC4\u6210\u90E8\u5206\uFF0C\u4E9F\u9700\u901A\u8FC7 \u6280\u672F\u9769\u65B0\u5B9E\u73B0\u9AD8\u8D28\u91CF\u53D1\u5C55\u3002\u667A\u6167\u519C\u4E1A\u6280\u672F\u51ED\u501F\u5176\u5BF9\u4FE1\u606F\u6280\u672F\u4E0E\u519C\u4E1A\u751F\u4EA7\u7684\u6DF1\u5EA6\u878D\u5408\uFF0C\u4E3A\u8BBE\u65BD\u852C\u83DC\u79CD\u690D\u7684\u8F6C\u578B\u5347\u7EA7\u5E26\u6765 \u4E86\u65B0\u7684\u5951\u673A\u548C\u53D1\u5C55\u65B9\u5411\u3002\u57FA\u4E8E\u6B64\uFF0C\u672C\u8BBA\u6587\u805A\u7126\u667A\u6167\u519C\u4E1A\u6280\u672F\u5728\u8BBE\u65BD\u852C\u83DC\u79CD\u690D\u4E2D\u7684\u5E94\u7528\uFF0C\u9610\u8FF0\u7269\u8054\u7F51\u3001\u5927\u6570\u636E\u3001\u4EBA\u5DE5\u667A \u80FD\u7B49\u6280\u672F\u5728\u73AF\u5883\u76D1\u6D4B\u3001\u7CBE\u51C6\u8C03\u63A7\u3001\u75C5\u866B\u5BB3\u9632\u6CBB\u7B49\u73AF\u8282\u7684\u5B9E\u8DF5\uFF0C\u5206\u6790\u5176\u5E26\u6765\u7684\u7ECF\u6D4E\u3001\u793E\u4F1A\u548C\u751F\u6001\u6548\u76CA\uFF0C\u63A2\u8BA8\u5E94\u7528\u8FC7\u7A0B\u4E2D \u5B58\u5728\u7684\u95EE\u9898\uFF0C\u5E76\u63D0\u51FA\u9488\u5BF9\u6027\u53D1\u5C55\u5BF9\u7B56\uFF0C\u65E8\u5728\u4E3A\u63A8\u52A8\u8BBE\u65BD\u852C\u83DC\u79CD\u690D\u667A\u6167\u5316\u53D1\u5C55\u63D0\u4F9B\u53C2\u8003\u3002",
+      "keywords": [
+        "Process (computing)",
+        "Identification (biology)",
+        "Product (mathematics)"
+      ],
+      "concepts": [
+        "Process (computing)",
+        "Identification (biology)",
+        "Computer science",
+        "Product (mathematics)",
+        "Work (physics)",
+        "Context (archaeology)",
+        "Set (abstract data type)",
+        "Term (time)",
+        "Natural (archaeology)",
+        "Selection (genetic algorithm)"
+      ],
+      "topics": [
+        "Military Technology and Strategies",
+        "Legal and Regulatory Analysis",
+        "Linguistic, Cultural, and Literary Studies"
+      ],
+      "affiliations": [],
+      "funders": [],
+      "references": [],
+      "firstAuthor": "\u96EF \u5F20",
+      "journal": "\u519C\u4E1A\u79D1\u6280\u4E0E\u53D1\u5C55",
+      "issn": null,
+      "cn": null,
+      "isbn": null,
+      "clc": null,
+      "volume": null,
+      "issue": null,
+      "pages": null,
+      "citationCount": 4,
+      "isOpenAccess": true,
+      "openAccessStatus": "diamond",
+      "license": "cc-by-nc",
+      "pdfUrl": "http://ojs.omniscient.sg/index.php/atd/article/download/66430/65026",
+      "landingPageUrl": "http://ojs.omniscient.sg/index.php/atd/article/download/66430/65026",
+      "fullText": null,
+      "retrievedFrom": [
+        "openalex"
+      ],
+      "sourceIds": {
+        "openalex": "https://openalex.org/W4415073251"
+      },
+      "matchReasons": [
+        "SU:\u667A\u6167\u519C\u4E1A",
+        "SU:\u75C5\u866B\u5BB3"
+      ],
+      "relevanceScore": 0.4256151668834676
+    },
+    {
+      "id": "https://openalex.org/W3041523499",
+      "doi": "10.1360/sste-2019-0201",
+      "title": "\u6DF1\u5EA6\u5B66\u4E60\u5728\u751F\u6001\u8D44\u6E90\u7814\u7A76\u9886\u57DF\u7684\u5E94\u7528\u0026amp;lt;bold\u0026amp;gt;: \u0026amp;lt;/bold\u0026amp;gt;\u7406\u8BBA\u0026amp;lt;bold\u0026amp;gt;\u3001\u0026amp;lt;/bold\u0026amp;gt;\u65B9\u6CD5\u548C\u6311\u6218",
+      "authors": [
+        "Yu LIU",
+        "\u8881\u81FB \u5DE8",
+        "\u5F3A \u8BB8",
+        "\u53EF\u5FC3 \u5F90",
+        "\u83C1 \u5F20",
+        "\u65F6\u8D85 \u91D1",
+        "\u654F \u674E",
+        "\u5E86\u534E \u90ED",
+        "\u79CB\u4E3D \u6768",
+        "\u6676 \u5BA3",
+        "\u747E \u5218",
+        "\u8273\u519B \u82CF"
+      ],
+      "year": 2020,
+      "venue": "SCIENTIA SINICA Terrae",
+      "publisher": null,
+      "abstract": "\u751F\u6001\u8D44\u6E90\u662F\u4EBA\u7C7B\u751F\u5B58\u53D1\u5C55\u548C\u81EA\u6211\u5B9E\u73B0\u7684\u91CD\u8981\u7269\u8D28\u57FA\u7840, \u5BF9\u5176\u8FDB\u884C\u6DF1\u5165\u5168\u9762\u7684\u7814\u7A76\u548C\u7406\u89E3\u5173\u7CFB\u5230\u4EBA\u7C7B\u793E\u4F1A\u7684\u53EF\u6301\u7EED\u53D1\u5C55. \u968F\u7740\u89C2\u6D4B\u6280\u672F\u7684\u8FDB\u6B65, \u957F\u65F6\u95F4\u3001\u8DE8\u5C3A\u5EA6\u3001\u6D77\u91CF\u5F02\u6784\u591A\u6E90\u6570\u636E\u7684\u83B7\u53D6\u80FD\u529B\u5F97\u5230\u4E86\u663E\u8457\u63D0\u5347, \u751F\u6001\u8D44\u6E90\u7814\u7A76\u8FDB\u5165\u4E86\u6570\u636E\u9A71\u52A8\u7684\u65B0\u65F6\u4EE3. \u4F20\u7EDF\u7684\u7EDF\u8BA1\u5B66\u4E60\u548C\u673A\u5668\u5B66\u4E60\u7B97\u6CD5\u5728\u6D77\u91CF\u6570\u636E\u9762\u524D\u5B58\u5728\u9971\u548C\u95EE\u9898. \u6DF1\u5EA6\u5B66\u4E60\u4F5C\u4E3A\u9AD8\u7EF4\u975E\u7EBF\u6027\u590D\u6742\u7279\u5F81\u81EA\u52A8\u63D0\u53D6\u7684\u65B0\u624B\u6BB5, \u5BF9\u6D77\u91CF\u6570\u636E\u5177\u6709\u4E0D\u9971\u548C\u6027, \u6B63\u6210\u4E3A\u5B66\u754C\u548C\u5DE5\u4E1A\u754C\u6570\u636E\u5904\u7406\u7684\u65B0\u5F15\u64CE. \u4E3A\u63A8\u52A8\u6DF1\u5EA6\u5B66\u4E60\u5728\u751F\u6001\u8D44\u6E90\u9886\u57DF\u7684\u5E94\u7528, \u6587\u7AE0\u9996\u5148\u4ECB\u7ECD\u4E86\u6DF1\u5EA6\u5B66\u4E60\u7684\u7406\u8BBA\u4E0E\u751F\u6001\u8D44\u6E90\u7814\u7A76\u7684\u8054\u7CFB, \u4EE5\u53CA\u5E38\u7528\u5DE5\u5177\u548C\u6570\u636E\u96C6. \u5176\u6B21, \u901A\u8FC7\u7269\u79CD\u8BC6\u522B\u3001\u4F5C\u7269\u80B2\u79CD\u548C\u690D\u88AB\u5236\u56FE\u4E09\u4E2A\u6848\u4F8B\u4ECB\u7ECD\u4E86\u6DF1\u5EA6\u5B66\u4E60\u5728\u5206\u7C7B\u8BC6\u522B\u3001\u68C0\u6D4B\u5B9A\u4F4D\u3001\u8BED\u4E49\u5206\u5272\u548C\u5B9E\u4F8B\u5206\u5272\u4EFB\u52A1\u4E2D\u7684\u5177\u4F53\u5B9E\u8DF5, \u4EE5\u53CA\u56FE\u795E\u7ECF\u7F51\u7EDC\u5728\u751F\u6001\u8D44\u6E90\u9886\u57DF\u4E2D\u5178\u578B\u7684\u7A7A\u95F4\u79BB\u6563\u70B9\u6570\u636E\u4E0A\u7684\u5E94\u7528\u573A\u666F. \u6700\u540E, \u7EFC\u5408\u5927\u6570\u636E\u65F6\u4EE3\u4E0B\u751F\u6001\u8D44\u6E90\u6570\u636E\u7684\u7279\u70B9\u548C\u6DF1\u5EA6\u5B66\u4E60\u7684\u53D1\u5C55\u73B0\u72B6, \u603B\u7ED3\u4E86\u6DF1\u5EA6\u5B66\u4E60\u5728\u751F\u6001\u8D44\u6E90\u9886\u57DF\u53D1\u5C55\u7684\u6311\u6218\u548C\u673A\u9047. \u5E0C\u671B\u901A\u8FC7\u4E0D\u540C\u5B66\u79D1\u4E4B\u95F4\u7684\u4EA4\u53C9\u548C\u4EBA\u624D\u57F9\u517B, \u80FD\u591F\u4FC3\u8FDB\u751F\u6001\u8D44\u6E90\u9886\u57DF\u6570\u636E\u7684\u6807\u51C6\u5316\u548C\u5171\u4EAB\u5316, \u63D0\u5347\u7B97\u6CD5\u7684\u666E\u9002\u6027\u548C\u89E3\u91CA\u6027, \u5E76\u501F\u52A9\u4E8E\u786C\u4EF6\u7684\u53D1\u5C55\u6700\u7EC8\u5B9E\u73B0\u5E94\u7528\u7684\u4E30\u5BCC\u5316\u548C\u667A\u80FD\u5316.",
+      "keywords": [
+        "Chemistry",
+        "Ampere",
+        "Adenylate kinase",
+        "Internal medicine",
+        "Endocrinology",
+        "Biology",
+        "Medicine",
+        "Physics",
+        "Enzyme",
+        "Biochemistry"
+      ],
+      "concepts": [
+        "Chemistry",
+        "Ampere",
+        "Adenylate kinase",
+        "Internal medicine",
+        "Endocrinology",
+        "Biology",
+        "Medicine",
+        "Physics",
+        "Enzyme",
+        "Biochemistry",
+        "Quantum mechanics",
+        "Voltage"
+      ],
+      "topics": [
+        "Educational Robotics and Engineering",
+        "Pharmacy and Medical Practices",
+        "Energy, Environment, Agriculture Analysis"
+      ],
+      "affiliations": [
+        "Faculty of 1000 (United Kingdom)",
+        "Aerospace Center Hospital",
+        "Weatherford College"
+      ],
+      "funders": [],
+      "references": [],
+      "firstAuthor": "Yu LIU",
+      "journal": "SCIENTIA SINICA Terrae",
+      "issn": null,
+      "cn": null,
+      "isbn": null,
+      "clc": null,
+      "volume": null,
+      "issue": null,
+      "pages": null,
+      "citationCount": 4,
+      "isOpenAccess": true,
+      "openAccessStatus": "diamond",
+      "license": null,
+      "pdfUrl": "https://www.sciengine.com/doi/pdf/DFA0522FA1774CF78951C9721E95C80C",
+      "landingPageUrl": "https://www.sciengine.com/doi/pdf/DFA0522FA1774CF78951C9721E95C80C",
+      "fullText": null,
+      "retrievedFrom": [
+        "openalex"
+      ],
+      "sourceIds": {
+        "openalex": "https://openalex.org/W3041523499"
+      },
+      "matchReasons": [
+        "SU:\u6DF1\u5EA6\u5B66\u4E60",
+        "SU:\u4F5C\u7269"
+      ],
+      "relevanceScore": 0.3956151668834676
+    },
+    {
+      "id": "https://openalex.org/W4323763308",
+      "doi": "10.37155/2811-0617-0102-19",
+      "title": "\u519C\u4E1A\u75C5\u866B\u5BB3\u9632\u6CBB\u73B0\u72B6\u4E0E\u65B9\u6CD5",
+      "authors": [
+        "\u738B \u5029"
+      ],
+      "year": 2022,
+      "venue": "\u519C\u4E1A\u79D1\u6280\u4E0E\u53D1\u5C55",
+      "publisher": null,
+      "abstract": "\u519C\u4E1A\u4E00\u76F4\u662F\u6211\u56FD\u53D1\u5C55\u7684\u91CD\u8981\u5185\u5BB9\uFF0C\u5728\u519C\u4E1A\u79CD\u690D\u8FC7\u7A0B\u5F53\u4E2D\uFF0C\u9700\u8981\u8FDB\u884C\u7EC6\u5FC3\u7684\u5475\u62A4\uFF0C\u5176\u4E2D\u5C31\u4F1A\u9762\u4E34\u75C5\u866B\u5BB3\u95EE \u9898\u3002\u519C\u4E1A\u75C5\u866B\u5BB3\u5177\u6709\u4F20\u64AD\u5E7F\u3001\u5371\u9669\u5927\u7B49\u7279\u70B9\uFF0C\u7531\u4E8E\u5404\u79CD\u519C\u4E1A\u4F5C\u7269\u6765\u6E90\u4E8E\u5404\u4E2A\u5730\u533A\uFF0C\u4E0D\u540C\u7684\u6750\u6599\u5C31\u6709\u53EF\u80FD\u662F\u5F15\u53D1\u4E0D\u540C \u79CD\u7C7B\u7684\u75C5\u866B\u5BB3\uFF0C\u5982\u82E5\u4E0D\u8FDB\u884C\u6709\u6548\u7684\u9632\u6CBB\uFF0C\u4E25\u91CD\u8005\u8FD8\u4F1A\u5F71\u54CD\u5230\u5F53\u5730\u5176\u4ED6\u4F5C\u7269\u7684\u751F\u957F\u3002\u5F53\u5176\u4F20\u64AD\u5230\u5176\u4ED6\u4F5C\u7269\u4E0A\u65F6\uFF0C\u5C31\u4F1A\u7ED9 \u8FD9\u4E9B\u75C5\u866B\u5BB3\u521B\u9020\u8F83\u597D\u7684\u751F\u957F\u7E41\u6B96\u7A7A\u95F4\uFF0C\u8FDB\u800C\u5F71\u54CD\u6574\u4E2A\u5730\u533A\u7684\u519C\u4E1A\u53D1\u5C55\uFF0C\u7ED9\u79CD\u690D\u6237\u5E26\u6765\u4E0D\u53EF\u4F30\u91CF\u7684\u635F\u5931\u3002\u75C5\u866B\u5BB3\u591A\u79CD\u591A \u6837\uFF0C\u7EDD\u5927\u591A\u6570\u4E3A\u5BB3\u866B\uFF0C\u8981\u6839\u636E\u5B9E\u9645\u60C5\u51B5\u6765\u5236\u5B9A\u4E0D\u540C\u7684\u9632\u6CBB\u65B9\u6848\u3002",
+      "keywords": [
+        "Political science"
+      ],
+      "concepts": [
+        "Political science"
+      ],
+      "topics": [
+        "Military Technology and Strategies",
+        "Legal and Regulatory Analysis",
+        "Linguistic, Cultural, and Literary Studies"
+      ],
+      "affiliations": [],
+      "funders": [],
+      "references": [],
+      "firstAuthor": "\u738B \u5029",
+      "journal": "\u519C\u4E1A\u79D1\u6280\u4E0E\u53D1\u5C55",
+      "issn": null,
+      "cn": null,
+      "isbn": null,
+      "clc": null,
+      "volume": null,
+      "issue": null,
+      "pages": null,
+      "citationCount": 5,
+      "isOpenAccess": true,
+      "openAccessStatus": "diamond",
+      "license": "cc-by-nc",
+      "pdfUrl": "http://ojs.omniscient.sg/index.php/atd/article/download/11977/11029",
+      "landingPageUrl": "http://ojs.omniscient.sg/index.php/atd/article/download/11977/11029",
+      "fullText": null,
+      "retrievedFrom": [
+        "openalex"
+      ],
+      "sourceIds": {
+        "openalex": "https://openalex.org/W4323763308"
+      },
+      "matchReasons": [
+        "SU:\u75C5\u866B\u5BB3"
+      ],
+      "relevanceScore": 0.37157422918584887
+    },
+    {
+      "id": "https://openalex.org/W4205874438",
+      "doi": "10.32629/as.v3i2.1790",
+      "title": "\u63A2\u6790\u6C34\u7A3B\u75C5\u866B\u5BB3\u7EFF\u8272\u9632\u63A7\u6280\u672F",
+      "authors": [
+        "\u5FD7\u4F1F \u5F90"
+      ],
+      "year": 2020,
+      "venue": "\u519C\u4E1A\u79D1\u5B66",
+      "publisher": null,
+      "abstract": "\u6C34\u7A3B\u662F\u6211\u56FD\u5E7F\u897F\u58EE\u65CF\u81EA\u6CBB\u533A\u91CD\u8981\u519C\u4F5C\u7269,\u589E\u5F3A\u6C34\u7A3B\u79CD\u690D\u5BF9\u4E8E\u5E26\u52A8\u5F53\u5730\u519C\u4E1A\u7ECF\u6D4E\u53D1\u5C55\u6709\u7740\u4E3E\u8DB3\u8F7B\u91CD\u7684\u610F\u4E49\u3002\u8FD1\u4E9B\u5E74\u6765,\u5927\u529B\u63A8\u52A8\u7EFF\u8272\u6C34\u7A3B\u79CD\u690D\u884C\u4E1A\u53D1\u5C55,\u7279\u522B\u662F\u5E7F\u897F\u58EE\u65CF\u81EA\u6CBB\u533A,\u75C5\u866B\u5BB3\u7EFF\u8272\u9632\u6CBB\u5DF2\u7ECF\u6210\u4E3A\u9996\u8981\u4EFB\u52A1,\u66F4\u52A0\u9700\u8981\u4FDD\u969C\u6C34\u7A3B\u4EA7\u54C1\u8D28\u91CF\u5B89\u5168\u3002",
+      "keywords": [
+        "Business"
+      ],
+      "concepts": [
+        "Business"
+      ],
+      "topics": [
+        "Military Technology and Strategies",
+        "Legal and Regulatory Analysis",
+        "Linguistic, Cultural, and Literary Studies"
+      ],
+      "affiliations": [],
+      "funders": [],
+      "references": [],
+      "firstAuthor": "\u5FD7\u4F1F \u5F90",
+      "journal": "\u519C\u4E1A\u79D1\u5B66",
+      "issn": null,
+      "cn": null,
+      "isbn": null,
+      "clc": null,
+      "volume": null,
+      "issue": null,
+      "pages": null,
+      "citationCount": 2,
+      "isOpenAccess": true,
+      "openAccessStatus": "diamond",
+      "license": "cc-by-nc",
+      "pdfUrl": "https://www.agric-sci.com/index.php/as/article/view/1790/1620",
+      "landingPageUrl": "https://www.agric-sci.com/index.php/as/article/view/1790/1620",
+      "fullText": null,
+      "retrievedFrom": [
+        "openalex"
+      ],
+      "sourceIds": {
+        "openalex": "https://openalex.org/W4205874438"
+      },
+      "matchReasons": [
+        "SU:\u75C5\u866B\u5BB3"
+      ],
+      "relevanceScore": 0.3445227294026498
+    },
+    {
+      "id": "https://openalex.org/W2365245276",
+      "doi": null,
+      "title": "A Study on Rice Pest Insect and Disease Diagnosis Expert System Based on B/S Mode",
+      "authors": [
+        "Zhiping Li"
+      ],
+      "year": 2008,
+      "venue": null,
+      "publisher": null,
+      "abstract": "A rice pest insect and disease diagnosis expert system based on B/S mode was introduced in this essay.In this system,ASP.NET programming technology was applied.After combined expert system,web information system and multimedia technology,this system includes rice pest insect and disease diagnosis module,rice pest insect and disease control knowledge module,interaction between experts and users platform(BBS),etc.Users can access this system via internet,and it is characterized by convenience and high versatile.\u6C34\u7A3B\u662F\u6211\u56FD\u7684\u4E3B\u8981\u7CAE\u98DF\u4F5C\u7269\u4E4B\u4E00,\u6BCF\u5E74\u56E0\u4E3A\u75C5\u866B\u5BB3\u800C\u9020\u6210\u7684\u635F\u5931\u5DE8\u5927~([1]),\u5982\u679C\u80FD\u591F\u5BF9\u8FD9\u4E9B\u75C5\u866B\u5BB3\u8FDB\u884C\u51C6\u786E\u8BCA\u65AD\u5E76\u6709\u6548\u9632\u6CBB,\u8FD9\u5BF9\u63D0\u9AD8\u6C34\u7A3B\u7684\u4EA7\u91CF\u4E0E\u54C1\u8D28\u5C24\u4E3A\u91CD\u8981.\u6C34\u7A3B\u75C5\u866B\u5BB3\u7684\u4EA7\u751F\u3001\u53D1\u5C55\u7684\u539F\u56E0\u590D\u6742,\u53D7\u5F71\u54CD\u56E0\u7D20\u591A,\u9700\u5177\u6709\u4E13\u4E1A\u77E5\u8BC6\u7684\u4EBA\u5458\u624D\u80FD\u8F83\u51C6\u786E\u5730\u8BCA\u65AD,\u800C\u519C\u6751\u57FA\u5C42\u5177\u6709\u8FD9\u6837\u4E13\u4E1A\u77E5\u8BC6\u7684\u4EBA\u5458\u8F83\u4E3A\u7F3A\u4E4F.\u519C\u4E1A\u4E13\u5BB6\u7CFB\u7EDF(agriculture expert system)\u662F\u5C06\u4EBA\u5DE5\u667A\u80FD\u6280\u672F\u5E94\u7528\u519C\u4E1A\u9886\u57DF\u7684\u4E00\u9879\u6280\u672F,\u5B83\u901A\u8FC7\u6C47\u96C6\u519C\u4E1A\u9886\u57DF\u7684\u77E5\u8BC6\u3001\u6A21\u578B,\u603B\u7ED3\u519C\u4E1A\u4E13\u5BB6\u7684\u77E5\u8BC6,\u91C7\u7528\u76F8\u5E94\u7684\u77E5\u8BC6\u8868\u793A\u53CA\u63A8\u7406\u7B56\u7565,\u4ECE\u800C\u4E3A\u519C\u4E1A\u751F\u4EA7\u8005\u4E0E\u7BA1\u7406\u8005\u63D0\u4F9B\u8BC4\u4F30\u6307\u5BFC,\u5B83\u662F\u519C\u4E1A\u4FE1\u606F\u6280\u672F\u4E2D\u7684\u4E00\u9879\u91CD\u8981\u6280\u672F.\u6C34\u7A3B\u75C5\u866B\u5BB3\u8BCA\u65AD\u4E13\u5BB6\u7CFB\u7EDF\u662F\u5176\u4E2D\u7684\u4E00\u4E2A\u91CD\u8981\u5E94\u7528,\u5E76\u5DF2\u7ECF\u6709\u4E00\u4E9B\u6210\u719F\u7684\u8F6F\u4EF6\u5305\u4EA7\u54C1~([2]).\u8FD9\u4E9B\u8F6F\u4EF6\u4E00\u822C\u662F\u4EE5C/S\u6A21\u5F0F\u5F00\u53D1\u7684,\u8FD9\u7C7B\u7A0B\u5E8F\u4E00\u822C\u8981\u6C42\u4F7F\u7528\u8005\u5177\u6709\u8F83\u9AD8\u7684\u8BA1\u7B97\u673A\u64CD\u4F5C\u6C34\u5E73,\u4E14\u8F6F\u4EF6\u5347\u7EA7\u4E0E\u7EF4\u62A4\u56F0\u96BE,\u5171\u4EAB\u7A0B\u5EA6\u4F4E.\u968F\u7740Internet/Intranet\u6280\u672F\u7684\u4E0D\u65AD\u53D1\u5C55,\u4F20\u7EDF\u7684\u8F6F\u4EF6\u6A21\u5F0F\u8D8A\u6765\u8D8A\u591A\u7684\u88ABB/S\u6A21\u5F0F\u6240\u53D6\u4EE3,\u8BE5\u6A21\u5F0F\u5DF2\u7ECF\u6210\u4E3A\u5F53\u4ECA\u4FE1\u606F\u4F20\u8F93\u7684\u4E3B\u6D41\u6A21\u5F0F,\u5176\u663E\u8457\u7279\u70B9\u662F,\u7EC8\u7AEF\u7528\u6237\u4F1A\u4F7F\u7528\u7F51\u9875\u6D4F\u89C8\u5668,\u5176\u4E14\u4EC5\u9700\u4F7F\u7528\u6D4F\u89C8\u5668\u5373\u6536\u7A3F\u65E5\u671F:[HT5SS]2008-09-09\u57FA\u91D1\u9879\u76EE:[HT5SS]\u6C5F\u897F\u7701\u81EA\u7136\u79D1\u5B66\u57FA\u91D1(0511035)\u4F5C\u8005\u7B80\u4ECB:[HT5SS]\u5F6D\u83B9\u743C(1978-),\u5973,\u7855\u58EB,\u8BB2\u5E08,\u4E3B\u8981\u4ECE\u4E8B\u8BA1\u7B97\u673A\u5E94\u7528\u4E0E\u7814\u7A76\u5DE5\u4F5C. [TPP1158.TIF,15.45;Z1*2(24*2,0)][HT5SS]\u56FE1 \u7CFB\u7EDF\u603B\u4F53\u7ED3\u6784Fig.1 The overall structure of the system\u53EF\u5728\u4EFB\u4F55\u5730\u65B9\u901A\u8FC7\u4E0A\u7F51\u83B7\u53D6\u4FE1\u606F.\u672C\u6587\u63A2\u8BA8\u7684\u662F\u57FA\u4E8EB/S\u6A21\u5F0F\u7684\u6C34\u7A3B\u75C5\u866B\u5BB3\u8BCA\u65AD\u4E13\u5BB6\u7CFB\u7EDF,\u5177\u6709\u5F00\u653E\u5F0F\u7684\u7ED3\u6784,\u4FBF\u4E8E\u7528\u6237\u901A\u8FC7\u4E92\u8054\u7F51\u5B9E\u73B0\u8FDC\u7A0B\u5F02\u5730\u8BCA\u65AD,\u5E76\u53EF\u901A\u8FC7\u4E92\u8054\u7F51\u5B9E\u73B0\u4E13\u5BB6\u76F4\u63A5\u53C2\u4E0E\u8BCA\u65AD\u8FC7\u7A0B.\u7CFB\u7EDF\u5347\u7EA7\u4E0E\u7EF4\u62A4\u4E5F\u8F83\u4E3A\u65B9\u4FBF.1 \u7814\u5236\u65B9\u6CD51.1 \u5F00\u53D1\u73AF\u5883\u7CFB\u7EDF\u91C7\u7528B/S\u7ED3\u6784,\u5229\u7528.NET\u6280\u672F\u8FDB\u884C\u5F00\u53D1,\u4EE5Microsoft Visual Studio.NET 2005\u4F5C\u4E3A\u5F00\u53D1\u5E73\u53F0,\u540E\u53F0\u6570\u636E\u5E93\u4E3AMicrosoft SQL Server 2000.[BW(B(S1*4,,)][BHDWG1*3/4,WK39YQ12,WK5YQW] [HT5SS]\u6C5F\u897F\u519C\u4E1A\u5927\u5B66\u5B66\u62A5[]\u7B2C30\u53771.2 \u7D20\u6750\u91C7\u96C6\u672C\u7CFB\u7EDF\u6536\u96C6\u4E86\u6C5F\u897F\u6C34\u7A3B\u5E38\u89C1\u7684\u7684\u75C5\u866B\u9F20\u5BB3\u517125\u79CD,\u75C5\u866B\u5BB3\u53D1\u751F\u6570\u636E\u6765\u6E90\u4E8E\u300A\u690D\u7269\u533B\u751F\u624B\u518C\u300B~([3]),\u6BCF\u79CD\u75C5\u5BB3\u5305\u62EC\u4E2D\u6587\u540D\u3001\u62C9\u4E01\u6587\u5B66\u540D\u3001\u75C7\u72B6\u56FE\u50CF\u3001\u56FE\u7247\u8BF4\u660E\u3001\u6587\u672C\u63CF\u8FF0\u6863\u6848\u7B49\u4FE1\u606F,\u5176\u4E2D\u56FE\u50CF\u6765\u6E90\u4E8E\u7530\u95F4\u62CD\u6444\u53CA\u5F69\u8272\u56FE\u8C31,\u75C5\u5BB3\u56FE\u50CF\u6D89\u53CA\u690D\u682A\u4E0D\u540C\u90E8\u4F4D\u3001\u4E0D\u540C\u53D1\u75C5\u8FDB\u7A0B\u7684\u75C7\u72B6,\u866B\u5BB3\u7167\u7247\u6D89\u53CA\u690D\u682A\u4E0D\u540C\u90E8\u4F4D\u53D7\u5BB3\u75C7\u72B6\u548C\u4E0D\u540C\u866B\u6001.\u5C06\u6BCF\u79CD\u75C5\u866B\u5BB3\u8FDB\u884C\u5206\u7C7B,\u5206\u7C7B\u5305\u62EC:\u53D1\u751F\u73AF\u5883\u3001\u53D1\u751F\u90E8\u4F4D\u3001\u53D1\u751F\u75C7\u72B6,\u800C\u540E\u5C06\u8FD9\u4E9B\u4FE1\u606F\u5B58\u5165\u77E5\u8BC6\u5E93.\u5F52\u7C7B\u76EE\u7684\u662F\u4FBF\u4E8E\u63A8\u7406\u673A\u8FDB\u884C\u63A8\u7406.2 \u7CFB\u7EDF\u603B\u4F53\u7ED3\u6784\u7CFB\u7EDF\u91C7\u7528B/S\u4E09\u5C42\u67B6\u6784\u5F00\u53D1,\u53EF\u4EE5\u5B9E\u73B0\u6C34\u7A3B\u75C5\u866B\u5BB3\u9632\u6CBB\u77E5\u8BC6\u7684\u67E5\u8BE2\u3001\u6C34\u7A3B\u690D\u4FDD\u4FE1\u606F\u53D1\u5E03\u3001\u75C5\u866B\u5BB3\u8F85\u52A9\u8BCA\u65AD\u4E0E\u9632\u6CBB\u7B56\u7565\u63A8\u8350,\u5E76\u53EF\u901A\u8FC7\u4E13\u5BB6\u503C\u73ED\u53F0BBS\u7CFB\u7EDF,\u5B9E\u73B0\u690D\u4FDD\u4E13\u5BB6\u4E0E\u7528\u6237\u4E4B\u95F4\u7684\u76F4\u63A5\u4EA4\u6D41.\u7CFB\u7EDF\u7684\u4E3B\u8981\u7531\u4E09\u90E8\u5206\u7EC4\u6210,\u5373\u4E13\u5BB6\u4E0E\u7528\u6237\u4EA4\u6D41\u5E73\u53F0\u3001\u75C5\u866B\u5BB3\u9632\u6CBB\u4E13\u4E1A\u77E5\u8BC6\u548C\u6C34\u7A3B\u75C5\u866B\u5BB3\u8BCA\u65AD\u4E13\u5BB6\u7CFB\u7EDF.\u5176\u4E2D,\u4E13\u5BB6\u7CFB\u7EDF\u90E8\u5206\u662F\u672C\u7CFB\u7EDF\u7684\u6838\u5FC3,\u5B83\u53EF\u4EE5\u5B9E\u73B0\u5BF9\u6C5F\u897F\u7701\u6C34\u7A3B\u683D\u57F9\u4E2D\u5E38\u89C1\u7684\u4E8C\u5316\u879F\u3001\u4E09\u5316\u879F\u3001\u7A3B\u98DE\u8671\u3001\u7A3B\u761F\u75C5\u3001\u7A3B\u7EB9\u67AF\u75C5\u3001\u6076\u82D7\u75C5\u7B4925\u79CD\u75C5\u866B\u5BB3\u53CA\u9F20\u5BB3\u8FDB\u884C\u8BCA\u65AD\u4E0E\u9632\u6CBB,\u7CFB\u7EDF\u603B\u4F53\u7ED3\u6784\u5982\u56FE1.\u91C7\u7528.NET\u6280\u672F\u8FDB\u884C\u5F00\u53D1,\u670D\u52A1\u7AEF\u8FD0\u884C\u4E8EWindows\u5E73\u53F0\u670D\u52A1\u5668\u4E0A,\u666E\u901A\u7528\u6237\u4EC5\u9700\u8981\u4E00\u53F0\u53EF\u4EE5\u4E0A\u4E92\u8054\u7F51\u7684\u673A\u5668,\u5E76\u5B89\u88C5\u76F8\u5E94\u7684\u7F51\u9875\u6D4F\u89C8(\u5982MS Windows\u7CFB\u7EDF\u4E2D\u81EA\u5E26\u7684Internet Explorer)\u5DE5\u5177,\u5C31\u53EF\u4EE5\u4F7F\u7528\u672C\u7CFB\u7EDF\u4E86.3 \u7CFB\u7EDF\u529F\u80FD\u7CFB\u7EDF\u603B\u4F53\u7ED3\u6784\u529F\u80FD\u4E3B\u8981\u6709:(1)\u4FE1\u606F\u54A8\u8BE2.\u901A\u8FC7\u68C0\u7D22\u6570\u636E\u5E93\u4E2D\u5DF2\u6709\u75C5\u866B\u5BB3\u4E0E\u9632\u6CBB\u77E5\u8BC6,\u53EF\u5411\u7528\u6237\u63D0\u4F9B\u75C5\u866B\u5BB3\u5206\u5E03\u3001\u53D1\u751F\u73AF\u5883\u3001\u53D1\u751F\u89C4\u5F8B\u3001\u5371\u5BB3\u75C7\u72B6\u56FE\u793A\u3001\u9632\u6CBB\u7B56\u7565\u7B49\u4FE1\u606F.(2) \u4FE1\u606F\u53D1\u5E03.\u5229\u7528\u4E92\u8054\u7F51\u4FE1\u606F\u4F20\u64AD\u5FEB\u901F\u3001\u53D7\u4F17\u5E7F\u7279\u70B9,\u5728\u672C\u7CFB\u7EDF\u4E2D\u53D1\u5E03\u8FD1\u671F\u690D\u4FDD\u4FE1\u606F,\u4E3A\u75C5\u866B\u5BB3\u7684\u9632\u6CBB\u63D0\u4F9B\u4FE1\u606F\u5E73\u53F0.(3)\u6570\u636E\u7EF4\u62A4.\u7CFB\u7EDF\u4E2D\u5305\u62EC\u4E86\u6570\u636E\u7EF4\u62A4\u6A21\u5757,\u53EF\u4EE5\u65B9\u4FBF\u7528\u6237\u5BF9\u5DF2\u6709\u75C5\u866B\u5BB3\u77E5\u8BC6\u3001\u62DF\u53D1\u5E03\u7684\u690D\u4FDD\u4FE1\u606F\u3001\u4E13\u5BB6\u7CFB\u7EDF\u4E2D\u7684\u77E5\u8BC6\u5E93\u8FDB\u884C\u589E\u3001\u5220\u3001\u6539.(4) \u5728\u7EBF\u4EA4\u6D41.\u7528\u6237\u901A\u8FC7E-mail\u6216\u8005\u672C\u7CFB\u7EDF\u63D0\u4F9B\u7684\u4E13\u5BB6\u503C\u73ED\u53F0BBS\u7CFB\u7EDF,\u5728\u4E13\u5BB6\u4E0D\u5230\u573A\u7684\u6761\u4EF6\u4E0B,\u53EF\u4EE5\u63D0\u4F9B\u7ED9\u7528\u6237\u4E00\u4E2A\u4E0E\u4E13\u5BB6\u9762\u5BF9\u9762\u4EA4\u6D41\u7684\u5E73\u53F0.(5)\u8BCA\u65AD\u529F\u80FD.\u8FD9\u662F\u672C\u7CFB\u7EDF\u7684\u6838\u5FC3\u90E8\u5206.\u7531\u4E8E\u6C34\u7A3B\u75C5\u866B\u5BB3\u5371\u5BB3\u75C7\u72B6\u3001\u53D1\u75C5\u65F6\u95F4\u3001\u73AF\u5883\u7B49\u8F83\u590D\u6742,\u4E3A\u4E86\u63D0\u9AD8\u8BCA\u65AD\u7684\u51C6\u786E\u6027,\u7CFB\u7EDF\u6839\u636E\u53D1\u751F\u73AF\u5883\u3001\u53D1\u75C5\u65F6\u95F4\u3001\u690D\u682A\u5916\u5728\u5F62\u6001\u7B49\u51E0\u4E2A\u65B9\u9762,\u901A\u8FC7\u63D0\u95EE,\u5BF9\u7528\u6237\u63D0\u4F9B\u7684\u4FE1\u606F\u8FDB\u884C\u5224\u65AD\u7504\u522B,\u5E76\u53EF\u63D0\u4F9B\u76F8\u5E94\u7684\u75C7\u72B6\u56FE\u50CF\u4F9B\u67E5\u8BE2,\u4ECE\u800C\u7ED9\u51FA\u6700\u7EC8\u8BCA\u65AD\u7ED3\u679C,\u5E76\u6839\u636E\u8BCA\u65AD\u7ED3\u679C,\u63D0\u4F9B\u9632\u6CBB\u65B9\u6848.(6)\u9884\u6D4B\u529F\u80FD.\u5229\u7528\u8BA1\u7B97\u673A\u7684\u8BA1\u7B97\u529F\u80FD,\u5BF9\u5E38\u89C1\u7684\u866B\u5BB3,\u6839\u636E\u9884\u6D4B\u6A21\u578B,\u7CFB\u7EDF\u63D0\u4F9B\u4E86\u9884\u6D4B\u529F\u80FD.\u672C\u7CFB\u7EDF\u5F53\u524D\u4EC5\u63D0\u4F9B\u4E8C\u5316\u879F\u7684\u53D1\u751F\u9884\u6D4B,\u53EA\u8981\u7528\u6237\u63D0\u4F9B\u8C03\u67E5\u7684\u4E8C\u5316\u879F\u866B\u3001\u86F9\u6307\u6807,\u5C31\u53EF\u4EE5\u76F4\u63A5\u5F97\u51FA\u9884\u6D4B\u7ED3\u679C.[BW(B(S1*4,,)][BHDWG1*3/4,WK5ZQ,WK39ZQ8*3W][HT5SS]\u7B2C6\u671F[]\u5F6D\u83B9\u743C\u7B49:B/S\u6A21\u5F0F\u7684\u6C34\u7A3B\u75C5\u866B\u5BB3\u8BCA\u65AD\u4E13\u5BB6\u7CFB\u7EDF\u7814\u7A764 \u5173\u952E\u6A21\u5757\u8BBE\u8BA14.1 \u77E5\u8BC6\u5E93\u8BBE\u8BA1\u77E5\u8BC6\u7684\u8868\u793A\u662F\u4E13\u5BB6\u7CFB\u7EDF\u8BBE\u8BA1\u7684\u5173\u952E~([4]).\u672C\u7CFB\u7EDF\u77E5\u8BC6\u5E93\u4E3B\u8981\u5305\u62EC\u75C5\u866B\u5BB3\u8BCA\u65AD\u77E5\u8BC6\u4E0E\u9632\u6CBB\u77E5\u8BC6,\u77E5\u8BC6\u5E93\u91C7\u7528SQL Server\u6570\u636E\u5E93\u8FDB\u884C\u5B58\u8D2E,\u7531\u4E8E\u6570\u636E\u5E93\u4E2D\u7684\u6570\u636E\u8868\u6BD4\u8F83\u9002\u5408\u4EA7\u751F\u5F0F\u89C4\u5219\u8868\u793A\u6CD5,\u56E0\u6B64\u672C\u7CFB\u7EDF\u77E5\u8BC6\u7684\u8868\u793A\u91C7\u7528\u4E86\u4EA7\u751F\u5F0F\u89C4\u5219\u8868\u793A\u6CD5~([5]),\u5373\u4EE5\u5982\u4E0B\u5F62\u5F0F\u8FDB\u884C\u8868\u793A:IF\u6761\u4EF61,\u6761\u4EF62,\u2026\u2026,THEN\u7ED3\u8BBA.\u4E3A\u4FBF\u4E8E\u8BCA\u65AD\u4E13\u4E1A\u77E5\u8BC6\u5728\u6570\u636E\u5E93\u4E2D\u5B58\u8D2E\u53CA\u63A8\u7406\u673A\u5BF9\u77E5\u8BC6\u5E93\u7684\u8C03\u7528,\u901A\u8FC7\u5BF9\u75C5\u866B\u5371\u5BB3\u77E5\u8BC6\u8FDB\u884C\u5206\u6790,\u7ED3\u5408\u519C\u4E1A\u751F\u4EA7\u5B9E\u9645,\u5C06\u75C5\u866B\u5BB3\u77E5\u8BC6\u6839\u636E\u53D1\u751F\u65F6\u671F\u3001\u53D1\u751F\u73AF\u5883\u3001\u53D1\u751F\u90E8\u4F4D\u3001\u75C7\u72B6\u7279\u70B9\u8FDB\u884C\u5206\u7C7B\u5E76\u5B58\u5165\u5173\u7CFB\u6570\u636E\u5E93SQL Server\u4E2D,\u4ECE\u800C\u5F62\u6210\u8BCA\u65AD\u77E5\u8BC6\u8868,\u8868\u4E2D\u7684\u5B57\u6BB5\u8BBE\u7F6E\u6309\u5206\u7C7B\u65B9\u6CD5\u8FDB\u884C\u8BBE\u7F6E.\u9632\u6CBB\u77E5\u8BC6\u5E93\u7684\u8BBE\u8BA1\u91C7\u7528\u7C7B\u4F3C\u7684\u65B9\u6CD5,\u5EFA\u7ACB\u5305\u542B\u75C5\u866B\u5BB3\u540D\u3001\u9632\u6CBB\u836F\u5242\u3001\u4F7F\u7528\u5242\u91CF\u3001\u4F7F\u7528\u65B9\u6CD5\u7B49\u77E5\u8BC6\u8868.4.2 \u63A8\u7406\u673A\u8BBE\u8BA1\u63A8\u7406\u673A\u662F\u4E13\u5BB6\u7CFB\u7EDF\u5B9E\u73B0\u95EE\u9898\u6C42\u89E3\u7684\u63A7\u5236\u673A\u6784,\u672C\u7CFB\u7EDF\u91C7\u7528\u7B26\u53F7\u6A21\u5F0F\u5339\u914D\u7684\u65B9\u6CD5\u8FDB\u884C\u63A8\u7406.\u63A8\u7406\u673A\u5C06\u6839\u636E\u4EBA\u673A\u4EA4\u4E92\u754C\u9762\u5411\u7528\u6237\u63D0\u95EE,\u6839\u636E\u56DE\u7B54\u7684\u7ED3\u679C,\u5728\u77E5\u8BC6\u8868\u4E2D\u5339\u914D\u76F8\u5E94\u7684\u7ED3\u679C.\u4E3A\u4FBF\u4E8E\u4EBA\u673A\u4EA4\u4E92,\u5E76\u9632\u6B62\u7528\u6237\u7531\u4E8E\u80CC\u666F\u77E5\u8BC6\u4E0D\u540C\u800C\u5F71\u54CD\u4EA4\u4E92\u65F6\u95EE\u9898\u8F93\u5165\u7684\u51C6\u786E\u6027,\u6240\u6709\u95EE\u9898\u5C06\u6839\u636E\u75C5\u866B\u5BB3\u8BCA\u65AD\u77E5\u8BC6\u8868\u4E2D\u7684\u5185\u5BB9\u8FDB\u884C\u5F52\u7C7B\u5E76\u5F62\u6210\u7684\u8F93\u5165\u75C7\u72B6\u96C6\u4EA7\u751F.\u7531\u4E8E\u77E5\u8BC6\u5E93\u662F\u4EE5\u6570\u636E\u8868\u7684\u5F62\u5F0F\u5B58\u5728\u4E8E\u5173\u7CFB\u6570\u636E\u5E93\u4E2D,\u56E0\u6B64,\u5341\u5206\u4FBF\u4E8E\u5229\u7528\u6570\u636E\u5E93\u901A\u7528\u67E5\u8BE2\u8BED\u8A00SQL\u8BED\u8A00\u4E2D\u7684Select\u8BED\u53E5\u8FDB\u884C\u67E5\u8BE2,\u4ECE\u800C\u68C0\u7D22\u51FA\u7B26\u5408\u8981\u6C42\u7684\u7ED3\u679C\u96C6,\u5982\u5BF9\u4E8E\u5206\u8616\u671F\u53D1\u75C5\u7684,\u53D1\u751F\u90E8\u4F4D\u5728\u53F6\u7247,\u4E14\u6709\u75C5\u6591,\u75C5\u6591\u5F62\u72B6\u692D\u5706\u5F62,\u75C5\u6591\u989C\u8272\u7070\u7EFF\u8272,\u5448\u6C34\u6E0D\u72B6,\u8089\u773C\u53EF\u89C1\u83CC\u6838,\u5229\u7528SQL\u8BED\u8A00\u63A8\u7406\u5982\u4E0B:Select distinct \u75C5\u5BB3\u540D\u79F0 from knowd where \u65F6\u671F=\u5206\u8616\u671F and \u90E8\u4F4D=\u53F6\u7247 and \u75C5\u6591=\u692D\u5706\u5F62 and \u75C5\u6591\u989C\u8272=\u7070\u7EFF\u8272 and \u75C5\u6591\u8D28\u5730=\u6C34\u6E0D\u72B6 and \u6709\u5426\u83CC\u6838=true.\u5219\u53EF\u4EE5\u68C0\u7D22\u51FA\u6700\u53EF\u80FD\u662F\u7EB9\u67AF\u75C5,\u800C\u4E14\u6240\u63D0\u4F9B\u7684\u5224\u65AD\u6761\u4EF6\u8D8A\u591A,\u7ED3\u679C\u5219\u66F4\u51C6\u786E.\u8FD9\u79CD\u57FA\u4E8ESQL\u8BED\u8A00\u7684\u63A8\u7406\u65B9\u5F0F\u53EF\u4EE5\u6700\u5927\u9650\u5EA6\u5730\u5229\u7528\u6570\u636E\u5E93\u672C\u8EAB\u7684\u4F18\u70B9,\u901A\u8FC7\u666E\u901A\u7684\u68C0\u7D22\u8BED\u53E5\u5C31\u53EF\u4EE5\u5B9E\u73B0\u63A8\u7406,\u800C\u4E0D\u5FC5\u4E13\u95E8\u5F00\u53D1\u57FA\u4E8EIF \u2026 THEN\u7684\u63A8\u7406\u673A.\u5982\u679C\u7531\u4E8E\u63D0\u4F9B\u7684\u6761\u4EF6\u4E0D\u8DB3\u4EE5\u5F97\u51FA\u552F\u4E00\u7ED3\u679C,\u5373\u5728\u63A8\u7406\u7ED3\u679C\u96C6\u4E2D\u6709\u591A\u4E2A\u7ED3\u679C,\u8FD8\u53EF\u4EE5\u6839\u636E\u77E5\u8BC6\u8868\u4E2D\u7684\u75C7\u72B6\u56FE\u7247\u8FDB\u4E00\u6B65\u4EBA\u5DE5\u6BD4\u5BF9\u5224\u65AD,\u4ECE\u800C\u83B7\u5F97\u552F\u4E00\u7684\u7ED3\u679C.\u63A8\u7406\u8FC7\u7A0B\u4E2D,\u91C7\u7528\u4E34\u65F6\u8868\u8BB0\u5F55\u7CFB\u7EDF\u4E0E\u7528\u6237\u7684\u5BF9\u8BDD\u4EE5\u53CA\u63A8\u7406\u7684\u4E2D\u95F4\u7ED3\u679C,\u4EE5\u53CD\u6620\u7CFB\u7EDF\u7684\u5F53\u524D\u72B6\u51B5,\u4E34\u65F6\u8868\u53EF\u91C7\u7528ASP.NET\u6280\u672F\u4E2D\u7684SESSION\u53D8\u91CF\u8FDB\u884C\u4FDD\u5B58,\u5F53\u4F1A\u8BDD(\u8BCA\u65AD)\u7ED3\u675F\u540E,\u8BE5\u53D8\u91CF\u81EA\u52A8\u91CA\u653E.\u83B7\u5F97\u63A8\u7406\u7ED3\u679C\u540E,\u53EF\u4EE5\u518D\u8C03\u7528\u89E3\u91CA\u673A,\u5BF9\u75C5\u866B\u5BB3\u7684\u8BCA\u65AD\u7ED3\u679C\u4F5C\u8FDB\u4E00\u6B65\u7684\u8BF4\u660E,\u5E76\u4E14\u901A\u8FC7SQL\u8BED\u53E5\u68C0\u7D22\u9632\u6CBB\u77E5\u8BC6\u96C6,\u83B7\u5F97\u9632\u6CBB\u65B9\u6CD5.5 \u7ED3 \u8BED\u901A\u8FC7\u5C06\u519C\u4E1A\u4E13\u5BB6\u7CFB\u7EDF\u3001\u7F51\u7EDC\u4FE1\u606F\u6280\u672F\u3001\u591A\u5A92\u4F53\u6280\u672F\u7ED3\u5408\u8D77\u6765\u5F00\u53D1\u7684\u57FA\u4E8EB/S\u6A21\u5F0F\u7684\u6C34\u7A3B\u75C5\u866B\u5BB3\u8BCA\u65AD\u4E13\u5BB6\u7CFB\u7EDF,\u7528\u6237\u53EA\u8981\u5728\u53EF\u4EE5\u4E0A\u7F51\u7684\u7EC8\u7AEF\u4E0A,\u5373\u53EF\u901A\u8FC7\u7F51\u9875\u6D4F\u89C8\u5668\u4F7F\u7528\u8BE5\u7CFB\u7EDF.\u7528\u6237\u754C\u9762\u7B80\u5355\u6613\u5B66,\u53EA\u8981\u4F1A\u4F7F\u7528\u7F51\u9875\u6D4F\u89C8\u5668,\u5373\u53EF\u8F7B\u677E\u4F7F\u7528\u672C\u7CFB\u7EDF.\u7531\u4E8E\u77E5\u8BC6\u5E93\u662F\u5728\u6536\u96C6\u6574\u7406\u4E86\u5927\u91CF\u519C\u4E1A\u6C34\u7A3B\u4E13\u5BB6\u3001\u519C\u6280\u63A8\u5E7F\u4EBA\u5458\u3001\u6C34\u7A3B\u75C5\u866B\u5BB3\u4E13\u4E1A\u4E66\u7C4D\u7B49\u4E13\u4E1A\u9886\u57DF\u77E5\u8BC6\u57FA\u7840\u4E0A\u5EFA\u7ACB\u7684,\u56E0\u6B64\u77E5\u8BC6\u6765\u6E90\u51C6\u786E,\u4FDD\u8BC1\u4E86\u63A8\u7406\u673A\u83B7\u5F97\u7ED3\u8BBA\u7684\u51C6\u786E\u6027,\u53EF\u4EE5\u8D77\u5230\u90E8\u5206\u4EE3\u66FF\u4E13\u5BB6\u8FDB\u884C\u7530\u95F4\u8BCA\u65AD\u7684\u4F5C\u7528.\u672C\u7CFB\u7EDF\u7684\u77E5\u8BC6\u5E93\u91C7\u7528\u901A\u7528\u5173\u7CFB\u6570\u636E\u5E93\u7CFB\u7EDFSQL Server\u8FDB\u884C\u8BBE\u8BA1,\u4F7F\u89E3\u51B3\u95EE\u9898\u7684\u77E5\u8BC6\u548C\u4F7F\u7528\u77E5\u8BC6\u7684\u7A0B\u5E8F\u5206\u79BB\u5F00\u6765,\u4FDD\u8BC1\u4E86\u4E13\u5BB6\u7CFB\u7EDF\u7684\u900F\u660E\u6027\u548C\u7075\u6D3B\u6027,\u63D0\u9AD8\u4E86\u7CFB\u7EDF\u7684\u53EF\u79FB\u690D\u6027,\u4E14\u901A\u8FC7\u5BF9\u77E5\u8BC6\u5E93\u7684\u4FEE\u6539,\u4E5F\u53EF\u4EE5\u9002\u7528\u4E8E\u4E0D\u540C\u7684\u519C\u4F5C\u7269\u75C5\u866B\u5BB3\u8BCA\u65AD.\u5BF9\u4E8E\u4E00\u4E9B\u53D1\u75C5\u6761\u4EF6\u590D\u6742,\u4E14\u672C\u7CFB\u7EDF\u4E0D\u80FD\u591F\u81EA\u52A8\u8FDB\u884C\u8BCA\u65AD\u7684\u75C5\u866B\u5BB3,\u8FD8\u53EF\u4EE5\u5229\u7528\u7CFB\u7EDF\u81EA\u5E26\u7684BBS\u4E13\u5BB6\u503C\u73ED\u53F0\u7CFB\u7EDF,\u8F7B\u677E\u5B9E\u73B0\u4E13\u5BB6\u4E0E\u7528\u6237\u7684\u76F4\u63A5\u4EA4\u6D41\u4E0E\u8BCA\u65AD.\u4F46\u7CFB\u7EDF\u4E5F\u6709\u4E0D\u8DB3\u4E4B\u5904,\u7531\u4E8E\u91C7\u7528\u7684\u63A8\u7406\u673A\u5DE5\u4F5C\u539F\u7406\u6240\u9650,\u672C\u7CFB\u7EDF\u7ED3\u679C\u5C06\u8FC7\u5206\u4F9D\u8D56\u4E8E\u4E13\u5BB6\u77E5\u8BC6\u4E0E\u7ECF\u9A8C,\u63A8\u7406\u7ED3\u679C\u5BB9\u6613\u67091\u4E2A\u4EE5\u4E0A\u7684\u7ED3\u679C\u6216\u65E0\u89E3,\u4E14\u96BE\u4E8E\u6A21\u62DF\u4EBA\u7C7B\u4E13\u5BB6\u8FDB\u884C\u4E0D\u7CBE\u786E\u548C\u6A21\u7CCA\u63A8\u7406.\u8FD1\u5E74\u6765\u795E\u7ECF\u7F51\u7EDC\u7B49\u6280\u672F\u5728\u4E13\u5BB6\u7CFB\u7EDF\u4E2D\u7684\u5E94\u7528,\u5C06\u6539\u5584\u5BF9\u4E8E\u4E0D\u7CBE\u786E\u63A8\u7406\u7684\u5904\u7406~([6]),\u4ECA\u540E\u53EF\u4EE5\u5C1D\u8BD5\u5728\u8FD9\u65B9\u9762\u7684\u7814\u7A76.[BW(B(S1*4,,)][BHDWG1*3/4,WK39YQ12,WK5YQW] [HT5SS]\u6C5F\u897F\u519C\u4E1A\u5927\u5B66\u5B66\u62A5[]\u7B2C30\u5377\u53C2\u8003\u6587\u732E:[HT5SS][1]\u738B\u8273\u9752.\u8FD1\u5E74\u6765\u4E2D\u56FD\u6C34\u7A3B\u75C5\u866B\u5BB3\u53D1\u751F\u53CA\u8D8B\u52BF\u5206\u6790[J].\u4E2D\u56FD\u519C\u5B66\u901A\u62A5,2006,22(2):343-347.[2]\u59DA\u7389\u971E,\u9648\u6842\u82AC.\u6C34\u7A3B\u75C5\u866B\u5BB3\u8BCA\u6CBB\u667A\u80FD\u5316\u4E13\u5BB6\u7CFB\u7EDF[J].\u5409\u6797\u5927\u5B66\u5B66\u62A5,2003,21(4):378-381.[3]\u519C\u4E1A\u90E8\u690D\u4FDD\u603B\u7AD9.\u690D\u7269\u533B\u751F\u624B\u518C[M].\u5317\u4EAC:\u5316\u5B66\u5DE5\u4E1A\u51FA\u7248\u793E,2003.[4]\u59DA\u5174\u6D9B.\u6D45\u8C08\u519C\u4E1A\u4E13\u5BB6\u7CFB\u7EDF[J].\u6CB3\u5357\u519C\u4E1A\u79D1\u5B66,1991(8):23-25.[5]\u4F55\u65B0\u8D35.\u77E5\u8BC6\u5904\u7406\u4E0E\u4E13\u5BB6\u7CFB\u7EDF[M].\u5317\u4EAC:\u56FD\u9632\u5DE5\u4E1A\u51FA\u7248\u793E,1990.[6]\u4F55\u52C7,\u5B8B\u6D77\u71D5.\u57FA\u4E8E\u795E\u7ECF\u7F51\u7EDC\u7684\u4F5C\u7269\u8425\u517B\u8BCA\u65AD\u4E13\u5BB6\u7CFB\u7EDF[J].\u519C\u4E1A\u5DE5\u7A0B\u5B66\u62A5,2005,21(1):110-113.[CDH04543](\u4E0A\u63A5\u7B2C1156\u9875)\u53C2\u8003\u6587\u732E:[HT5SS][1]\u77F3\u6625\u6797,\u91D1\u4E4B\u5E86,\u845B\u9053\u9614.\u690D\u7269\u53EF\u89C6\u5316\u7814\u7A76\u8FDB\u5C55[J].\u6C5F\u82CF\u519C\u4E1A\u79D1\u5B66,2004,31(6):11-14.[2]Buck Sorlin G.L-system model of the vegetative growth of winter barley(Hordeum vulgare L.)[C]//Polani D,Kim J,Martinetz T.Fifth german workshop on artificial life.Berlin:Akademische Verlagsgesellschaft Aka Gmbh,2002,20(5):53-64.[3]Kaitaniemi P,Hanan J S,Room P M.Virtual sorghum:visualization of partitioning and morphogenesis[J].Computers and Electronics in agriculture,2000,28(9):195-205.[4]Watanabe Room P M,Hanan J S.Virtual rice:simulating the development of plant architecture[J].International Rice Research Notes,2001,26(2):60-62.[5]\u5218\u6843\u83CA,\u5510\u5EFA\u519B,\u621A\u660C\u701A.\u6C34\u7A3B\u5F62\u6001\u7684\u5206\u5F62\u7279\u5F81\u53CA\u5176\u53EF\u89C6\u5316\u6A21\u62DF\u7814\u7A76[J].\u6C5F\u897F\u519C\u4E1A\u5927\u5B66\u5B66\u62A5,2002,24(5):583-586.[6]\u5218\u6843\u83CA,\u5510\u5EFA\u519B,\u621A\u660C\u701A.\u57FA\u4E8E\u5206\u5F62 L-\u7CFB\u7EDF\u7684\u690D\u682A\u5F62\u6001\u6A21\u62DF[J].\u6C5F\u897F\u519C\u4E1A\u5927\u5B66\u5B66\u62A5,2001,23(1):189-191.[7]\u5B5F\u519B,\u9648\u6E29\u798F,\u5F90\u6B63\u8FDB.\u6C34\u7A3B\u682A\u578B\u4E0E\u5730\u9762\u4E09\u7EF4\u7ED3\u6784\u8BA1\u7B97\u673A\u6A21\u62DF\u521D\u62A5[J].\u4E2D\u56FD\u519C\u5B66\u901A\u62A5,2005,21(6):403-406.[8]\u90ED\u65B0\u5B87,\u8D75\u6625\u6C5F,\u8096\u4F2F\u7965,\u7B49.\u7389\u7C73\u4E09\u7EF4\u91CD\u6784\u53CA\u53EF\u89C6\u5316\u7CFB\u7EDF\u7684\u8BBE\u8BA1\u4E0E\u5B9E\u73B0[J].\u519C\u4E1A\u5DE5\u7A0B\u5B66\u62A5,2007,23(4):144-148.[9]\u9648\u56FD\u5E86,\u6731 \u8273,\u5218 \u60E0,\u7B49.\u57FA\u4E8E\u5F62\u6001\u6A21\u578B\u7684\u5C0F\u9EA6\u5668\u5B98\u548C\u5355\u682A\u865A\u62DF\u751F\u957F\u7CFB\u7EDF\u7814\u7A76[J].\u519C\u4E1A\u5DE5\u7A0B\u5B66\u62A5,2007,23(3):126-130.\u9648\u56FD\u5E86,\u6731\u8273,\u66F9\u536B\u661F.\u51AC\u5C0F\u9EA6\u53F6\u7247\u751F\u957F\u7279\u5F81\u7684\u52A8\u6001\u6A21\u62DF[J].\u4F5C\u7269\u5B66\u62A5,2005,31(11):l524-l527.\u4F55\u706B\u5A07,\u6768\u7EA2\u4E91,\u5510\u5EFA\u519B,\u7B49.\u57FA\u4E8E\u56FE\u50CF\u5904\u7406\u7684\u6C34\u7A3B\u53F6\u7247\u4E09\u7EF4\u53EF\u89C6\u5316\u7814\u7A76[J].\u6C5F\u897F\u519C\u4E1A\u5927\u5B66\u5B66\u62A5,2008,30(1):149-153.\u6768\u7EA2\u4E91,\u5B59\u7231\u73CD,\u4F55\u706B\u5A07,\u7B49.\u6C34\u7A3B\u7A3B\u7A57\u53EF\u89C6\u5316\u6A21\u62DF\u7814\u7A76\u53CA\u5176\u5B9E\u73B0[J].\u5B89\u5FBD\u519C\u4E1A\u79D1\u5B66,2008,47(5):1732-1733.\u3016TPT1.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\u3016TPT2.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\u3016TPT3.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\u3016TPT4.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\u3016TPT5.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\u3016TPT6.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\u3016TPt7.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\u3016TPT8.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\u3016TPT9.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\u3016TPt10.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\u3016TPt11.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\u3016TPT12.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\u3016TPT13.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\u3016TPT14.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\u3016TPT15.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\u3016TPt16.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\u3016TPF4.TIF;E\u002B275mm.170mm;S-3*1,BP%\u3017\uE005:rice;pest insect and disease;expert system;B/S mode",
+      "keywords": [
+        "Computer science",
+        "Data Transformation Services",
+        "SQL",
+        "Sql server",
+        "Business Intelligence Markup Language",
+        "Microsoft Visual Studio",
+        "World Wide Web",
+        "The Internet",
+        "Expert system",
+        "Session (web analytics)",
+        "Database",
+        "Operating system",
+        "Server",
+        "Internet Authentication Service",
+        "Artificial intelligence",
+        "Software",
+        "Log shipping"
+      ],
+      "concepts": [
+        "Computer science",
+        "Data Transformation Services",
+        "SQL",
+        "Sql server",
+        "Business Intelligence Markup Language",
+        "Microsoft Visual Studio",
+        "World Wide Web",
+        "The Internet",
+        "Expert system",
+        "Session (web analytics)",
+        "Database",
+        "Operating system",
+        "Server",
+        "Internet Authentication Service",
+        "Artificial intelligence",
+        "Software",
+        "Log shipping",
+        "Web search query",
+        "Search engine",
+        "Query by Example"
+      ],
+      "topics": [
+        "Advanced Computational Techniques and Applications"
+      ],
+      "affiliations": [],
+      "funders": [],
+      "references": [],
+      "firstAuthor": "Zhiping Li",
+      "journal": null,
+      "issn": null,
+      "cn": null,
+      "isbn": null,
+      "clc": null,
+      "volume": null,
+      "issue": null,
+      "pages": null,
+      "citationCount": 1,
+      "isOpenAccess": false,
+      "openAccessStatus": "closed",
+      "license": null,
+      "pdfUrl": null,
+      "landingPageUrl": null,
+      "fullText": null,
+      "retrievedFrom": [
+        "openalex"
+      ],
+      "sourceIds": {
+        "openalex": "https://openalex.org/W2365245276"
+      },
+      "matchReasons": [
+        "SU:\u75C5\u866B\u5BB3"
+      ],
+      "relevanceScore": 0.33871816644986574
+    },
+    {
+      "id": "https://openalex.org/W4251691218",
+      "doi": "10.37155/2717-5162-0306-7",
+      "title": "\u68EE\u6797\u75C5\u866B\u5BB3\u7684\u7EFC\u5408\u9632\u6CBB",
+      "authors": [
+        "\u79E6\u5CAD",
+        "\u79E6\u5CAD"
+      ],
+      "year": 2021,
+      "venue": "\u56ED\u6797\u5EFA\u8BBE\u4E0E\u57CE\u5E02\u89C4\u5212",
+      "publisher": "Omniscient Pte Ltd",
+      "abstract": "Advanced Materials Science and Technology is a peer-reviewed open access journal published semi-annual online by Omniscient Pte. Ltd. The journal covers the properties, applications and synthesis of new materials related to energy, environment, physics, chemistry, engineering, biology and medicine, including ceramics, polymers, biological, medical and composite materials and so on.",
+      "keywords": [
+        "Nanotechnology",
+        "Engineering ethics",
+        "Engineering",
+        "Library science",
+        "Materials science",
+        "Computer science"
+      ],
+      "concepts": [
+        "Nanotechnology",
+        "Engineering ethics",
+        "Engineering",
+        "Library science",
+        "Materials science",
+        "Computer science"
+      ],
+      "topics": [
+        "Medical Research and Treatments",
+        "Regional Development and Environment",
+        "Educational Reforms and Innovations"
+      ],
+      "affiliations": [],
+      "funders": [],
+      "references": [],
+      "firstAuthor": "\u79E6\u5CAD",
+      "journal": "\u56ED\u6797\u5EFA\u8BBE\u4E0E\u57CE\u5E02\u89C4\u5212",
+      "issn": null,
+      "cn": null,
+      "isbn": null,
+      "clc": null,
+      "volume": "3",
+      "issue": "6",
+      "pages": "19-21",
+      "citationCount": 4,
+      "isOpenAccess": true,
+      "openAccessStatus": "diamond",
+      "license": "cc-by-nc",
+      "pdfUrl": "http://ojs.omniscient.sg/index.php/gcup/article/download/1855/1742",
+      "landingPageUrl": "http://ojs.omniscient.sg/index.php/gcup/article/download/1855/1742",
+      "fullText": null,
+      "retrievedFrom": [
+        "openalex",
+        "crossref"
+      ],
+      "sourceIds": {
+        "openalex": "https://openalex.org/W4251691218",
+        "crossref": "10.37155/2717-5162-0306-7"
+      },
+      "matchReasons": [
+        "SU:\u75C5\u866B\u5BB3"
+      ],
+      "relevanceScore": 0.30328183355013427
+    },
+    {
+      "id": "https://openalex.org/W4385510035",
+      "doi": "10.37155/2811-0617-0103-4",
+      "title": "\u6797\u4E1A\u75C5\u866B\u5BB3\u9632\u6CBB\u7684\u4F18\u5316\u7B56\u7565\u53CA\u63AA\u65BD",
+      "authors": [
+        "\u5218 \u9633"
+      ],
+      "year": 2022,
+      "venue": "\u519C\u4E1A\u79D1\u6280\u4E0E\u53D1\u5C55",
+      "publisher": null,
+      "abstract": "Advanced Materials Science and Technology is a peer-reviewed open access journal published semi-annual online by Omniscient Pte. Ltd. The journal covers the properties, applications and synthesis of new materials related to energy, environment, physics, chemistry, engineering, biology and medicine, including ceramics, polymers, biological, medical and composite materials and so on.",
+      "keywords": [
+        "Nanotechnology",
+        "Engineering ethics",
+        "Engineering",
+        "Materials science"
+      ],
+      "concepts": [
+        "Nanotechnology",
+        "Engineering ethics",
+        "Engineering",
+        "Materials science"
+      ],
+      "topics": [
+        "Medical Research and Treatments",
+        "Regional Development and Environment",
+        "Educational Reforms and Innovations"
+      ],
+      "affiliations": [],
+      "funders": [],
+      "references": [],
+      "firstAuthor": "\u5218 \u9633",
+      "journal": "\u519C\u4E1A\u79D1\u6280\u4E0E\u53D1\u5C55",
+      "issn": null,
+      "cn": null,
+      "isbn": null,
+      "clc": null,
+      "volume": null,
+      "issue": null,
+      "pages": null,
+      "citationCount": 5,
+      "isOpenAccess": true,
+      "openAccessStatus": "diamond",
+      "license": "cc-by-nc",
+      "pdfUrl": "http://ojs.omniscient.sg/index.php/atd/article/download/13769/12822",
+      "landingPageUrl": "http://ojs.omniscient.sg/index.php/atd/article/download/13769/12822",
+      "fullText": null,
+      "retrievedFrom": [
+        "openalex"
+      ],
+      "sourceIds": {
+        "openalex": "https://openalex.org/W4385510035"
+      },
+      "matchReasons": [
+        "SU:\u75C5\u866B\u5BB3"
+      ],
+      "relevanceScore": 0.29657422918584886
+    }
+  ]
+}

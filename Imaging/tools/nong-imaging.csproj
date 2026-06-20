@@ -9,7 +9,7 @@
     <PackageId>Angri450.Nong.Tool.Imaging</PackageId>
     <ToolCommandName>nong-imaging</ToolCommandName>
     <PackAsTool>true</PackAsTool>
-    <Version>4.1.2</Version>
+    <Version>12.1.0</Version>
     <Authors>angri450</Authors>
     <Description>Image analysis and content-aware cropping.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -20,7 +20,7 @@
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.2" />
     <!-- Non-Windows native assets removed per RID strategy to reduce package size. -->
-    <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" Version="8.3.1.1" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" Version="8.3.1.5" />
     <!-- Non-Windows HarfBuzz native assets removed (see SkiaSharp note above) -->
   </ItemGroup>
   <ItemGroup>

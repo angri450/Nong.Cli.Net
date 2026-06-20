@@ -1,0 +1,255 @@
+_Toc355274223
+_Toc355807471
+_Toc355274957
+_Toc355361237
+_Toc355614273
+_Toc355204232
+53340-632460使用后删除本框-附件1：适用于学历教育博士/硕士研究生和在职人员以研究生毕业同等学力申请学位人员使用后删除本框-附件1：适用于学历教育博...
+VML image
+分类号：                                     单位代码：10019
+密  级：                                     学    号：
+INCLUDEPICTURE  "http://news.cau.edu.cn/upload/2005/caunews_20050711181514.jpg" ...
+[image]
+硕士/博士学位论文
+OLE_LINK2
+OLE_LINK1
+MACROBUTTON 题目 [请单击此处，然后键入论文题目]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [请单击此处，然后键入论文英文题目]
+bookmarkEnd
+bookmarkEnd
+研究生：  MACROBUTTON  AcceptAllChangesInDocAndStopTracking [请单击此处，然后键入姓名]
+指导教师：     MACROBUTTON  AcceptAllChangesInDocAndStopTracking [键入导师姓名，职称]
+合作指导教师：     MACROBUTTON  AcceptAllChangesInDocAndStopTracking [键入导师姓名，职称]
+申请学位门类级别：  MACROBUTTON  AcceptAllChangesInDocAndStopTracking [键入博士或硕士学位类别]
+专业名称：        MACROBUTTON  AcceptAllChangesInDocAndStopTracking [键入专业名称]
+研究方向：        MACROBUTTON  AcceptAllChangesInDocAndStopTracking [键入研究方向]
+所在学院：        MACROBUTTON  AcceptAllChangesInDocAndStopTracking [键入学院名称]
+XXXX年 XX 月
+43815-651510使用后删除本框-附件2：适用于专业学位研究生使用后删除本框-附件2：适用于专业学位研究生
+VML image
+分类号：                                     单位代码：10019
+密  级：                                     学    号：
+INCLUDEPICTURE  "http://news.cau.edu.cn/upload/2005/caunews_20050711181514.jpg" ...
+INCLUDEPICTURE  "http://news.cau.edu.cn/upload/2005/caunews_20050711181514.jpg" ...
+_GoBack
+[image]
+硕士/博士学位论文
+MACROBUTTON 题目 [请单击此处，然后键入论文题目]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [请单击此处，然后键入论文英文题目]
+研究生：  MACROBUTTON  AcceptAllChangesInDocAndStopTracking [请单击此处，然后键入姓名]
+指导教师：     MACROBUTTON  AcceptAllChangesInDocAndStopTracking [键入导师姓名，职称]
+合作指导教师：     MACROBUTTON  AcceptAllChangesInDocAndStopTracking [键入导师姓名，职称]
+申请学位门类级别：    MACROBUTTON  AcceptAllChangesInDocAndStopTracking [键入博士或硕士学位类别]
+专业领域名称：        MACROBUTTON  AcceptAllChangesInDocAndStopTracking [键入专业名称]
+研究方向：        MACROBUTTON  AcceptAllChangesInDocAndStopTracking [键入研究方向]
+所在学院：        MACROBUTTON  AcceptAllChangesInDocAndStopTracking [键入学院名称]
+XXXX年 XX 月
+0-609600论文成文后删除此页论文成文后删除此页
+VML image
+书 脊 的 书 写
+37547553621405页边页边
+VML image
+3718560424815页边页边
+VML image
+学位论文的书脊用五号宋体书写，上方写论文题目，下方写申请人姓名，距上下页边居中排列，如下图：
+[1x1 table]
+独 创 性 声 明
+本人声明所呈交的学位论文是我个人在导师指导下进行的研究工作及取得的研究成果。尽我所知，除了文中已经注明引用、已经声明生成式人工智能使用情况和致谢的内容外，论文中...
+学位论文作者签名：时间：        年   月   日
+关于学位论文使用授权的说明
+本人完全了解中国农业大学有关保留、使用学位论文的规定。本人同意中国农业大学有权保存及向国家有关部门和机构送交论文的纸质版和电子版，允许论文被查阅和借阅。
+(保密的学位论文在解密后应遵守此协议)
+学位论文作者签名：时间：        年   月   日
+导师签名：时间：        年   月   日
+bookmarkEnd
+bookmarkEnd
+bookmarkEnd
+bookmarkEnd
+bookmarkEnd
+bookmarkEnd
+_Toc520240576
+_Toc479346319
+_Toc523697193
+_Toc484182509
+_Toc485389065
+_Toc485048978
+_Toc421635058
+摘  要
+MACROBUTTON  AcceptAllChangesShown [请单击此处，然后输入中文摘要内容]
+_Toc355274958
+_Toc355807472
+_Toc355614274
+_Toc355274224
+_Toc355204233
+_Toc355361238
+关键词： MACROBUTTON  AcceptAllChangesShown [请单击此处，键入关键词，3-5个，用中文逗号分开]
+_Toc520240577
+_Toc523697194
+_Toc484182510
+_Toc485389066
+_Toc485048979
+Abstract
+OLE_LINK8
+MACROBUTTON  AcceptAllChangesShown [请单击此处，然后输入英文摘要内容]
+bookmarkEnd
+OLE_LINK7
+Key words:  MACROBUTTON  AcceptAllChangesShown [与中文关键词同，中间用英文逗号分开]
+_Toc355807473
+_Toc484182511
+_Toc520240578
+_Toc355614275
+_Toc485048980
+_Toc485389067
+_Toc523697195
+目   录
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击此处，执行引用／目录命令插入或更新下面模板目录］
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+[TOC]
+_Toc523697196
+插图和附表清单
+_Toc523697197
+主要符号表
+MACROBUTTON Title1 [单击并输入第一级标题，对应样式：标题1]
+MACROBUTTON Text1 [单击并输入第1章正文内容]
+1.1 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON Text1 [单击并输入第1章正文内容]
+1.1.1 MACROBUTTON Tiltle3 [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON Text1 [单击并输入第1章正文内容]
+1.2 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON Text1 [单击并输入第1章正文内容]
+1.2.1 MACROBUTTON Tiltle3 [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON Text1 [单击并输入第1章正文内容]
+1.3 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON Text1 [单击并输入第1章正文内容]
+1.3.1 MACROBUTTON Tiltle3 [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON Text1 [单击并输入第1章正文内容]
+1717675187325
+[image]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [在此处插入图片]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [图表标题字体为黑体五号]    SEQ 图_1- \* A...
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [图注说明字体为宋体五号] 示例：注：M，DNA 标准DL2...
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking "[点击 引用/插入题注，新建标签/图1- ，之后则可生成图...
+MACROBUTTON Title1 [单击并输入第一级标题，对应样式：标题1]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第2章正文内容]
+2.1 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第2章正文内容]
+2.1.1 MACROBUTTON Tiltle3 [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第2章正文内容]
+2.2 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第2章正文内容]
+2.2.1 MACROBUTTON Tiltle3 [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第2章正文内容]
+2.3 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第2章正文内容]
+2.3.1 MACROBUTTON Tiltle3 [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第2章正文内容]
+fx=sign(w·x+b)
+公式（2-1）
+signx= +1,  x≥0−1,  x<0
+公式（2-2）
+bookmarkEnd
+MACROBUTTON Title1 [单击并输入第一级标题，对应样式：标题1]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第3章正文内容]
+3.1 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第3章正文内容]
+3.1.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第3章正文内容]
+3.2 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第3章正文内容]
+3.2.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第3章正文内容]
+3.3 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第3章正文内容]
+3.3.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第3章正文内容]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking "[点击 引用/插入题注，新建标签/表1- ，之后则可生成表...
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [表格标题字体为黑体五号字]    SEQ 表1- \* A...
+[5x5 table]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [表注字体为宋体小五号字] 表注：XXX
+MACROBUTTON Title1 [单击并输入第一级标题，对应样式：标题1]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第4章正文内容]
+4.1 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第4章正文内容]
+4.1.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第4章正文内容]
+4.2 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第4章正文内容]
+4.2.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第4章正文内容]
+4.3 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第4章正文内容]
+4.3.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第4章正文内容]
+MACROBUTTON Title1 [单击并输入第一级标题，对应样式：标题1]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第5章正文内容]
+5.1 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第5章正文内容]
+5.1.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第5章正文内容]
+5.2 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第5章正文内容]
+5.2.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第5章正文内容]
+5.3 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第5章正文内容]
+5.3.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第5章正文内容]
+MACROBUTTON Title1 [单击并输入第一级标题，对应样式：标题1]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第6章正文内容]
+6.1 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+OLE_LINK5
+OLE_LINK6
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第6章正文内容]
+6.1.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第6章正文内容]
+bookmarkEnd
+bookmarkEnd
+6.2 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第6章正文内容]
+6.2.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第6章正文内容]
+6.3 MACROBUTTON Title2 [单击并输入第二级标题，对应样式：标题2]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第6章正文内容]
+6.3.1 MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第三级标题，对应样式：标题3]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入第6章正文内容]
+参考文献
+致 谢
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入致谢内容]
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [落款：姓名]
+XXXX年XX月
+附录
+MACROBUTTON  AcceptAllChangesInDocAndStopTracking [单击并输入附录内容]
+作者简介
+基本介绍（姓名、性别、出生日期、籍贯等）：
+教育经历：
+研究生期间发表的学术论文：
+研究生期间主持/参与的科研项目：
+研究生期间获得的奖励和荣誉：
+其他成果：

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "nongmark/v1",
+  "source": "test-img.docx",
+  "items": [
+    {
+      "id": "R56d0d577ac564ce2",
+      "path": "",
+      "contentType": "image/png",
+      "size": 16849,
+      "file": "assets/img_0001.png",
+      "usedBy": [],
+      "internalRelationshipId": "R56d0d577ac564ce2",
+      "ocr": {
+        "status": "notRun",
+        "engine": "not available",
+        "textBlocks": []
+      }
+    }
+  ]
+}

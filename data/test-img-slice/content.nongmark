@@ -1,0 +1,19 @@
+::: paragraph {#p0001 kind=paragraph style="Title"}
+Test
+:::
+
+# Test {#h0001 kind=heading level=1}
+
+::: paragraph {#p0002 kind=paragraph style="Normal"}
+测试文本段落。
+:::
+
+
+::: paragraph {#p0004 kind=paragraph style="BodyTextNoIndent"}
+测试图
+:::
+
+
+::: paragraph {#p0006 kind=paragraph style="Normal"}
+另一段文字。
+:::

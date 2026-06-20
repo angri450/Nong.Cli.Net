@@ -9,7 +9,7 @@
     <PackageId>Angri450.Nong.Tool.Pptx</PackageId>
     <ToolCommandName>nong-pptx</ToolCommandName>
     <PackAsTool>true</PackAsTool>
-    <Version>4.2.2</Version>
+    <Version>12.1.0</Version>
     <Authors>angri450</Authors>
     <Description>PowerPoint operations</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>

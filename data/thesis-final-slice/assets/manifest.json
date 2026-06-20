@@ -1,0 +1,174 @@
+{
+  "schemaVersion": "nongmark/v1",
+  "source": "thesis-final.docx",
+  "items": [
+    {
+      "id": "R4cbd4fd5b5944308",
+      "path": "",
+      "contentType": "image/png",
+      "size": 16849,
+      "file": "assets/img_0001.png",
+      "usedBy": [],
+      "internalRelationshipId": "R4cbd4fd5b5944308",
+      "ocr": {
+        "status": "notRun",
+        "engine": "not available",
+        "textBlocks": []
+      }
+    },
+    {
+      "id": "Rdad5a41123964f64",
+      "path": "",
+      "contentType": "image/png",
+      "size": 18037,
+      "file": "assets/img_0002.png",
+      "usedBy": [],
+      "internalRelationshipId": "Rdad5a41123964f64",
+      "ocr": {
+        "status": "notRun",
+        "engine": "not available",
+        "textBlocks": []
+      }
+    },
+    {
+      "id": "Rc3a95f6c63f847cb",
+      "path": "",
+      "contentType": "image/png",
+      "size": 43424,
+      "file": "assets/img_0003.png",
+      "usedBy": [],
+      "internalRelationshipId": "Rc3a95f6c63f847cb",
+      "ocr": {
+        "status": "notRun",
+        "engine": "not available",
+        "textBlocks": []
+      }
+    },
+    {
+      "id": "Re4c1450094d5468a",
+      "path": "",
+      "contentType": "image/png",
+      "size": 16615,
+      "file": "assets/img_0004.png",
+      "usedBy": [],
+      "internalRelationshipId": "Re4c1450094d5468a",
+      "ocr": {
+        "status": "notRun",
+        "engine": "not available",
+        "textBlocks": []
+      }
+    },
+    {
+      "id": "R04c784c35f8b4c57",
+      "path": "",
+      "contentType": "image/png",
+      "size": 20088,
+      "file": "assets/img_0005.png",
+      "usedBy": [],
+      "internalRelationshipId": "R04c784c35f8b4c57",
+      "ocr": {
+        "status": "notRun",
+        "engine": "not available",
+        "textBlocks": []
+      }
+    },
+    {
+      "id": "Rf5b513e07d6248c5",
+      "path": "",
+      "contentType": "image/png",
+      "size": 24695,
+      "file": "assets/img_0006.png",
+      "usedBy": [],
+      "internalRelationshipId": "Rf5b513e07d6248c5",
+      "ocr": {
+        "status": "notRun",
+        "engine": "not available",
+        "textBlocks": []
+      }
+    },
+    {
+      "id": "R79cd72eea05749f3",
+      "path": "",
+      "contentType": "image/png",
+      "size": 16849,
+      "file": "assets/img_0007.png",
+      "usedBy": [],
+      "internalRelationshipId": "R79cd72eea05749f3",
+      "ocr": {
+        "status": "notRun",
+        "engine": "not available",
+        "textBlocks": []
+      }
+    },
+    {
+      "id": "R664ed6fa75a64131",
+      "path": "",
+      "contentType": "image/png",
+      "size": 18037,
+      "file": "assets/img_0008.png",
+      "usedBy": [],
+      "internalRelationshipId": "R664ed6fa75a64131",
+      "ocr": {
+        "status": "notRun",
+        "engine": "not available",
+        "textBlocks": []
+      }
+    },
+    {
+      "id": "R7851b11a7f9544ee",
+      "path": "",
+      "contentType": "image/png",
+      "size": 43424,
+      "file": "assets/img_0009.png",
+      "usedBy": [],
+      "internalRelationshipId": "R7851b11a7f9544ee",
+      "ocr": {
+        "status": "notRun",
+        "engine": "not available",
+        "textBlocks": []
+      }
+    },
+    {
+      "id": "R9fb31c9603874119",
+      "path": "",
+      "contentType": "image/png",
+      "size": 16615,
+      "file": "assets/img_0010.png",
+      "usedBy": [],
+      "internalRelationshipId": "R9fb31c9603874119",
+      "ocr": {
+        "status": "notRun",
+        "engine": "not available",
+        "textBlocks": []
+      }
+    },
+    {
+      "id": "R28248399cc3342c9",
+      "path": "",
+      "contentType": "image/png",
+      "size": 20088,
+      "file": "assets/img_0011.png",
+      "usedBy": [],
+      "internalRelationshipId": "R28248399cc3342c9",
+      "ocr": {
+        "status": "notRun",
+        "engine": "not available",
+        "textBlocks": []
+      }
+    },
+    {
+      "id": "Rf587176fb7e54853",
+      "path": "",
+      "contentType": "image/png",
+      "size": 24695,
+      "file": "assets/img_0012.png",
+      "usedBy": [],
+      "internalRelationshipId": "Rf587176fb7e54853",
+      "ocr": {
+        "status": "notRun",
+        "engine": "not available",
+        "textBlocks": []
+      }
+    }
+  ]
+}
